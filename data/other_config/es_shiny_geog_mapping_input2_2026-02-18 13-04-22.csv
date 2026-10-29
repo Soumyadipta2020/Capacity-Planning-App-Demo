@@ -1,0 +1,8 @@
+Region Code,Area Code,Patch Name,Postcode Prefix,Status
+A,EA1,EA11 Inverness & Aviemore,"IV, PH",Matched
+A,EA1,EA12 Aberdeen North,AB,Matched
+A,EA1,EA12 Aberdeen South,AB,Matched
+B,EB1,EB12 Altrincham,"WA, M",Matched
+B,EB1,EB14 Stockport,SK,Matched
+C,EC6,EC62 Essex East,"CO, CM",Matched
+D,ED4,ED44 Canterbury & Dover,CT,Matched

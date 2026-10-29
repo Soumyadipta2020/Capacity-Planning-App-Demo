@@ -1,0 +1,15 @@
+# Databricks Apps Deployment Configuration
+# https://docs.databricks.com/en/dev-tools/databricks-apps/index.html
+
+command:
+  - "python"
+  - "app.py"
+
+env:
+  - name: "CAPACITY_PLANNING_ENV"
+    value: "databricks"
+  - name: "DATABRICKS_APP_NAME"
+    value: "capacity-planning-app"
+  - name: "DATABRICKS_APP_PORT"
+    value: "8000"
+
