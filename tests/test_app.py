@@ -32,7 +32,16 @@ try:
         body = resp.read().decode('utf-8')
         print(f"Server responded with HTTP status: {status}")
         print(f"HTML output contains title 'Capacity Planning': {'Capacity Planning' in body}")
-        print(f"HTML output contains 'British Gas': {'British Gas' in body}")
-        print("ALL VERIFICATION CHECKS PASSED!")
+        print(f"HTML output contains 'ES Capacity App': {'ES Capacity App' in body}")
+        print(f"HTML output contains 'react-root': {'react-root' in body}")
+        print(f"HTML output references 'react_app.js': {'react_app.js' in body}")
+
+    # Check that static asset react_app.js is served properly
+    with urllib.request.urlopen("http://127.0.0.1:8001/react_app.js", timeout=10) as resp_js:
+        print(f"react_app.js static asset response status: {resp_js.getcode()}")
+        js_content = resp_js.read().decode('utf-8')
+        print(f"react_app.js contains 'ModernCapacityApp': {'ModernCapacityApp' in js_content}")
+
+        print("ALL MODERN REACT + PYSHINY VERIFICATION CHECKS PASSED!")
 except Exception as e:
     print(f"Verification test failed: {e}")

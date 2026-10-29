@@ -12,4 +12,8 @@ env:
     value: "capacity-planning-app"
   - name: "DATABRICKS_APP_PORT"
     value: "8000"
+  - name: "DATABRICKS_CATALOG"
+    value: "capacity_planning"
+  - name: "DATABRICKS_SCHEMA"
+    value: "gold"
 

@@ -1,27 +1,67 @@
-# British Gas Field Capacity Planning Application (PyShiny)
+# British Gas Field Capacity Planning Platform (React + PyShiny)
 
-A production-ready PyShiny web application for British Gas field engineering capacity and demand planning, scenario modeling, and operational forecasting.
+A production-grade Capacity Planning application combining a **Modern React 18 & Tailwind CSS Frontend** with a **PyShiny & PySpark Backend**. 
+
+Engineered for **Dual Environment Execution**:
+- **Production (Databricks Apps)**: Queries Databricks Unity Catalog (`catalog.schema.table`) with PySpark distributed calculation.
+- **Development (VS Code)**: Runs locally with zero cluster spin-up cost using local Pandas/NumPy in `./data/`.
+- **Zero Node.js Dependency**: The React frontend is compiled and served natively by PyShiny's ASGI server without requiring `npm` or `node` in your local environment or inside the Databricks container.
 
 ---
 
-## 🌟 Key Capabilities
+## 🌟 Key Capabilities & Redesigned UI
 
-- **Multi-Input Scenario Architecture**:
-  Planners dynamically change individual file inputs across 6 distinct operational categories to generate, evaluate, and save distinct capacity scenarios (e.g. `LV JUL V.1`, `LV OCT V.0`, `HV OCT V.1`).
-- **Dual-Environment Detection**:
-  The application automatically detects whether it is running locally in **VS Code** or deployed inside a **Databricks Apps** container, automatically reconfiguring network binding (`127.0.0.1` vs `0.0.0.0`), port resolution, and data storage pathways (local filesystem `./data` vs Unity Catalog Volumes `/Volumes/...`).
-- **Complete Visual & Tabular Alignment**:
-  Faithfully recreates all screens from the production Centrica/British Gas system:
-  - **Home**: Bulk File Upload, Category Assignment, Metrics Dropdowns, Scenario Save/Load/Delete/Download.
-  - **Scenario Comparison**: Side-by-side comparison of baseline vs proposal across Demand Plots, Capacity Plots, and variance tables.
-  - **Visuals**: High-level executive KPI cards, weekly trajectory charts, regional imbalance distributions, and skill breakdown.
-  - **Dem vs Cap**: Imbalance calculations and Inday Workload profiles across 32 UK engineering patches and skills (`HEC`, `KAC`, `EV`).
-  - **Demand**: National demand forecast job volumes and hourly workload conversion.
-  - **Capacity**: FTE rosters, inter-patch transfers, downtime overlays (Percentage, Hours, Hours/FTE), baseline assumptions, bank hours, and SNM training cohorts.
-  - **Capacity Configuration**: Regional attrition rates and new starter productivity ramp curves.
-  - **Demand Configuration**: Standard job times, HEC-on-KAC cross-skilling support, and EV transition models.
-  - **Configuration**: Geographical patch mapping, patch mismatch diagnostics, fiscal week-to-month calendar, and consolidated exports.
-  - **About**: Real-time environment diagnostics and an interactive environment mode switcher.
+- **Modern React 18 UI Shell**:
+  - Slim collapsible sidebar navigation with Centrica flame branding.
+  - Live Environment Indicator Pill (`🔷 Databricks Apps (Unity Catalog)` vs `💻 VS Code (Local)`).
+  - Quick Scenario selector pill with live synchronization to PyShiny backend.
+  - Global Search (`Cmd + K`) for patches, skills, work codes, and leavers.
+- **Scenario Studio (Home Redesign)**:
+  - Bento Grid layout with 4 KPI summary cards (Total Demand, Available Capacity, Net Buffer, SLA Coverage).
+  - Unified grid for all 21 inputs (Capacity Inputs, Capacity Config, Demand, Demand Config, Other Config, Actuals).
+  - Every input card contains the file dropdown, **Delete** button, **Undo** button, and dynamic operational remarks.
+  - Drag-and-drop bulk upload dropzone with auto-assignment.
+- **Scenario Diff & Comparison**:
+  - Side-by-side parameter diff highlighting what changed between Scenario A and Scenario B.
+  - Delta Imbalance variance tables.
+- **Interactive Dem vs Cap Matrix**:
+  - Imbalances view with color-coded positive/negative badges (green for surplus, red for deficit).
+  - Inday workload profile matrix across all 32 UK engineering patches.
+- **New Feature Modules**:
+  1. 🤖 **Capacity Copilot**: Slide-over AI assistant drawer for root-cause analysis, deficit explanation, and automated scenario suggestions.
+  2. 🗺️ **UK Geospatial Imbalance Map**: Visual regional overview highlighting surplus and deficit territories.
+  3. 📅 **Shift & Roster Planning**: Modeling 4-day compressed hours vs standard 37.5-hour shifts.
+  4. 💰 **Financial Impact**: Cost waterfall analyzing direct labor vs overtime vs CTR contractor spend.
+  5. ⚙️ **Unity Catalog Architecture Console**: Live inspection of Databricks Unity Catalog schemas and PySpark execution state.
+
+---
+
+## 🏛️ Technical Architecture
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        MODERN BROWSER CLIENT                           │
+│                                                                        │
+│   React 18 + Tailwind CSS + Lucide Icons + Responsive Bento Grid       │
+│   • Communicates with PyShiny via Shiny JavaScript bindings & events   │
+│   • Zero Node.js build pipeline needed                                 │
+└───────────────────┬────────────────────────────────┬───────────────────┘
+                    │ Events (Save, Load, Delete)    │ Custom Messages
+                    ▼                                ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                   PYSHINY & DATA ENGINE BACKEND                        │
+│                                                                        │
+│   [config.py] Auto-detects runtime environment:                        │
+│                                                                        │
+│   ┌─────────────────────────────────┐   ┌───────────────────────────┐  │
+│   │   PRODUCTION: DATABRICKS APPS   │   │  DEVELOPMENT: VS CODE     │  │
+│   │   • Engine: PySpark             │   │  • Engine: Pandas / NumPy │  │
+│   │   • Storage: Unity Catalog (UC) │   │  • Storage: Local ./data/ │  │
+│   │     `capacity_planning.gold.*`  │   │  • Hot Reload: Enabled    │  │
+│   │   • Host: 0.0.0.0:DATABRICKS_PORT│  │  • Host: 127.0.0.1:8000  │  │
+│   └─────────────────────────────────┘   └───────────────────────────┘  │
+└────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
