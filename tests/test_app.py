@@ -89,6 +89,60 @@ try:
             assert disk_file.exists(), f"Dummy ML disk file missing: {disk_file}"
         print("Verified ML forecast dummy files exist for all 21 categories in catalog and on disk!")
 
+        # Verify Databricks Unity Catalog configuration and app.yaml specification
+        from config import EnvironmentConfig
+        import os
+
+        # Verify app.yaml content (DATABRICKS_APP_NAME must NOT be defined in app.yaml)
+        app_yaml_path = Path("app.yaml")
+        assert app_yaml_path.exists(), "app.yaml file not found"
+        app_yaml_content = app_yaml_path.read_text(encoding="utf-8")
+        assert "es_shiny_actuals_input" in app_yaml_content, "es_shiny_actuals_input not in app.yaml"
+        assert "DATABRICKS_APP_NAME" not in app_yaml_content, "DATABRICKS_APP_NAME should NOT be defined in app.yaml"
+        assert "DATABRICKS_CATALOG" in app_yaml_content, "DATABRICKS_CATALOG not in app.yaml"
+        print("Verified DATABRICKS_APP_NAME is NOT in app.yaml, and DATABRICKS_CATALOG + table names are in app.yaml!")
+
+        # Verify default fallback when DATABRICKS_APP_NAME is not set in environment
+        if "DATABRICKS_APP_NAME" in os.environ:
+            del os.environ["DATABRICKS_APP_NAME"]
+        EnvironmentConfig.set_stage_override("")
+        assert EnvironmentConfig.get_app_name() == "Not available"
+        assert EnvironmentConfig.get_stage() == "dev"
+        assert EnvironmentConfig.get_schema() == "dev"
+        print("Verified fallback when DATABRICKS_APP_NAME is unset: 'Not available' -> stage 'dev', schema 'dev'!")
+
+        # Verify Table Names follow es_shiny_<input_key>
+        assert EnvironmentConfig.get_table_name("actuals_input") == "es_shiny_actuals_input"
+        assert EnvironmentConfig.get_table_name("resource_plan") == "es_shiny_resource_plan"
+        assert EnvironmentConfig.get_table_name("demand_input") == "es_shiny_demand_input"
+        assert EnvironmentConfig.get_catalog() == "capacity_planning"
+
+        # Verify Stage & Schema resolution based on deployment environment app name
+        # 1. DEV
+        os.environ["DATABRICKS_APP_NAME"] = "capacity-planning-app-dev"
+        assert EnvironmentConfig.get_app_name() == "capacity-planning-app-dev"
+        assert EnvironmentConfig.get_stage() == "dev"
+        assert EnvironmentConfig.get_schema() == "dev"
+        assert EnvironmentConfig.get_full_table_path("actuals_input") == "capacity_planning.dev.es_shiny_actuals_input"
+
+        # 2. UAT
+        os.environ["DATABRICKS_APP_NAME"] = "capacity-planning-app-uat"
+        assert EnvironmentConfig.get_app_name() == "capacity-planning-app-uat"
+        assert EnvironmentConfig.get_stage() == "uat"
+        assert EnvironmentConfig.get_schema() == "uat"
+        assert EnvironmentConfig.get_full_table_path("actuals_input") == "capacity_planning.uat.es_shiny_actuals_input"
+
+        # 3. PROD
+        os.environ["DATABRICKS_APP_NAME"] = "capacity-planning-app-prod"
+        assert EnvironmentConfig.get_app_name() == "capacity-planning-app-prod"
+        assert EnvironmentConfig.get_stage() == "prod"
+        assert EnvironmentConfig.get_schema() == "prod"
+        assert EnvironmentConfig.get_full_table_path("actuals_input") == "capacity_planning.prod.es_shiny_actuals_input"
+        print("Verified stage & schema dynamically resolve to dev/uat/prod based on deployment app name!")
+
+        # Reset back to default
+        os.environ["DATABRICKS_APP_NAME"] = "capacity-planning-app-dev"
+
         print("ALL MODERN REACT + PYSHINY VERIFICATION CHECKS PASSED!")
 except Exception as e:
     print(f"Verification test failed: {e}")

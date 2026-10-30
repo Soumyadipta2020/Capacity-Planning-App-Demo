@@ -8,12 +8,67 @@ command:
 env:
   - name: "CAPACITY_PLANNING_ENV"
     value: "databricks"
-  - name: "DATABRICKS_APP_NAME"
-    value: "capacity-planning-app"
+
   - name: "DATABRICKS_APP_PORT"
     value: "8000"
+
+  # Databricks Unity Catalog: Remains constant across dev, uat, and prod
   - name: "DATABRICKS_CATALOG"
     value: "capacity_planning"
-  - name: "DATABRICKS_SCHEMA"
-    value: "gold"
 
+  # Database / Schema configuration per stage (schema changes based on detected app name)
+  # App name is injected automatically by Databricks Apps container deployment:
+  #   e.g. 'capacity-planning-app-prod' -> detects 'prod' stage, uses schema 'prod'
+  #   e.g. 'capacity-planning-app-uat'  -> detects 'uat' stage, uses schema 'uat'
+  #   e.g. 'capacity-planning-app-dev'  -> detects 'dev' stage, uses schema 'dev'
+  - name: "DATABRICKS_SCHEMA_DEV"
+    value: "dev"
+  - name: "DATABRICKS_SCHEMA_UAT"
+    value: "uat"
+  - name: "DATABRICKS_SCHEMA_PROD"
+    value: "prod"
+
+  # Databricks Unity Catalog Table Names (naming convention: es_shiny_<input_key>)
+  # Table names remain constant across all environments (dev, uat, prod)
+  - name: "TABLE_ACTUALS_INPUT"
+    value: "es_shiny_actuals_input"
+  - name: "TABLE_RESOURCE_PLAN"
+    value: "es_shiny_resource_plan"
+  - name: "TABLE_FTE_TRANSFER"
+    value: "es_shiny_fte_transfer"
+  - name: "TABLE_RECRUITMENT_GROUNDED"
+    value: "es_shiny_recruitment_grounded"
+  - name: "TABLE_RECRUITMENT_UNGROUNDED"
+    value: "es_shiny_recruitment_ungrounded"
+  - name: "TABLE_BASELINE_ASSUMPTIONS"
+    value: "es_shiny_baseline_assumptions"
+  - name: "TABLE_DOWNTIME_OVERLAYS_PERCENTAGE"
+    value: "es_shiny_downtime_overlays_percentage"
+  - name: "TABLE_DOWNTIME_OVERLAYS_HOURS"
+    value: "es_shiny_downtime_overlays_hours"
+  - name: "TABLE_DOWNTIME_OVERLAYS_HOURS_FTE"
+    value: "es_shiny_downtime_overlays_hours_fte"
+  - name: "TABLE_OVERTIME"
+    value: "es_shiny_overtime"
+  - name: "TABLE_BASELINE_PRODUCTIVITY"
+    value: "es_shiny_baseline_productivity"
+  - name: "TABLE_TRAINING_SNM"
+    value: "es_shiny_training_snm"
+  - name: "TABLE_CTR_CAPACITY"
+    value: "es_shiny_ctr_capacity"
+  - name: "TABLE_ATTRITION"
+    value: "es_shiny_attrition"
+  - name: "TABLE_RECRUITMENT_CONFIG"
+    value: "es_shiny_recruitment_config"
+  - name: "TABLE_DEMAND_INPUT"
+    value: "es_shiny_demand_input"
+  - name: "TABLE_JOB_TIME_ASSUMPTIONS"
+    value: "es_shiny_job_time_assumptions"
+  - name: "TABLE_HEC_ON_KAC_DEMAND"
+    value: "es_shiny_hec_on_kac_demand"
+  - name: "TABLE_HEC_ON_EV_DEMAND"
+    value: "es_shiny_hec_on_ev_demand"
+  - name: "TABLE_GEOGRAPHY_MAPPING"
+    value: "es_shiny_geography_mapping"
+  - name: "TABLE_WEEK_TO_MONTH"
+    value: "es_shiny_week_to_month"

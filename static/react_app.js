@@ -228,9 +228,11 @@ function ModernCapacityApp() {
     // Engine & Environment state
     const [envInfo, setEnvInfo] = useState({
         is_databricks: false,
-        environment: "VS Code (Local Dev)",
+        environment: "VS Code (Local - DEV)",
+        stage: "dev",
+        app_name: "capacity-planning-app-dev",
         catalog: "capacity_planning",
-        schema: "gold",
+        schema: "dev",
         storage_target: "Local Filesystem: ./data",
         calc_mode: "Local Pandas / NumPy"
     });
@@ -306,6 +308,10 @@ function ModernCapacityApp() {
 
             window.Shiny.addCustomMessageHandler('show_toast', function(data) {
                 showToast(data.message, data.type || "info");
+            });
+
+            window.Shiny.addCustomMessageHandler('update_env_status', function(data) {
+                if (data) setEnvInfo(data);
             });
         }
     }, []);
@@ -552,8 +558,11 @@ function ModernCapacityApp() {
                                 ? 'bg-rose-50 text-rose-700 border border-rose-200' 
                                 : 'bg-blue-50 text-blue-700 border border-blue-200/80'
                         }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${envInfo.is_databricks ? 'bg-rose-500' : 'bg-blue-600'}`}></span>
-                            <span>{envInfo.is_databricks ? 'databricks' : 'vscode'}</span>
+                            <span className={`w-1.5 h-1.5 rounded-full ${
+                                envInfo.stage === 'prod' ? 'bg-emerald-500' :
+                                envInfo.stage === 'uat' ? 'bg-amber-500' : 'bg-blue-600'
+                            }`}></span>
+                            <span>{envInfo.is_databricks ? `databricks (${envInfo.stage || 'dev'})` : `vscode (${envInfo.stage || 'dev'})`}</span>
                         </span>
                     </div>
                 )}
@@ -3041,27 +3050,264 @@ function FinancialImpactView() {
 // 8. DATABRICKS ARCHITECTURE VIEW
 // ------------------------------------------------------------------------------------------------
 function DatabricksArchitectureView({ envInfo, setEnvInfo, showToast }) {
-    return (
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-3.5 w-full glow-card">
-            <div className="pb-2 border-b border-slate-100">
-                <h3 className="font-extrabold text-xs sm:text-sm text-slate-800 flex items-center gap-2">
-                    <IconDatabase className="w-4 h-4 text-blue-600" />
-                    <span>Databricks Unity Catalog & Execution Architecture</span>
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">Dual-mode engine: PySpark in Databricks Apps container vs Pandas in VS Code local dev</p>
-            </div>
+    const [searchTable, setSearchTable] = useState('');
+    const activeStage = (envInfo.stage || 'dev').toLowerCase();
+    const activeCatalog = envInfo.catalog || 'capacity_planning';
+    const activeSchema = envInfo.schema || activeStage;
+    const activeAppName = envInfo.app_name || (envInfo.is_databricks ? 'Not available' : 'capacity-planning-app-dev');
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 glow-card">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Target Database</span>
-                    <h4 className="text-sm font-bold text-slate-800 mt-0.5 font-mono">{envInfo.catalog}.{envInfo.schema}</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">Direct PySpark Delta table access on Databricks Lakehouse.</p>
+    const handleSwitchStage = (newStage) => {
+        const nextSchema = newStage;
+        const nextAppName = `capacity-planning-app-${newStage}`;
+        setEnvInfo(prev => ({
+            ...prev,
+            stage: newStage,
+            schema: nextSchema,
+            app_name: nextAppName,
+            environment: prev.is_databricks ? `Databricks Apps (${newStage.toUpperCase()})` : `VS Code (Local - ${newStage.toUpperCase()})`
+        }));
+        if (window.Shiny && window.Shiny.setInputValue) {
+            window.Shiny.setInputValue('switch_stage_event', newStage, { priority: 'event' });
+        }
+        if (showToast) {
+            showToast(`Stage switched to '${newStage.toUpperCase()}'. Schema resolved to '${nextSchema}'. Catalog remains '${activeCatalog}'.`, 'info');
+        }
+    };
+
+    const defaultMappings = [
+        { key: "actuals_input", label: "Actuals input", table_name: "es_shiny_actuals_input" },
+        { key: "resource_plan", label: "Resource Plan", table_name: "es_shiny_resource_plan" },
+        { key: "fte_transfer", label: "FTE transfer", table_name: "es_shiny_fte_transfer" },
+        { key: "recruitment_grounded", label: "Recruitment grounded", table_name: "es_shiny_recruitment_grounded" },
+        { key: "recruitment_ungrounded", label: "Recruitment ungrounded", table_name: "es_shiny_recruitment_ungrounded" },
+        { key: "baseline_assumptions", label: "Baseline assumptions", table_name: "es_shiny_baseline_assumptions" },
+        { key: "downtime_overlays_percentage", label: "Downtime Overlays Percentage", table_name: "es_shiny_downtime_overlays_percentage" },
+        { key: "downtime_overlays_hours", label: "Downtime Overlays Hours", table_name: "es_shiny_downtime_overlays_hours" },
+        { key: "downtime_overlays_hours_fte", label: "Downtime Overlays Hours/FTE", table_name: "es_shiny_downtime_overlays_hours_fte" },
+        { key: "overtime", label: "Overtime", table_name: "es_shiny_overtime" },
+        { key: "baseline_productivity", label: "Baseline productivity", table_name: "es_shiny_baseline_productivity" },
+        { key: "training_snm", label: "Training SNM", table_name: "es_shiny_training_snm" },
+        { key: "ctr_capacity", label: "CTR Capacity", table_name: "es_shiny_ctr_capacity" },
+        { key: "attrition", label: "Attrition", table_name: "es_shiny_attrition" },
+        { key: "recruitment_config", label: "Recruitment config", table_name: "es_shiny_recruitment_config" },
+        { key: "demand_input", label: "Demand input", table_name: "es_shiny_demand_input" },
+        { key: "job_time_assumptions", label: "Job time assumptions", table_name: "es_shiny_job_time_assumptions" },
+        { key: "hec_on_kac_demand", label: "HEC on KAC Demand", table_name: "es_shiny_hec_on_kac_demand" },
+        { key: "hec_on_ev_demand", label: "HEC on EV Demand", table_name: "es_shiny_hec_on_ev_demand" },
+        { key: "geography_mapping", label: "Geography mapping", table_name: "es_shiny_geography_mapping" },
+        { key: "week_to_month", label: "Week to month", table_name: "es_shiny_week_to_month" }
+    ];
+
+    const tableList = (envInfo.table_mappings && envInfo.table_mappings.length > 0)
+        ? envInfo.table_mappings
+        : defaultMappings.map(item => ({
+            ...item,
+            catalog: activeCatalog,
+            schema: activeSchema,
+            stage: activeStage,
+            full_path: `${activeCatalog}.${activeSchema}.${item.table_name}`,
+            format: "Delta Lake (Unity Catalog)"
+        }));
+
+    const filteredTables = tableList.filter(t =>
+        t.label.toLowerCase().includes(searchTable.toLowerCase()) ||
+        t.table_name.toLowerCase().includes(searchTable.toLowerCase()) ||
+        t.full_path.toLowerCase().includes(searchTable.toLowerCase())
+    );
+
+    return (
+        <div className="space-y-4 w-full animate-fade-in">
+            {/* Header & Simulation Switcher */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs glow-card flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div>
+                    <h3 className="font-extrabold text-sm sm:text-base text-slate-800 flex items-center gap-2">
+                        <IconDatabase className="w-5 h-5 text-[#005eb8]" />
+                        <span>Databricks Unity Catalog & Multi-Stage Lakehouse Architecture</span>
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                        Table names (<code className="text-blue-700 bg-blue-50 px-1 py-0.5 rounded font-mono font-bold">es_shiny_*</code>) and catalog (<code className="text-blue-700 bg-blue-50 px-1 py-0.5 rounded font-mono font-bold">capacity_planning</code>) remain constant. Database/schema dynamically changes based on app name fetched from deployment environment (<code className="text-slate-700 font-mono">os.environ.get("DATABRICKS_APP_NAME", "Not available")</code>).
+                    </p>
                 </div>
 
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 glow-card">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Calculation Engine</span>
-                    <h4 className="text-sm font-bold text-blue-600 mt-0.5">{envInfo.calc_mode}</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">Zero cluster spin-up cost during VS Code local iteration.</p>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-xs font-bold text-slate-600">Simulate Stage:</span>
+                    <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
+                        {['dev', 'uat', 'prod'].map(s => {
+                            const isCurrent = activeStage === s;
+                            return (
+                                <button
+                                    key={s}
+                                    type="button"
+                                    onClick={() => handleSwitchStage(s)}
+                                    className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition cursor-pointer ${
+                                        isCurrent
+                                            ? s === 'prod' ? 'bg-emerald-600 text-white shadow-xs'
+                                            : s === 'uat' ? 'bg-amber-600 text-white shadow-xs'
+                                            : 'bg-[#005eb8] text-white shadow-xs'
+                                            : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                                    }`}
+                                >
+                                    {s}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+
+            {/* Unity Catalog 4 Metrics Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="p-3.5 bg-white rounded-xl border border-slate-200/80 shadow-xs glow-card">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Databricks App Name</span>
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-800 mt-1 font-mono truncate" title={activeAppName}>
+                        {activeAppName}
+                    </h4>
+                    <span className="text-[10px] text-slate-500 mt-0.5 block truncate" title='os.environ.get("DATABRICKS_APP_NAME", "Not available")'>
+                        os.environ.get("DATABRICKS_APP_NAME", "Not available")
+                    </span>
+                </div>
+
+                <div className="p-3.5 bg-white rounded-xl border border-slate-200/80 shadow-xs glow-card">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Resolved Stage</span>
+                    <div className="flex items-center gap-2 mt-1">
+                        <span className={`text-xs font-black uppercase px-2.5 py-0.5 rounded-full border ${
+                            activeStage === 'prod' ? 'bg-emerald-50 text-emerald-800 border-emerald-300' :
+                            activeStage === 'uat' ? 'bg-amber-50 text-amber-800 border-amber-300' :
+                            'bg-blue-50 text-[#005eb8] border-blue-300'
+                        }`}>
+                            {activeStage}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-600">
+                            {activeStage === 'prod' ? 'Production' : activeStage === 'uat' ? 'User Acceptance' : 'Development'}
+                        </span>
+                    </div>
+                    <span className="text-[10px] text-slate-500 mt-0.5 block">Driven by app name prefix/suffix</span>
+                </div>
+
+                <div className="p-3.5 bg-white rounded-xl border border-slate-200/80 shadow-xs glow-card">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Unity Catalog (Constant)</span>
+                    <h4 className="text-xs sm:text-sm font-bold text-[#005eb8] mt-1 font-mono">
+                        {activeCatalog}
+                    </h4>
+                    <span className="text-[10px] text-slate-500 mt-0.5 block">Identical across all stages</span>
+                </div>
+
+                <div className="p-3.5 bg-white rounded-xl border border-slate-200/80 shadow-xs glow-card">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Database / Schema (Dynamic)</span>
+                    <h4 className="text-xs sm:text-sm font-bold text-purple-700 mt-1 font-mono">
+                        {activeSchema}
+                    </h4>
+                    <span className="text-[10px] text-slate-500 mt-0.5 block">Switches to match app environment</span>
+                </div>
+            </div>
+
+            {/* 3-Level Namespace Architectural Banner */}
+            <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 flex-wrap font-mono">
+                    <span className="font-bold text-slate-700">Unity Catalog 3-Level Namespace:</span>
+                    <span className="px-2 py-0.5 bg-blue-100 text-[#005eb8] rounded-md font-bold border border-blue-200">
+                        {activeCatalog}
+                    </span>
+                    <span className="text-slate-400 font-bold">.</span>
+                    <span className={`px-2 py-0.5 rounded-md font-bold border ${
+                        activeStage === 'prod' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
+                        activeStage === 'uat' ? 'bg-amber-100 text-amber-800 border-amber-300' :
+                        'bg-purple-100 text-purple-800 border-purple-300'
+                    }`}>
+                        {activeSchema}
+                    </span>
+                    <span className="text-slate-400 font-bold">.</span>
+                    <span className="px-2 py-0.5 bg-slate-200 text-slate-800 rounded-md font-bold border border-slate-300">
+                        es_shiny_&lt;table_name&gt;
+                    </span>
+                </div>
+
+                <div className="text-[11px] text-slate-500">
+                    🔒 Zero Code Drift: Table queries run unmodified across Dev, UAT, and Prod.
+                </div>
+            </div>
+
+            {/* Databricks Tables Mapping Catalog */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden glow-card">
+                <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                            Databricks Unity Catalog Tables (All 21 Inputs Mapped in app.yaml)
+                        </h4>
+                        <p className="text-[11px] text-slate-400">
+                            Table names follow the standard pattern: <code className="text-slate-700 font-mono">Actuals input ➔ es_shiny_actuals_input</code>.
+                        </p>
+                    </div>
+
+                    <div className="w-full sm:w-64">
+                        <input
+                            type="text"
+                            placeholder="Filter table names or paths..."
+                            value={searchTable}
+                            onChange={(e) => setSearchTable(e.target.value)}
+                            className="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        />
+                    </div>
+                </div>
+
+                <div className="overflow-x-auto max-h-[420px] overflow-y-auto">
+                    <table className="w-full text-left text-xs border-collapse">
+                        <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold sticky top-0 z-10">
+                            <tr>
+                                <th className="py-2.5 px-4">Operational Input</th>
+                                <th className="py-2.5 px-4">Databricks Table Name</th>
+                                <th className="py-2.5 px-4">Full 3-Level Unity Catalog Path</th>
+                                <th className="py-2.5 px-4">Format</th>
+                                <th className="py-2.5 px-4 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 font-medium">
+                            {filteredTables.map((tbl, idx) => (
+                                <tr key={tbl.key || idx} className="hover:bg-slate-50/70 transition">
+                                    <td className="py-2.5 px-4 font-semibold text-slate-800">
+                                        {tbl.label}
+                                    </td>
+                                    <td className="py-2.5 px-4">
+                                        <code className="text-blue-700 bg-blue-50/80 px-2 py-0.5 rounded font-mono font-bold text-[11px] border border-blue-200">
+                                            {tbl.table_name}
+                                        </code>
+                                    </td>
+                                    <td className="py-2.5 px-4 font-mono text-[11px] text-slate-700">
+                                        <span className="text-[#005eb8] font-bold">{tbl.catalog || activeCatalog}</span>
+                                        <span className="text-slate-400">.</span>
+                                        <span className={`font-bold ${activeStage === 'prod' ? 'text-emerald-700' : activeStage === 'uat' ? 'text-amber-700' : 'text-purple-700'}`}>{tbl.schema || activeSchema}</span>
+                                        <span className="text-slate-400">.</span>
+                                        <span className="text-slate-900 font-bold">{tbl.table_name}</span>
+                                    </td>
+                                    <td className="py-2.5 px-4 text-slate-500 text-[11px]">
+                                        <span className="inline-flex items-center gap-1">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                            Delta Lake
+                                        </span>
+                                    </td>
+                                    <td className="py-2.5 px-4 text-center">
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            ✓ Active in {activeSchema}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Databricks Apps PySpark Execution Example */}
+            <div className="bg-slate-900 text-slate-100 p-4 rounded-xl shadow-xs space-y-2 text-xs font-mono">
+                <div className="flex items-center justify-between text-slate-400 pb-2 border-b border-slate-800">
+                    <span className="font-bold text-slate-300"># Databricks PySpark Lakehouse Query Example</span>
+                    <span className="text-[11px]">Dynamic Runtime Resolution</span>
+                </div>
+                <div className="space-y-1 text-slate-300 leading-relaxed text-[11px]">
+                    <p><span className="text-purple-400">catalog</span> = os.environ.get(<span className="text-emerald-400">"DATABRICKS_CATALOG"</span>, <span className="text-emerald-400">"capacity_planning"</span>) <span className="text-slate-500"># {activeCatalog}</span></p>
+                    <p><span className="text-purple-400">app_name</span> = os.environ.get(<span className="text-emerald-400">"DATABRICKS_APP_NAME"</span>, <span className="text-emerald-400">"Not available"</span>) <span className="text-slate-500"># -> "{activeAppName}"</span></p>
+                    <p><span className="text-purple-400">schema</span> = <span className="text-emerald-400">"prod"</span> <span className="text-blue-400">if</span> <span className="text-emerald-400">"prod"</span> <span className="text-blue-400">in</span> app_name.lower() <span className="text-blue-400">else</span> (<span className="text-emerald-400">"uat"</span> <span className="text-blue-400">if</span> <span className="text-emerald-400">"uat"</span> <span className="text-blue-400">in</span> app_name.lower() <span className="text-blue-400">else</span> <span className="text-emerald-400">"dev"</span>) <span className="text-slate-500"># -> "{activeSchema}"</span></p>
+                    <p><span className="text-purple-400">actuals_df</span> = spark.read.table(<span className="text-emerald-400">f"{catalog}.{schema}.es_shiny_actuals_input"</span>) <span className="text-slate-500"># -> {activeCatalog}.{activeSchema}.es_shiny_actuals_input</span></p>
                 </div>
             </div>
         </div>

@@ -154,6 +154,20 @@ def server(input, output, session):
             "type": "success"
         })
 
+    # Handle Stage Switching (dev / uat / prod simulation) from React UI
+    @reactive.effect
+    @reactive.event(input.switch_stage_event)
+    def _on_switch_stage():
+        stage = input.switch_stage_event()
+        if stage in ["dev", "uat", "prod", ""]:
+            EnvironmentConfig.set_stage_override(stage)
+            updated_status = engine.get_engine_status()
+            session.send_custom_message("update_env_status", updated_status)
+            session.send_custom_message("show_toast", {
+                "message": f"Switched Databricks stage to '{EnvironmentConfig.get_stage().upper()}' (Schema: {EnvironmentConfig.get_schema()})",
+                "type": "info"
+            })
+
     # Register standard PyShiny server handlers (calculators, downloads, classic views)
     register_server_handlers(input, output, session)
 
