@@ -282,7 +282,10 @@ function ModernCapacityApp() {
                 setInputsChoices(init.inputOptions);
                 const initialSelections = {};
                 Object.keys(init.inputOptions).forEach(k => {
-                    initialSelections[k] = init.inputOptions[k][0];
+                    const list = init.inputOptions[k] || [];
+                    // Prefer non-ML user uploaded/governance files by default until user toggles ML forecast
+                    const userPref = list.find(c => !c.toLowerCase().includes('ml_forecast') && !c.toLowerCase().includes('ml_'));
+                    initialSelections[k] = userPref || list[0] || '';
                 });
                 setInputsState(initialSelections);
             }
@@ -704,6 +707,7 @@ function ModernCapacityApp() {
                             onInputDelete={handleInputDelete}
                             onInputUndo={handleInputUndo}
                             onApplyUploadedFiles={handleApplyUploadedFiles}
+                            setInputsState={setInputsState}
                             showToast={showToast}
                         />
                     )}
@@ -2199,6 +2203,7 @@ function ScenarioInputsStudioView({
     onInputDelete,
     onInputUndo,
     onApplyUploadedFiles,
+    setInputsState,
     showToast
 }) {
     const [studioSubTab, setStudioSubTab] = useState('inputs_selection');
@@ -2207,6 +2212,45 @@ function ScenarioInputsStudioView({
     const [isValidating, setIsValidating] = useState(false);
     const [validationResults, setValidationResults] = useState([]);
     const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+
+    // Helper to identify ML forecast options
+    const isMLOption = (val) => val && typeof val === 'string' && (val.toLowerCase().includes('ml_forecast') || val.toLowerCase().includes('ml_'));
+    const allInputKeys = Object.keys(inputsChoices || {});
+    const totalInputs = allInputKeys.length || 21;
+    const mlActiveCount = allInputKeys.filter(k => isMLOption(inputsState[k])).length;
+
+    // Master Toggle to switch all 21 inputs between ML Forecast and User Uploaded files
+    const handleToggleAllML = () => {
+        const nextState = { ...inputsState };
+        const shouldEnableAllML = mlActiveCount < totalInputs;
+
+        allInputKeys.forEach(k => {
+            const choices = inputsChoices[k] || [];
+            const sorted = [...choices].sort((a, b) => parseDateFromOption(b) - parseDateFromOption(a));
+            if (shouldEnableAllML) {
+                const ml = sorted.find(c => isMLOption(c));
+                if (ml) nextState[k] = ml;
+            } else {
+                const user = sorted.find(c => !isMLOption(c));
+                if (user) nextState[k] = user;
+            }
+        });
+
+        if (setInputsState) {
+            setInputsState(nextState);
+        } else {
+            Object.keys(nextState).forEach(k => onInputChange(k, nextState[k]));
+        }
+
+        if (showToast) {
+            showToast(
+                shouldEnableAllML
+                    ? `Enabled ML Forecast for all ${totalInputs} operational inputs.`
+                    : `Reverted all ${totalInputs} operational inputs to user uploaded files.`,
+                'info'
+            );
+        }
+    };
 
     // Run validation across all staged files
     const handleRunValidation = async () => {
@@ -2458,6 +2502,50 @@ function ScenarioInputsStudioView({
                         </div>
                     </div>
 
+                    {/* ML FORECASTING GLOBAL CONTROLLER BAR */}
+                    <div className="bg-white px-4 py-2.5 rounded-xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 glow-card">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8]">
+                                <span className="text-sm">⚡</span>
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold text-slate-900">ML Forecast Engine & Prediction Source</span>
+                                    <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                                        mlActiveCount === totalInputs
+                                            ? 'bg-blue-100 text-[#005eb8] border-blue-300'
+                                            : mlActiveCount > 0
+                                                ? 'bg-amber-50 text-amber-800 border-amber-300'
+                                                : 'bg-slate-100 text-slate-600 border-slate-200'
+                                    }`}>
+                                        {mlActiveCount === totalInputs 
+                                            ? 'All 21 Inputs on ML Forecast' 
+                                            : mlActiveCount > 0 
+                                                ? `${mlActiveCount} / ${totalInputs} Inputs on ML Forecast` 
+                                                : 'Using User Uploaded Files'}
+                                    </span>
+                                </div>
+                                <p className="text-[11px] text-slate-400">Toggle ML forecast per input card or use master control to switch all 21 inputs at once.</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                            <button
+                                type="button"
+                                onClick={handleToggleAllML}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-xs cursor-pointer border ${
+                                    mlActiveCount === totalInputs
+                                        ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                                        : 'bg-[#005eb8] hover:bg-[#004b87] text-white border-[#005eb8]'
+                                }`}
+                                title="Toggle ML Forecast across all 21 operational inputs at once"
+                            >
+                                <span>{mlActiveCount === totalInputs ? "↩" : "⚡"}</span>
+                                <span>{mlActiveCount === totalInputs ? "Revert All to User Uploaded" : "Enable ML Forecast for All (21 Inputs)"}</span>
+                            </button>
+                        </div>
+                    </div>
+
                     {/* INPUT CARDS GRID (ALL 21 INPUTS IN THEME-ALIGNED GLOWING CARDS) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {(filterCategory === 'all' || filterCategory === 'capacity') && capacityInputs.map(item => (
@@ -2547,13 +2635,74 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
         return copy.sort((a, b) => parseDateFromOption(b) - parseDateFromOption(a));
     }, [choices]);
 
-    const activeSelected = selected || (sortedChoices[0] || '');
+    // Check if an option belongs to automated ML Forecast vs User Uploaded / Governance
+    const isMLOption = (val) => val && typeof val === 'string' && (val.toLowerCase().includes('ml_forecast') || val.toLowerCase().includes('ml_'));
+
+    const mlChoices = useMemo(() => sortedChoices.filter(c => isMLOption(c)), [sortedChoices]);
+    const userChoices = useMemo(() => sortedChoices.filter(c => !isMLOption(c)), [sortedChoices]);
+
+    const activeSelected = selected || (userChoices[0] || mlChoices[0] || '');
+    const isMLActive = isMLOption(activeSelected);
+
+    // Toggle switch handler for ML forecast vs user uploaded
+    const handleToggleML = (e) => {
+        if (e && e.stopPropagation) e.stopPropagation();
+        if (!isMLActive) {
+            // Enable ML: switch to latest ML forecast choice
+            if (mlChoices.length > 0) {
+                onChange(mlChoices[0]);
+            }
+        } else {
+            // Disable ML: switch back to latest user uploaded / manual choice
+            if (userChoices.length > 0) {
+                onChange(userChoices[0]);
+            }
+        }
+    };
 
     return (
-        <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs glow-card transition-all duration-150">
-            <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-bold text-slate-800">{label}:</span>
-                <span className="text-[10px] text-slate-400 font-mono">{sortedChoices.length} versions</span>
+        <div className={`p-3 rounded-xl border shadow-xs glow-card transition-all duration-150 ${
+            isMLActive 
+                ? 'bg-blue-50/25 border-blue-300 ring-1 ring-blue-100/70' 
+                : 'bg-white border-slate-200/80'
+        }`}>
+            <div className="flex items-center justify-between mb-1.5 gap-2">
+                <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="text-xs font-bold text-slate-800 truncate">{label}:</span>
+                    {isMLActive && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-blue-100 text-[#005eb8] border border-blue-200 whitespace-nowrap">
+                            ⚡ ML Active
+                        </span>
+                    )}
+                </div>
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Toggle option to enable/disable ML forecast for this input */}
+                    <div
+                        onClick={handleToggleML}
+                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md cursor-pointer select-none border transition ${
+                            isMLActive 
+                                ? 'bg-blue-50 border-blue-200 text-[#005eb8] font-bold' 
+                                : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+                        }`}
+                        title={isMLActive ? "ML Forecast enabled. Click to switch to User Uploaded file." : "Click to enable ML Forecast for this input."}
+                    >
+                        <span className="text-[10px] font-semibold">{isMLActive ? '⚡ ML Forecast' : 'Enable ML'}</span>
+                        <div
+                            className={`relative inline-flex h-3.5 w-6.5 shrink-0 rounded-full border border-transparent transition-colors duration-200 ease-in-out ${
+                                isMLActive ? 'bg-[#005eb8]' : 'bg-slate-300'
+                            }`}
+                        >
+                            <span
+                                className={`inline-block h-3 w-3 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
+                                    isMLActive ? 'translate-x-3' : 'translate-x-0'
+                                }`}
+                            />
+                        </div>
+                    </div>
+
+                    <span className="text-[10px] text-slate-400 font-mono hidden xs:inline">{sortedChoices.length} ver</span>
+                </div>
             </div>
 
             <div className="flex items-center gap-2">
@@ -2562,11 +2711,31 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                         value={activeSelected}
                         title={activeSelected}
                         onChange={(e) => onChange(e.target.value)}
-                        className="w-full text-xs bg-slate-50 text-slate-800 font-medium px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs truncate cursor-pointer"
+                        className={`w-full text-xs font-medium px-2.5 py-1.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs truncate cursor-pointer transition ${
+                            isMLActive 
+                                ? 'bg-white text-blue-950 border-blue-300 font-semibold' 
+                                : 'bg-slate-50 text-slate-800 border-slate-200'
+                        }`}
                     >
-                        {sortedChoices.map(c => (
-                            <option key={c} value={c} title={c}>{c}</option>
-                        ))}
+                        {mlChoices.length > 0 && (
+                            <optgroup label="⚡ ML Model Forecasts">
+                                {mlChoices.map(c => (
+                                    <option key={c} value={c} title={c}>⚡ {c}</option>
+                                ))}
+                            </optgroup>
+                        )}
+                        {userChoices.length > 0 && (
+                            <optgroup label="📁 User Uploaded & Governance Files">
+                                {userChoices.map(c => (
+                                    <option key={c} value={c} title={c}>📁 {c}</option>
+                                ))}
+                            </optgroup>
+                        )}
+                        {mlChoices.length === 0 && userChoices.length === 0 && (
+                            sortedChoices.map(c => (
+                                <option key={c} value={c} title={c}>{c}</option>
+                            ))
+                        )}
                     </select>
                 </div>
 
@@ -2587,9 +2756,18 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                 </button>
             </div>
 
-            <div className="mt-1.5 text-[11px] text-slate-500 flex items-start gap-1">
-                <span className="font-semibold text-slate-600">Remarks:</span>
-                <span className="truncate" title={remarks}>{remarks}</span>
+            <div className="mt-1.5 text-[11px] flex items-start gap-1">
+                {isMLActive ? (
+                    <>
+                        <span className="font-bold text-[#005eb8] flex-shrink-0">⚡ ML Model:</span>
+                        <span className="text-blue-900 truncate font-medium" title={remarks}>{remarks}</span>
+                    </>
+                ) : (
+                    <>
+                        <span className="font-semibold text-slate-600 flex-shrink-0">Remarks:</span>
+                        <span className="text-slate-500 truncate" title={remarks}>{remarks}</span>
+                    </>
+                )}
             </div>
         </div>
     );

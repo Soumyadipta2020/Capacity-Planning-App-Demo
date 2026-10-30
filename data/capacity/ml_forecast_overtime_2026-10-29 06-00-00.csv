@@ -1,0 +1,5 @@
+Rate,Cap
+Standard_Overtime_Rate,1.5
+Max_Weekly_Overtime_Hours_Cap,14.0
+Weekend_Emergency_Rate,2.0
+Voluntary_Winter_Bank_Hours,20.0

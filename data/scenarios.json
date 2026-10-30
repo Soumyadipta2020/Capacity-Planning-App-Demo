@@ -91,5 +91,36 @@
       "geography_mapping": "geography_patch_mapping_2026_v1",
       "week_to_month": "week_to_month_standard_v1"
     }
+  },
+  "LV NOV V.1 2026-10-30 18:02:55": {
+    "id": "LV NOV V.1 2026-10-30 18:02:55",
+    "plan_type": "LV",
+    "month": "NOV",
+    "version": "1",
+    "remarks": "Nov Operating Plan baseline",
+    "created_at": "2026-10-30 18:02:55",
+    "inputs": {
+      "actuals_input": "actuals_2026-07-01_final",
+      "resource_plan": "Latest Resource Plan V3_2026-07-07",
+      "fte_transfer": "fte_transfer_v3_2026-07-01",
+      "recruitment_grounded": "ml_forecast_recruitment_grounded_2026-10-30 06:00:00",
+      "recruitment_ungrounded": "recruitment_ungrounded_upside_v2",
+      "baseline_assumptions": "baseline_assumptions_fy26_final",
+      "downtime_overlays_percentage": "es_shiny_overlays_percentage_input2_2026-02-24 15:39:40",
+      "downtime_overlays_hours": "overlays_hours_v2_2026-07-01",
+      "downtime_overlays_hours_fte": "overlays_hrs_fte_v2_2026-07-01",
+      "overtime": "overtime_allowance_q3_v2",
+      "baseline_productivity": "baseline_productivity_2026_v3",
+      "training_snm": "training_snm_schedule_2026_v2",
+      "ctr_capacity": "ctr_capacity_allocations_v2",
+      "attrition": "es_shiny_attrition_input2_2026-02-05 09:54:11",
+      "recruitment_config": "recruitment_productivity_ramp_v2",
+      "demand_input": "es_shiny_es_mtp_demand2_input3_2026-02-04 08:10:23",
+      "job_time_assumptions": "job_time_2026-02-23 17:08:12",
+      "hec_on_kac_demand": "hec_on_kac_crosskill_v2_2026",
+      "hec_on_ev_demand": "hec_on_ev_demand_transfer_v2",
+      "geography_mapping": "es_shiny_geog_mapping_input2_2026-02-18 13:04:22",
+      "week_to_month": "week_to_month_fiscal_2026_v2"
+    }
   }
 }

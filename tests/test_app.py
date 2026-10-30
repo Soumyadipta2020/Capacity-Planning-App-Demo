@@ -55,9 +55,12 @@ try:
         assert 'DownloadTemplatesView' in js_content
         assert 'parseDateFromOption' in js_content
         assert 'handleCloseModal' in js_content
+        assert 'isMLOption' in js_content
+        assert 'handleToggleML' in js_content
+        assert 'handleToggleAllML' in js_content
 
         # Test backend registration and sorting by datetimestamp
-        from data_manager import register_uploaded_file, DEFAULT_INPUT_OPTIONS, parse_date_from_option
+        from data_manager import register_uploaded_file, DEFAULT_INPUT_OPTIONS, DEFAULT_REMARKS, parse_date_from_option, CATEGORY_FOLDER_MAP
         test_file_name = "fte_transfer_q4_2026-10-30 18:00:00"
         register_uploaded_file("fte_transfer", test_file_name, "Test Q4 upload", "from,to,fte\nEast,West,10")
         assert test_file_name in DEFAULT_INPUT_OPTIONS["fte_transfer"]
@@ -75,6 +78,16 @@ try:
         for opt in DEFAULT_INPUT_OPTIONS["actuals_input"]:
             assert not opt.endswith(".csv"), f"Option {opt} still has .csv extension"
         print("Verified all actuals_input options are clean without .csv extension!")
+
+        # Verify ML forecast files exist across all 21 categories in DEFAULT_INPUT_OPTIONS and on disk
+        for cat, folder in CATEGORY_FOLDER_MAP.items():
+            ml_opt = f"ml_forecast_{cat}_2026-10-30 06:00:00"
+            assert ml_opt in DEFAULT_INPUT_OPTIONS[cat], f"ML option missing for {cat}"
+            assert ml_opt in DEFAULT_REMARKS, f"ML remark missing for {ml_opt}"
+            # Check file on disk
+            disk_file = Path("data") / folder / f"ml_forecast_{cat}_2026-10-30 06-00-00.csv"
+            assert disk_file.exists(), f"Dummy ML disk file missing: {disk_file}"
+        print("Verified ML forecast dummy files exist for all 21 categories in catalog and on disk!")
 
         print("ALL MODERN REACT + PYSHINY VERIFICATION CHECKS PASSED!")
 except Exception as e:

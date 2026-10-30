@@ -282,6 +282,42 @@ DEFAULT_REMARKS = {
     "week_to_month_calendar_2026": "Standard ISO calendar week mapping"
 }
 
+# Automated registration of dummy ML forecast files for all 21 operational inputs
+ML_FORECAST_DESCRIPTIONS = {
+    "resource_plan": "Centrica AI ML Model: XGBoost + LSTM engineer staffing allocation forecast (94.8% confidence)",
+    "fte_transfer": "ML Autonomous Transfer Optimizer: Mixed-integer linear programming rebalancing recommendations",
+    "recruitment_grounded": "ML Grounded Attrition-Adjusted Intake Pipeline (Gradient Boosted Classifier)",
+    "recruitment_ungrounded": "ML Contingent Contractor Upside Model (Monte Carlo simulation, 90th percentile)",
+    "baseline_assumptions": "ML Automated Contractual Hours & Productivity Baseline (Telemetry tuned)",
+    "downtime_overlays_percentage": "ML Weather & Seasonality Predictive Downtime Overlays (Prophet v3)",
+    "downtime_overlays_hours": "ML Stand-Down Hours Anomaly Detection & Forecast (DeepAR)",
+    "downtime_overlays_hours_fte": "ML Per-FTE Training & Sickness Variance Forecaster",
+    "overtime": "ML Dynamic Overtime Allocation Recommendation (Cost-constrained MILP)",
+    "baseline_productivity": "ML Historical Job Duration & Productive Pace Model (LightGBM 96.1% R²)",
+    "training_snm": "ML Smart Metering (SnM) Upskilling Progression Forecaster",
+    "ctr_capacity": "ML Third-Party Contractor Capacity Availability Prediction",
+    "attrition": "Predictive HR Churn Engine: Survival Analysis & Random Forest (93.2% accuracy)",
+    "recruitment_config": "ML Learning Curve & Field Ramp-Up Simulator",
+    "demand_input": "Centrica AI Demand Engine: Prophet + Met Office weather regressors (95.4% accuracy)",
+    "job_time_assumptions": "ML Automated Standard Job Times (Telematics & IoT meter telemetry)",
+    "hec_on_kac_demand": "ML Cross-Skilling HEC-on-KAC Transfer Demand Forecast",
+    "hec_on_ev_demand": "ML EV Charging Points Installation Demand Acceleration Model",
+    "geography_mapping": "ML Dynamic Patch Boundary & Geo-Routing Matrix (K-Means + Voronoi)",
+    "week_to_month": "ML Financial Calendar & Workday Weighting Predictor",
+    "actuals_input": "ML Auto-Reconciled Operational & Ledger Actuals (Anomaly Cleaned)"
+}
+
+for _cat_key, _desc in ML_FORECAST_DESCRIPTIONS.items():
+    if _cat_key in DEFAULT_INPUT_OPTIONS:
+        _ml_v1 = f"ml_forecast_{_cat_key}_2026-10-30 06:00:00"
+        _ml_v2 = f"ml_forecast_{_cat_key}_2026-10-29 06:00:00"
+        if _ml_v1 not in DEFAULT_INPUT_OPTIONS[_cat_key]:
+            DEFAULT_INPUT_OPTIONS[_cat_key].append(_ml_v1)
+        if _ml_v2 not in DEFAULT_INPUT_OPTIONS[_cat_key]:
+            DEFAULT_INPUT_OPTIONS[_cat_key].append(_ml_v2)
+        DEFAULT_REMARKS[_ml_v1] = _desc
+        DEFAULT_REMARKS[_ml_v2] = f"{_desc} (Previous Day Run)"
+
 CATEGORY_FOLDER_MAP = {
     "actuals_input": "actuals",
     "resource_plan": "capacity",
