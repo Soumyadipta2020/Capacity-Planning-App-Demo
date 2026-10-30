@@ -64,10 +64,10 @@ DATE_COLS = [
 # Complete options catalog for every single user input
 DEFAULT_INPUT_OPTIONS = {
     "actuals_input": [
-        "actuals_2026-07-01_final.csv",
-        "actuals_2026-06-01_v2.csv",
-        "actuals_2026-05-01_v1.csv",
-        "actuals_2026-04-01_v1.csv"
+        "actuals_2026-07-01_final",
+        "actuals_2026-06-01_v2",
+        "actuals_2026-05-01_v1",
+        "actuals_2026-04-01_v1"
     ],
     "resource_plan": [
         "Latest Resource Plan V3_2026-07-07",
@@ -175,10 +175,10 @@ DEFAULT_INPUT_OPTIONS = {
 # Detailed remarks for every file version matching British Gas operations
 DEFAULT_REMARKS = {
     # Actuals Input
-    "actuals_2026-07-01_final.csv": "Audited Q3 Actuals closed by Finance",
-    "actuals_2026-06-01_v2.csv": "Pre-close June actuals with late timesheet adjustments",
-    "actuals_2026-05-01_v1.csv": "Baseline May operational actuals",
-    "actuals_2026-04-01_v1.csv": "Fiscal Q1 reconciled actuals",
+    "actuals_2026-07-01_final": "Audited Q3 Actuals closed by Finance",
+    "actuals_2026-06-01_v2": "Pre-close June actuals with late timesheet adjustments",
+    "actuals_2026-05-01_v1": "Baseline May operational actuals",
+    "actuals_2026-04-01_v1": "Fiscal Q1 reconciled actuals",
     
     # Resource Plan
     "Latest Resource Plan V3_2026-07-07": "Baseline Operating Plan V3 (Approved by Capacity Governance)",
@@ -281,6 +281,83 @@ DEFAULT_REMARKS = {
     "week_to_month_standard_v1": "Calendar month proportioning model",
     "week_to_month_calendar_2026": "Standard ISO calendar week mapping"
 }
+
+CATEGORY_FOLDER_MAP = {
+    "actuals_input": "actuals",
+    "resource_plan": "capacity",
+    "fte_transfer": "capacity",
+    "recruitment_grounded": "capacity",
+    "recruitment_ungrounded": "capacity",
+    "baseline_assumptions": "capacity",
+    "downtime_overlays_percentage": "capacity",
+    "downtime_overlays_hours": "capacity",
+    "downtime_overlays_hours_fte": "capacity",
+    "overtime": "capacity",
+    "baseline_productivity": "capacity",
+    "training_snm": "capacity",
+    "ctr_capacity": "capacity",
+    "attrition": "capacity_config",
+    "recruitment_config": "capacity_config",
+    "demand_input": "demand",
+    "job_time_assumptions": "demand_config",
+    "hec_on_kac_demand": "demand_config",
+    "hec_on_ev_demand": "demand_config",
+    "geography_mapping": "other_config",
+    "week_to_month": "other_config"
+}
+
+def parse_date_from_option(val: str) -> float:
+    """Parses date/time stamp from version string for descending sorting (latest at top)."""
+    if not val or not isinstance(val, str):
+        return 0.0
+    import re
+    from datetime import datetime
+    m = re.search(r'(\d{4})[-_](\d{2})[-_](\d{2})(?:[ _T](\d{2})[:-_](\d{2})(?:[:-_](\d{2})?)?)?', val)
+    if m:
+        try:
+            y, mo, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+            hh = int(m.group(4)) if m.group(4) else 0
+            mm = int(m.group(5)) if m.group(5) else 0
+            ss = int(m.group(6)) if m.group(6) else 0
+            return datetime(y, mo, d, hh, mm, ss).timestamp()
+        except Exception:
+            return 0.0
+    return 0.0
+
+def register_uploaded_file(file_type: str, filename: str, remarks: str = "", content: str = None) -> bool:
+    """Registers an uploaded file in DEFAULT_INPUT_OPTIONS and DEFAULT_REMARKS, saving content to disk if provided."""
+    import re
+    if file_type not in DEFAULT_INPUT_OPTIONS:
+        DEFAULT_INPUT_OPTIONS[file_type] = []
+    
+    # Clean file extension if present so dropdowns strictly have user uploaded file name _datetimestamp
+    clean_name = re.sub(r'\.(csv|xlsx|xls)$', '', filename, flags=re.IGNORECASE)
+    
+    if clean_name not in DEFAULT_INPUT_OPTIONS[file_type]:
+        DEFAULT_INPUT_OPTIONS[file_type].append(clean_name)
+        
+    # Sort dropdown options descending by timestamp (latest at top)
+    DEFAULT_INPUT_OPTIONS[file_type].sort(key=parse_date_from_option, reverse=True)
+    
+    if remarks:
+        DEFAULT_REMARKS[clean_name] = remarks
+    else:
+        DEFAULT_REMARKS[clean_name] = f"User uploaded version for {file_type}"
+        
+    if content is not None:
+        try:
+            folder = CATEGORY_FOLDER_MAP.get(file_type, "capacity")
+            target_dir = EnvironmentConfig.get_data_dir() / folder
+            target_dir.mkdir(parents=True, exist_ok=True)
+            safe_filename = clean_name if clean_name.endswith((".csv", ".xlsx", ".xls")) else f"{clean_name}.csv"
+            safe_filename = safe_filename.replace(":", "-")
+            file_path = target_dir / safe_filename
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(content)
+        except Exception as e:
+            print(f"Warning: could not write uploaded file to disk: {e}")
+            
+    return True
 
 def get_file_remark(filename: str, fallback_label: str = "") -> str:
     """Returns the operational remark associated with a selected file version."""

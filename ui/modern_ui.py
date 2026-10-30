@@ -57,6 +57,9 @@ def create_modern_ui_page():
             # Babel Standalone for live JSX interpretation with zero node.js build
             ui.tags.script(src="https://unpkg.com/@babel/standalone/babel.min.js"),
             
+            # JSZip for bundling templates into a single zip download
+            ui.tags.script(src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"),
+            
             # Tailwind configuration
             ui.tags.script(
                 """

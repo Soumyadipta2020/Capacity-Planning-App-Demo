@@ -15,7 +15,8 @@ from data_manager import (
     DEFAULT_INPUT_OPTIONS,
     DEFAULT_REMARKS,
     ScenarioManager,
-    SampleDataGenerator
+    SampleDataGenerator,
+    register_uploaded_file
 )
 from engine.data_engine import CapacityDataEngine
 from ui import (
@@ -128,6 +129,30 @@ def server(input, output, session):
                 "message": f"Loaded scenario: {scenario_id}",
                 "type": "info"
             })
+
+    # Handle Bulk File Upload & Ingestion from React UI
+    @reactive.effect
+    @reactive.event(input.bulk_upload_event)
+    def _on_react_bulk_upload():
+        data = input.bulk_upload_event()
+        if not data or not isinstance(data, dict):
+            return
+        
+        files = data.get("files", [])
+        saved_count = 0
+        for f in files:
+            f_name = f.get("name")
+            f_type = f.get("type")
+            f_remarks = f.get("remarks", "")
+            f_content = f.get("content", None)
+            if f_name and f_type:
+                register_uploaded_file(f_type, f_name, f_remarks, f_content)
+                saved_count += 1
+                
+        session.send_custom_message("show_toast", {
+            "message": f"Successfully registered {saved_count} validated file(s) in backend.",
+            "type": "success"
+        })
 
     # Register standard PyShiny server handlers (calculators, downloads, classic views)
     register_server_handlers(input, output, session)

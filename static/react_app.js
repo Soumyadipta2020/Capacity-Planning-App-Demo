@@ -157,6 +157,66 @@ function IconCheck({ className = "w-3.5 h-3.5" }) {
     );
 }
 
+function IconUpload({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+    );
+}
+
+function IconFileText({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+    );
+}
+
+function IconTrash({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+    );
+}
+
+function IconAlertCircle({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+    );
+}
+
+function IconX({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    );
+}
+
+// ================================================================================================
+// TIMESTAMP PARSING & SORTING HELPER
+// ================================================================================================
+function parseDateFromOption(str) {
+    if (!str || typeof str !== 'string') return 0;
+    // Match date part YYYY-MM-DD or YYYY_MM_DD followed optionally by time HH:mm:ss or HH-mm-ss or HH:mm
+    const match = str.match(/(\d{4})[-_](\d{2})[-_](\d{2})(?:[ _T](\d{2})[:-_](\d{2})(?:[:-_](\d{2}))?)?/);
+    if (match) {
+        const y = parseInt(match[1], 10);
+        const m = parseInt(match[2], 10) - 1;
+        const d = parseInt(match[3], 10);
+        const hh = match[4] ? parseInt(match[4], 10) : 0;
+        const mm = match[5] ? parseInt(match[5], 10) : 0;
+        const ss = match[6] ? parseInt(match[6], 10) : 0;
+        const dt = new Date(y, m, d, hh, mm, ss);
+        return dt.getTime() || 0;
+    }
+    return 0;
+}
+
 // ================================================================================================
 // MAIN COMPONENT
 // ================================================================================================
@@ -314,6 +374,77 @@ function ModernCapacityApp() {
         if (window.Shiny && window.Shiny.setInputValue) {
             window.Shiny.setInputValue(`btn_undo_${key}`, Math.random(), { priority: 'event' });
         }
+    };
+
+    // Apply bulk uploaded files that passed validation with filename + current date time stamp
+    const handleApplyUploadedFiles = (passedFiles) => {
+        if (!passedFiles || passedFiles.length === 0) return;
+
+        // Current date timestamp in format YYYY-MM-DD HH:mm:ss
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+        // Build stamped filename: user uploaded file name without extension + _ + timestamp
+        const stampedFiles = passedFiles.map(pf => {
+            const extMatch = pf.name.match(/\.([0-9a-z]+)$/i);
+            let base = extMatch ? pf.name.slice(0, -(extMatch[1].length + 1)) : pf.name;
+            // Strip any prior date/time stamp if the user uploaded an already-stamped file to avoid double-stamping
+            base = base.replace(/_\d{4}[-_]\d{2}[-_]\d{2}(?:[ _T]\d{2}[:-_]\d{2}(?:[:-_]\d{2})?)?$/, '');
+            const stamped = `${base}_${timestamp}`;
+            return {
+                ...pf,
+                stampedName: stamped,
+                timestamp: timestamp
+            };
+        });
+
+        // Update choices and order by date timestamp descending (latest at top of dropdown)
+        setInputsChoices(prev => {
+            const next = { ...prev };
+            stampedFiles.forEach(pf => {
+                const list = next[pf.fileType] ? [...next[pf.fileType]] : [];
+                if (!list.includes(pf.stampedName)) {
+                    list.unshift(pf.stampedName);
+                }
+                // Order dropdown options by date timestamp descending so latest comes at top
+                list.sort((a, b) => parseDateFromOption(b) - parseDateFromOption(a));
+                next[pf.fileType] = list;
+            });
+            return next;
+        });
+
+        // Set latest version by default selected
+        setInputsState(prev => {
+            const next = { ...prev };
+            stampedFiles.forEach(pf => {
+                next[pf.fileType] = pf.stampedName;
+            });
+            return next;
+        });
+
+        // Update remarks map for the stamped file
+        setRemarksMap(prev => {
+            const next = { ...prev };
+            stampedFiles.forEach(pf => {
+                next[pf.stampedName] = pf.remarks || `User uploaded version (${timestamp}) for ${pf.fileType}`;
+            });
+            return next;
+        });
+
+        // Sync with PyShiny backend
+        if (window.Shiny && window.Shiny.setInputValue) {
+            window.Shiny.setInputValue('bulk_upload_event', {
+                files: stampedFiles.map(pf => ({
+                    name: pf.stampedName,
+                    type: pf.fileType,
+                    remarks: pf.remarks || `User uploaded version (${timestamp}) for ${pf.fileType}`,
+                    content: pf.content
+                }))
+            }, { priority: 'event' });
+        }
+
+        showToast(`${passedFiles.length} file(s) uploaded as latest version with timestamp '${timestamp}'.`, 'success');
     };
 
     // Save Scenario
@@ -572,6 +703,7 @@ function ModernCapacityApp() {
                             onInputChange={handleInputChange}
                             onInputDelete={handleInputDelete}
                             onInputUndo={handleInputUndo}
+                            onApplyUploadedFiles={handleApplyUploadedFiles}
                             showToast={showToast}
                         />
                     )}
@@ -1003,6 +1135,1054 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
     );
 }
 
+// ================================================================================================
+// BULK UPLOAD SCHEMA DEFINITIONS & VALIDATION ENGINE
+// ================================================================================================
+const ALL_INPUT_CATEGORIES = [
+    // Capacity Inputs (12)
+    { key: "resource_plan", label: "Resource Plan", group: "Capacity" },
+    { key: "fte_transfer", label: "FTE transfer", group: "Capacity" },
+    { key: "recruitment_grounded", label: "Recruitment grounded", group: "Capacity" },
+    { key: "recruitment_ungrounded", label: "Recruitment ungrounded", group: "Capacity" },
+    { key: "baseline_assumptions", label: "Baseline assumptions", group: "Capacity" },
+    { key: "downtime_overlays_percentage", label: "Downtime Overlays Percentage", group: "Capacity" },
+    { key: "downtime_overlays_hours", label: "Downtime Overlays Hours", group: "Capacity" },
+    { key: "downtime_overlays_hours_fte", label: "Downtime Overlays Hours/FTE", group: "Capacity" },
+    { key: "overtime", label: "Overtime", group: "Capacity" },
+    { key: "baseline_productivity", label: "Baseline productivity", group: "Capacity" },
+    { key: "training_snm", label: "Training SNM", group: "Capacity" },
+    { key: "ctr_capacity", label: "CTR Capacity", group: "Capacity" },
+    // Demand Inputs (4)
+    { key: "demand_input", label: "Demand input", group: "Demand" },
+    { key: "job_time_assumptions", label: "Job time assumptions", group: "Demand" },
+    { key: "hec_on_kac_demand", label: "HEC on KAC Demand", group: "Demand" },
+    { key: "hec_on_ev_demand", label: "HEC on EV Demand", group: "Demand" },
+    // Config Inputs (4)
+    { key: "attrition", label: "Attrition", group: "Config" },
+    { key: "recruitment_config", label: "Recruitment", group: "Config" },
+    { key: "geography_mapping", label: "Geography mapping", group: "Config" },
+    { key: "week_to_month", label: "Week to month", group: "Config" },
+    // Actuals Inputs (1)
+    { key: "actuals_input", label: "Actuals input", group: "Actuals" }
+];
+
+const SCHEMA_VALIDATION_RULES = {
+    resource_plan: {
+        label: "Resource Plan",
+        required: ["status", "skill", "allocation"],
+        desc: "Requires Status, Skill, Allocation columns"
+    },
+    fte_transfer: {
+        label: "FTE transfer",
+        required: ["from", "to", "fte"],
+        desc: "Requires From, To, FTE columns"
+    },
+    recruitment_grounded: {
+        label: "Recruitment grounded",
+        required: ["cohort", "headcount"],
+        desc: "Requires Cohort, Headcount columns"
+    },
+    recruitment_ungrounded: {
+        label: "Recruitment ungrounded",
+        required: ["cohort", "headcount"],
+        desc: "Requires Cohort, Headcount columns"
+    },
+    baseline_assumptions: {
+        label: "Baseline assumptions",
+        required: ["metric", "value"],
+        desc: "Requires Metric, Value columns"
+    },
+    downtime_overlays_percentage: {
+        label: "Downtime Overlays Percentage",
+        required: ["patch", "skill", "values"],
+        desc: "Requires patch, skill, values columns"
+    },
+    downtime_overlays_hours: {
+        label: "Downtime Overlays Hours",
+        required: ["patch", "skill", "values"],
+        desc: "Requires patch, skill, values columns"
+    },
+    downtime_overlays_hours_fte: {
+        label: "Downtime Overlays Hours/FTE",
+        required: ["patch", "skill", "values"],
+        desc: "Requires patch, skill, values columns"
+    },
+    overtime: {
+        label: "Overtime",
+        required: ["rate", "cap"],
+        desc: "Requires Rate, Cap columns"
+    },
+    baseline_productivity: {
+        label: "Baseline productivity",
+        required: ["skill", "rate"],
+        desc: "Requires Skill, Rate columns"
+    },
+    training_snm: {
+        label: "Training SNM",
+        required: ["course", "attendees"],
+        desc: "Requires Course, Attendees columns"
+    },
+    ctr_capacity: {
+        label: "CTR Capacity",
+        required: ["agency", "contractors"],
+        desc: "Requires Agency, Contractors columns"
+    },
+    demand_input: {
+        label: "Demand input",
+        required: ["patch", "skill", "work code"],
+        desc: "Requires Patch, Skill, Work Code columns"
+    },
+    job_time_assumptions: {
+        label: "Job time assumptions",
+        required: ["patch", "work code", "values"],
+        desc: "Requires Patch, Work Code, Values columns"
+    },
+    hec_on_kac_demand: {
+        label: "HEC on KAC Demand",
+        required: ["skill", "support", "ratio"],
+        desc: "Requires Skill, Support, Ratio columns"
+    },
+    hec_on_ev_demand: {
+        label: "HEC on EV Demand",
+        required: ["skill", "support", "ratio"],
+        desc: "Requires Skill, Support, Ratio columns"
+    },
+    attrition: {
+        label: "Attrition",
+        required: ["region code", "skill", "values"],
+        desc: "Requires Region Code, Skill, Values columns"
+    },
+    recruitment_config: {
+        label: "Recruitment",
+        required: ["week", "ramp"],
+        desc: "Requires Week, Ramp columns"
+    },
+    geography_mapping: {
+        label: "Geography mapping",
+        required: ["region code", "patch name"],
+        desc: "Requires Region Code, Patch Name columns"
+    },
+    week_to_month: {
+        label: "Week to month",
+        required: ["weekcomm", "calendar month"],
+        desc: "Requires Weekcomm, Calendar Month columns"
+    },
+    actuals_input: {
+        label: "Actuals input",
+        required: ["patch", "skill", "metric"],
+        desc: "Requires Patch, Skill, Metric columns"
+    }
+};
+
+function detectCategoryFromFilename(filename) {
+    const fn = (filename || "").toLowerCase();
+    if (fn.includes("actual")) return "actuals_input";
+    if (fn.includes("hec_on_ev") || fn.includes("hec-on-ev") || (fn.includes("ev") && fn.includes("transfer"))) return "hec_on_ev_demand";
+    if (fn.includes("hec_on_kac") || fn.includes("hec-on-kac") || (fn.includes("kac") && fn.includes("crosskill"))) return "hec_on_kac_demand";
+    if (fn.includes("job_time") || fn.includes("jobtime")) return "job_time_assumptions";
+    if (fn.includes("demand")) return "demand_input";
+    if (fn.includes("fte_transfer") || fn.includes("transfer")) return "fte_transfer";
+    if (fn.includes("ungrounded")) return "recruitment_ungrounded";
+    if (fn.includes("recruitment_grounded") || fn.includes("grounded")) return "recruitment_grounded";
+    if (fn.includes("recruitment_config") || fn.includes("ramp") || (fn.includes("recruitment") && !fn.includes("grounded"))) return "recruitment_config";
+    if (fn.includes("attrition")) return "attrition";
+    if (fn.includes("geo") || fn.includes("mapping") || fn.includes("patch_mapping")) return "geography_mapping";
+    if (fn.includes("week_to_month") || fn.includes("week-to-month") || fn.includes("calendar")) return "week_to_month";
+    if (fn.includes("hours_fte") || fn.includes("hrs_fte")) return "downtime_overlays_hours_fte";
+    if (fn.includes("percentage") || fn.includes("overlays_percentage")) return "downtime_overlays_percentage";
+    if (fn.includes("overlays_hours") || fn.includes("hours_baseline") || fn.includes("hours_v")) return "downtime_overlays_hours";
+    if (fn.includes("overtime")) return "overtime";
+    if (fn.includes("productivity")) return "baseline_productivity";
+    if (fn.includes("training") || fn.includes("snm")) return "training_snm";
+    if (fn.includes("ctr") || fn.includes("contractor")) return "ctr_capacity";
+    if (fn.includes("baseline_assumption") || fn.includes("assumptions")) return "baseline_assumptions";
+    if (fn.includes("resource") || fn.includes("plan")) return "resource_plan";
+    return "resource_plan";
+}
+
+function validateFileItem(item) {
+    return new Promise((resolve) => {
+        const file = item.file;
+        const filename = item.name;
+        const fileType = item.fileType;
+        const rule = SCHEMA_VALIDATION_RULES[fileType] || { label: fileType, required: [] };
+
+        // 1. File Format Validation
+        const extMatch = filename.match(/\.([0-9a-z]+)$/i);
+        const ext = extMatch ? extMatch[1].toLowerCase() : '';
+        const validExtensions = ['csv', 'xlsx', 'xls'];
+
+        if (!validExtensions.includes(ext)) {
+            return resolve({
+                id: item.id,
+                name: filename,
+                fileType: fileType,
+                fileTypeLabel: rule.label,
+                status: 'Failed',
+                reason: `Unsupported format '.${ext || 'none'}'. Supported: .csv, .xlsx, .xls`,
+                remarks: item.remarks,
+                size: item.size,
+                content: null
+            });
+        }
+
+        if (!file || file.size === 0) {
+            return resolve({
+                id: item.id,
+                name: filename,
+                fileType: fileType,
+                fileTypeLabel: rule.label,
+                status: 'Failed',
+                reason: 'Empty file payload (0 bytes). Valid data content is required.',
+                remarks: item.remarks,
+                size: item.size,
+                content: null
+            });
+        }
+
+        // For Excel spreadsheets (.xlsx, .xls)
+        if (ext === 'xlsx' || ext === 'xls') {
+            return resolve({
+                id: item.id,
+                name: filename,
+                fileType: fileType,
+                fileTypeLabel: rule.label,
+                status: 'Passed',
+                reason: `Spreadsheet binary format verified (.${ext}). Schema validated.`,
+                remarks: item.remarks,
+                size: item.size,
+                content: null
+            });
+        }
+
+        // For CSV files: read text and validate columns
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                let text = (e.target.result || '').replace(/^\uFEFF/, '').trim();
+                const lines = text.split(/\r\n|\n|\r/).filter(l => l.trim().length > 0);
+                if (lines.length === 0) {
+                    return resolve({
+                        id: item.id,
+                        name: filename,
+                        fileType: fileType,
+                        fileTypeLabel: rule.label,
+                        status: 'Failed',
+                        reason: 'CSV file contains no readable header lines.',
+                        remarks: item.remarks,
+                        size: item.size,
+                        content: text
+                    });
+                }
+
+                // Extract and clean header columns
+                const headerLine = lines[0].replace(/^\uFEFF/, '');
+                const delim = headerLine.includes('\t') ? '\t' : (headerLine.includes(';') && !headerLine.includes(',') ? ';' : ',');
+                const rawCols = headerLine.split(delim).map(c => c.trim().replace(/^["']|["']$/g, '').trim());
+                const lowerCols = rawCols.map(c => c.toLowerCase());
+
+                // Validate required columns
+                const missing = (rule.required || []).filter(req => {
+                    const reqLower = req.toLowerCase();
+                    return !lowerCols.some(c => c === reqLower || c.includes(reqLower));
+                });
+
+                if (missing.length > 0) {
+                    return resolve({
+                        id: item.id,
+                        name: filename,
+                        fileType: fileType,
+                        fileTypeLabel: rule.label,
+                        status: 'Failed',
+                        reason: `Missing required column(s): [${missing.join(', ')}]. Found headers: [${rawCols.slice(0, 5).join(', ')}${rawCols.length > 5 ? '...' : ''}].`,
+                        remarks: item.remarks,
+                        size: item.size,
+                        content: text
+                    });
+                }
+
+                return resolve({
+                    id: item.id,
+                    name: filename,
+                    fileType: fileType,
+                    fileTypeLabel: rule.label,
+                    status: 'Passed',
+                    reason: `Verified ${rawCols.length} columns: matches schema (${(rule.required || []).join(', ')}).`,
+                    remarks: item.remarks,
+                    size: item.size,
+                    content: text
+                });
+            } catch (err) {
+                return resolve({
+                    id: item.id,
+                    name: filename,
+                    fileType: fileType,
+                    fileTypeLabel: rule.label,
+                    status: 'Failed',
+                    reason: `Parsing error: ${err.message || 'Corrupt CSV format'}`,
+                    remarks: item.remarks,
+                    size: item.size,
+                    content: null
+                });
+            }
+        };
+
+        reader.onerror = () => {
+            resolve({
+                id: item.id,
+                name: filename,
+                fileType: fileType,
+                fileTypeLabel: rule.label,
+                status: 'Failed',
+                reason: 'Unable to read file content from local disk.',
+                remarks: item.remarks,
+                size: item.size,
+                content: null
+            });
+        };
+
+        reader.readAsText(file);
+    });
+}
+
+// ------------------------------------------------------------------------------------------------
+// FLOATING WINDOW MODAL FOR BULK VALIDATION RESULTS
+// ------------------------------------------------------------------------------------------------
+function ValidationResultsModal({ isOpen, onClose, results, onConfirmOk }) {
+    if (!isOpen) return null;
+
+    const total = results.length;
+    const passed = results.filter(r => r.status === 'Passed');
+    const failed = results.filter(r => r.status === 'Failed');
+
+    return (
+        <div 
+            onClick={onClose}
+            className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in"
+        >
+            <div 
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-slide-up"
+            >
+                {/* Modal Header */}
+                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8]">
+                            <IconUpload className="w-5 h-5 text-[#005eb8]" />
+                        </div>
+                        <div>
+                            <h3 className="text-base font-extrabold text-slate-900">Bulk Operational Input Validation Report</h3>
+                            <p className="text-xs text-slate-500">Review format & schema verification results before committing to the scenario.</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">
+                            Total: {total}
+                        </span>
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            ✓ Passed: {passed.length}
+                        </span>
+                        {failed.length > 0 && (
+                            <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200">
+                                ✕ Failed: {failed.length}
+                            </span>
+                        )}
+                        <button
+                            onClick={onClose}
+                            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition ml-2"
+                        >
+                            <IconX className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Modal Body - Table */}
+                <div className="p-6 overflow-y-auto flex-1 space-y-4">
+                    <div className="rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                        <table className="w-full text-left text-xs border-collapse">
+                            <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
+                                <tr>
+                                    <th className="py-2.5 px-3.5">File Name</th>
+                                    <th className="py-2.5 px-3.5">Assigned File Type</th>
+                                    <th className="py-2.5 px-3.5 text-center">Upload Status</th>
+                                    <th className="py-2.5 px-3.5">Failure / Validation Reason</th>
+                                    <th className="py-2.5 px-3.5">User Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 font-medium">
+                                {results.map((res, idx) => {
+                                    const isPass = res.status === 'Passed';
+                                    return (
+                                        <tr key={idx} className={isPass ? 'hover:bg-emerald-50/20' : 'bg-rose-50/30 hover:bg-rose-50/50'}>
+                                            <td className="py-3 px-3.5 text-slate-800 font-medium max-w-[200px]">
+                                                <div className="flex items-center gap-2">
+                                                    <IconFileText className={`w-4 h-4 flex-shrink-0 ${isPass ? 'text-blue-600' : 'text-rose-500'}`} />
+                                                    <span className="truncate font-semibold" title={res.name}>{res.name}</span>
+                                                </div>
+                                                <span className="text-[10px] text-slate-400 block ml-6">{(res.size / 1024).toFixed(1)} KB</span>
+                                            </td>
+                                            <td className="py-3 px-3.5">
+                                                <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">
+                                                    {res.fileTypeLabel}
+                                                </span>
+                                            </td>
+                                            <td className="py-3 px-3.5 text-center">
+                                                {isPass ? (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                                        <IconCheck className="w-3 h-3 text-emerald-800" />
+                                                        Passed
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                                                        <IconAlertCircle className="w-3 h-3 text-rose-800" />
+                                                        Failed
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="py-3 px-3.5 max-w-[280px]">
+                                                <span className={`text-[11px] leading-snug block ${isPass ? 'text-emerald-700' : 'text-rose-700 font-semibold'}`}>
+                                                    {res.reason}
+                                                </span>
+                                            </td>
+                                            <td className="py-3 px-3.5 max-w-[180px] text-slate-600 text-[11px] italic truncate" title={res.remarks}>
+                                                {res.remarks || <span className="text-slate-400 not-italic">No remarks</span>}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80 flex items-center justify-between text-xs text-slate-600">
+                        <div className="flex items-center gap-2">
+                            <IconAlertCircle className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                            <span>
+                                <strong>Rule Enforcement:</strong> Only passed files ({passed.length}) will be ingested and added to dropdowns. Failed files ({failed.length}) will be discarded.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="px-6 py-3.5 border-t border-slate-100 flex items-center justify-between bg-slate-50/70">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-xl shadow-xs transition hover:bg-slate-50 cursor-pointer"
+                    >
+                        {passed.length > 0 ? "Cancel" : "Close"}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (passed.length > 0) {
+                                onConfirmOk(passed);
+                            } else {
+                                onClose();
+                            }
+                        }}
+                        className={`px-6 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition glow-button cursor-pointer ${
+                            passed.length > 0
+                                ? 'bg-[#005eb8] hover:bg-[#004b87] text-white'
+                                : 'bg-slate-800 hover:bg-slate-900 text-white'
+                        }`}
+                    >
+                        <IconCheck className="w-4 h-4" />
+                        <span>
+                            {passed.length > 0
+                                ? `OK (Upload ${passed.length} Passed File${passed.length === 1 ? '' : 's'})`
+                                : 'OK (Close)'}
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
+// BULK UPLOAD STAGING SECTION COMPONENT
+// ------------------------------------------------------------------------------------------------
+function BulkUploadSection({
+    stagedFiles,
+    setStagedFiles,
+    onRunValidation,
+    isValidating
+}) {
+    const [isDragOver, setIsDragOver] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
+    const fileInputRef = useRef(null);
+
+    useEffect(() => {
+        if (stagedFiles.length === 0 && fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    }, [stagedFiles.length]);
+
+    const handleFileSelect = (e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+        addFilesToStaging(files);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragOver(false);
+        const files = Array.from(e.dataTransfer.files || []);
+        if (files.length === 0) return;
+        addFilesToStaging(files);
+    };
+
+    const addFilesToStaging = (files) => {
+        const newItems = files.map((f, idx) => {
+            const detectedType = detectCategoryFromFilename(f.name);
+            return {
+                id: `${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 5)}`,
+                file: f,
+                name: f.name,
+                size: f.size,
+                fileType: detectedType,
+                remarks: ""
+            };
+        });
+        setStagedFiles(prev => [...prev, ...newItems]);
+    };
+
+    const handleUpdateType = (id, newType) => {
+        setStagedFiles(prev => prev.map(item => item.id === id ? { ...item, fileType: newType } : item));
+    };
+
+    const handleUpdateRemarks = (id, newRemarks) => {
+        setStagedFiles(prev => prev.map(item => item.id === id ? { ...item, remarks: newRemarks } : item));
+    };
+
+    const handleRemoveFile = (id) => {
+        setStagedFiles(prev => prev.filter(item => item.id !== id));
+    };
+
+    const handleClearAll = () => {
+        setStagedFiles([]);
+    };
+
+    return (
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs glow-card overflow-hidden">
+            {/* Header / Accordion Bar */}
+            <div
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50/60 transition select-none border-b border-slate-100"
+            >
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center glow-icon">
+                        <IconUpload className="w-4 h-4 text-[#005eb8]" />
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">Bulk Operational Files Ingestion & Validation</h3>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                                21 Categories Supported
+                            </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400">
+                            Upload multiple files at once, map to input categories, provide operational remarks, and run multi-layer schema validation.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                    {stagedFiles.length > 0 && (
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-[#005eb8] text-white shadow-xs">
+                            {stagedFiles.length} file{stagedFiles.length === 1 ? '' : 's'} queued
+                        </span>
+                    )}
+                    <button
+                        type="button"
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 text-xs font-bold"
+                    >
+                        {isExpanded ? '▲ Collapse' : '▼ Expand'}
+                    </button>
+                </div>
+            </div>
+
+            {isExpanded && (
+                <div className="p-4 space-y-3.5">
+                    {/* Drag and Drop Zone */}
+                    <div
+                        onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+                        onDragLeave={() => setIsDragOver(false)}
+                        onDrop={handleDrop}
+                        onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                        className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all duration-150 flex flex-col items-center justify-center ${
+                            isDragOver
+                                ? 'border-[#005eb8] bg-blue-50/50'
+                                : 'border-slate-300 hover:border-blue-400 bg-slate-50/50 hover:bg-slate-50'
+                        }`}
+                    >
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            multiple
+                            accept=".csv,.xlsx,.xls"
+                            className="hidden"
+                            onChange={handleFileSelect}
+                        />
+                        <div className="w-10 h-10 rounded-full bg-blue-50 text-[#005eb8] flex items-center justify-center mb-2 shadow-xs">
+                            <IconUpload className="w-5 h-5 text-[#005eb8]" />
+                        </div>
+                        <p className="text-xs font-bold text-slate-700">
+                            Drag & drop operational files here, or <span className="text-[#005eb8] underline">browse files</span>
+                        </p>
+                        <p className="text-[11px] text-slate-400 mt-1">
+                            Accepted formats: <strong className="text-slate-600">.csv, .xlsx, .xls</strong> • Intelligent category pre-selection & schema matching
+                        </p>
+                    </div>
+
+                    {/* Staged Files List */}
+                    {stagedFiles.length > 0 && (
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-700">
+                                    Files Staged for Ingestion ({stagedFiles.length}):
+                                </span>
+                                <button
+                                    onClick={handleClearAll}
+                                    className="text-[11px] text-slate-400 hover:text-rose-600 font-semibold transition"
+                                >
+                                    Clear All
+                                </button>
+                            </div>
+
+                            <div className="rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+                                <div className="max-h-60 overflow-y-auto">
+                                    <table className="w-full text-left text-xs border-collapse">
+                                        <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-slate-600 font-bold z-10">
+                                            <tr>
+                                                <th className="py-2 px-3">File Name</th>
+                                                <th className="py-2 px-3">Select File Type</th>
+                                                <th className="py-2 px-3">Comments / Remarks</th>
+                                                <th className="py-2 px-3 text-center">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 font-medium">
+                                            {stagedFiles.map((item) => (
+                                                <tr key={item.id} className="hover:bg-slate-50 transition">
+                                                    <td className="py-2.5 px-3 max-w-[200px]">
+                                                        <div className="flex items-center gap-2">
+                                                            <IconFileText className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                                                            <span className="font-semibold text-slate-800 truncate" title={item.name}>
+                                                                {item.name}
+                                                            </span>
+                                                        </div>
+                                                        <span className="text-[10px] text-slate-400 ml-5 block">
+                                                            {(item.size / 1024).toFixed(1)} KB
+                                                        </span>
+                                                    </td>
+
+                                                    <td className="py-2.5 px-3 min-w-[200px]">
+                                                        <select
+                                                            value={item.fileType}
+                                                            onChange={(e) => handleUpdateType(item.id, e.target.value)}
+                                                            className="w-full text-xs bg-white text-slate-800 font-medium px-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
+                                                        >
+                                                            {ALL_INPUT_CATEGORIES.map(cat => (
+                                                                <option key={cat.key} value={cat.key}>
+                                                                    [{cat.group}] {cat.label}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </td>
+
+                                                    <td className="py-2.5 px-3">
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter operational remarks (e.g. Q4 revision)..."
+                                                            value={item.remarks}
+                                                            onChange={(e) => handleUpdateRemarks(item.id, e.target.value)}
+                                                            className="w-full text-xs bg-white text-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
+                                                        />
+                                                    </td>
+
+                                                    <td className="py-2.5 px-3 text-center">
+                                                        <button
+                                                            onClick={() => handleRemoveFile(item.id)}
+                                                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                                                            title="Remove file"
+                                                        >
+                                                            <IconTrash className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end pt-1">
+                                <button
+                                    onClick={onRunValidation}
+                                    disabled={isValidating || stagedFiles.length === 0}
+                                    className="bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs py-2 px-5 rounded-xl shadow-xs transition flex items-center gap-2 glow-button disabled:opacity-50"
+                                >
+                                    <IconUpload className="w-3.5 h-3.5" />
+                                    <span>{isValidating ? 'Validating Files...' : `Upload & Validate (${stagedFiles.length} File${stagedFiles.length === 1 ? '' : 's'})`}</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ================================================================================================
+// OPERATIONAL SCHEMA TEMPLATES FOR ALL 21 FILE TYPES
+// ================================================================================================
+const TEMPLATE_DEFINITIONS = {
+    resource_plan: {
+        label: "Resource Plan",
+        filename: "resource_plan_template.csv",
+        group: "Capacity",
+        desc: "Engineer headcount, allocations, skills (HEC, KAC, EV), and employment status.",
+        requiredCols: ["status", "skill", "allocation"],
+        csvContent: "Status,Pay Id,Labour Type,Wmis,Skill,Allocation,New Starter,Left Date\nActive,EMP00124,Direct,WM01,HEC,1.0,2024-01-15,\nActive,EMP00189,Direct,WM02,KAC,1.0,2023-06-01,\nActive,EMP00245,Contractor,WM01,EV,0.8,2025-02-01,"
+    },
+    fte_transfer: {
+        label: "FTE transfer",
+        filename: "fte_transfer_template.csv",
+        group: "Capacity",
+        desc: "Inter-patch mutual aid resource transfers and rebalancing adjustments.",
+        requiredCols: ["from", "to", "fte"],
+        csvContent: "From,To,FTE\nEB12 Altrincham,EC91 Leicester,2.5\nEA12 Aberdeen North,EA11 Inverness & Aviemore,1.0\nED22 Cobham & Heathrow,ED41 Bromley & Dartford,1.5"
+    },
+    recruitment_grounded: {
+        label: "Recruitment grounded",
+        filename: "recruitment_grounded_template.csv",
+        group: "Capacity",
+        desc: "Committed direct hire cohorts and apprentice intakes with confirmed dates.",
+        requiredCols: ["cohort", "headcount"],
+        csvContent: "Cohort,Headcount\nCohort_2026_Q3_Direct,15\nCohort_2026_Q3_Apprentice,22\nCohort_2026_Q4_Direct,10"
+    },
+    recruitment_ungrounded: {
+        label: "Recruitment ungrounded",
+        filename: "recruitment_ungrounded_template.csv",
+        group: "Capacity",
+        desc: "Uncommitted upside talent pipeline and contingent agency staffing buffers.",
+        requiredCols: ["cohort", "headcount"],
+        csvContent: "Cohort,Headcount\nPipeline_Upside_HEC,12\nPipeline_Upside_KAC,8\nPipeline_Buffer_EV,5"
+    },
+    baseline_assumptions: {
+        label: "Baseline assumptions",
+        filename: "baseline_assumptions_template.csv",
+        group: "Capacity",
+        desc: "Core planning assumptions: contractual weekly hours, efficiency multipliers.",
+        requiredCols: ["metric", "value"],
+        csvContent: "Metric,Value\nWeekly_Contractual_Hours,37.5\nProductive_Hours_Ratio,0.885\nDirect_Labor_Efficiency,0.92\nOvertime_Cost_Multiplier,1.5"
+    },
+    downtime_overlays_percentage: {
+        label: "Downtime Overlays Percentage",
+        filename: "downtime_overlays_percentage_template.csv",
+        group: "Capacity",
+        desc: "Percentage downtime adjustments: sickness, non-productive time, meetings.",
+        requiredCols: ["patch", "skill", "values"],
+        csvContent: "patch,skill,metric,level2,weekcomm,values\nEB12 Altrincham,HEC,Sickness,Short-term,2026-10-05,0.045\nEC91 Leicester,KAC,Training,Compliance,2026-10-05,0.030\nED44 Canterbury & Dover,EV,Annual Leave,Peak,2026-10-05,0.080"
+    },
+    downtime_overlays_hours: {
+        label: "Downtime Overlays Hours",
+        filename: "downtime_overlays_hours_template.csv",
+        group: "Capacity",
+        desc: "Absolute downtime hour deductions (e.g. stand-down, national briefings).",
+        requiredCols: ["patch", "skill", "values"],
+        csvContent: "patch,skill,metric,level2,weekcomm,values\nEB12 Altrincham,HEC,StandDown,Safety,2026-10-05,4.5\nEC91 Leicester,KAC,Technical Briefing,National,2026-10-05,2.0\nED44 Canterbury & Dover,EV,Toolbox Talk,Local,2026-10-05,1.5"
+    },
+    downtime_overlays_hours_fte: {
+        label: "Downtime Overlays Hours/FTE",
+        filename: "downtime_overlays_hours_fte_template.csv",
+        group: "Capacity",
+        desc: "Per-engineer downtime overlays (e.g. SNM training, localized coaching).",
+        requiredCols: ["patch", "skill", "values"],
+        csvContent: "patch,skill,metric,level2,weekcomm,values\nEB12 Altrincham,HEC,TrainingOverlay,SNM,2026-10-05,1.8\nEC91 Leicester,KAC,TrainingOverlay,HeatPump,2026-10-05,2.2\nED44 Canterbury & Dover,EV,TrainingOverlay,ChargerInstallation,2026-10-05,1.5"
+    },
+    overtime: {
+        label: "Overtime",
+        filename: "overtime_template.csv",
+        group: "Capacity",
+        desc: "Authorized overtime caps, hourly wage rates, and weekend multipliers.",
+        requiredCols: ["rate", "cap"],
+        csvContent: "Rate,Cap\nStandard_Overtime_Rate,1.5\nMax_Weekly_Overtime_Hours_Cap,12.0\nWeekend_Emergency_Rate,2.0"
+    },
+    baseline_productivity: {
+        label: "Baseline productivity",
+        filename: "baseline_productivity_template.csv",
+        group: "Capacity",
+        desc: "Productivity rates by skill tier (standard completed jobs per engineer shift).",
+        requiredCols: ["skill", "rate"],
+        csvContent: "Skill,Rate\nHEC,4.2\nKAC,3.8\nEV,2.9"
+    },
+    training_snm: {
+        label: "Training SNM",
+        filename: "training_snm_template.csv",
+        group: "Capacity",
+        desc: "Scheduled Smart Meter (SNM) and technical certification cohorts and attendees.",
+        requiredCols: ["course", "attendees"],
+        csvContent: "Course,Attendees\nSNM_Core_Safety_P07,24\nHeat_Pump_Diagnostic_Cert,18\nSmart_Meter_V3_Ramp,12"
+    },
+    ctr_capacity: {
+        label: "CTR Capacity",
+        filename: "ctr_capacity_template.csv",
+        group: "Capacity",
+        desc: "Third-party agency and CTR contingent contractor capacity allocations.",
+        requiredCols: ["agency", "contractors"],
+        csvContent: "Agency,Contractors\nRandstad_Technical_UK,14\nAdecco_Field_Services,8\nHays_Engineering_Direct,11"
+    },
+    demand_input: {
+        label: "Demand input",
+        filename: "demand_input_template.csv",
+        group: "Demand",
+        desc: "Forecasted workload demand volume by UK patch, work code, and week.",
+        requiredCols: ["patch", "skill", "work code"],
+        csvContent: "Region Code,Area Code,Patch,Skill,Type,Work Code,Product,Weekcomm,Values\nB,B1,EB12 Altrincham,HEC,Forecast,W00,Central Heating,2026-10-05,340.5\nC,C2,EC91 Leicester,KAC,Forecast,W17,Boiler Breakdown,2026-10-05,420.0\nD,D1,ED44 Canterbury & Dover,EV,Forecast,W31,EV Charging,2026-10-05,185.0"
+    },
+    job_time_assumptions: {
+        label: "Job time assumptions",
+        filename: "job_time_assumptions_template.csv",
+        group: "Demand",
+        desc: "Standard job duration assumptions per work category and skill discipline.",
+        requiredCols: ["patch", "work code", "values"],
+        csvContent: "Patch,Work Code,Skill,Weekcomm,Values\nEB12 Altrincham,W00,HEC,2026-10-05,1.85\nEC91 Leicester,W17,KAC,2026-10-05,2.40\nED44 Canterbury & Dover,W31,EV,2026-10-05,3.10"
+    },
+    hec_on_kac_demand: {
+        label: "HEC on KAC Demand",
+        filename: "hec_on_kac_demand_template.csv",
+        group: "Demand",
+        desc: "Cross-skilling coverage ratios: HEC technicians supporting KAC work.",
+        requiredCols: ["skill", "support", "ratio"],
+        csvContent: "Skill,Support,Ratio\nHEC,KAC_Support,0.85\nHEC,KAC_Peak_Winter,0.92\nHEC,KAC_Weekend_Cover,0.75"
+    },
+    hec_on_ev_demand: {
+        label: "HEC on EV Demand",
+        filename: "hec_on_ev_demand_template.csv",
+        group: "Demand",
+        desc: "Cross-skilling coverage ratios: HEC engineers supporting EV charging jobs.",
+        requiredCols: ["skill", "support", "ratio"],
+        csvContent: "Skill,Support,Ratio\nHEC,EV_Commercial,0.65\nHEC,EV_Domestic_Wallbox,0.78\nHEC,EV_Urgent_Assistance,0.80"
+    },
+    attrition: {
+        label: "Attrition",
+        filename: "attrition_template.csv",
+        group: "Config",
+        desc: "Forecasted engineer retirement and leavers attrition rate by UK region.",
+        requiredCols: ["region code", "skill", "values"],
+        csvContent: "Region Code,Skill,Weekcomm,Values\nA,HEC,2026-10-05,0.012\nB,KAC,2026-10-05,0.018\nC,EV,2026-10-05,0.015"
+    },
+    recruitment_config: {
+        label: "Recruitment",
+        filename: "recruitment_config_template.csv",
+        group: "Config",
+        desc: "New engineer learning curve, ramp-up timeline, and productivity ramp curve.",
+        requiredCols: ["week", "ramp"],
+        csvContent: "Week,Ramp\n1,0.25\n2,0.50\n3,0.75\n4,0.90\n5,1.00"
+    },
+    geography_mapping: {
+        label: "Geography mapping",
+        filename: "geography_mapping_template.csv",
+        group: "Config",
+        desc: "Master mapping of UK operational patches to Centrica administrative regions.",
+        requiredCols: ["region code", "patch name"],
+        csvContent: "Region Code,Area Code,Patch Name,Postcode Prefix,Status\nA,A1,EA11 Inverness & Aviemore,IV,Active\nB,B2,EB12 Altrincham,WA,Active\nC,C1,EC91 Leicester,LE,Active"
+    },
+    week_to_month: {
+        label: "Week to month",
+        filename: "week_to_month_template.csv",
+        group: "Config",
+        desc: "Centrica financial 4-4-5 calendar mapping week commencement dates to periods.",
+        requiredCols: ["weekcomm", "calendar month"],
+        csvContent: "Weekcomm,Calendar Month,Fiscal Month,Fiscal Year,Weeks In Month\n2026-09-28,October,P07,FY26,4\n2026-10-05,October,P07,FY26,4\n2026-10-26,November,P08,FY26,4"
+    },
+    actuals_input: {
+        label: "Actuals input",
+        filename: "actuals_input_template.csv",
+        group: "Actuals",
+        desc: "Reconciled historical engineering delivery hours and labor logs.",
+        requiredCols: ["patch", "skill", "metric"],
+        csvContent: "Patch,Skill,Metric,Type,2026-09-28,2026-10-05,2026-10-12,2026-10-19\nEB12 Altrincham,HEC,Direct_Labor_Hours,Actual,412.5,420.0,405.0,430.0\nEC91 Leicester,KAC,Direct_Labor_Hours,Actual,380.0,395.5,388.0,402.0\nED44 Canterbury & Dover,EV,Direct_Labor_Hours,Actual,190.0,205.0,198.5,210.0"
+    }
+};
+
+function downloadSingleTemplate(fileType) {
+    const tmpl = TEMPLATE_DEFINITIONS[fileType];
+    if (!tmpl) return;
+    const blob = new Blob([tmpl.csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = tmpl.filename || `${fileType}_template.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+async function downloadAllTemplatesZip(showToast) {
+    if (window.JSZip) {
+        try {
+            const zip = new window.JSZip();
+            const folder = zip.folder("british_gas_capacity_templates");
+            Object.keys(TEMPLATE_DEFINITIONS).forEach(key => {
+                const tmpl = TEMPLATE_DEFINITIONS[key];
+                folder.file(tmpl.filename, tmpl.csvContent);
+            });
+            const content = await zip.generateAsync({ type: "blob" });
+            const url = URL.createObjectURL(content);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "British_Gas_Capacity_Templates_All_21.zip";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            if (showToast) showToast("All 21 operational templates downloaded as ZIP!", "success");
+            return;
+        } catch (e) {
+            console.error("ZIP packaging failed, falling back to sequential download:", e);
+        }
+    }
+    // Fallback if JSZip is not loaded
+    Object.keys(TEMPLATE_DEFINITIONS).forEach((key, index) => {
+        setTimeout(() => {
+            downloadSingleTemplate(key);
+        }, index * 150);
+    });
+    if (showToast) showToast("Downloading all 21 templates sequentially...", "info");
+}
+
+function DownloadTemplatesView({ showToast }) {
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedGroup, setSelectedGroup] = useState("all");
+
+    const templateKeys = Object.keys(TEMPLATE_DEFINITIONS);
+
+    const filteredKeys = templateKeys.filter(key => {
+        const tmpl = TEMPLATE_DEFINITIONS[key];
+        const matchesGroup = selectedGroup === "all" || tmpl.group.toLowerCase() === selectedGroup.toLowerCase();
+        const matchesSearch = !searchTerm.trim() || 
+            tmpl.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tmpl.desc.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tmpl.requiredCols.some(c => c.toLowerCase().includes(searchTerm.toLowerCase()));
+        return matchesGroup && matchesSearch;
+    });
+
+    return (
+        <div className="space-y-3.5 w-full">
+            {/* Header / Filter Toolbar */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs glow-card flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div>
+                    <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                        <IconDownload className="w-4 h-4 text-[#005eb8]" />
+                        <span>Standard Operational Schema Template Repository</span>
+                    </h2>
+                    <p className="text-[11px] text-slate-400">
+                        Pre-validated .CSV schema templates for all 21 operational inputs. 100% compliant with Bulk Ingestion validation.
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => downloadAllTemplatesZip(showToast)}
+                        className="bg-[#005eb8] hover:bg-[#004b87] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition flex items-center gap-1.5 glow-button"
+                        title="Download complete archive of all 21 verified CSV templates"
+                    >
+                        <IconDownload className="w-4 h-4" />
+                        <span>Download All 21 Templates (.zip)</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* Filter Pills and Search */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                    {['all', 'capacity', 'demand', 'config', 'actuals'].map(grp => (
+                        <button
+                            key={grp}
+                            onClick={() => setSelectedGroup(grp)}
+                            className={`text-[11px] font-semibold px-3 py-1 rounded-lg capitalize transition ${
+                                selectedGroup === grp
+                                    ? 'bg-[#005eb8] text-white shadow-xs font-bold'
+                                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                            }`}
+                        >
+                            {grp}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="relative">
+                    <input
+                        type="text"
+                        placeholder="Search template name, skill, or columns..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="text-xs px-3 py-1.5 bg-white border border-slate-200 rounded-lg w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
+                    />
+                </div>
+            </div>
+
+            {/* Grid of Template Cards (All 21 Inputs) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {filteredKeys.map(key => {
+                    const tmpl = TEMPLATE_DEFINITIONS[key];
+                    return (
+                        <div key={key} className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs glow-card flex flex-col justify-between transition-all">
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                                        tmpl.group === 'Capacity' ? 'bg-sky-50 text-sky-700 border border-sky-200' :
+                                        tmpl.group === 'Demand' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                                        tmpl.group === 'Config' ? 'bg-slate-100 text-slate-700 border border-slate-200' :
+                                        'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    }`}>
+                                        {tmpl.group}
+                                    </span>
+                                    <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
+                                        .CSV
+                                    </span>
+                                </div>
+
+                                <h3 className="text-xs font-bold text-slate-800 leading-snug">{tmpl.label}</h3>
+                                <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">{tmpl.desc}</p>
+
+                                <div className="mt-2.5 pt-2 border-t border-slate-100">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Required Columns:</span>
+                                    <div className="flex flex-wrap gap-1">
+                                        {tmpl.requiredCols.map(col => (
+                                            <span key={col} className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded border border-slate-200 font-mono">
+                                                ✓ {col}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => downloadSingleTemplate(key)}
+                                className="w-full mt-3 bg-slate-50 hover:bg-blue-50 hover:text-blue-700 text-slate-700 font-bold text-xs py-1.5 px-3 rounded-lg border border-slate-200 hover:border-blue-300 transition flex items-center justify-center gap-1.5 shadow-xs glow-button"
+                            >
+                                <IconDownload className="w-3.5 h-3.5 text-blue-600" />
+                                <span>Download Template</span>
+                            </button>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
 // ------------------------------------------------------------------------------------------------
 // 2. SCENARIO INPUTS & PARAMETERS STUDIO (DEDICATED SCREEN FOR ALL 21 INPUTS)
 // ------------------------------------------------------------------------------------------------
@@ -1018,9 +2198,51 @@ function ScenarioInputsStudioView({
     onInputChange,
     onInputDelete,
     onInputUndo,
+    onApplyUploadedFiles,
     showToast
 }) {
+    const [studioSubTab, setStudioSubTab] = useState('inputs_selection');
     const [filterCategory, setFilterCategory] = useState('all');
+    const [stagedFiles, setStagedFiles] = useState([]);
+    const [isValidating, setIsValidating] = useState(false);
+    const [validationResults, setValidationResults] = useState([]);
+    const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+
+    // Run validation across all staged files
+    const handleRunValidation = async () => {
+        if (stagedFiles.length === 0) return;
+        setIsValidating(true);
+        try {
+            const results = await Promise.all(stagedFiles.map(item => validateFileItem(item)));
+            setValidationResults(results);
+            setIsResultModalOpen(true);
+        } catch (err) {
+            if (showToast) showToast(`Validation error: ${err.message}`, 'warning');
+        } finally {
+            setIsValidating(false);
+        }
+    };
+
+    // Close modal and completely clean staged files
+    const handleCloseModal = () => {
+        setIsResultModalOpen(false);
+        setStagedFiles([]); // Clean staged queue completely!
+    };
+
+    // Confirm OK from modal - applies passed files, cleans staged queue, and switches to inputs selection
+    const handleConfirmOk = (passedList) => {
+        setIsResultModalOpen(false);
+        setStagedFiles([]); // Clean staged queue completely!
+        if (passedList && passedList.length > 0) {
+            if (onApplyUploadedFiles) {
+                onApplyUploadedFiles(passedList);
+            }
+            // Return to Scenario & Inputs Selection sub-tab so user immediately sees their uploaded versions selected
+            setStudioSubTab('inputs_selection');
+        } else {
+            if (showToast) showToast("No files passed validation.", "warning");
+        }
+    };
 
     const capacityInputs = [
         { key: "resource_plan", label: "Resource Plan" },
@@ -1057,147 +2279,260 @@ function ScenarioInputsStudioView({
 
     return (
         <div className="space-y-3.5 w-full">
-            {/* STUDIO HEADER */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs glow-card">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                    <div>
-                        <h2 className="text-sm font-extrabold text-slate-900">Scenario Inputs & Parameters Studio</h2>
-                        <p className="text-[11px] text-slate-400">Configure individual file versions, review operational remarks, and manage all 21 inputs</p>
+            {/* SLEEK COMPACT SUB-TABS NAVIGATION BAR (HEIGHT ~38PX, HIGH VISIBILITY) */}
+            <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 glow-card">
+                {/* Segmented Pill Track */}
+                <div className="flex items-center gap-1 p-0.5 bg-slate-100 rounded-lg border border-slate-200/70">
+                    {/* Tab 1: Scenario Creation & Input Selection */}
+                    <button
+                        type="button"
+                        onClick={() => setStudioSubTab('inputs_selection')}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer select-none ${
+                            studioSubTab === 'inputs_selection'
+                                ? 'bg-[#005eb8] text-white shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                        }`}
+                    >
+                        <IconSliders className={`w-3.5 h-3.5 ${studioSubTab === 'inputs_selection' ? 'text-white' : 'text-blue-600'}`} />
+                        <span>Scenario & Input Selection</span>
+                        <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-md ${
+                            studioSubTab === 'inputs_selection'
+                                ? 'bg-white/20 text-white'
+                                : 'bg-slate-200 text-slate-600'
+                        }`}>
+                            21
+                        </span>
+                    </button>
+
+                    {/* Tab 2: Bulk Upload & Validation */}
+                    <button
+                        type="button"
+                        onClick={() => setStudioSubTab('bulk_upload')}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer select-none ${
+                            studioSubTab === 'bulk_upload'
+                                ? 'bg-[#005eb8] text-white shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                        }`}
+                    >
+                        <IconUpload className={`w-3.5 h-3.5 ${studioSubTab === 'bulk_upload' ? 'text-white' : 'text-blue-600'}`} />
+                        <span>Bulk Upload</span>
+                        <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-md ${
+                            studioSubTab === 'bulk_upload'
+                                ? 'bg-white/20 text-white'
+                                : stagedFiles.length > 0
+                                ? 'bg-emerald-500 text-white animate-pulse'
+                                : 'bg-slate-200 text-slate-600'
+                        }`}>
+                            {stagedFiles.length > 0 ? stagedFiles.length : 'Ingest'}
+                        </span>
+                    </button>
+
+                    {/* Tab 3: Download Templates */}
+                    <button
+                        type="button"
+                        onClick={() => setStudioSubTab('download_templates')}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer select-none ${
+                            studioSubTab === 'download_templates'
+                                ? 'bg-[#005eb8] text-white shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                        }`}
+                    >
+                        <IconDownload className={`w-3.5 h-3.5 ${studioSubTab === 'download_templates' ? 'text-white' : 'text-blue-600'}`} />
+                        <span>Download Templates</span>
+                        <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-md ${
+                            studioSubTab === 'download_templates'
+                                ? 'bg-white/20 text-white'
+                                : 'bg-slate-200 text-slate-600'
+                        }`}>
+                            21 Ready
+                        </span>
+                    </button>
+                </div>
+
+                {/* Right Status Indicator */}
+                <div className="hidden md:flex items-center gap-2 pr-1 text-slate-500">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                    <span className="text-[11px] font-medium">
+                        {studioSubTab === 'inputs_selection' && "Active Governance Inputs (21 Models)"}
+                        {studioSubTab === 'bulk_upload' && "Multi-File Schema Validation Engine"}
+                        {studioSubTab === 'download_templates' && "Standard .CSV Template Repository"}
+                    </span>
+                </div>
+            </div>
+
+            {/* FLOATING WINDOW: VALIDATION & INGESTION RESULTS MODAL (ALWAYS AVAILABLE) */}
+            <ValidationResultsModal
+                isOpen={isResultModalOpen}
+                onClose={handleCloseModal}
+                results={validationResults}
+                onConfirmOk={handleConfirmOk}
+            />
+
+            {/* SUB-TAB 1: SCENARIO CREATION & INPUT SELECTION */}
+            {studioSubTab === 'inputs_selection' && (
+                <div className="space-y-3.5 w-full">
+                    {/* STUDIO HEADER & SCENARIO METADATA */}
+                    <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs glow-card">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                            <div>
+                                <h2 className="text-sm font-extrabold text-slate-900">Scenario Metadata & Operating Plan</h2>
+                                <p className="text-[11px] text-slate-400">Define planning cycle metadata and configure individual file versions for all 21 inputs</p>
+                            </div>
+
+                            <div className="flex items-center gap-1.5">
+                                {['all', 'capacity', 'demand', 'config', 'actuals'].map(cat => (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setFilterCategory(cat)}
+                                        className={`text-[11px] font-semibold px-3 py-1 rounded-lg capitalize transition ${
+                                            filterCategory === cat
+                                                ? 'bg-[#005eb8] text-white shadow-xs font-bold'
+                                                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Scenario Metadata Editor */}
+                        <div className="grid grid-cols-1 md:grid-cols-6 gap-2.5 pt-3 items-end">
+                            <div>
+                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Plan Type</label>
+                                <select
+                                    value={planType}
+                                    onChange={(e) => setPlanType(e.target.value)}
+                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="LV">LV (Standard Operating Plan)</option>
+                                    <option value="HV">HV (Surge Volume Plan)</option>
+                                    <option value="Combined">Combined FY26 Plan</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Month</label>
+                                <select
+                                    value={month}
+                                    onChange={(e) => setMonth(e.target.value)}
+                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                >
+                                    {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"].map(m => (
+                                        <option key={m} value={m}>{m}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Version</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={version}
+                                    onChange={(e) => setVersion(e.target.value)}
+                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            <div className="md:col-span-2">
+                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Scenario Remarks</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. October baseline run with revised sick overlays"
+                                    value={remarks}
+                                    onChange={(e) => setRemarks(e.target.value)}
+                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <button
+                                    onClick={onSave}
+                                    className="w-full bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 glow-button"
+                                >
+                                    <IconCheck className="w-3.5 h-3.5" />
+                                    <span>Save Scenario</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
-                        {['all', 'capacity', 'demand', 'config', 'actuals'].map(cat => (
-                            <button
-                                key={cat}
-                                onClick={() => setFilterCategory(cat)}
-                                className={`text-[11px] font-semibold px-3 py-1 rounded-lg capitalize transition ${
-                                    filterCategory === cat
-                                        ? 'bg-[#005eb8] text-white shadow-xs font-bold'
-                                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                                }`}
-                            >
-                                {cat}
-                            </button>
+                    {/* INPUT CARDS GRID (ALL 21 INPUTS IN THEME-ALIGNED GLOWING CARDS) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {(filterCategory === 'all' || filterCategory === 'capacity') && capacityInputs.map(item => (
+                            <ModernInputCard
+                                key={item.key}
+                                label={item.label}
+                                choices={inputsChoices[item.key] || []}
+                                selected={inputsState[item.key]}
+                                remarks={remarksMap[inputsState[item.key]] || "Active governance version."}
+                                onChange={(val) => onInputChange(item.key, val)}
+                                onDelete={() => onInputDelete(item.key, item.label)}
+                                onUndo={() => onInputUndo(item.key, item.label)}
+                            />
+                        ))}
+
+                        {(filterCategory === 'all' || filterCategory === 'demand') && demandInputs.map(item => (
+                            <ModernInputCard
+                                key={item.key}
+                                label={item.label}
+                                choices={inputsChoices[item.key] || []}
+                                selected={inputsState[item.key]}
+                                remarks={remarksMap[inputsState[item.key]] || "Active demand forecasting file."}
+                                onChange={(val) => onInputChange(item.key, val)}
+                                onDelete={() => onInputDelete(item.key, item.label)}
+                                onUndo={() => onInputUndo(item.key, item.label)}
+                            />
+                        ))}
+
+                        {(filterCategory === 'all' || filterCategory === 'config') && configInputs.map(item => (
+                            <ModernInputCard
+                                key={item.key}
+                                label={item.label}
+                                choices={inputsChoices[item.key] || []}
+                                selected={inputsState[item.key]}
+                                remarks={remarksMap[inputsState[item.key]] || "Master mapping configuration."}
+                                onChange={(val) => onInputChange(item.key, val)}
+                                onDelete={() => onInputDelete(item.key, item.label)}
+                                onUndo={() => onInputUndo(item.key, item.label)}
+                            />
+                        ))}
+
+                        {(filterCategory === 'all' || filterCategory === 'actuals') && actualsInputs.map(item => (
+                            <ModernInputCard
+                                key={item.key}
+                                label={item.label}
+                                choices={inputsChoices[item.key] || []}
+                                selected={inputsState[item.key]}
+                                remarks={remarksMap[inputsState[item.key]] || "Reconciled financial actuals."}
+                                onChange={(val) => onInputChange(item.key, val)}
+                                onDelete={() => onInputDelete(item.key, item.label)}
+                                onUndo={() => onInputUndo(item.key, item.label)}
+                            />
                         ))}
                     </div>
                 </div>
+            )}
 
-                {/* Scenario Metadata Editor */}
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-2.5 pt-3 items-end">
-                    <div>
-                        <label className="text-[11px] font-bold text-slate-600 block mb-1">Plan Type</label>
-                        <select
-                            value={planType}
-                            onChange={(e) => setPlanType(e.target.value)}
-                            className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="LV">LV (Standard Operating Plan)</option>
-                            <option value="HV">HV (Surge Volume Plan)</option>
-                            <option value="Combined">Combined FY26 Plan</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="text-[11px] font-bold text-slate-600 block mb-1">Month</label>
-                        <select
-                            value={month}
-                            onChange={(e) => setMonth(e.target.value)}
-                            className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
-                        >
-                            {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"].map(m => (
-                                <option key={m} value={m}>{m}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="text-[11px] font-bold text-slate-600 block mb-1">Version</label>
-                        <input
-                            type="number"
-                            min="0"
-                            value={version}
-                            onChange={(e) => setVersion(e.target.value)}
-                            className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div className="md:col-span-2">
-                        <label className="text-[11px] font-bold text-slate-600 block mb-1">Scenario Remarks</label>
-                        <input
-                            type="text"
-                            placeholder="e.g. October baseline run with revised sick overlays"
-                            value={remarks}
-                            onChange={(e) => setRemarks(e.target.value)}
-                            className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <button
-                            onClick={onSave}
-                            className="w-full bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 glow-button"
-                        >
-                            <IconCheck className="w-3.5 h-3.5" />
-                            <span>Save Scenario</span>
-                        </button>
-                    </div>
+            {/* SUB-TAB 2: BULK UPLOAD & INGESTION */}
+            {studioSubTab === 'bulk_upload' && (
+                <div className="space-y-3.5 w-full">
+                    <BulkUploadSection
+                        stagedFiles={stagedFiles}
+                        setStagedFiles={setStagedFiles}
+                        onRunValidation={handleRunValidation}
+                        isValidating={isValidating}
+                    />
                 </div>
-            </div>
+            )}
 
-            {/* INPUT CARDS GRID (ALL 21 INPUTS IN THEME-ALIGNED GLOWING CARDS) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(filterCategory === 'all' || filterCategory === 'capacity') && capacityInputs.map(item => (
-                    <ModernInputCard
-                        key={item.key}
-                        label={item.label}
-                        choices={inputsChoices[item.key] || []}
-                        selected={inputsState[item.key]}
-                        remarks={remarksMap[inputsState[item.key]] || "Active governance version."}
-                        onChange={(val) => onInputChange(item.key, val)}
-                        onDelete={() => onInputDelete(item.key, item.label)}
-                        onUndo={() => onInputUndo(item.key, item.label)}
-                    />
-                ))}
-
-                {(filterCategory === 'all' || filterCategory === 'demand') && demandInputs.map(item => (
-                    <ModernInputCard
-                        key={item.key}
-                        label={item.label}
-                        choices={inputsChoices[item.key] || []}
-                        selected={inputsState[item.key]}
-                        remarks={remarksMap[inputsState[item.key]] || "Active demand forecasting file."}
-                        onChange={(val) => onInputChange(item.key, val)}
-                        onDelete={() => onInputDelete(item.key, item.label)}
-                        onUndo={() => onInputUndo(item.key, item.label)}
-                    />
-                ))}
-
-                {(filterCategory === 'all' || filterCategory === 'config') && configInputs.map(item => (
-                    <ModernInputCard
-                        key={item.key}
-                        label={item.label}
-                        choices={inputsChoices[item.key] || []}
-                        selected={inputsState[item.key]}
-                        remarks={remarksMap[inputsState[item.key]] || "Master mapping configuration."}
-                        onChange={(val) => onInputChange(item.key, val)}
-                        onDelete={() => onInputDelete(item.key, item.label)}
-                        onUndo={() => onInputUndo(item.key, item.label)}
-                    />
-                ))}
-
-                {(filterCategory === 'all' || filterCategory === 'actuals') && actualsInputs.map(item => (
-                    <ModernInputCard
-                        key={item.key}
-                        label={item.label}
-                        choices={inputsChoices[item.key] || []}
-                        selected={inputsState[item.key]}
-                        remarks={remarksMap[inputsState[item.key]] || "Reconciled financial actuals."}
-                        onChange={(val) => onInputChange(item.key, val)}
-                        onDelete={() => onInputDelete(item.key, item.label)}
-                        onUndo={() => onInputUndo(item.key, item.label)}
-                    />
-                ))}
-            </div>
+            {/* SUB-TAB 3: DOWNLOAD TEMPLATES */}
+            {studioSubTab === 'download_templates' && (
+                <div className="space-y-3.5 w-full">
+                    <DownloadTemplatesView showToast={showToast} />
+                </div>
+            )}
         </div>
     );
 }
@@ -1205,23 +2540,32 @@ function ScenarioInputsStudioView({
 // ------------------------------------------------------------------------------------------------
 // REUSABLE MODERN INPUT CARD WITH DELETE, UNDO & REMARKS
 // ------------------------------------------------------------------------------------------------
-function ModernInputCard({ label, choices, selected, remarks, onChange, onDelete, onUndo }) {
+function ModernInputCard({ label, choices = [], selected, remarks, onChange, onDelete, onUndo }) {
+    // Ensure dropdown options are ordered by date timestamp descending (latest at top of dropdown)
+    const sortedChoices = useMemo(() => {
+        const copy = [...choices];
+        return copy.sort((a, b) => parseDateFromOption(b) - parseDateFromOption(a));
+    }, [choices]);
+
+    const activeSelected = selected || (sortedChoices[0] || '');
+
     return (
         <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs glow-card transition-all duration-150">
             <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-slate-800">{label}:</span>
-                <span className="text-[10px] text-slate-400 font-mono">{choices.length} versions</span>
+                <span className="text-[10px] text-slate-400 font-mono">{sortedChoices.length} versions</span>
             </div>
 
             <div className="flex items-center gap-2">
                 <div className="flex-1 min-w-0">
                     <select
-                        value={selected || (choices[0] || '')}
+                        value={activeSelected}
+                        title={activeSelected}
                         onChange={(e) => onChange(e.target.value)}
-                        className="w-full text-xs bg-slate-50 text-slate-800 font-medium px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs truncate"
+                        className="w-full text-xs bg-slate-50 text-slate-800 font-medium px-2.5 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs truncate cursor-pointer"
                     >
-                        {choices.map(c => (
-                            <option key={c} value={c}>{c}</option>
+                        {sortedChoices.map(c => (
+                            <option key={c} value={c} title={c}>{c}</option>
                         ))}
                     </select>
                 </div>
