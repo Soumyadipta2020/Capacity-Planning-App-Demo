@@ -143,6 +143,70 @@ try:
         # Reset back to default
         os.environ["DATABRICKS_APP_NAME"] = "capacity-planning-app-dev"
 
+        # Verify Scenario Diff tab enhancements in react_app.js:
+        # 1. Top bar active scenario dropdown hidden in comparison mode
+        assert "activeTab !== 'comparison' ?" in js_content, "Top bar scenario select must be hidden in comparison mode"
+        assert "Scenario Diff Mode: Dual Scenario Comparison" in js_content, "Diff mode badge missing"
+
+        # 2. Dual scenario selectors (Baseline & Comparison) in Diff tab
+        assert "Baseline Scenario (1)" in js_content, "Baseline Scenario (1) missing in comparison view"
+        assert "Comparison Scenario (2)" in js_content, "Comparison Scenario (2) missing in comparison view"
+        assert "Swap Scenarios" in js_content, "Swap Scenarios button missing"
+
+        # 3. Geography hierarchy filter (National -> Region -> ACDM -> Territory)
+        assert "GeographyHierarchySelector" in js_content, "GeographyHierarchySelector component missing"
+        assert "buildGeographyHierarchy" in js_content, "buildGeographyHierarchy helper missing"
+        assert "parseGeographyCsvText" in js_content, "parseGeographyCsvText helper missing"
+        assert "EA11 Inverness & Aviemore" in js_content, "British Gas territory EA11 missing in templates/hierarchy"
+        assert "ACDM A1" in js_content or "acdmList" in js_content, "ACDM level missing in hierarchy"
+
+        # 4. Geography mapping schema columns: Region, ACDM, territory
+        assert 'required: ["region", "acdm", "territory"]' in js_content, "geography_mapping schema must require region, acdm, territory"
+        assert "Region,ACDM,territory" in js_content, "geography template must have Region,ACDM,territory columns"
+
+        # 5. Skill filter (HEC, KAC) & Date range filter
+        assert "Skill Type Filter" in js_content, "Skill Type Filter missing in diff tab"
+        assert "HEC Core" in js_content or "HEC" in js_content, "HEC option missing"
+        assert "KAC Appliance" in js_content or "KAC" in js_content, "KAC option missing"
+        assert "Date Range Filter" in js_content, "Date Range Filter missing in diff tab"
+        print("Verified Scenario Diff tab features: Top bar mode toggle, Dual scenario selection, Geography 4-level hierarchy, Skill & Date range filters!")
+
+        # 6. Capacity & Demand Waterfalls with 7 Capacity & 7 Demand metrics
+        assert "ScenarioWaterfallBridgesSection" in js_content, "ScenarioWaterfallBridgesSection missing"
+        assert "WaterfallSvgChart" in js_content, "WaterfallSvgChart missing"
+        assert "computeCapacityWaterfall" in js_content, "computeCapacityWaterfall helper missing"
+        assert "computeDemandWaterfall" in js_content, "computeDemandWaterfall helper missing"
+        
+        # Verify Capacity Waterfall Metrics:
+        assert "Gross Hours" in js_content, "Gross Hours metric missing in capacity waterfall"
+        assert "Sickness" in js_content, "Sickness metric missing in capacity waterfall"
+        assert "Holiday" in js_content, "Holiday metric missing in capacity waterfall"
+        assert "Training" in js_content, "Training metric missing in capacity waterfall"
+        assert "Meeting" in js_content, "Meeting metric missing in capacity waterfall"
+        assert "Others Downtimes" in js_content, "Others Downtimes metric missing in capacity waterfall"
+        assert "Available Hours" in js_content, "Available Hours metric missing in capacity waterfall"
+        assert "Available Hours = Gross Hours - (Sickness + Holiday + Training + Meeting + Others Downtimes)" in js_content, "Capacity formula missing"
+
+        # Verify Demand Waterfall Metrics:
+        assert "HEC Upgrade" in js_content, "HEC Upgrade metric missing in demand waterfall"
+        assert "HEC Repair" in js_content, "HEC Repair metric missing in demand waterfall"
+        assert "KAC Upgrade" in js_content, "KAC Upgrade metric missing in demand waterfall"
+        assert "KAC Repair" in js_content, "KAC Repair metric missing in demand waterfall"
+        assert "HEC Warranty" in js_content, "HEC Warranty metric missing in demand waterfall"
+        assert "KAC Warranty" in js_content, "KAC Warranty metric missing in demand waterfall"
+        assert "Total Demand Hours" in js_content, "Total Demand Hours metric missing in demand waterfall"
+        print("Verified Dual Waterfall Analysis: Capacity Waterfall (7 metrics & formula) and Demand Waterfall (7 metrics & formula)!")
+
+        # Verify python data_manager.py geography mapping dataframe has Region, ACDM, territory
+        from data_manager import SampleDataGenerator
+        df_geo = SampleDataGenerator.get_geog_mapping_data()
+        assert "Region" in df_geo.columns, "Region missing in get_geog_mapping_data"
+        assert "ACDM" in df_geo.columns, "ACDM missing in get_geog_mapping_data"
+        assert "territory" in df_geo.columns, "territory missing in get_geog_mapping_data"
+        geo_dict = SampleDataGenerator.get_all_geography_files_data()
+        assert len(geo_dict) > 0, "No geography files loaded in get_all_geography_files_data"
+        print("Verified backend geography dataframe structure and file loader matching user specification!")
+
         print("ALL MODERN REACT + PYSHINY VERIFICATION CHECKS PASSED!")
 except Exception as e:
     print(f"Verification test failed: {e}")

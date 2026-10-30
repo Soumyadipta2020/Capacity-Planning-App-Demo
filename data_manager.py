@@ -740,18 +740,50 @@ class SampleDataGenerator:
     @staticmethod
     def get_geog_mapping_data() -> pd.DataFrame:
         """
-        Generates Geographical Mapping table matching Image 12.
+        Generates Geographical Mapping table matching operational hierarchy (Region, ACDM, territory).
         """
         data = [
-            {"Region Code": "A", "Area Code": "EA1", "Patch Name": "EA11 Inverness & Aviemore", "Postcode Prefix": "IV, PH", "Status": "Matched"},
-            {"Region Code": "A", "Area Code": "EA1", "Patch Name": "EA12 Aberdeen North", "Postcode Prefix": "AB", "Status": "Matched"},
-            {"Region Code": "A", "Area Code": "EA1", "Patch Name": "EA12 Aberdeen South", "Postcode Prefix": "AB", "Status": "Matched"},
-            {"Region Code": "B", "Area Code": "EB1", "Patch Name": "EB12 Altrincham", "Postcode Prefix": "WA, M", "Status": "Matched"},
-            {"Region Code": "B", "Area Code": "EB1", "Patch Name": "EB14 Stockport", "Postcode Prefix": "SK", "Status": "Matched"},
-            {"Region Code": "C", "Area Code": "EC6", "Patch Name": "EC62 Essex East", "Postcode Prefix": "CO, CM", "Status": "Matched"},
-            {"Region Code": "D", "Area Code": "ED4", "Patch Name": "ED44 Canterbury & Dover", "Postcode Prefix": "CT", "Status": "Matched"}
+            {"Region": "A", "ACDM": "A1", "territory": "EA11 Inverness & Aviemore"},
+            {"Region": "A", "ACDM": "A1", "territory": "EA13 Dendee & Perth"},
+            {"Region": "A", "ACDM": "A1", "territory": "EA12 Aberdeen North"},
+            {"Region": "A", "ACDM": "A2", "territory": "EA21 Stirling & Falkirk"},
+            {"Region": "A", "ACDM": "A2", "territory": "EA22 Edinburgh Central"},
+            {"Region": "B", "ACDM": "B1", "territory": "EB11 Preston & Blackpool"},
+            {"Region": "B", "ACDM": "B1", "territory": "EB14 Stockport & Peak"},
+            {"Region": "B", "ACDM": "B2", "territory": "EB12 Altrincham"},
+            {"Region": "B", "ACDM": "B2", "territory": "EB21 Manchester Central"},
+            {"Region": "C", "ACDM": "C1", "territory": "EC91 Leicester"},
+            {"Region": "C", "ACDM": "C1", "territory": "EC92 Nottingham & Derby"},
+            {"Region": "C", "ACDM": "C2", "territory": "EC61 Norwich & Norfolk"},
+            {"Region": "C", "ACDM": "C2", "territory": "EC62 Essex East"},
+            {"Region": "D", "ACDM": "D1", "territory": "ED11 North London & Barnet"},
+            {"Region": "D", "ACDM": "D2", "territory": "ED44 Canterbury & Dover"},
+            {"Region": "D", "ACDM": "D2", "territory": "ED42 Eastbourne & Hastings"},
+            {"Region": "E", "ACDM": "E1", "territory": "EE21 Bristol North & Bath"},
+            {"Region": "E", "ACDM": "E2", "territory": "EE31 Exeter & Devon"}
         ]
         return pd.DataFrame(data)
+
+    @staticmethod
+    def get_all_geography_files_data() -> dict:
+        """Loads and parses all geography files in other_config to dictionaries of rows."""
+        import csv
+        geo_dir = EnvironmentConfig.get_data_dir() / "other_config"
+        result = {}
+        if geo_dir.exists():
+            for f in geo_dir.glob("*.csv"):
+                if "geog" in f.name.lower() or "geo" in f.name.lower() or "patch_mapping" in f.name.lower():
+                    clean_key = f.stem
+                    try:
+                        with open(f, mode="r", encoding="utf-8") as csvfile:
+                            reader = csv.DictReader(csvfile)
+                            rows = [row for row in reader]
+                            result[clean_key] = rows
+                    except Exception:
+                        pass
+        if not result:
+            result["default"] = SampleDataGenerator.get_geog_mapping_data().to_dict(orient="records")
+        return result
 
     @staticmethod
     def get_mismatch_patches() -> pd.DataFrame:

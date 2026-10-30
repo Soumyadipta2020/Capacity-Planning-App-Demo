@@ -1,6 +1,13 @@
-Region Code,Area Code,Patch Name,Postcode Prefix,Status
-A,A1,EA11 Inverness & Aviemore,IV,Active
-B,B2,EB12 Altrincham,WA,Active
-C,C1,EC91 Leicester,LE,Active
-D,D2,ED44 Canterbury & Dover,CT,Active
-E,E1,EE21 Bristol North,BS,Active
+Region,ACDM,territory
+A,A1,EA11 Inverness & Aviemore
+A,A1,EA13 Dendee & Perth
+A,A1,EA12 Aberdeen North
+A,A2,EA21 Stirling & Falkirk
+B,B1,EB11 Preston & Blackpool
+B,B2,EB12 Altrincham
+B,B2,EB21 Manchester Central
+C,C1,EC91 Leicester
+C,C1,EC92 Nottingham & Derby
+D,D1,ED11 North London & Barnet
+D,D2,ED44 Canterbury & Dover
+E,E1,EE21 Bristol North & Bath

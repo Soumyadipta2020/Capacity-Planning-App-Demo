@@ -31,6 +31,7 @@ def create_modern_ui_page():
         "remarksMap": DEFAULT_REMARKS,
         "imbalanceData": SampleDataGenerator.get_imbalance_data().to_dict(orient="records"),
         "indayWorkloadData": SampleDataGenerator.get_inday_workload_data().to_dict(orient="records"),
+        "geographyDatasets": SampleDataGenerator.get_all_geography_files_data(),
     }
     
     initial_json = json.dumps(initial_data)

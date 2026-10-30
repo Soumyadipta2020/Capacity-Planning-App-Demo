@@ -218,6 +218,113 @@ function parseDateFromOption(str) {
 }
 
 // ================================================================================================
+// GEOGRAPHY HIERARCHY PARSERS & HELPERS (Region -> ACDM -> territory)
+// ================================================================================================
+function getDefaultGeographyData() {
+    return [
+        { Region: "A", ACDM: "A1", territory: "EA11 Inverness & Aviemore" },
+        { Region: "A", ACDM: "A1", territory: "EA13 Dendee & Perth" },
+        { Region: "A", ACDM: "A1", territory: "EA12 Aberdeen North" },
+        { Region: "A", ACDM: "A2", territory: "EA21 Stirling & Falkirk" },
+        { Region: "A", ACDM: "A2", territory: "EA22 Edinburgh Central" },
+        { Region: "B", ACDM: "B1", territory: "EB11 Preston & Blackpool" },
+        { Region: "B", ACDM: "B1", territory: "EB14 Stockport & Peak" },
+        { Region: "B", ACDM: "B2", territory: "EB12 Altrincham" },
+        { Region: "B", ACDM: "B2", territory: "EB21 Manchester Central" },
+        { Region: "C", ACDM: "C1", territory: "EC91 Leicester" },
+        { Region: "C", ACDM: "C1", territory: "EC92 Nottingham & Derby" },
+        { Region: "C", ACDM: "C2", territory: "EC61 Norwich & Norfolk" },
+        { Region: "C", ACDM: "C2", territory: "EC62 Essex East" },
+        { Region: "D", ACDM: "D1", territory: "ED11 North London & Barnet" },
+        { Region: "D", ACDM: "D2", territory: "ED44 Canterbury & Dover" },
+        { Region: "D", ACDM: "D2", territory: "ED42 Eastbourne & Hastings" },
+        { Region: "E", ACDM: "E1", territory: "EE21 Bristol North & Bath" },
+        { Region: "E", ACDM: "E2", territory: "EE31 Exeter & Devon" }
+    ];
+}
+
+function parseGeographyCsvText(csvText) {
+    if (!csvText || typeof csvText !== 'string') return [];
+    const lines = csvText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (lines.length < 2) return [];
+
+    const headerCols = lines[0].split(',').map(c => c.trim().replace(/^["']|["']$/g, '').toLowerCase());
+    const regionIdx = headerCols.findIndex(c => c.includes('region'));
+    const acdmIdx = headerCols.findIndex(c => c.includes('acdm') || c.includes('area'));
+    const territoryIdx = headerCols.findIndex(c => c.includes('territory') || c.includes('patch'));
+
+    if (regionIdx === -1 || territoryIdx === -1) return [];
+
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+        const rawLine = lines[i];
+        const parts = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let j = 0; j < rawLine.length; j++) {
+            const ch = rawLine[j];
+            if (ch === '"') inQuotes = !inQuotes;
+            else if (ch === ',' && !inQuotes) {
+                parts.push(cur.trim().replace(/^["']|["']$/g, ''));
+                cur = '';
+            } else {
+                cur += ch;
+            }
+        }
+        parts.push(cur.trim().replace(/^["']|["']$/g, ''));
+
+        const region = parts[regionIdx] || '';
+        const acdm = acdmIdx !== -1 && parts[acdmIdx] ? parts[acdmIdx] : (region + '1');
+        const territory = parts[territoryIdx] || '';
+
+        if (region && territory) {
+            rows.push({
+                Region: region,
+                ACDM: acdm,
+                territory: territory
+            });
+        }
+    }
+    return rows;
+}
+
+function buildGeographyHierarchy(rows) {
+    if (!Array.isArray(rows) || rows.length === 0) {
+        rows = getDefaultGeographyData();
+    }
+    const national = {
+        name: "National",
+        regions: {}
+    };
+
+    rows.forEach(r => {
+        const region = (r.Region || r.region || "A").toString().trim();
+        const acdm = (r.ACDM || r.acdm || (region + "1")).toString().trim();
+        const territory = (r.territory || r.Territory || r.patch || "Unknown Territory").toString().trim();
+
+        if (!national.regions[region]) {
+            national.regions[region] = {
+                id: region,
+                name: `Region ${region}`,
+                acdms: {}
+            };
+        }
+        if (!national.regions[region].acdms[acdm]) {
+            national.regions[region].acdms[acdm] = {
+                id: acdm,
+                name: `ACDM ${acdm}`,
+                territories: []
+            };
+        }
+        if (!national.regions[region].acdms[acdm].territories.includes(territory)) {
+            national.regions[region].acdms[acdm].territories.push(territory);
+        }
+    });
+
+    return national;
+}
+
+// ================================================================================================
 // MAIN COMPONENT
 // ================================================================================================
 function ModernCapacityApp() {
@@ -241,6 +348,9 @@ function ModernCapacityApp() {
     const [scenarios, setScenarios] = useState({});
     const [selectedScenarioId, setSelectedScenarioId] = useState("LV OCT V.0 2026-10-29 16:00:00");
     const [comparisonScenarioId, setComparisonScenarioId] = useState("LV JUL V.1 2026-07-07 12:46:46");
+    const [diffBaselineScenarioId, setDiffBaselineScenarioId] = useState("LV OCT V.0 2026-10-29 16:00:00");
+    const [diffComparisonScenarioId, setDiffComparisonScenarioId] = useState("LV JUL V.1 2026-07-07 12:46:46");
+    const [geographyDatasets, setGeographyDatasets] = useState({});
     
     // Scenario form metadata
     const [planType, setPlanType] = useState("LV");
@@ -294,6 +404,7 @@ function ModernCapacityApp() {
             if (init.remarksMap) setRemarksMap(init.remarksMap);
             if (init.imbalanceData) setImbalanceData(init.imbalanceData);
             if (init.indayWorkloadData) setIndayWorkloadData(init.indayWorkloadData);
+            if (init.geographyDatasets) setGeographyDatasets(init.geographyDatasets);
         }
 
         if (window.Shiny && window.Shiny.addCustomMessageHandler) {
@@ -439,6 +550,16 @@ function ModernCapacityApp() {
                 next[pf.stampedName] = pf.remarks || `User uploaded version (${timestamp}) for ${pf.fileType}`;
             });
             return next;
+        });
+
+        // Register geography hierarchy if geography mapping uploaded
+        stampedFiles.forEach(pf => {
+            if (pf.fileType === 'geography_mapping' && pf.content) {
+                const parsed = parseGeographyCsvText(pf.content);
+                if (parsed && parsed.length > 0) {
+                    setGeographyDatasets(prev => ({ ...prev, [pf.stampedName]: parsed }));
+                }
+            }
         });
 
         // Sync with PyShiny backend
@@ -629,24 +750,32 @@ function ModernCapacityApp() {
                         <button className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-500 transition shadow-xs flex-shrink-0 hover:text-slate-800">
                             <IconGear className="w-3.5 h-3.5" />
                         </button>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Scenario:</span>
-                            <div className="flex items-center bg-white border border-slate-200 rounded-lg px-2.5 py-1 shadow-xs hover:border-blue-300 transition">
-                                <select
-                                    value={selectedScenarioId}
-                                    onChange={(e) => handleLoadScenario(e.target.value)}
-                                    className="bg-transparent text-slate-800 text-xs font-semibold focus:outline-none cursor-pointer max-w-sm truncate"
-                                >
-                                    {Object.keys(scenarios).map(id => (
-                                        <option key={id} value={id}>{id}</option>
-                                    ))}
-                                </select>
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 ml-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    Synced
-                                </span>
+                        {activeTab !== 'comparison' ? (
+                            <div className="flex items-center gap-2">
+                                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Scenario:</span>
+                                <div className="flex items-center bg-white border border-slate-200 rounded-lg px-2.5 py-1 shadow-xs hover:border-blue-300 transition">
+                                    <select
+                                        value={selectedScenarioId}
+                                        onChange={(e) => handleLoadScenario(e.target.value)}
+                                        className="bg-transparent text-slate-800 text-xs font-semibold focus:outline-none cursor-pointer max-w-sm truncate"
+                                    >
+                                        {Object.keys(scenarios).map(id => (
+                                            <option key={id} value={id}>{id}</option>
+                                        ))}
+                                    </select>
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 ml-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Synced
+                                    </span>
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="flex items-center gap-2 px-3 py-1 bg-blue-50/80 border border-blue-200 rounded-lg text-xs font-semibold text-[#005eb8] shadow-xs">
+                                <IconScale className="w-3.5 h-3.5 text-[#005eb8]" />
+                                <span>Scenario Diff Mode: Dual Scenario Comparison</span>
+                                <span className="text-[10px] text-blue-700 bg-white px-1.5 py-0.5 rounded border border-blue-200 font-bold">Independent Selectors</span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right Action Icons & Shortcuts */}
@@ -725,10 +854,13 @@ function ModernCapacityApp() {
                     {activeTab === 'comparison' && (
                         <ScenarioComparisonView
                             scenarios={scenarios}
-                            scenario1Id={selectedScenarioId}
-                            scenario2Id={comparisonScenarioId}
-                            setScenario2Id={setComparisonScenarioId}
-                            inputsChoices={inputsChoices}
+                            baselineScenarioId={diffBaselineScenarioId}
+                            setBaselineScenarioId={setDiffBaselineScenarioId}
+                            comparisonScenarioId={diffComparisonScenarioId}
+                            setComparisonScenarioId={setDiffComparisonScenarioId}
+                            selectedGeographyFile={inputsState['geography_mapping']}
+                            geographyDatasets={geographyDatasets}
+                            onNavigateToInputs={() => setActiveTab('inputs')}
                         />
                     )}
 
@@ -1272,8 +1404,8 @@ const SCHEMA_VALIDATION_RULES = {
     },
     geography_mapping: {
         label: "Geography mapping",
-        required: ["region code", "patch name"],
-        desc: "Requires Region Code, Patch Name columns"
+        required: ["region", "acdm", "territory"],
+        desc: "Requires Region, ACDM, territory columns"
     },
     week_to_month: {
         label: "Week to month",
@@ -2005,9 +2137,9 @@ const TEMPLATE_DEFINITIONS = {
         label: "Geography mapping",
         filename: "geography_mapping_template.csv",
         group: "Config",
-        desc: "Master mapping of UK operational patches to Centrica administrative regions.",
-        requiredCols: ["region code", "patch name"],
-        csvContent: "Region Code,Area Code,Patch Name,Postcode Prefix,Status\nA,A1,EA11 Inverness & Aviemore,IV,Active\nB,B2,EB12 Altrincham,WA,Active\nC,C1,EC91 Leicester,LE,Active"
+        desc: "Master hierarchy mapping of British Gas territories to ACDM areas and operational Regions.",
+        requiredCols: ["region", "acdm", "territory"],
+        csvContent: "Region,ACDM,territory\nA,A1,EA11 Inverness & Aviemore\nA,A1,EA13 Dendee & Perth\nA,A2,EA21 Stirling & Falkirk\nB,B2,EB12 Altrincham\nC,C1,EC91 Leicester"
     },
     week_to_month: {
         label: "Week to month",
@@ -2783,77 +2915,1789 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
 }
 
 // ------------------------------------------------------------------------------------------------
-// 3. SCENARIO COMPARISON VIEW
+// 3. TREE DROPDOWN GEOGRAPHY HIERARCHY SELECTOR WITH RADIO BUTTONS (National -> Region -> ACDM -> Territory)
 // ------------------------------------------------------------------------------------------------
-function ScenarioComparisonView({ scenarios, scenario1Id, scenario2Id, setScenario2Id }) {
-    const scen1 = scenarios[scenario1Id] || {};
-    const scen2 = scenarios[scenario2Id] || {};
-    const weeks = ["2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16"];
+function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, sourceFileName, onClose, onNavigateToInputs }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [expanded, setExpanded] = useState({
+        "national": true,
+        "region-A": true,
+        "acdm-A-A1": true
+    });
+    const containerRef = useRef(null);
+
+    // Outside click and Escape key listeners to close dropdown
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setIsOpen(false);
+                if (onClose) onClose();
+            }
+        };
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                setIsOpen(false);
+                if (onClose) onClose();
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [onClose]);
+
+    const toggleExpand = (key, e) => {
+        if (e && e.stopPropagation) e.stopPropagation();
+        setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    const regions = Object.values(hierarchy.regions || {});
+    const totalAcdms = regions.reduce((acc, r) => acc + Object.keys(r.acdms || {}).length, 0);
+    const totalTerritories = regions.reduce((acc, r) => {
+        return acc + Object.values(r.acdms || {}).reduce((tAcc, a) => tAcc + (a.territories || []).length, 0);
+    }, 0);
+
+    const isFiltered = searchTerm.trim().length > 0;
+    const term = searchTerm.toLowerCase();
+
+    // Helper to get formatted scope text
+    const getScopeDisplay = () => {
+        if (!selectedGeo) return "National";
+        if (selectedGeo.type === 'national') return "National";
+        if (selectedGeo.type === 'region') return `Region ${selectedGeo.id}`;
+        if (selectedGeo.type === 'acdm') return `ACDM ${selectedGeo.id}`;
+        if (selectedGeo.type === 'territory') return selectedGeo.label || selectedGeo.id;
+        return selectedGeo.label || "National";
+    };
+
+    const isNationalSelected = selectedGeo && selectedGeo.type === 'national';
+
+    const handleSelectAndClose = (geoObj, closeDropdown = false) => {
+        onSelectGeo(geoObj);
+        if (closeDropdown) {
+            setIsOpen(false);
+            if (onClose) onClose();
+        }
+    };
 
     return (
-        <div className="space-y-3.5 w-full">
-            <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs glow-card">
-                <h3 className="font-extrabold text-xs sm:text-sm text-slate-800 mb-2 flex items-center gap-2">
-                    <IconScale className="w-4 h-4 text-blue-600" />
-                    <span>Side-by-Side Scenario Diff & Variance Analysis</span>
-                </h3>
+        <div className={`relative w-full ${isOpen ? 'z-50' : 'z-20'}`} ref={containerRef}>
+            {/* 1. Dropdown Trigger Input (Matching screenshot input style) */}
+            <button
+                type="button"
+                onClick={() => setIsOpen(prev => !prev)}
+                className={`w-full h-[44px] px-3 bg-white hover:bg-slate-50 border rounded-xl shadow-2xs flex items-center justify-between gap-2 transition cursor-pointer text-left select-none ${
+                    isOpen ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-300 hover:border-blue-400'
+                }`}
+                title={`Selected Geography Scope: ${getScopeDisplay()}`}
+            >
+                <div className="flex items-center gap-2 min-w-0">
+                    {/* Radio Button Indicator */}
+                    <span className="w-4 h-4 rounded-full border-2 border-slate-800 bg-white flex items-center justify-center flex-shrink-0">
+                        <span className="w-2 h-2 rounded-full bg-slate-900" />
+                    </span>
+                    <span className="text-xs font-bold text-slate-800 truncate">
+                        {getScopeDisplay()}
+                    </span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 bg-blue-50 text-blue-700 rounded border border-blue-200 uppercase flex-shrink-0">
+                        {selectedGeo ? selectedGeo.type : 'national'}
+                    </span>
+                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                    <div className="border-r border-slate-200 pr-3.5">
-                        <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wider block mb-1">Baseline Scenario (1)</span>
-                        <p className="text-xs sm:text-sm font-bold text-slate-800 truncate">{scenario1Id}</p>
-                        <p className="text-xs text-slate-500 mt-0.5">Remarks: {scen1.remarks || "Operating baseline"}</p>
+                <div className="flex items-center gap-1.5 flex-shrink-0 text-slate-500">
+                    <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">
+                        {selectedGeo && selectedGeo.count !== undefined ? `${selectedGeo.count} Terr` : `${totalTerritories} Terr`}
+                    </span>
+                    {/* Chevron: points up (^) when open, down (v) when closed */}
+                    <svg
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-600' : 'text-slate-400'}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </button>
+
+            {/* 2. Floating Dropdown Menu (Tree with Radio Buttons matching user image) */}
+            {isOpen && (
+                <div className="absolute top-full left-0 mt-1.5 w-full min-w-[320px] sm:min-w-[360px] max-w-[440px] bg-white border border-slate-300 rounded-xl shadow-2xl z-[100] overflow-hidden text-slate-800 animate-fade-in">
+                    {/* Top Search & Filter Bar */}
+                    <div className="p-2 border-b border-slate-100 bg-slate-50/80 flex items-center gap-2">
+                        <div className="relative flex-1">
+                            <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                                🔍
+                            </span>
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search patch, ACDM, or region..."
+                                className="w-full text-xs pl-7 pr-6 py-1.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder-slate-400"
+                            />
+                            {searchTerm && (
+                                <button
+                                    type="button"
+                                    onClick={() => setSearchTerm("")}
+                                    className="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold cursor-pointer"
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                handleSelectAndClose({ type: 'national', id: 'national', label: 'National (All UK)', count: totalTerritories }, false);
+                            }}
+                            className="text-[11px] font-bold text-[#005eb8] hover:bg-blue-50 border border-slate-200 hover:border-blue-300 px-2 py-1.5 rounded-lg whitespace-nowrap cursor-pointer transition"
+                            title="Reset selection to National level"
+                        >
+                            Reset
+                        </button>
                     </div>
 
+                    {/* Scrollable Tree Area */}
+                    <div className="p-2 max-h-72 overflow-y-auto space-y-0.5 text-xs">
+                        {/* 1. National Level */}
+                        <div className="space-y-0.5">
+                            <div
+                                onClick={() => {
+                                    handleSelectAndClose({ type: 'national', id: 'national', label: 'National (All UK)', count: totalTerritories }, false);
+                                }}
+                                className={`flex items-center gap-1.5 py-1.5 px-2 rounded-lg cursor-pointer transition select-none ${
+                                    isNationalSelected
+                                        ? 'bg-blue-50/80 font-bold text-slate-900'
+                                        : 'hover:bg-slate-100 text-slate-800'
+                                }`}
+                            >
+                                {/* Chevron */}
+                                <button
+                                    type="button"
+                                    onClick={(e) => toggleExpand('national', e)}
+                                    className="w-5 h-5 flex items-center justify-center text-slate-600 hover:text-slate-900 flex-shrink-0 cursor-pointer"
+                                    title={expanded['national'] ? "Collapse" : "Expand"}
+                                >
+                                    <svg
+                                        className={`w-3.5 h-3.5 transition-transform duration-150 ${expanded['national'] || isFiltered ? 'rotate-90 text-slate-800' : 'text-slate-500'}`}
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+
+                                {/* Radio Button */}
+                                <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                                    <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
+                                        isNationalSelected
+                                            ? 'border-slate-800 bg-white'
+                                            : 'border-slate-400 bg-white hover:border-slate-600'
+                                    }`}>
+                                        {isNationalSelected && (
+                                            <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                        )}
+                                    </span>
+                                </div>
+
+                                {/* Label */}
+                                <span className="truncate flex-1 font-semibold text-xs">
+                                    National
+                                </span>
+                                <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">
+                                    {totalTerritories} terr
+                                </span>
+                            </div>
+
+                            {/* 2. Regions (under National) */}
+                            {(expanded['national'] || isFiltered) && (
+                                <div className="space-y-0.5">
+                                    {regions.map(region => {
+                                        const regKey = `region-${region.id}`;
+                                        const acdmList = Object.values(region.acdms || {});
+                                        const regTerritoriesCount = acdmList.reduce((acc, a) => acc + (a.territories || []).length, 0);
+                                        const isRegActive = selectedGeo && selectedGeo.type === 'region' && selectedGeo.id === region.id;
+                                        const isRegExpanded = expanded[regKey] || isFiltered;
+
+                                        return (
+                                            <div key={regKey} className="space-y-0.5">
+                                                <div
+                                                    onClick={() => {
+                                                        handleSelectAndClose({ type: 'region', id: region.id, label: `Region ${region.id}`, count: regTerritoriesCount }, false);
+                                                    }}
+                                                    className={`flex items-center gap-1.5 py-1.5 pl-6 pr-2 rounded-lg cursor-pointer transition select-none ${
+                                                        isRegActive
+                                                            ? 'bg-blue-50/80 font-bold text-slate-900'
+                                                            : 'hover:bg-slate-100 text-slate-800'
+                                                    }`}
+                                                >
+                                                    {/* Chevron */}
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => toggleExpand(regKey, e)}
+                                                        className="w-5 h-5 flex items-center justify-center text-slate-600 hover:text-slate-900 flex-shrink-0 cursor-pointer"
+                                                        title={isRegExpanded ? "Collapse" : "Expand"}
+                                                    >
+                                                        <svg
+                                                            className={`w-3.5 h-3.5 transition-transform duration-150 ${isRegExpanded ? 'rotate-90 text-slate-800' : 'text-slate-500'}`}
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                        >
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                                                        </svg>
+                                                    </button>
+
+                                                    {/* Radio Button */}
+                                                    <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                                                        <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
+                                                            isRegActive
+                                                                ? 'border-slate-800 bg-white'
+                                                                : 'border-slate-400 bg-white hover:border-slate-600'
+                                                        }`}>
+                                                            {isRegActive && (
+                                                                <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                                            )}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Label */}
+                                                    <span className="truncate flex-1 font-medium text-xs">
+                                                        Region {region.id}
+                                                    </span>
+                                                    <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">
+                                                        {regTerritoriesCount} terr
+                                                    </span>
+                                                </div>
+
+                                                {/* 3. ACDM Level (under Region) */}
+                                                {isRegExpanded && (
+                                                    <div className="space-y-0.5">
+                                                        {acdmList.map(acdm => {
+                                                            const acdmKey = `acdm-${region.id}-${acdm.id}`;
+                                                            const territories = acdm.territories || [];
+                                                            const isAcdmActive = selectedGeo && selectedGeo.type === 'acdm' && selectedGeo.id === acdm.id && selectedGeo.region === region.id;
+                                                            const isAcdmExpanded = expanded[acdmKey] || isFiltered;
+
+                                                            return (
+                                                                <div key={acdmKey} className="space-y-0.5">
+                                                                    <div
+                                                                        onClick={() => {
+                                                                            handleSelectAndClose({ type: 'acdm', id: acdm.id, region: region.id, label: `ACDM ${acdm.id} (Reg ${region.id})`, count: territories.length }, false);
+                                                                        }}
+                                                                        className={`flex items-center gap-1.5 py-1 pl-11 pr-2 rounded-lg cursor-pointer transition select-none ${
+                                                                            isAcdmActive
+                                                                                ? 'bg-blue-50/80 font-bold text-slate-900'
+                                                                                : 'hover:bg-slate-100 text-slate-700'
+                                                                        }`}
+                                                                    >
+                                                                        {/* Chevron */}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={(e) => toggleExpand(acdmKey, e)}
+                                                                            className="w-5 h-5 flex items-center justify-center text-slate-600 hover:text-slate-900 flex-shrink-0 cursor-pointer"
+                                                                            title={isAcdmExpanded ? "Collapse" : "Expand"}
+                                                                        >
+                                                                            <svg
+                                                                                className={`w-3.5 h-3.5 transition-transform duration-150 ${isAcdmExpanded ? 'rotate-90 text-slate-800' : 'text-slate-500'}`}
+                                                                                fill="none"
+                                                                                viewBox="0 0 24 24"
+                                                                                stroke="currentColor"
+                                                                            >
+                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                                                                            </svg>
+                                                                        </button>
+
+                                                                        {/* Radio Button */}
+                                                                        <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                                                                            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
+                                                                                isAcdmActive
+                                                                                    ? 'border-slate-800 bg-white'
+                                                                                    : 'border-slate-400 bg-white hover:border-slate-600'
+                                                                            }`}>
+                                                                                {isAcdmActive && (
+                                                                                    <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                                                                )}
+                                                                            </span>
+                                                                        </div>
+
+                                                                        {/* Label */}
+                                                                        <span className="truncate flex-1 font-medium text-xs">
+                                                                            ACDM {acdm.id}
+                                                                        </span>
+                                                                        <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">
+                                                                            {territories.length} terr
+                                                                        </span>
+                                                                    </div>
+
+                                                                    {/* 4. Territory Level (under ACDM) */}
+                                                                    {isAcdmExpanded && (
+                                                                        <div className="space-y-0.5">
+                                                                            {territories.map(t => {
+                                                                                const isTerrSelected = selectedGeo && selectedGeo.type === 'territory' && selectedGeo.id === t;
+                                                                                if (isFiltered && !t.toLowerCase().includes(term) && !acdm.id.toLowerCase().includes(term) && !region.id.toLowerCase().includes(term)) {
+                                                                                    return null;
+                                                                                }
+
+                                                                                return (
+                                                                                    <div
+                                                                                        key={t}
+                                                                                        onClick={() => {
+                                                                                            handleSelectAndClose({ type: 'territory', id: t, region: region.id, acdm: acdm.id, label: t, count: 1 }, false);
+                                                                                        }}
+                                                                                        className={`flex items-center gap-1.5 py-1 pl-16 pr-2 rounded-lg cursor-pointer transition select-none ${
+                                                                                            isTerrSelected
+                                                                                                ? 'bg-blue-100/80 font-bold text-slate-900'
+                                                                                                : 'hover:bg-slate-100 text-slate-600'
+                                                                                        }`}
+                                                                                    >
+                                                                                        {/* Empty spacer where chevron would be to align radio buttons */}
+                                                                                        <span className="w-5 h-5 flex-shrink-0" />
+
+                                                                                        {/* Radio Button */}
+                                                                                        <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                                                                                            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
+                                                                                                isTerrSelected
+                                                                                                    ? 'border-slate-800 bg-white'
+                                                                                                    : 'border-slate-400 bg-white hover:border-slate-600'
+                                                                                            }`}>
+                                                                                                {isTerrSelected && (
+                                                                                                    <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                                                                                )}
+                                                                                            </span>
+                                                                                        </div>
+
+                                                                                        {/* Label */}
+                                                                                        <span className="truncate flex-1 text-xs">
+                                                                                            {t}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Popover Footer Bar */}
+                    <div className="p-2 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-600">
+                        <div className="truncate text-[11px]">
+                            <span className="font-semibold text-slate-500">Source:</span>{" "}
+                            <span className="font-mono text-slate-700">{sourceFileName || "geography_mapping"}</span>
+                            {onNavigateToInputs && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsOpen(false);
+                                        onNavigateToInputs();
+                                    }}
+                                    className="text-blue-600 hover:underline ml-1.5 font-bold cursor-pointer"
+                                >
+                                    Change in Inputs →
+                                </button>
+                            )}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsOpen(false);
+                                if (onClose) onClose();
+                            }}
+                            className="px-3 py-1 bg-[#005eb8] hover:bg-blue-700 text-white font-bold rounded-lg shadow-2xs transition cursor-pointer"
+                        >
+                            Done
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
+// 3.5 SCENARIO VARIANCE WATERFALL MODELS (CAPACITY & DEMAND BRIDGES)
+// ------------------------------------------------------------------------------------------------
+function computeCapacityWaterfall(totC1, totC2) {
+    // Formula: Available Hours = Gross Hours - (Sickness + Holiday + Training + Meeting + Others Downtimes)
+    // Downtimes: sickness, holiday, training, meeting, others downtimes
+    const gross1 = Math.round(totC1 * 1.25);
+    const sickness1 = Math.round(gross1 * 0.048);
+    const holiday1 = Math.round(gross1 * 0.092);
+    const training1 = Math.round(gross1 * 0.034);
+    const meeting1 = Math.round(gross1 * 0.022);
+    const others1 = gross1 - totC1 - (sickness1 + holiday1 + training1 + meeting1);
+
+    const gross2 = Math.round(totC2 * 1.242);
+    const sickness2 = Math.round(gross2 * 0.045);
+    const holiday2 = Math.round(gross2 * 0.090);
+    const training2 = Math.round(gross2 * 0.032);
+    const meeting2 = Math.round(gross2 * 0.021);
+    const others2 = gross2 - totC2 - (sickness2 + holiday2 + training2 + meeting2);
+
+    const dGross = gross2 - gross1;
+    // For downtimes: Available = Gross - Downtimes
+    // An increase in downtime reduces available hours; a decrease in downtime adds available hours
+    const impactGross = dGross;
+    const impactSickness = sickness1 - sickness2;
+    const impactHoliday = holiday1 - holiday2;
+    const impactTraining = training1 - training2;
+    const impactMeeting = meeting1 - meeting2;
+    const impactOthers = others1 - others2;
+
+    const steps = [
+        {
+            key: 'baseline_avail',
+            label: 'Baseline Available Hours',
+            shortLabel: 'Baseline Avail',
+            line1: 'Baseline',
+            line2: 'Avail',
+            type: 'total',
+            val: totC1,
+            color: '#005eb8',
+            rawVal1: totC1,
+            rawVal2: totC1,
+            diff: 0
+        },
+        {
+            key: 'gross_hours',
+            label: 'Gross Hours',
+            shortLabel: 'Gross Hours',
+            line1: 'Gross',
+            line2: 'Hours',
+            type: 'delta',
+            impact: impactGross,
+            color: impactGross >= 0 ? '#10b981' : '#ef4444',
+            rawVal1: gross1,
+            rawVal2: gross2,
+            diff: dGross,
+            isDowntime: false
+        },
+        {
+            key: 'sickness',
+            label: 'Sickness Downtime',
+            shortLabel: 'Sickness',
+            line1: 'Sickness',
+            line2: 'Downtime',
+            type: 'delta',
+            impact: impactSickness,
+            color: impactSickness >= 0 ? '#10b981' : '#ef4444',
+            rawVal1: sickness1,
+            rawVal2: sickness2,
+            diff: sickness2 - sickness1,
+            isDowntime: true
+        },
+        {
+            key: 'holiday',
+            label: 'Holiday Downtime',
+            shortLabel: 'Holiday',
+            line1: 'Holiday',
+            line2: 'Downtime',
+            type: 'delta',
+            impact: impactHoliday,
+            color: impactHoliday >= 0 ? '#10b981' : '#ef4444',
+            rawVal1: holiday1,
+            rawVal2: holiday2,
+            diff: holiday2 - holiday1,
+            isDowntime: true
+        },
+        {
+            key: 'training',
+            label: 'Training Downtime',
+            shortLabel: 'Training',
+            line1: 'Training',
+            line2: 'Downtime',
+            type: 'delta',
+            impact: impactTraining,
+            color: impactTraining >= 0 ? '#10b981' : '#ef4444',
+            rawVal1: training1,
+            rawVal2: training2,
+            diff: training2 - training1,
+            isDowntime: true
+        },
+        {
+            key: 'meeting',
+            label: 'Meeting Downtime',
+            shortLabel: 'Meeting',
+            line1: 'Meeting',
+            line2: 'Downtime',
+            type: 'delta',
+            impact: impactMeeting,
+            color: impactMeeting >= 0 ? '#10b981' : '#ef4444',
+            rawVal1: meeting1,
+            rawVal2: meeting2,
+            diff: meeting2 - meeting1,
+            isDowntime: true
+        },
+        {
+            key: 'others_downtimes',
+            label: 'Others Downtimes',
+            shortLabel: 'Others DT',
+            line1: 'Others',
+            line2: 'Downtimes',
+            type: 'delta',
+            impact: impactOthers,
+            color: impactOthers >= 0 ? '#10b981' : '#ef4444',
+            rawVal1: others1,
+            rawVal2: others2,
+            diff: others2 - others1,
+            isDowntime: true
+        },
+        {
+            key: 'comparison_avail',
+            label: 'Comparison Available Hours',
+            shortLabel: 'Comp Avail',
+            line1: 'Comp',
+            line2: 'Avail',
+            type: 'total',
+            val: totC2,
+            color: '#4f46e5',
+            rawVal1: totC2,
+            rawVal2: totC2,
+            diff: totC2 - totC1
+        }
+    ];
+
+    let running = totC1;
+    for (let i = 1; i < steps.length - 1; i++) {
+        const s = steps[i];
+        const startY = running;
+        const endY = running + s.impact;
+        s.baseVal = Math.min(startY, endY);
+        s.barVal = Math.abs(s.impact);
+        s.val = s.impact;
+        s.startLevel = startY;
+        s.endLevel = endY;
+        running = endY;
+    }
+    steps[steps.length - 1].startLevel = 0;
+    steps[steps.length - 1].endLevel = totC2;
+
+    return {
+        baseline: { gross: gross1, sickness: sickness1, holiday: holiday1, training: training1, meeting: meeting1, others: others1, available: totC1 },
+        comparison: { gross: gross2, sickness: sickness2, holiday: holiday2, training: training2, meeting: meeting2, others: others2, available: totC2 },
+        steps
+    };
+}
+
+function computeDemandWaterfall(totD1, totD2, skillFilter) {
+    // Formula: Total Demand Hours = HEC Upgrade + HEC Repair + KAC Upgrade + KAC Repair + HEC Warranty + KAC Warranty
+    let hecU1, hecR1, kacU1, kacR1, hecW1, kacW1;
+    let hecU2, hecR2, kacU2, kacR2, hecW2, kacW2;
+
+    if (skillFilter === 'HEC') {
+        hecU1 = Math.round(totD1 * 0.52);
+        hecR1 = Math.round(totD1 * 0.35);
+        hecW1 = totD1 - (hecU1 + hecR1);
+        kacU1 = 0; kacR1 = 0; kacW1 = 0;
+
+        hecU2 = Math.round(totD2 * 0.54);
+        hecR2 = Math.round(totD2 * 0.34);
+        hecW2 = totD2 - (hecU2 + hecR2);
+        kacU2 = 0; kacR2 = 0; kacW2 = 0;
+    } else if (skillFilter === 'KAC') {
+        kacU1 = Math.round(totD1 * 0.45);
+        kacR1 = Math.round(totD1 * 0.40);
+        kacW1 = totD1 - (kacU1 + kacR1);
+        hecU1 = 0; hecR1 = 0; hecW1 = 0;
+
+        kacU2 = Math.round(totD2 * 0.44);
+        kacR2 = Math.round(totD2 * 0.41);
+        kacW2 = totD2 - (kacU2 + kacR2);
+        hecU2 = 0; hecR2 = 0; hecW2 = 0;
+    } else {
+        hecU1 = Math.round(totD1 * 0.32);
+        hecR1 = Math.round(totD1 * 0.28);
+        kacU1 = Math.round(totD1 * 0.15);
+        kacR1 = Math.round(totD1 * 0.12);
+        hecW1 = Math.round(totD1 * 0.08);
+        kacW1 = totD1 - (hecU1 + hecR1 + kacU1 + kacR1 + hecW1);
+
+        hecU2 = Math.round(totD2 * 0.335);
+        hecR2 = Math.round(totD2 * 0.265);
+        kacU2 = Math.round(totD2 * 0.145);
+        kacR2 = Math.round(totD2 * 0.125);
+        hecW2 = Math.round(totD2 * 0.078);
+        kacW2 = totD2 - (hecU2 + hecR2 + kacU2 + kacR2 + hecW2);
+    }
+
+    const dHecU = hecU2 - hecU1;
+    const dHecR = hecR2 - hecR1;
+    const dKacU = kacU2 - kacU1;
+    const dKacR = kacR2 - kacR1;
+    const dHecW = hecW2 - hecW1;
+    const dKacW = kacW2 - kacW1;
+
+    const steps = [
+        {
+            key: 'baseline_demand',
+            label: 'Baseline Total Demand',
+            shortLabel: 'Baseline Demand',
+            line1: 'Baseline',
+            line2: 'Demand',
+            type: 'total',
+            val: totD1,
+            color: '#005eb8',
+            rawVal1: totD1,
+            rawVal2: totD1,
+            diff: 0
+        },
+        {
+            key: 'hec_upgrade',
+            label: 'HEC Upgrade',
+            shortLabel: 'HEC Upgrade',
+            line1: 'HEC',
+            line2: 'Upgrade',
+            type: 'delta',
+            impact: dHecU,
+            color: dHecU >= 0 ? '#3b82f6' : '#10b981',
+            rawVal1: hecU1,
+            rawVal2: hecU2,
+            diff: dHecU
+        },
+        {
+            key: 'hec_repair',
+            label: 'HEC Repair',
+            shortLabel: 'HEC Repair',
+            line1: 'HEC',
+            line2: 'Repair',
+            type: 'delta',
+            impact: dHecR,
+            color: dHecR >= 0 ? '#3b82f6' : '#10b981',
+            rawVal1: hecR1,
+            rawVal2: hecR2,
+            diff: dHecR
+        },
+        {
+            key: 'kac_upgrade',
+            label: 'KAC Upgrade',
+            shortLabel: 'KAC Upgrade',
+            line1: 'KAC',
+            line2: 'Upgrade',
+            type: 'delta',
+            impact: dKacU,
+            color: dKacU >= 0 ? '#8b5cf6' : '#10b981',
+            rawVal1: kacU1,
+            rawVal2: kacU2,
+            diff: dKacU
+        },
+        {
+            key: 'kac_repair',
+            label: 'KAC Repair',
+            shortLabel: 'KAC Repair',
+            line1: 'KAC',
+            line2: 'Repair',
+            type: 'delta',
+            impact: dKacR,
+            color: dKacR >= 0 ? '#8b5cf6' : '#10b981',
+            rawVal1: kacR1,
+            rawVal2: kacR2,
+            diff: dKacR
+        },
+        {
+            key: 'hec_warranty',
+            label: 'HEC Warranty',
+            shortLabel: 'HEC Warranty',
+            line1: 'HEC',
+            line2: 'Warranty',
+            type: 'delta',
+            impact: dHecW,
+            color: dHecW >= 0 ? '#3b82f6' : '#10b981',
+            rawVal1: hecW1,
+            rawVal2: hecW2,
+            diff: dHecW
+        },
+        {
+            key: 'kac_warranty',
+            label: 'KAC Warranty',
+            shortLabel: 'KAC Warranty',
+            line1: 'KAC',
+            line2: 'Warranty',
+            type: 'delta',
+            impact: dKacW,
+            color: dKacW >= 0 ? '#8b5cf6' : '#10b981',
+            rawVal1: kacW1,
+            rawVal2: kacW2,
+            diff: dKacW
+        },
+        {
+            key: 'comparison_demand',
+            label: 'Comparison Total Demand',
+            shortLabel: 'Comp Demand',
+            line1: 'Comp',
+            line2: 'Demand',
+            type: 'total',
+            val: totD2,
+            color: '#4f46e5',
+            rawVal1: totD2,
+            rawVal2: totD2,
+            diff: totD2 - totD1
+        }
+    ];
+
+    let running = totD1;
+    for (let i = 1; i < steps.length - 1; i++) {
+        const s = steps[i];
+        const startY = running;
+        const endY = running + s.impact;
+        s.baseVal = Math.min(startY, endY);
+        s.barVal = Math.abs(s.impact);
+        s.val = s.impact;
+        s.startLevel = startY;
+        s.endLevel = endY;
+        running = endY;
+    }
+    steps[steps.length - 1].startLevel = 0;
+    steps[steps.length - 1].endLevel = totD2;
+
+    return {
+        baseline: { hecU: hecU1, hecR: hecR1, kacU: kacU1, kacR: kacR1, hecW: hecW1, kacW: kacW1, total: totD1 },
+        comparison: { hecU: hecU2, hecR: hecR2, kacU: kacU2, kacR: kacR2, hecW: hecW2, kacW: kacW2, total: totD2 },
+        steps
+    };
+}
+
+function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeText, iconText = "📊", idPrefix = "wf", isSingleView = false }) {
+    const [useFocusedScale, setUseFocusedScale] = useState(true);
+    const [activeTab, setActiveTab] = useState("chart"); // 'chart' | 'table'
+    const [hoveredIdx, setHoveredIdx] = useState(null);
+
+    // Optimized aspect ratio: 620x385 (matches card container height to eliminate bottom empty space)
+    const width = 620;
+    const height = 385;
+    const padLeft = 48;
+    const padRight = 14;
+    const padTop = 32;
+    const padBottom = 46;
+    const plotW = width - padLeft - padRight;
+    const plotH = height - padTop - padBottom;
+
+    const allLevels = steps.flatMap(s => s.type === 'total' ? [s.val] : [s.startLevel, s.endLevel]);
+    const minVal = Math.min(...allLevels);
+    const maxVal = Math.max(...allLevels);
+    const span = Math.max(100, maxVal - minVal);
+
+    // Focused scaling: ~22% margin so floating deltas occupy ~65% of chart height prominently
+    const margin = Math.max(160, Math.round(span * 0.22));
+    const yMin = useFocusedScale ? Math.max(0, Math.floor((minVal - margin) / 50) * 50) : 0;
+    const yMax = Math.ceil((maxVal + margin) / 50) * 50;
+    const yRange = (yMax - yMin) || 1;
+
+    const getY = (val) => padTop + plotH - ((val - yMin) / yRange) * plotH;
+
+    const slotW = plotW / steps.length;
+    const barW = 42;
+
+    const gridTicks = [0, 0.25, 0.5, 0.75, 1.0].map(pct => Math.round(yMin + pct * yRange));
+
+    const total1 = steps[0]?.val || 0;
+    const total2 = steps[steps.length - 1]?.val || 0;
+    const netDelta = total2 - total1;
+
+    return (
+        <div className={`bg-white rounded-2xl border border-slate-200/90 shadow-xs glow-card p-3.5 sm:p-4 flex flex-col justify-between h-[445px] min-h-[445px] ${isSingleView ? 'max-w-3xl mx-auto w-full' : 'w-full'}`}>
+            {/* Header with Title & Net Delta Pill (No Formula Banner) */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-7 h-7 rounded-lg bg-blue-50 text-[#005eb8] flex items-center justify-center text-xs font-bold shadow-2xs flex-shrink-0">
+                        {iconText}
+                    </span>
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight truncate">
+                                {title}
+                            </h4>
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full font-mono flex-shrink-0 ${
+                                netDelta >= 0 
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
+                            }`}>
+                                {netDelta >= 0 ? `+${netDelta.toLocaleString()}` : netDelta.toLocaleString()} {unit}
+                            </span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-0.5 truncate">{subtitle}</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                        type="button"
+                        onClick={() => setUseFocusedScale(prev => !prev)}
+                        className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition cursor-pointer ${
+                            useFocusedScale 
+                                ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-2xs' 
+                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                        }`}
+                        title="Toggle focused zoom vs zero-baseline scale"
+                    >
+                        {useFocusedScale ? "🔍 Focused Zoom" : "📏 Zero Baseline"}
+                    </button>
+                    <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[10px] font-bold">
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('chart')}
+                            className={`px-2.5 py-0.5 rounded-md transition cursor-pointer ${activeTab === 'chart' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-900'}`}
+                        >
+                            Chart
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('table')}
+                            className={`px-2.5 py-0.5 rounded-md transition cursor-pointer ${activeTab === 'table' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-900'}`}
+                        >
+                            Table
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* View Body */}
+            {activeTab === 'chart' ? (
+                <div className="w-full h-[360px] relative mt-2 flex items-center justify-center">
+                    <svg
+                        viewBox={`0 0 ${width} ${height}`}
+                        className="w-full h-full select-none overflow-visible"
+                    >
+                        <defs>
+                            <linearGradient id={`${idPrefix}-total1`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#005eb8" />
+                                <stop offset="100%" stopColor="#0284c7" />
+                            </linearGradient>
+                            <linearGradient id={`${idPrefix}-total2`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#4f46e5" />
+                                <stop offset="100%" stopColor="#6366f1" />
+                            </linearGradient>
+                            <linearGradient id={`${idPrefix}-pos`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#10b981" />
+                                <stop offset="100%" stopColor="#059669" />
+                            </linearGradient>
+                            <linearGradient id={`${idPrefix}-neg`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#ef4444" />
+                                <stop offset="100%" stopColor="#dc2626" />
+                            </linearGradient>
+                        </defs>
+
+                        {/* Y-Axis Gridlines & Labels */}
+                        {gridTicks.map((tick, idx) => {
+                            const y = getY(tick);
+                            const kVal = tick / 1000;
+                            const tickLabel = tick >= 1000 
+                                ? (kVal % 1 === 0 ? `${kVal}k` : `${kVal.toFixed(1)}k`) 
+                                : tick.toLocaleString();
+                            return (
+                                <g key={idx}>
+                                    <line
+                                        x1={padLeft}
+                                        y1={y}
+                                        x2={width - padRight}
+                                        y2={y}
+                                        stroke="#f1f5f9"
+                                        strokeWidth="1"
+                                    />
+                                    <text
+                                        x={padLeft - 6}
+                                        y={y + 3.5}
+                                        textAnchor="end"
+                                        fontSize="10.5"
+                                        fontWeight="500"
+                                        fill="#94a3b8"
+                                        fontFamily="monospace"
+                                    >
+                                        {tickLabel}
+                                    </text>
+                                </g>
+                            );
+                        })}
+
+                        {/* Dashed Connector Lines */}
+                        {steps.map((step, idx) => {
+                            if (idx >= steps.length - 1) return null;
+                            const curX = padLeft + idx * slotW + (slotW - barW) / 2 + barW;
+                            const nextX = padLeft + (idx + 1) * slotW + (slotW - barW) / 2;
+                            const levelY = getY(step.endLevel !== undefined ? step.endLevel : step.val);
+                            return (
+                                <line
+                                    key={`conn-${idx}`}
+                                    x1={curX}
+                                    y1={levelY}
+                                    x2={nextX}
+                                    y2={levelY}
+                                    stroke="#94a3b8"
+                                    strokeWidth="1.25"
+                                    strokeDasharray="3 3"
+                                />
+                            );
+                        })}
+
+                        {/* Waterfall Bars */}
+                        {steps.map((step, idx) => {
+                            const barX = padLeft + idx * slotW + (slotW - barW) / 2;
+                            let topY, barH, fillGrad;
+
+                            if (step.type === 'total') {
+                                topY = getY(step.val);
+                                barH = Math.max(3, getY(yMin) - topY);
+                                fillGrad = idx === 0 ? `url(#${idPrefix}-total1)` : `url(#${idPrefix}-total2)`;
+                            } else {
+                                const high = Math.max(step.startLevel, step.endLevel);
+                                const low = Math.min(step.startLevel, step.endLevel);
+                                topY = getY(high);
+                                barH = Math.max(4, getY(low) - getY(high));
+                                fillGrad = step.impact >= 0 ? `url(#${idPrefix}-pos)` : `url(#${idPrefix}-neg)`;
+                            }
+
+                            const isHovered = hoveredIdx === idx;
+
+                            // Value label placement:
+                            // Positive delta: above bar (topY - 7)
+                            // Negative delta: below bar (topY + barH + 13)
+                            // Total bars: above bar (topY - 7)
+                            const isNegativeDelta = step.type === 'delta' && step.impact < 0;
+                            const labelY = isNegativeDelta ? (topY + barH + 13) : (topY - 7);
+                            const labelColor = step.type === 'total' 
+                                ? '#0f172a' 
+                                : (step.impact >= 0 ? '#059669' : '#dc2626');
+                            const valText = step.type === 'total' 
+                                ? step.val.toLocaleString() 
+                                : (step.impact >= 0 ? `+${step.impact.toLocaleString()}` : `${step.impact.toLocaleString()}`);
+
+                            return (
+                                <g
+                                    key={`bar-${idx}`}
+                                    className="cursor-pointer"
+                                    onMouseEnter={() => setHoveredIdx(idx)}
+                                    onMouseLeave={() => setHoveredIdx(null)}
+                                >
+                                    {/* Bar rect */}
+                                    <rect
+                                        x={barX}
+                                        y={topY}
+                                        width={barW}
+                                        height={barH}
+                                        rx={4}
+                                        fill={fillGrad}
+                                        className={`transition-all duration-150 ${isHovered ? 'filter drop-shadow-md stroke-slate-900 stroke-1' : ''}`}
+                                    />
+
+                                    {/* Value label - crisp, distinct font, never colliding */}
+                                    <text
+                                        x={barX + barW / 2}
+                                        y={labelY}
+                                        textAnchor="middle"
+                                        fontSize="11"
+                                        fontFamily="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                                        fontWeight="800"
+                                        fill={labelColor}
+                                    >
+                                        {valText}
+                                    </text>
+
+                                    {/* X-axis two-line label: split into 2 lines so texts never collide horizontally */}
+                                    <text
+                                        x={barX + barW / 2}
+                                        y={padTop + plotH + 16}
+                                        textAnchor="middle"
+                                        fontSize="10"
+                                        fontWeight={step.type === 'total' ? '800' : '600'}
+                                        fill={step.type === 'total' ? '#0f172a' : '#475569'}
+                                    >
+                                        {step.line1}
+                                    </text>
+                                    {step.line2 ? (
+                                        <text
+                                            x={barX + barW / 2}
+                                            y={padTop + plotH + 28}
+                                            textAnchor="middle"
+                                            fontSize="9"
+                                            fontWeight={step.type === 'total' ? '700' : '500'}
+                                            fill={step.type === 'total' ? '#334155' : '#64748b'}
+                                        >
+                                            {step.line2}
+                                        </text>
+                                    ) : null}
+                                </g>
+                            );
+                        })}
+                    </svg>
+
+                    {/* Interactive Tooltip Card when hovering */}
+                    {hoveredIdx !== null && steps[hoveredIdx] && (
+                        <div className="absolute top-1 right-2 bg-slate-900/90 text-white rounded-xl px-3 py-2 text-xs shadow-xl backdrop-blur-sm pointer-events-none z-10 space-y-1">
+                            <div className="font-bold flex items-center justify-between gap-3 text-slate-100">
+                                <span>{steps[hoveredIdx].label}</span>
+                                <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                                    steps[hoveredIdx].type === 'total' 
+                                        ? 'bg-blue-600 text-white' 
+                                        : (steps[hoveredIdx].impact >= 0 ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white')
+                                }`}>
+                                    {steps[hoveredIdx].type === 'total' ? 'Total' : 'Variance Box'}
+                                </span>
+                            </div>
+                            <div className="text-[11px] text-slate-300 font-mono flex items-center justify-between gap-4">
+                                <span>Baseline: {steps[hoveredIdx].rawVal1?.toLocaleString()} {unit}</span>
+                                <span>Comp: {steps[hoveredIdx].rawVal2?.toLocaleString()} {unit}</span>
+                            </div>
+                            {steps[hoveredIdx].type === 'delta' && (
+                                <div className="text-[11px] font-mono flex items-center justify-between gap-4 border-t border-slate-700 pt-1">
+                                    <span className="text-slate-400">Net Impact:</span>
+                                    <span className={`font-bold ${steps[hoveredIdx].impact >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                        {steps[hoveredIdx].impact >= 0 ? `+${steps[hoveredIdx].impact.toLocaleString()}` : steps[hoveredIdx].impact.toLocaleString()} {unit}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            ) : (
+                /* Tabular Data View - identical height container so card size never shifts */
+                <div className="w-full h-[360px] overflow-auto rounded-xl border border-slate-200/90 mt-2 bg-white shadow-2xs">
+                    <table className="w-full text-left text-xs border-collapse">
+                        <thead className="sticky top-0 bg-slate-50 z-10 shadow-2xs">
+                            <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-[11px]">
+                                <th className="py-2.5 px-3">Metric Component</th>
+                                <th className="py-2.5 px-3">Type</th>
+                                <th className="py-2.5 px-3">Baseline (Scen 1)</th>
+                                <th className="py-2.5 px-3">Comparison (Scen 2)</th>
+                                <th className="py-2.5 px-3 text-right">Variance Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
+                            {steps.map((st, i) => (
+                                <tr key={i} className={st.type === 'total' ? 'bg-slate-50/70 font-bold' : 'hover:bg-slate-50/50'}>
+                                    <td className="py-2.5 px-3 font-sans font-medium text-slate-800">{st.label}</td>
+                                    <td className="py-2.5 px-3">
+                                        <span className={`text-[9px] px-1.5 py-0.5 rounded uppercase font-bold ${
+                                            st.type === 'total' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
+                                        }`}>
+                                            {st.type}
+                                        </span>
+                                    </td>
+                                    <td className="py-2.5 px-3 text-slate-700">{st.rawVal1?.toLocaleString()} {unit}</td>
+                                    <td className="py-2.5 px-3 text-slate-700">{st.rawVal2?.toLocaleString()} {unit}</td>
+                                    <td className="py-2.5 px-3 text-right">
+                                        {st.type === 'total' ? (
+                                            <span className="text-slate-800 font-black">
+                                                {st.val?.toLocaleString()} {unit}
+                                            </span>
+                                        ) : (
+                                            <span className={`font-bold ${st.impact >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                                {st.impact >= 0 ? `+${st.impact.toLocaleString()}` : st.impact.toLocaleString()} {unit}
+                                            </span>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, baselineScenarioId, comparisonScenarioId }) {
+    const [viewMode, setViewMode] = useState('side_by_side'); // 'side_by_side' | 'capacity_only' | 'demand_only'
+
+    const capData = useMemo(() => {
+        return computeCapacityWaterfall(totals.totC1, totals.totC2);
+    }, [totals.totC1, totals.totC2]);
+
+    const demData = useMemo(() => {
+        return computeDemandWaterfall(totals.totD1, totals.totD2, skillFilter);
+    }, [totals.totD1, totals.totD2, skillFilter]);
+
+    const isSingleView = viewMode !== 'side_by_side';
+
+    return (
+        <div className="space-y-3.5 relative z-10">
+            {/* Section Header with Mode Toggle */}
+            <div className="bg-white p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-xs flex flex-wrap items-center justify-between gap-3 glow-card">
+                <div className="flex items-center gap-2.5">
+                    <span className="w-7 h-7 rounded-lg bg-blue-50 text-[#005eb8] flex items-center justify-center border border-blue-100 shadow-2xs text-sm">
+                        📊
+                    </span>
                     <div>
-                        <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wider block mb-1">Comparison Scenario (2)</span>
+                        <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+                            <span>Scenario Variance Waterfall Analysis: Capacity & Demand Bridges</span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                2 Dual Reconciliations
+                            </span>
+                        </h3>
+                        <p className="text-[11px] text-slate-400">
+                            Decomposes available capacity levers (gross hours & downtimes) and demand streams (HEC/KAC upgrades, repairs, warranties)
+                        </p>
+                    </div>
+                </div>
+
+                {/* View Mode Toggle */}
+                <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-bold gap-1">
+                    <button
+                        type="button"
+                        onClick={() => setViewMode('side_by_side')}
+                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                            viewMode === 'side_by_side'
+                                ? 'bg-white text-[#005eb8] shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                        }`}
+                    >
+                        <span>📊</span>
+                        <span>Side-by-Side</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setViewMode('capacity_only')}
+                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                            viewMode === 'capacity_only'
+                                ? 'bg-white text-[#005eb8] shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                        }`}
+                    >
+                        <span>⚡</span>
+                        <span>Capacity Waterfall</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setViewMode('demand_only')}
+                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                            viewMode === 'demand_only'
+                                ? 'bg-white text-[#005eb8] shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                        }`}
+                    >
+                        <span>📈</span>
+                        <span>Demand Waterfall</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* Waterfall Charts Grid */}
+            <div className={`grid gap-3.5 ${viewMode === 'side_by_side' ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
+                {/* 1. Capacity Waterfall */}
+                {(viewMode === 'side_by_side' || viewMode === 'capacity_only') && (
+                    <WaterfallSvgChart
+                        title="Capacity Waterfall (Available Hours Bridge)"
+                        subtitle="Gross hours, sickness, holiday, training, meeting & others downtimes"
+                        steps={capData.steps}
+                        unit="hrs"
+                        badgeText="Available Hours Bridge"
+                        iconText="⚡"
+                        idPrefix="cap-wf"
+                        isSingleView={isSingleView}
+                    />
+                )}
+
+                {/* 2. Demand Waterfall */}
+                {(viewMode === 'side_by_side' || viewMode === 'demand_only') && (
+                    <WaterfallSvgChart
+                        title="Demand Waterfall (Total Demand Hours Bridge)"
+                        subtitle="HEC & KAC upgrade, repair, warranty streams reconciling to total demand"
+                        steps={demData.steps}
+                        unit="hrs"
+                        badgeText="Total Demand Bridge"
+                        iconText="📈"
+                        idPrefix="dem-wf"
+                        isSingleView={isSingleView}
+                    />
+                )}
+            </div>
+        </div>
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
+// 4. SCENARIO COMPARISON VIEW (DUAL SELECTORS + FILTERS: GEOGRAPHY, SKILL, DATE RANGE)
+// ------------------------------------------------------------------------------------------------
+function ScenarioComparisonView({
+    scenarios,
+    baselineScenarioId,
+    setBaselineScenarioId,
+    comparisonScenarioId,
+    setComparisonScenarioId,
+    selectedGeographyFile,
+    geographyDatasets = {},
+    onNavigateToInputs
+}) {
+    // 1. Geography hierarchy extraction from selected geography mapping file
+    const geoRows = useMemo(() => {
+        if (selectedGeographyFile && geographyDatasets[selectedGeographyFile]) {
+            const data = geographyDatasets[selectedGeographyFile];
+            if (Array.isArray(data) && data.length > 0) return data;
+            if (typeof data === 'string') return parseGeographyCsvText(data);
+        }
+        if (selectedGeographyFile) {
+            const cleanKey = selectedGeographyFile.replace(/\.(csv|xlsx|xls)$/i, '');
+            for (const k of Object.keys(geographyDatasets)) {
+                if (k.toLowerCase() === cleanKey.toLowerCase() || k.toLowerCase().includes(cleanKey.toLowerCase())) {
+                    const data = geographyDatasets[k];
+                    if (Array.isArray(data) && data.length > 0) return data;
+                    if (typeof data === 'string') return parseGeographyCsvText(data);
+                }
+            }
+        }
+        const firstKey = Object.keys(geographyDatasets)[0];
+        if (firstKey && geographyDatasets[firstKey]) {
+            const data = geographyDatasets[firstKey];
+            if (Array.isArray(data) && data.length > 0) return data;
+            if (typeof data === 'string') return parseGeographyCsvText(data);
+        }
+        return getDefaultGeographyData();
+    }, [selectedGeographyFile, geographyDatasets]);
+
+    const hierarchy = useMemo(() => buildGeographyHierarchy(geoRows), [geoRows]);
+
+    const totalTerritoriesCount = useMemo(() => {
+        const regs = Object.values(hierarchy.regions || {});
+        return regs.reduce((acc, r) => {
+            return acc + Object.values(r.acdms || {}).reduce((tAcc, a) => tAcc + (a.territories || []).length, 0);
+        }, 0);
+    }, [hierarchy]);
+
+    // 2. Filter States
+    const [selectedGeo, setSelectedGeo] = useState({
+        type: 'national',
+        id: 'national',
+        label: 'National (All UK)',
+        count: totalTerritoriesCount || 18
+    });
+
+    // Update territory count if hierarchy changes
+    useEffect(() => {
+        if (selectedGeo.type === 'national') {
+            setSelectedGeo(prev => ({ ...prev, count: totalTerritoriesCount }));
+        }
+    }, [totalTerritoriesCount]);
+
+    const [skillFilter, setSkillFilter] = useState('ALL'); // 'ALL' | 'HEC' | 'KAC'
+    const [startDate, setStartDate] = useState('2026-09-28');
+    const [endDate, setEndDate] = useState('2026-11-16');
+    const [isGeoExpanded, setIsGeoExpanded] = useState(false);
+
+    // Helper to get formatted scope text
+    const getScopeDisplay = () => {
+        if (selectedGeo.type === 'national') return "National (Centrica UK)";
+        if (selectedGeo.type === 'region') return `Region ${selectedGeo.id} (All Patches)`;
+        if (selectedGeo.type === 'acdm') return `ACDM ${selectedGeo.id} (Reg ${selectedGeo.region})`;
+        if (selectedGeo.type === 'territory') return selectedGeo.label || selectedGeo.id;
+        return selectedGeo.label || "National (All UK)";
+    };
+
+    const allWeeks = [
+        "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
+        "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16"
+    ];
+
+    const visibleWeeks = useMemo(() => {
+        return allWeeks.filter(w => w >= startDate && w <= endDate);
+    }, [startDate, endDate]);
+
+    // Scenario remarks lookup
+    const scen1 = scenarios[baselineScenarioId] || {};
+    const scen2 = scenarios[comparisonScenarioId] || {};
+
+    // Scenario Swap handler
+    const handleSwapScenarios = () => {
+        const tmp = baselineScenarioId;
+        setBaselineScenarioId(comparisonScenarioId);
+        setComparisonScenarioId(tmp);
+    };
+
+    // Reset all filters handler
+    const handleResetFilters = () => {
+        setSelectedGeo({ type: 'national', id: 'national', label: 'National (All UK)', count: totalTerritoriesCount });
+        setSkillFilter('ALL');
+        setStartDate('2026-09-28');
+        setEndDate('2026-11-16');
+        setIsGeoExpanded(false);
+    };
+
+    // Quick Horizon Preset handler
+    const handlePresetDates = (preset) => {
+        if (preset === 'all') {
+            setStartDate(allWeeks[0]);
+            setEndDate(allWeeks[allWeeks.length - 1]);
+        } else if (preset === 'first4') {
+            setStartDate(allWeeks[0]);
+            setEndDate(allWeeks[3]);
+        } else if (preset === 'last4') {
+            setStartDate(allWeeks[4]);
+            setEndDate(allWeeks[allWeeks.length - 1]);
+        }
+    };
+
+    // Filter Multipliers for Demand & Capacity calculation
+    const skillMultiplier = skillFilter === 'HEC' ? 0.62 : (skillFilter === 'KAC' ? 0.38 : 1.0);
+    let geoMultiplier = 1.0;
+    if (selectedGeo.type === 'region') geoMultiplier = 0.22;
+    else if (selectedGeo.type === 'acdm') geoMultiplier = 0.11;
+    else if (selectedGeo.type === 'territory') geoMultiplier = 0.045;
+
+    // Calculate aggregated metrics
+    const totals = useMemo(() => {
+        let totD1 = 0, totD2 = 0, totC1 = 0, totC2 = 0, totDelta = 0;
+        visibleWeeks.forEach((w) => {
+            const idx = allWeeks.indexOf(w);
+            const d1 = Math.round((4300 + idx * 45) * skillMultiplier * geoMultiplier);
+            const d2 = Math.round((4280 + idx * 40) * skillMultiplier * geoMultiplier);
+            const c1 = Math.round((4550 + idx * 30) * skillMultiplier * geoMultiplier);
+            const c2 = Math.round((4610 + idx * 35) * skillMultiplier * geoMultiplier);
+            const delta = (c2 - d2) - (c1 - d1);
+            totD1 += d1;
+            totD2 += d2;
+            totC1 += c1;
+            totC2 += c2;
+            totDelta += delta;
+        });
+        return { totD1, totD2, totC1, totC2, totDelta };
+    }, [visibleWeeks, skillMultiplier, geoMultiplier]);
+
+    return (
+        <div className="space-y-4 w-full">
+            {/* 1. DUAL SCENARIO COMPARATOR STRIP */}
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs glow-card">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5">
+                    <div className="flex items-center gap-2.5">
+                        <span className="w-8 h-8 rounded-xl bg-blue-50 text-[#005eb8] flex items-center justify-center border border-blue-100 shadow-2xs">
+                            <IconScale className="w-4 h-4 text-[#005eb8]" />
+                        </span>
+                        <div>
+                            <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+                                <span>Scenario Variance & Operational Diff</span>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    Dual Plan Comparator
+                                </span>
+                            </h3>
+                            <p className="text-[11px] text-slate-500">
+                                Compare any two capacity operating plans side-by-side with dynamic operational drill-downs
+                            </p>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleSwapScenarios}
+                        className="text-xs font-bold text-slate-700 hover:text-blue-700 bg-slate-50 hover:bg-blue-50/80 border border-slate-300 hover:border-blue-300 px-3.5 py-1.5 rounded-xl transition flex items-center gap-2 shadow-2xs group"
+                        title="Swap Baseline and Comparison Scenarios"
+                    >
+                        <span className="text-sm group-hover:rotate-180 transition-transform duration-300">⇄</span>
+                        <span>Swap Scenarios</span>
+                    </button>
+                </div>
+
+                {/* Dual Scenario Comparator Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {/* Baseline Scenario (1) Card */}
+                    <div className="bg-gradient-to-b from-blue-50/40 via-white to-white border border-blue-200/80 rounded-xl p-3.5 shadow-2xs">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-[11px] font-extrabold text-[#005eb8] uppercase tracking-wider flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full bg-blue-600 ring-2 ring-blue-200"></span>
+                                Baseline Scenario (1)
+                            </span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-100/70 text-blue-800 rounded-md">
+                                Reference
+                            </span>
+                        </div>
                         <select
-                            value={scenario2Id}
-                            onChange={(e) => setScenario2Id(e.target.value)}
-                            className="w-full text-xs font-semibold bg-white border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
+                            value={baselineScenarioId}
+                            onChange={(e) => setBaselineScenarioId(e.target.value)}
+                            className="w-full text-xs font-bold bg-white text-slate-800 border border-slate-300 hover:border-blue-400 rounded-xl p-2.5 focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer truncate"
                         >
                             {Object.keys(scenarios).map(id => (
                                 <option key={id} value={id}>{id}</option>
                             ))}
                         </select>
-                        <p className="text-xs text-slate-500 mt-0.5">Remarks: {scen2.remarks || "Secondary revision"}</p>
+                        <div className="mt-2 text-[11px] flex items-center gap-2 text-slate-500 bg-slate-50/80 p-2 rounded-lg border border-slate-100">
+                            <span className="font-semibold text-slate-700 flex-shrink-0">Remarks:</span>
+                            <span className="truncate italic text-slate-600" title={scen1.remarks || "Operating Plan Baseline"}>
+                                {scen1.remarks || "Operating Plan Baseline"}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Comparison Scenario (2) Card */}
+                    <div className="bg-gradient-to-b from-emerald-50/40 via-white to-white border border-emerald-200/80 rounded-xl p-3.5 shadow-2xs">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-[11px] font-extrabold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-emerald-200"></span>
+                                Comparison Scenario (2)
+                            </span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-100/70 text-emerald-800 rounded-md">
+                                Target Plan
+                            </span>
+                        </div>
+                        <select
+                            value={comparisonScenarioId}
+                            onChange={(e) => setComparisonScenarioId(e.target.value)}
+                            className="w-full text-xs font-bold bg-white text-slate-800 border border-slate-300 hover:border-emerald-400 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-500/20 shadow-2xs cursor-pointer truncate"
+                        >
+                            {Object.keys(scenarios).map(id => (
+                                <option key={id} value={id}>{id}</option>
+                            ))}
+                        </select>
+                        <div className="mt-2 text-[11px] flex items-center gap-2 text-slate-500 bg-slate-50/80 p-2 rounded-lg border border-slate-100">
+                            <span className="font-semibold text-slate-700 flex-shrink-0">Remarks:</span>
+                            <span className="truncate italic text-slate-600" title={scen2.remarks || "Secondary revision"}>
+                                {scen2.remarks || "Secondary revision"}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs overflow-x-auto glow-card">
-                <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 mb-3">Weekly Demand vs Capacity Variance Breakdown</h4>
-                <table className="w-full text-left text-xs text-slate-700 border-collapse">
-                    <thead>
-                        <tr className="bg-slate-50 text-slate-600 border-b border-slate-200">
-                            <th className="py-3 px-4 font-semibold">Week Commencing</th>
-                            <th className="py-3 px-4 font-semibold">Demand (Baseline)</th>
-                            <th className="py-3 px-4 font-semibold">Demand (Comparison)</th>
-                            <th className="py-3 px-4 font-semibold">Capacity (Baseline)</th>
-                            <th className="py-3 px-4 font-semibold">Capacity (Comparison)</th>
-                            <th className="py-3 px-4 font-semibold">Delta Imbalance</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                        {weeks.map((w, idx) => {
-                            const d1 = 4300 + idx * 45;
-                            const d2 = 4280 + idx * 40;
-                            const c1 = 4550 + idx * 30;
-                            const c2 = 4610 + idx * 35;
-                            const delta = (c2 - d2) - (c1 - d1);
-                            return (
-                                <tr key={w} className="hover:bg-slate-50 transition">
-                                    <td className="py-2.5 px-4 font-medium text-slate-800">{w}</td>
-                                    <td className="py-2.5 px-4">{d1} hrs</td>
-                                    <td className="py-2.5 px-4 font-semibold text-blue-700">{d2} hrs</td>
-                                    <td className="py-2.5 px-4">{c1} hrs</td>
-                                    <td className="py-2.5 px-4 font-semibold text-emerald-600">{c2} hrs</td>
-                                    <td className="py-2.5 px-4 font-bold text-emerald-600">+{delta} hrs</td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+            {/* 2. OPERATIONAL FILTERS STRIP (GEOGRAPHY, SKILL TYPE, DATE RANGE) */}
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs glow-card relative z-30">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5 pb-2.5 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                            <IconSliders className="w-3.5 h-3.5 text-[#005eb8]" />
+                            <span>Scenario Filters & Operational Drill-Down</span>
+                        </span>
+                        <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">
+                            Live Scope
+                        </span>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleResetFilters}
+                        className="text-xs font-bold text-slate-500 hover:text-blue-700 hover:underline flex items-center gap-1 transition"
+                    >
+                        <span>↺</span>
+                        <span>Reset All Filters</span>
+                    </button>
+                </div>
+
+                {/* 3-Column Perfectly Aligned Filters Row (Exact 44px Control Heights) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
+                    {/* A. Geography Hierarchy Scope Filter (Hierarchical Tree Dropdown with Radio Buttons) */}
+                    <div className="relative z-50">
+                        <div className="flex items-center justify-between h-5 mb-1.5">
+                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1">
+                                <span>🌐 Geography Scope</span>
+                            </label>
+                            <span className="text-[10px] text-blue-600 font-bold">Hierarchical Tree</span>
+                        </div>
+                        <GeographyHierarchySelector
+                            hierarchy={hierarchy}
+                            selectedGeo={selectedGeo}
+                            onSelectGeo={setSelectedGeo}
+                            sourceFileName={selectedGeographyFile}
+                            onNavigateToInputs={onNavigateToInputs}
+                        />
+                    </div>
+
+                    {/* B. Skill Type Filter (HEC, KAC, All Skills) */}
+                    <div>
+                        <div className="flex items-center justify-between h-5 mb-1.5">
+                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
+                                ⚡ Skill Type Filter
+                            </label>
+                            <span className="text-[10px] text-slate-400 font-medium">Heating vs Appliance</span>
+                        </div>
+                        <div className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200 h-[44px]">
+                            {[
+                                { id: 'ALL', label: 'All Skills', icon: '🌐' },
+                                { id: 'HEC', label: 'HEC Core', icon: '⚡' },
+                                { id: 'KAC', label: 'KAC Appliance', icon: '🔧' }
+                            ].map(s => (
+                                <button
+                                    key={s.id}
+                                    type="button"
+                                    onClick={() => setSkillFilter(s.id)}
+                                    className={`flex-1 h-full text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                                        skillFilter === s.id
+                                            ? 'bg-white text-[#005eb8] shadow-xs border border-slate-200/80'
+                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                    }`}
+                                >
+                                    <span>{s.icon}</span>
+                                    <span>{s.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* C. Date Range Filter with Quick Horizon Presets */}
+                    <div>
+                        <div className="flex items-center justify-between h-5 mb-1.5">
+                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
+                                📅 Date Range Filter
+                            </label>
+                            <span className="text-[10px] text-slate-400 font-semibold">{visibleWeeks.length} Wks Selected</span>
+                        </div>
+                        <div className="flex items-center gap-2 h-[44px]">
+                            <div className="relative flex-1 h-full">
+                                <select
+                                    value={startDate}
+                                    onChange={(e) => {
+                                        if (e.target.value <= endDate) setStartDate(e.target.value);
+                                    }}
+                                    className="w-full h-full text-xs font-bold bg-white border border-slate-300 rounded-xl px-2.5 focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer truncate"
+                                    title="Start Week Commencing"
+                                >
+                                    {allWeeks.map(w => (
+                                        <option key={w} value={w}>{w}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <span className="text-slate-400 text-xs font-bold flex-shrink-0">→</span>
+                            <div className="relative flex-1 h-full">
+                                <select
+                                    value={endDate}
+                                    onChange={(e) => {
+                                        if (e.target.value >= startDate) setEndDate(e.target.value);
+                                    }}
+                                    className="w-full h-full text-xs font-bold bg-white border border-slate-300 rounded-xl px-2.5 focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer truncate"
+                                    title="End Week Commencing"
+                                >
+                                    {allWeeks.map(w => (
+                                        <option key={w} value={w}>{w}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Filter Breadcrumbs & Horizon Presets Strip */}
+                <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5 text-xs">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-extrabold text-slate-400 uppercase tracking-wider text-[10px]">Active Filters:</span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-[#005eb8] font-bold text-xs border border-blue-200">
+                            <span>{selectedGeo.type === 'national' ? '🌐' : '📍'}</span>
+                            <span>{getScopeDisplay()}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">
+                            <span>Skill: {skillFilter === 'ALL' ? 'All Skills (HEC + KAC)' : skillFilter}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">
+                            <span>Horizon: {startDate} → {endDate} ({visibleWeeks.length} Wks)</span>
+                        </span>
+                    </div>
+
+                    {/* Quick Horizon Presets */}
+                    <div className="flex items-center gap-1 text-[11px]">
+                        <span className="text-slate-400 text-[10px] font-semibold mr-1">Presets:</span>
+                        <button
+                            type="button"
+                            onClick={() => handlePresetDates('all')}
+                            className={`px-2.5 py-1 rounded-lg font-bold border transition cursor-pointer ${
+                                startDate === allWeeks[0] && endDate === allWeeks[allWeeks.length - 1]
+                                    ? 'bg-[#005eb8] text-white border-blue-700 shadow-2xs'
+                                    : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 border-slate-200'
+                            }`}
+                        >
+                            All 8 Wks
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handlePresetDates('first4')}
+                            className={`px-2.5 py-1 rounded-lg font-bold border transition cursor-pointer ${
+                                startDate === allWeeks[0] && endDate === allWeeks[3]
+                                    ? 'bg-[#005eb8] text-white border-blue-700 shadow-2xs'
+                                    : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 border-slate-200'
+                            }`}
+                        >
+                            First 4 Wks
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handlePresetDates('last4')}
+                            className={`px-2.5 py-1 rounded-lg font-bold border transition cursor-pointer ${
+                                startDate === allWeeks[4] && endDate === allWeeks[allWeeks.length - 1]
+                                    ? 'bg-[#005eb8] text-white border-blue-700 shadow-2xs'
+                                    : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 border-slate-200'
+                            }`}
+                        >
+                            Second 4 Wks
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* 3. EXECUTIVE KPI METRIC CARDS */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 relative z-10">
+                {/* Net Delta Imbalance */}
+                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Net Imbalance Delta</span>
+                    <div className="flex items-baseline gap-1 mt-1.5">
+                        <span className="text-xl sm:text-2xl font-black text-emerald-600 tracking-tight font-mono">
+                            +{totals.totDelta.toLocaleString()}
+                        </span>
+                        <span className="text-xs text-slate-500 font-bold">hrs</span>
+                    </div>
+                    <div className="mt-1.5 flex items-center gap-1">
+                        <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-extrabold">
+                            ▲ Comparison Advantage
+                        </span>
+                    </div>
+                </div>
+
+                {/* Comparison Demand */}
+                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-[#005eb8]"></div>
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Demand</span>
+                    <div className="flex items-baseline gap-1 mt-1.5">
+                        <span className="text-xl sm:text-2xl font-black text-[#005eb8] tracking-tight font-mono">
+                            {totals.totD2.toLocaleString()}
+                        </span>
+                        <span className="text-xs text-slate-500 font-bold">hrs</span>
+                    </div>
+                    <span className="text-[10px] text-slate-500 mt-1.5 block truncate font-medium">
+                        {totals.totD2 - totals.totD1 >= 0 ? '+' : ''}{(totals.totD2 - totals.totD1).toLocaleString()} hrs vs Baseline ({totals.totD1.toLocaleString()})
+                    </span>
+                </div>
+
+                {/* Comparison Capacity */}
+                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-700 to-slate-900"></div>
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Capacity</span>
+                    <div className="flex items-baseline gap-1 mt-1.5">
+                        <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono">
+                            {totals.totC2.toLocaleString()}
+                        </span>
+                        <span className="text-xs text-slate-500 font-bold">hrs</span>
+                    </div>
+                    <span className="text-[10px] text-emerald-600 mt-1.5 block truncate font-bold">
+                        {totals.totC2 - totals.totC1 >= 0 ? '+' : ''}{(totals.totC2 - totals.totC1).toLocaleString()} hrs vs Baseline ({totals.totC1.toLocaleString()})
+                    </span>
+                </div>
+
+                {/* Filter Scope Coverage */}
+                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Operational Scope</span>
+                    <div className="text-xs sm:text-sm font-black text-slate-900 mt-1.5 truncate">
+                        {selectedGeo.label}
+                    </div>
+                    <span className="text-[10px] text-slate-500 mt-1.5 block truncate font-medium">
+                        Skill: <b className="text-slate-700">{skillFilter}</b> • <b className="text-slate-700">{visibleWeeks.length}</b> Weeks Commencing
+                    </span>
+                </div>
+            </div>
+
+            {/* 4. SCENARIO VARIANCE WATERFALL ANALYSIS: CAPACITY & DEMAND BRIDGES */}
+            <ScenarioWaterfallBridgesSection
+                totals={totals}
+                skillFilter={skillFilter}
+                visibleWeeks={visibleWeeks}
+                baselineScenarioId={baselineScenarioId}
+                comparisonScenarioId={comparisonScenarioId}
+            />
+
+            {/* 5. WEEKLY DEMAND VS CAPACITY VARIANCE BREAKDOWN TABLE */}
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden glow-card relative z-10">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5">
+                    <div>
+                        <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+                            <span>Weekly Demand vs Capacity Variance Breakdown</span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#005eb8] border border-blue-200">
+                                Tabular Precision
+                            </span>
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                            Granular week-by-week delta between Baseline ({baselineScenarioId}) and Comparison ({comparisonScenarioId})
+                        </p>
+                    </div>
+
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
+                        {visibleWeeks.length} Active Weeks Commencing
+                    </span>
+                </div>
+
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                    <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                            {/* Group Header Row */}
+                            <tr className="bg-slate-100/90 text-slate-600 text-[10px] font-extrabold uppercase tracking-wider border-b border-slate-200">
+                                <th className="py-2 px-3 border-r border-slate-200">Planning Horizon</th>
+                                <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 text-blue-700 bg-blue-50/50">Demand (Hours)</th>
+                                <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 text-emerald-800 bg-emerald-50/50">Capacity (Hours)</th>
+                                <th className="py-2 px-3 text-right text-emerald-700 bg-emerald-50/70">Net Variance</th>
+                            </tr>
+                            {/* Sub Header Row */}
+                            <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-[11px]">
+                                <th className="py-2.5 px-3 border-r border-slate-200">Week Commencing</th>
+                                <th className="py-2.5 px-3 text-slate-600">Baseline</th>
+                                <th className="py-2.5 px-3 text-blue-700">Comp</th>
+                                <th className="py-2.5 px-3 text-slate-500 border-r border-slate-200">Δ Demand</th>
+                                <th className="py-2.5 px-3 text-slate-600">Baseline</th>
+                                <th className="py-2.5 px-3 text-emerald-700">Comp</th>
+                                <th className="py-2.5 px-3 text-slate-500 border-r border-slate-200">Δ Capacity</th>
+                                <th className="py-2.5 px-3 text-right text-emerald-700">Delta Imbalance</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-slate-700">
+                            {visibleWeeks.map((w) => {
+                                const idx = allWeeks.indexOf(w);
+                                const d1 = Math.round((4300 + idx * 45) * skillMultiplier * geoMultiplier);
+                                const d2 = Math.round((4280 + idx * 40) * skillMultiplier * geoMultiplier);
+                                const c1 = Math.round((4550 + idx * 30) * skillMultiplier * geoMultiplier);
+                                const c2 = Math.round((4610 + idx * 35) * skillMultiplier * geoMultiplier);
+                                const delta = (c2 - d2) - (c1 - d1);
+                                const dVar = d2 - d1;
+                                const cVar = c2 - c1;
+
+                                return (
+                                    <tr key={w} className="hover:bg-blue-50/30 transition">
+                                        <td className="py-2.5 px-3 font-bold text-slate-800 font-mono text-xs border-r border-slate-100">{w}</td>
+                                        <td className="py-2.5 px-3 text-slate-600 font-mono tabular-nums">{d1.toLocaleString()} hrs</td>
+                                        <td className="py-2.5 px-3 font-bold text-blue-700 font-mono tabular-nums">{d2.toLocaleString()} hrs</td>
+                                        <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-slate-500 border-r border-slate-100">
+                                            {dVar >= 0 ? `+${dVar}` : dVar} hrs
+                                        </td>
+                                        <td className="py-2.5 px-3 text-slate-600 font-mono tabular-nums">{c1.toLocaleString()} hrs</td>
+                                        <td className="py-2.5 px-3 font-bold text-emerald-700 font-mono tabular-nums">{c2.toLocaleString()} hrs</td>
+                                        <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-emerald-600 border-r border-slate-100 font-bold">
+                                            {cVar >= 0 ? `+${cVar}` : cVar} hrs
+                                        </td>
+                                        <td className="py-2.5 px-3 font-bold text-right font-mono tabular-nums">
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-extrabold ${
+                                                delta >= 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                            }`}>
+                                                {delta >= 0 ? `+${delta}` : delta} hrs
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                        <tfoot>
+                            <tr className="bg-slate-100/90 font-black border-t-2 border-slate-300 text-slate-900 text-xs">
+                                <td className="py-3 px-3 border-r border-slate-200 uppercase tracking-wide">Total / Summary</td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-slate-700">{totals.totD1.toLocaleString()} hrs</td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-blue-700">{totals.totD2.toLocaleString()} hrs</td>
+                                <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-slate-600 border-r border-slate-200">
+                                    {totals.totD2 - totals.totD1 >= 0 ? `+${totals.totD2 - totals.totD1}` : totals.totD2 - totals.totD1} hrs
+                                </td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-slate-700">{totals.totC1.toLocaleString()} hrs</td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-emerald-700">{totals.totC2.toLocaleString()} hrs</td>
+                                <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-emerald-600 border-r border-slate-200">
+                                    {totals.totC2 - totals.totC1 >= 0 ? `+${totals.totC2 - totals.totC1}` : totals.totC2 - totals.totC1} hrs
+                                </td>
+                                <td className="py-3 px-3 text-right">
+                                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs font-mono">
+                                        +{totals.totDelta.toLocaleString()} hrs
+                                    </span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
     );
@@ -3305,9 +5149,9 @@ function DatabricksArchitectureView({ envInfo, setEnvInfo, showToast }) {
                 </div>
                 <div className="space-y-1 text-slate-300 leading-relaxed text-[11px]">
                     <p><span className="text-purple-400">catalog</span> = os.environ.get(<span className="text-emerald-400">"DATABRICKS_CATALOG"</span>, <span className="text-emerald-400">"capacity_planning"</span>) <span className="text-slate-500"># {activeCatalog}</span></p>
-                    <p><span className="text-purple-400">app_name</span> = os.environ.get(<span className="text-emerald-400">"DATABRICKS_APP_NAME"</span>, <span className="text-emerald-400">"Not available"</span>) <span className="text-slate-500"># -> "{activeAppName}"</span></p>
-                    <p><span className="text-purple-400">schema</span> = <span className="text-emerald-400">"prod"</span> <span className="text-blue-400">if</span> <span className="text-emerald-400">"prod"</span> <span className="text-blue-400">in</span> app_name.lower() <span className="text-blue-400">else</span> (<span className="text-emerald-400">"uat"</span> <span className="text-blue-400">if</span> <span className="text-emerald-400">"uat"</span> <span className="text-blue-400">in</span> app_name.lower() <span className="text-blue-400">else</span> <span className="text-emerald-400">"dev"</span>) <span className="text-slate-500"># -> "{activeSchema}"</span></p>
-                    <p><span className="text-purple-400">actuals_df</span> = spark.read.table(<span className="text-emerald-400">f"{catalog}.{schema}.es_shiny_actuals_input"</span>) <span className="text-slate-500"># -> {activeCatalog}.{activeSchema}.es_shiny_actuals_input</span></p>
+                    <p><span className="text-purple-400">app_name</span> = os.environ.get(<span className="text-emerald-400">"DATABRICKS_APP_NAME"</span>, <span className="text-emerald-400">"Not available"</span>) <span className="text-slate-500"># → "{activeAppName}"</span></p>
+                    <p><span className="text-purple-400">schema</span> = <span className="text-emerald-400">"prod"</span> <span className="text-blue-400">if</span> <span className="text-emerald-400">"prod"</span> <span className="text-blue-400">in</span> app_name.lower() <span className="text-blue-400">else</span> (<span className="text-emerald-400">"uat"</span> <span className="text-blue-400">if</span> <span className="text-emerald-400">"uat"</span> <span className="text-blue-400">in</span> app_name.lower() <span className="text-blue-400">else</span> <span className="text-emerald-400">"dev"</span>) <span className="text-slate-500"># → "{activeSchema}"</span></p>
+                    <p><span className="text-purple-400">actuals_df</span> = spark.read.table(<span className="text-emerald-400">f"{catalog}.{schema}.es_shiny_actuals_input"</span>) <span className="text-slate-500"># → {activeCatalog}.{activeSchema}.es_shiny_actuals_input</span></p>
                 </div>
             </div>
         </div>
