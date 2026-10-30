@@ -197,6 +197,116 @@ function IconX({ className = "w-4 h-4" }) {
     );
 }
 
+function IconLightbulb({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+    );
+}
+
+function IconBolt({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+    );
+}
+
+function IconTrendingUp({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        </svg>
+    );
+}
+
+function IconBarChart({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+    );
+}
+
+function IconGlobe({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" strokeWidth="2" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+        </svg>
+    );
+}
+
+function IconWrench({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+        </svg>
+    );
+}
+
+function IconTarget({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" strokeWidth="2" />
+            <circle cx="12" cy="12" r="6" strokeWidth="2" />
+            <circle cx="12" cy="12" r="2" strokeWidth="2" />
+        </svg>
+    );
+}
+
+function IconClock({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" strokeWidth="2" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6l4 2" />
+        </svg>
+    );
+}
+
+function IconUsers({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+    );
+}
+
+function IconSearch({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+    );
+}
+
+function IconRuler({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16M8 6v2m4-2v4m4-4v2M8 12v2m4-2v4m4-4v2" />
+        </svg>
+    );
+}
+
+function IconPin({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+    );
+}
+
+function IconLock({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <rect x="5" y="11" width="14" height="10" rx="2" strokeWidth="2" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 11V7a4 4 0 118 0v4" />
+        </svg>
+    );
+}
+
 // ================================================================================================
 // TIMESTAMP PARSING & SORTING HELPER
 // ================================================================================================
@@ -919,7 +1029,7 @@ function ModernCapacityApp() {
                                 onClick={() => setIsCopilotOpen(false)}
                                 className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
                             >
-                                ✕
+                                <IconX className="w-4 h-4" />
                             </button>
                         </div>
 
@@ -942,15 +1052,17 @@ function ModernCapacityApp() {
                         <div className="p-3 border-t border-slate-100 bg-white flex gap-2 overflow-x-auto text-[11px]">
                             <button 
                                 onClick={() => { setCopilotInput("Explain Leicester patch deficit"); }}
-                                className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full text-slate-700 whitespace-nowrap font-medium transition"
+                                className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full text-slate-700 whitespace-nowrap font-medium transition flex items-center gap-1.5"
                             >
-                                ⚡ Leicester deficit
+                                <IconBolt className="w-3.5 h-3.5 text-amber-500" />
+                                <span>Leicester deficit</span>
                             </button>
                             <button 
                                 onClick={() => { setCopilotInput("Suggest contractor cost reduction"); }}
-                                className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full text-slate-700 whitespace-nowrap font-medium transition"
+                                className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full text-slate-700 whitespace-nowrap font-medium transition flex items-center gap-1.5"
                             >
-                                💰 Contractor savings
+                                <IconCurrency className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Contractor savings</span>
                             </button>
                         </div>
 
@@ -1229,14 +1341,20 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-0.5">
                         <div className="bg-white/90 p-3 rounded-lg border border-blue-200/60 shadow-xs hover:border-blue-300 transition">
-                            <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block mb-0.5">🟢 Core Strength</span>
+                            <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                                <IconCheck className="w-3 h-3 text-emerald-600" />
+                                <span>Core Strength</span>
+                            </span>
                             <p className="text-xs text-slate-700 leading-relaxed">
                                 Winter SLA target is achieved nationally. North and South East regions maintain comfortable buffers (+51.3 FTE combined).
                             </p>
                         </div>
 
                         <div className="bg-white/90 p-3 rounded-lg border border-blue-200/60 shadow-xs hover:border-rose-300 transition">
-                            <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider block mb-0.5">⚠️ Localized Watchpoint</span>
+                            <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                                <IconAlertCircle className="w-3 h-3 text-rose-600" />
+                                <span>Localized Watchpoint</span>
+                            </span>
                             <p className="text-xs text-slate-700 leading-relaxed">
                                 EC91 Leicester faces a -4.1 FTE gap during November boiler heating spikes. Mutual aid transfer from Altrincham recommended.
                             </p>
@@ -1625,12 +1743,14 @@ function ValidationResultsModal({ isOpen, onClose, results, onConfirmOk }) {
                         <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">
                             Total: {total}
                         </span>
-                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            ✓ Passed: {passed.length}
+                        <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                            <IconCheck className="w-3 h-3 text-emerald-600" />
+                            <span>Passed: {passed.length}</span>
                         </span>
                         {failed.length > 0 && (
-                            <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200">
-                                ✕ Failed: {failed.length}
+                            <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1">
+                                <IconX className="w-3 h-3 text-rose-600" />
+                                <span>Failed: {failed.length}</span>
                             </span>
                         )}
                         <button
@@ -2305,8 +2425,9 @@ function DownloadTemplatesView({ showToast }) {
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Required Columns:</span>
                                     <div className="flex flex-wrap gap-1">
                                         {tmpl.requiredCols.map(col => (
-                                            <span key={col} className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded border border-slate-200 font-mono">
-                                                ✓ {col}
+                                            <span key={col} className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded border border-slate-200 font-mono inline-flex items-center gap-1">
+                                                <IconCheck className="w-2.5 h-2.5 text-emerald-600" />
+                                                <span>{col}</span>
                                             </span>
                                         ))}
                                     </div>
@@ -2647,7 +2768,7 @@ function ScenarioInputsStudioView({
                     <div className="bg-white px-4 py-2.5 rounded-xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 glow-card">
                         <div className="flex items-center gap-2.5">
                             <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8]">
-                                <span className="text-sm">⚡</span>
+                                <IconBolt className="w-4 h-4 text-[#005eb8]" />
                             </div>
                             <div>
                                 <div className="flex items-center gap-2">
@@ -2681,7 +2802,7 @@ function ScenarioInputsStudioView({
                                 }`}
                                 title="Toggle ML Forecast across all 21 operational inputs at once"
                             >
-                                <span>{mlActiveCount === totalInputs ? "↩" : "⚡"}</span>
+                                {mlActiveCount === totalInputs ? <IconRefresh className="w-3.5 h-3.5" /> : <IconBolt className="w-3.5 h-3.5" />}
                                 <span>{mlActiveCount === totalInputs ? "Revert All to User Uploaded" : "Enable ML Forecast for All (21 Inputs)"}</span>
                             </button>
                         </div>
@@ -2811,8 +2932,9 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                 <div className="flex items-center gap-1.5 min-w-0">
                     <span className="text-xs font-bold text-slate-800 truncate">{label}:</span>
                     {isMLActive && (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-blue-100 text-[#005eb8] border border-blue-200 whitespace-nowrap">
-                            ⚡ ML Active
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-blue-100 text-[#005eb8] border border-blue-200 whitespace-nowrap">
+                            <IconBolt className="w-2.5 h-2.5 text-[#005eb8]" />
+                            <span>ML Active</span>
                         </span>
                     )}
                 </div>
@@ -2828,7 +2950,10 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                         }`}
                         title={isMLActive ? "ML Forecast enabled. Click to switch to User Uploaded file." : "Click to enable ML Forecast for this input."}
                     >
-                        <span className="text-[10px] font-semibold">{isMLActive ? '⚡ ML Forecast' : 'Enable ML'}</span>
+                        <span className="text-[10px] font-semibold flex items-center gap-1">
+                            {isMLActive && <IconBolt className="w-2.5 h-2.5 text-[#005eb8]" />}
+                            <span>{isMLActive ? 'ML Forecast' : 'Enable ML'}</span>
+                        </span>
                         <div
                             className={`relative inline-flex h-3.5 w-6.5 shrink-0 rounded-full border border-transparent transition-colors duration-200 ease-in-out ${
                                 isMLActive ? 'bg-[#005eb8]' : 'bg-slate-300'
@@ -2859,16 +2984,16 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                         }`}
                     >
                         {mlChoices.length > 0 && (
-                            <optgroup label="⚡ ML Model Forecasts">
+                            <optgroup label="ML Model Forecasts">
                                 {mlChoices.map(c => (
-                                    <option key={c} value={c} title={c}>⚡ {c}</option>
+                                    <option key={c} value={c} title={c}>{c}</option>
                                 ))}
                             </optgroup>
                         )}
                         {userChoices.length > 0 && (
-                            <optgroup label="📁 User Uploaded & Governance Files">
+                            <optgroup label="User Uploaded & Governance Files">
                                 {userChoices.map(c => (
-                                    <option key={c} value={c} title={c}>📁 {c}</option>
+                                    <option key={c} value={c} title={c}>{c}</option>
                                 ))}
                             </optgroup>
                         )}
@@ -2900,7 +3025,10 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
             <div className="mt-1.5 text-[11px] flex items-start gap-1">
                 {isMLActive ? (
                     <>
-                        <span className="font-bold text-[#005eb8] flex-shrink-0">⚡ ML Model:</span>
+                        <span className="font-bold text-[#005eb8] flex-shrink-0 flex items-center gap-1">
+                            <IconBolt className="w-3 h-3 text-[#005eb8]" />
+                            <span>ML Model:</span>
+                        </span>
                         <span className="text-blue-900 truncate font-medium" title={remarks}>{remarks}</span>
                     </>
                 ) : (
@@ -3029,8 +3157,8 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                     {/* Top Search & Filter Bar */}
                     <div className="p-2 border-b border-slate-100 bg-slate-50/80 flex items-center gap-2">
                         <div className="relative flex-1">
-                            <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400 text-xs">
-                                🔍
+                            <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+                                <IconSearch className="w-3.5 h-3.5" />
                             </span>
                             <input
                                 type="text"
@@ -3043,9 +3171,9 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                 <button
                                     type="button"
                                     onClick={() => setSearchTerm("")}
-                                    className="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold cursor-pointer"
+                                    className="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
                                 >
-                                    ✕
+                                    <IconX className="w-3.5 h-3.5" />
                                 </button>
                             )}
                         </div>
@@ -3671,19 +3799,50 @@ function computeDemandWaterfall(totD1, totD2, skillFilter) {
     };
 }
 
-function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeText, iconText = "📊", idPrefix = "wf", isSingleView = false }) {
+function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeText, iconText = "chart", idPrefix = "wf", isSingleView = false }) {
     const [useFocusedScale, setUseFocusedScale] = useState(true);
     const [activeTab, setActiveTab] = useState("chart"); // 'chart' | 'table'
     const [hoveredIdx, setHoveredIdx] = useState(null);
+    const containerRef = useRef(null);
+    const [containerWidth, setContainerWidth] = useState(620);
 
-    // Optimized aspect ratio: 620x385 (matches card container height to eliminate bottom empty space)
-    const width = 620;
-    const height = 385;
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const updateWidth = () => {
+            if (containerRef.current) {
+                const w = containerRef.current.clientWidth;
+                if (w > 200) setContainerWidth(w);
+            }
+        };
+        updateWidth();
+
+        let ro = null;
+        if (typeof ResizeObserver !== 'undefined') {
+            ro = new ResizeObserver((entries) => {
+                for (let entry of entries) {
+                    if (entry.contentRect && entry.contentRect.width > 200) {
+                        setContainerWidth(Math.round(entry.contentRect.width));
+                    }
+                }
+            });
+            ro.observe(containerRef.current);
+        } else {
+            window.addEventListener('resize', updateWidth);
+        }
+        return () => {
+            if (ro) ro.disconnect();
+            else window.removeEventListener('resize', updateWidth);
+        };
+    }, []);
+
+    // Responsive width matching parent container screen size
+    const width = containerWidth;
+    const height = 340;
     const padLeft = 48;
-    const padRight = 14;
-    const padTop = 32;
-    const padBottom = 46;
-    const plotW = width - padLeft - padRight;
+    const padRight = 18;
+    const padTop = 26;
+    const padBottom = 54;
+    const plotW = Math.max(100, width - padLeft - padRight);
     const plotH = height - padTop - padBottom;
 
     const allLevels = steps.flatMap(s => s.type === 'total' ? [s.val] : [s.startLevel, s.endLevel]);
@@ -3699,8 +3858,8 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
 
     const getY = (val) => padTop + plotH - ((val - yMin) / yRange) * plotH;
 
-    const slotW = plotW / steps.length;
-    const barW = 42;
+    const slotW = plotW / (steps.length || 1);
+    const barW = Math.min(54, Math.max(34, Math.round(slotW * 0.52)));
 
     const gridTicks = [0, 0.25, 0.5, 0.75, 1.0].map(pct => Math.round(yMin + pct * yRange));
 
@@ -3708,13 +3867,26 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
     const total2 = steps[steps.length - 1]?.val || 0;
     const netDelta = total2 - total1;
 
+    const renderWaterfallIcon = () => {
+        if (React.isValidElement(iconText)) return iconText;
+        if (iconText === 'bolt') return <IconBolt className="w-3.5 h-3.5 text-amber-500" />;
+        if (iconText === 'trend') return <IconTrendingUp className="w-3.5 h-3.5 text-blue-600" />;
+        if (iconText === 'scale') return <IconScale className="w-3.5 h-3.5 text-indigo-600" />;
+        return <IconBarChart className="w-3.5 h-3.5 text-[#005eb8]" />;
+    };
+    const iconBgClass = (iconText === 'bolt')
+        ? 'bg-amber-50 border-amber-200/70 text-amber-500'
+        : (iconText === 'trend')
+            ? 'bg-blue-50 border-blue-200/70 text-blue-600'
+            : 'bg-blue-50 border-blue-200/70 text-[#005eb8]';
+
     return (
-        <div className={`bg-white rounded-2xl border border-slate-200/90 shadow-xs glow-card p-3.5 sm:p-4 flex flex-col justify-between h-[445px] min-h-[445px] ${isSingleView ? 'max-w-3xl mx-auto w-full' : 'w-full'}`}>
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs glow-card p-3.5 sm:p-4 flex flex-col justify-between h-[465px] min-h-[465px] w-full">
             {/* Header with Title & Net Delta Pill (No Formula Banner) */}
             <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
                 <div className="flex items-center gap-2 min-w-0">
-                    <span className="w-7 h-7 rounded-lg bg-blue-50 text-[#005eb8] flex items-center justify-center text-xs font-bold shadow-2xs flex-shrink-0">
-                        {iconText}
+                    <span className={`w-7 h-7 rounded-lg border flex items-center justify-center shadow-2xs flex-shrink-0 ${iconBgClass}`}>
+                        {renderWaterfallIcon()}
                     </span>
                     <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -3744,7 +3916,17 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                         }`}
                         title="Toggle focused zoom vs zero-baseline scale"
                     >
-                        {useFocusedScale ? "🔍 Focused Zoom" : "📏 Zero Baseline"}
+                        {useFocusedScale ? (
+                            <span className="flex items-center gap-1.5">
+                                <IconSearch className="w-3 h-3 text-blue-600" />
+                                <span>Focused Zoom</span>
+                            </span>
+                        ) : (
+                            <span className="flex items-center gap-1.5">
+                                <IconRuler className="w-3 h-3 text-slate-500" />
+                                <span>Zero Baseline</span>
+                            </span>
+                        )}
                     </button>
                     <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[10px] font-bold">
                         <button
@@ -3767,10 +3949,11 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
 
             {/* View Body */}
             {activeTab === 'chart' ? (
-                <div className="w-full h-[360px] relative mt-2 flex items-center justify-center">
+                <div ref={containerRef} className="w-full h-[355px] relative mt-2 flex items-center justify-center">
                     <svg
                         viewBox={`0 0 ${width} ${height}`}
-                        className="w-full h-full select-none overflow-visible"
+                        className="w-full h-full select-none block"
+                        style={{ width: '100%', height: `${height}px` }}
                     >
                         <defs>
                             <linearGradient id={`${idPrefix}-total1`} x1="0" y1="0" x2="0" y2="1">
@@ -3964,7 +4147,7 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                 </div>
             ) : (
                 /* Tabular Data View - identical height container so card size never shifts */
-                <div className="w-full h-[360px] overflow-auto rounded-xl border border-slate-200/90 mt-2 bg-white shadow-2xs">
+                <div className="w-full h-[355px] overflow-auto rounded-xl border border-slate-200/90 mt-2 bg-white shadow-2xs">
                     <table className="w-full text-left text-xs border-collapse">
                         <thead className="sticky top-0 bg-slate-50 z-10 shadow-2xs">
                             <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-[11px]">
@@ -4009,8 +4192,309 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
     );
 }
 
+// ------------------------------------------------------------------------------------------------
+// WORK STREAM REBALANCING (DIVERGING BAR / TORNADO MIX-SHIFT VISUAL)
+// ------------------------------------------------------------------------------------------------
+function WorkStreamRebalanceChart({ demData, unit = "hrs" }) {
+    const streams = [
+        { key: 'hec_upgrade', label: 'HEC Upgrade', bVal: demData.baseline.hecU, cVal: demData.comparison.hecU, delta: demData.comparison.hecU - demData.baseline.hecU, color: '#3b82f6', tag: 'HEC' },
+        { key: 'hec_repair', label: 'HEC Repair', bVal: demData.baseline.hecR, cVal: demData.comparison.hecR, delta: demData.comparison.hecR - demData.baseline.hecR, color: '#0284c7', tag: 'HEC' },
+        { key: 'kac_upgrade', label: 'KAC Upgrade', bVal: demData.baseline.kacU, cVal: demData.comparison.kacU, delta: demData.comparison.kacU - demData.baseline.kacU, color: '#8b5cf6', tag: 'KAC' },
+        { key: 'kac_repair', label: 'KAC Repair', bVal: demData.baseline.kacR, cVal: demData.comparison.kacR, delta: demData.comparison.kacR - demData.baseline.kacR, color: '#7c3aed', tag: 'KAC' },
+        { key: 'hec_warranty', label: 'HEC Warranty', bVal: demData.baseline.hecW, cVal: demData.comparison.hecW, delta: demData.comparison.hecW - demData.baseline.hecW, color: '#3b82f6', tag: 'HEC' },
+        { key: 'kac_warranty', label: 'KAC Warranty', bVal: demData.baseline.kacW, cVal: demData.comparison.kacW, delta: demData.comparison.kacW - demData.baseline.kacW, color: '#8b5cf6', tag: 'KAC' },
+    ];
+
+    const maxAbsDelta = Math.max(...streams.map(s => Math.abs(s.delta)), 500);
+    const netDemandDelta = demData.comparison.total - demData.baseline.total;
+
+    return (
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs glow-card p-4 sm:p-5 w-full">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 flex items-center justify-center shadow-2xs">
+                        <IconScale className="w-3.5 h-3.5 text-indigo-600" />
+                    </span>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">
+                                Demand Work Stream Rebalancing & Mix Shift
+                            </h4>
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full font-mono ${
+                                netDemandDelta >= 0 ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            }`}>
+                                {netDemandDelta >= 0 ? `+${netDemandDelta.toLocaleString()}` : netDemandDelta.toLocaleString()} {unit} Net Shift
+                            </span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                            Diverging variance: Negative delta indicates volume reduction, positive delta indicates capacity expansion
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Diverging Bar Chart Grid */}
+            <div className="mt-4 space-y-2.5">
+                {streams.map((item) => {
+                    const pctChange = item.bVal > 0 ? ((item.delta / item.bVal) * 100).toFixed(1) : '0';
+                    const barWidthPct = Math.min(100, Math.round((Math.abs(item.delta) / maxAbsDelta) * 100));
+                    const isPositive = item.delta >= 0;
+
+                    return (
+                        <div key={item.key} className="flex items-center gap-3 text-xs group hover:bg-slate-50/80 p-2 rounded-xl transition">
+                            {/* Stream Name & Tag */}
+                            <div className="w-36 flex-shrink-0 flex items-center gap-1.5">
+                                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${
+                                    item.tag === 'HEC' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                                }`}>
+                                    {item.tag}
+                                </span>
+                                <span className="font-bold text-slate-800 truncate" title={item.label}>
+                                    {item.label}
+                                </span>
+                            </div>
+
+                            {/* Baseline & Comp Numbers */}
+                            <div className="w-40 flex-shrink-0 text-[11px] font-mono text-slate-500 flex items-center justify-between pr-3 border-r border-slate-200">
+                                <span>{item.bVal.toLocaleString()}</span>
+                                <span className="text-slate-300">→</span>
+                                <span className="font-semibold text-slate-700">{item.cVal.toLocaleString()}</span>
+                            </div>
+
+                            {/* Centered Diverging Bar Area */}
+                            <div className="flex-1 flex items-center h-7 relative bg-slate-50 rounded-lg px-2 border border-slate-100">
+                                {/* Center zero line */}
+                                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-300 z-10"></div>
+
+                                {/* Left side (Negative) */}
+                                <div className="w-1/2 h-full flex items-center justify-end pr-1">
+                                    {!isPositive && (
+                                        <div
+                                            className="h-4 bg-gradient-to-l from-rose-500 to-rose-400 rounded-l-md transition-all duration-300"
+                                            style={{ width: `${barWidthPct}%` }}
+                                        ></div>
+                                    )}
+                                </div>
+
+                                {/* Right side (Positive) */}
+                                <div className="w-1/2 h-full flex items-center justify-start pl-1">
+                                    {isPositive && (
+                                        <div
+                                            className="h-4 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-r-md transition-all duration-300"
+                                            style={{ width: `${barWidthPct}%` }}
+                                        ></div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Delta Pill */}
+                            <div className="w-32 flex-shrink-0 text-right font-mono font-bold text-xs">
+                                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg ${
+                                    isPositive ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' : 'text-rose-700 bg-rose-50 border border-rose-200'
+                                }`}>
+                                    <span>{isPositive ? `+${item.delta.toLocaleString()}` : item.delta.toLocaleString()}</span>
+                                    <span className="text-[10px] font-normal opacity-75">({pctChange > 0 ? `+${pctChange}` : pctChange}%)</span>
+                                </span>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
+// ------------------------------------------------------------------------------------------------
+// WEEKLY DUAL HORIZON TRAJECTORY CHART (SUPPLY VS DEMAND GAP OVER TIME)
+// ------------------------------------------------------------------------------------------------
+function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, comparisonScenarioId, metricUnit = 'hrs' }) {
+    const [hoveredIdx, setHoveredIdx] = useState(null);
+    const containerRef = useRef(null);
+    const [containerWidth, setContainerWidth] = useState(1100);
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const updateWidth = () => {
+            if (containerRef.current) {
+                const w = containerRef.current.clientWidth;
+                if (w > 200) setContainerWidth(w);
+            }
+        };
+        updateWidth();
+
+        let ro = null;
+        if (typeof ResizeObserver !== 'undefined') {
+            ro = new ResizeObserver((entries) => {
+                for (let entry of entries) {
+                    if (entry.contentRect && entry.contentRect.width > 200) {
+                        setContainerWidth(Math.round(entry.contentRect.width));
+                    }
+                }
+            });
+            ro.observe(containerRef.current);
+        } else {
+            window.addEventListener('resize', updateWidth);
+        }
+        return () => {
+            if (ro) ro.disconnect();
+            else window.removeEventListener('resize', updateWidth);
+        };
+    }, []);
+
+    // Responsive width matching parent container screen size - expanded left-to-right
+    const width = containerWidth;
+    const height = 240;
+    const padLeft = 52;
+    const padRight = 32;
+    const padTop = 24;
+    const padBottom = 42;
+    const plotW = Math.max(100, width - padLeft - padRight);
+    const plotH = height - padTop - padBottom;
+
+    const allValues = weeklyData.flatMap(r => [r.d1, r.d2, r.c1, r.c2]);
+    const minVal = Math.min(...allValues, 3800);
+    const maxVal = Math.max(...allValues, 4900);
+    const yMargin = Math.round((maxVal - minVal) * 0.15);
+    const yMin = Math.max(0, Math.floor((minVal - yMargin) / 100) * 100);
+    const yMax = Math.ceil((maxVal + yMargin) / 100) * 100;
+    const yRange = (yMax - yMin) || 1;
+
+    const getY = (val) => padTop + plotH - ((val - yMin) / yRange) * plotH;
+    const getX = (idx) => {
+        if (weeklyData.length <= 1) return padLeft + plotW / 2;
+        return padLeft + (idx / (weeklyData.length - 1)) * plotW;
+    };
+
+    const gridTicks = [0, 0.33, 0.67, 1.0].map(p => Math.round(yMin + p * yRange));
+
+    const pathD1 = weeklyData.map((r, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(r.d1)}`).join(' ');
+    const pathD2 = weeklyData.map((r, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(r.d2)}`).join(' ');
+    const pathC1 = weeklyData.map((r, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(r.c1)}`).join(' ');
+    const pathC2 = weeklyData.map((r, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(r.c2)}`).join(' ');
+
+    return (
+        <div ref={containerRef} className="w-full relative mt-2">
+            <svg
+                viewBox={`0 0 ${width} ${height}`}
+                className="w-full select-none overflow-visible block"
+                style={{ width: '100%', height: `${height}px` }}
+            >
+                {/* Horizontal Gridlines spanning entire container width */}
+                {gridTicks.map((tick, idx) => {
+                    const y = getY(tick);
+                    return (
+                        <g key={idx}>
+                            <line x1={padLeft} y1={y} x2={width - padRight} y2={y} stroke="#f1f5f9" strokeWidth="1" />
+                            <text x={padLeft - 6} y={y + 3.5} textAnchor="end" fontSize="10" fontWeight="500" fill="#94a3b8" fontFamily="monospace">
+                                {tick >= 1000 ? `${(tick / 1000).toFixed(1)}k` : tick}
+                            </text>
+                        </g>
+                    );
+                })}
+
+                {/* Shaded Area between Capacity 2 and Demand 2 (Net Buffer) spanning full width */}
+                {weeklyData.length > 0 && (
+                    <path
+                        d={`${weeklyData.map((r, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(r.c2)}`).join(' ')} ${weeklyData.slice().reverse().map((r, i) => `L ${getX(weeklyData.length - 1 - i)} ${getY(r.d2)}`).join(' ')} Z`}
+                        fill="#10b981"
+                        fillOpacity="0.08"
+                    />
+                )}
+
+                {/* Trajectory Lines stretching edge-to-edge */}
+                <path d={pathD1} fill="none" stroke="#93c5fd" strokeWidth="2" strokeDasharray="4 4" />
+                <path d={pathD2} fill="none" stroke="#005eb8" strokeWidth="2.5" />
+                <path d={pathC1} fill="none" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4 4" />
+                <path d={pathC2} fill="none" stroke="#059669" strokeWidth="2.5" />
+
+                {/* Data Points & Interactive hover columns spanning full width */}
+                {weeklyData.map((r, i) => {
+                    const x = getX(i);
+                    const colW = weeklyData.length > 1 ? plotW / (weeklyData.length - 1) : plotW;
+                    const isHovered = hoveredIdx === i;
+
+                    return (
+                        <g key={i} onMouseEnter={() => setHoveredIdx(i)} onMouseLeave={() => setHoveredIdx(null)} className="cursor-pointer">
+                            <rect
+                                x={x - colW / 2}
+                                y={padTop}
+                                width={colW}
+                                height={plotH}
+                                fill={isHovered ? "#3b82f6" : "transparent"}
+                                fillOpacity={isHovered ? "0.04" : "0"}
+                            />
+                            <circle cx={x} cy={getY(r.d2)} r={isHovered ? 5.5 : 3.5} fill="#005eb8" stroke="#fff" strokeWidth="1.5" />
+                            <circle cx={x} cy={getY(r.c2)} r={isHovered ? 5.5 : 3.5} fill="#059669" stroke="#fff" strokeWidth="1.5" />
+                            <text x={x} y={padTop + plotH + 15} textAnchor="middle" fontSize="10.5" fontWeight="600" fill={isHovered ? "#005eb8" : "#64748b"}>
+                                {r.week.slice(5)}
+                            </text>
+                            <text x={x} y={padTop + plotH + 28} textAnchor="middle" fontSize="10" fontWeight="800" fill="#059669" fontFamily="monospace">
+                                +{metricUnit === 'fte' ? (r.delta / 37.5).toFixed(1) : r.delta}
+                            </text>
+                        </g>
+                    );
+                })}
+            </svg>
+
+            {/* Hover Tooltip (Adaptive alignment to prevent edge clipping) */}
+            {hoveredIdx !== null && weeklyData[hoveredIdx] && (
+                <div
+                    className="absolute top-2 bg-slate-900/95 text-white rounded-xl px-3.5 py-2.5 text-xs shadow-xl backdrop-blur-sm pointer-events-none z-20 space-y-1.5 font-mono"
+                    style={{
+                        left: hoveredIdx < weeklyData.length / 2 ? `${Math.min(width - 240, getX(hoveredIdx) + 16)}px` : undefined,
+                        right: hoveredIdx >= weeklyData.length / 2 ? `${Math.max(16, width - getX(hoveredIdx) + 16)}px` : undefined,
+                    }}
+                >
+                    <div className="font-bold flex items-center justify-between gap-4 text-slate-100 border-b border-slate-700 pb-1 font-sans">
+                        <span>Week Commencing: {weeklyData[hoveredIdx].week}</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-600 text-white font-mono">
+                            +{weeklyData[hoveredIdx].delta} hrs Delta
+                        </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-6 text-slate-300">
+                        <span>Demand:</span>
+                        <span>{weeklyData[hoveredIdx].d2.toLocaleString()} hrs <span className="text-slate-400">({weeklyData[hoveredIdx].d2 - weeklyData[hoveredIdx].d1 >= 0 ? '+' : ''}{weeklyData[hoveredIdx].d2 - weeklyData[hoveredIdx].d1})</span></span>
+                    </div>
+                    <div className="flex items-center justify-between gap-6 text-slate-300">
+                        <span>Capacity:</span>
+                        <span>{weeklyData[hoveredIdx].c2.toLocaleString()} hrs <span className="text-emerald-400">({weeklyData[hoveredIdx].c2 - weeklyData[hoveredIdx].c1 >= 0 ? '+' : ''}{weeklyData[hoveredIdx].c2 - weeklyData[hoveredIdx].c1})</span></span>
+                    </div>
+                    <div className="flex items-center justify-between gap-6 pt-1 border-t border-slate-700 text-emerald-400 font-bold">
+                        <span>Comparison Advantage:</span>
+                        <span>+{weeklyData[hoveredIdx].delta} hrs ({(weeklyData[hoveredIdx].delta / 37.5).toFixed(1)} FTEs)</span>
+                    </div>
+                </div>
+            )}
+
+            {/* Trajectory Legend */}
+            <div className="flex flex-wrap items-center justify-center gap-5 pt-2.5 text-[11px] text-slate-600 border-t border-slate-100 mt-2">
+                <span className="flex items-center gap-1.5">
+                    <span className="w-4 h-0.5 bg-[#005eb8]"></span>
+                    <span className="font-bold text-slate-700">Comp Demand</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                    <span className="w-4 h-0.5 bg-blue-300 border-t border-dashed border-blue-400"></span>
+                    <span className="text-slate-500">Baseline Demand</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                    <span className="w-4 h-0.5 bg-emerald-600"></span>
+                    <span className="font-bold text-emerald-800">Comp Capacity</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                    <span className="w-4 h-0.5 bg-slate-300 border-t border-dashed border-slate-400"></span>
+                    <span className="text-slate-500">Baseline Capacity</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded bg-emerald-100 border border-emerald-300"></span>
+                    <span className="font-semibold text-emerald-700">Net Surplus Buffer</span>
+                </span>
+            </div>
+        </div>
+    );
+}
+
 function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, baselineScenarioId, comparisonScenarioId }) {
-    const [viewMode, setViewMode] = useState('side_by_side'); // 'side_by_side' | 'capacity_only' | 'demand_only'
+    const [viewMode, setViewMode] = useState('side_by_side'); // 'side_by_side' | 'capacity_only' | 'demand_only' | 'work_stream_rebalance'
 
     const capData = useMemo(() => {
         return computeCapacityWaterfall(totals.totC1, totals.totC2);
@@ -4027,8 +4511,8 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
             {/* Section Header with Mode Toggle */}
             <div className="bg-white p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-xs flex flex-wrap items-center justify-between gap-3 glow-card">
                 <div className="flex items-center gap-2.5">
-                    <span className="w-7 h-7 rounded-lg bg-blue-50 text-[#005eb8] flex items-center justify-center border border-blue-100 shadow-2xs text-sm">
-                        📊
+                    <span className="w-7 h-7 rounded-lg bg-blue-50 text-[#005eb8] flex items-center justify-center border border-blue-100 shadow-2xs">
+                        <IconBarChart className="w-4 h-4 text-[#005eb8]" />
                     </span>
                     <div>
                         <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
@@ -4044,7 +4528,7 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
                 </div>
 
                 {/* View Mode Toggle */}
-                <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-bold gap-1">
+                <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-bold gap-1 flex-wrap">
                     <button
                         type="button"
                         onClick={() => setViewMode('side_by_side')}
@@ -4054,7 +4538,7 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
                                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                         }`}
                     >
-                        <span>📊</span>
+                        <IconBarChart className="w-3.5 h-3.5 text-[#005eb8]" />
                         <span>Side-by-Side</span>
                     </button>
                     <button
@@ -4066,7 +4550,7 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
                                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                         }`}
                     >
-                        <span>⚡</span>
+                        <IconBolt className="w-3.5 h-3.5 text-amber-500" />
                         <span>Capacity Waterfall</span>
                     </button>
                     <button
@@ -4078,42 +4562,58 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
                                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                         }`}
                     >
-                        <span>📈</span>
+                        <IconTrendingUp className="w-3.5 h-3.5 text-blue-600" />
                         <span>Demand Waterfall</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setViewMode('work_stream_rebalance')}
+                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                            viewMode === 'work_stream_rebalance'
+                                ? 'bg-white text-[#005eb8] shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                        }`}
+                    >
+                        <IconScale className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>Work Stream Rebalance</span>
                     </button>
                 </div>
             </div>
 
-            {/* Waterfall Charts Grid */}
-            <div className={`grid gap-3.5 ${viewMode === 'side_by_side' ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
-                {/* 1. Capacity Waterfall */}
-                {(viewMode === 'side_by_side' || viewMode === 'capacity_only') && (
-                    <WaterfallSvgChart
-                        title="Capacity Waterfall (Available Hours Bridge)"
-                        subtitle="Gross hours, sickness, holiday, training, meeting & others downtimes"
-                        steps={capData.steps}
-                        unit="hrs"
-                        badgeText="Available Hours Bridge"
-                        iconText="⚡"
-                        idPrefix="cap-wf"
-                        isSingleView={isSingleView}
-                    />
-                )}
+            {/* Waterfall Charts Grid / Work Stream Rebalance */}
+            {viewMode === 'work_stream_rebalance' ? (
+                <WorkStreamRebalanceChart demData={demData} unit="hrs" />
+            ) : (
+                <div className={`grid gap-3.5 ${viewMode === 'side_by_side' ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
+                    {/* 1. Capacity Waterfall */}
+                    {(viewMode === 'side_by_side' || viewMode === 'capacity_only') && (
+                        <WaterfallSvgChart
+                            title="Capacity Waterfall (Available Hours Bridge)"
+                            subtitle="Gross hours, sickness, holiday, training, meeting & others downtimes"
+                            steps={capData.steps}
+                            unit="hrs"
+                            badgeText="Available Hours Bridge"
+                            iconText="bolt"
+                            idPrefix="cap-wf"
+                            isSingleView={isSingleView}
+                        />
+                    )}
 
-                {/* 2. Demand Waterfall */}
-                {(viewMode === 'side_by_side' || viewMode === 'demand_only') && (
-                    <WaterfallSvgChart
-                        title="Demand Waterfall (Total Demand Hours Bridge)"
-                        subtitle="HEC & KAC upgrade, repair, warranty streams reconciling to total demand"
-                        steps={demData.steps}
-                        unit="hrs"
-                        badgeText="Total Demand Bridge"
-                        iconText="📈"
-                        idPrefix="dem-wf"
-                        isSingleView={isSingleView}
-                    />
-                )}
-            </div>
+                    {/* 2. Demand Waterfall */}
+                    {(viewMode === 'side_by_side' || viewMode === 'demand_only') && (
+                        <WaterfallSvgChart
+                            title="Demand Waterfall (Total Demand Hours Bridge)"
+                            subtitle="HEC & KAC upgrade, repair, warranty streams reconciling to total demand"
+                            steps={demData.steps}
+                            unit="hrs"
+                            badgeText="Total Demand Bridge"
+                            iconText="trend"
+                            idPrefix="dem-wf"
+                            isSingleView={isSingleView}
+                        />
+                    )}
+                </div>
+            )}
         </div>
     );
 }
@@ -4245,24 +4745,35 @@ function ScenarioComparisonView({
     else if (selectedGeo.type === 'acdm') geoMultiplier = 0.11;
     else if (selectedGeo.type === 'territory') geoMultiplier = 0.045;
 
-    // Calculate aggregated metrics
-    const totals = useMemo(() => {
-        let totD1 = 0, totD2 = 0, totC1 = 0, totC2 = 0, totDelta = 0;
-        visibleWeeks.forEach((w) => {
+    // Calculate aggregated metrics & weekly data
+    const weeklyData = useMemo(() => {
+        return visibleWeeks.map((w) => {
             const idx = allWeeks.indexOf(w);
             const d1 = Math.round((4300 + idx * 45) * skillMultiplier * geoMultiplier);
             const d2 = Math.round((4280 + idx * 40) * skillMultiplier * geoMultiplier);
             const c1 = Math.round((4550 + idx * 30) * skillMultiplier * geoMultiplier);
             const c2 = Math.round((4610 + idx * 35) * skillMultiplier * geoMultiplier);
             const delta = (c2 - d2) - (c1 - d1);
-            totD1 += d1;
-            totD2 += d2;
-            totC1 += c1;
-            totC2 += c2;
-            totDelta += delta;
+            return { week: w, d1, d2, c1, c2, delta };
+        });
+    }, [visibleWeeks, skillMultiplier, geoMultiplier]);
+
+    const totals = useMemo(() => {
+        let totD1 = 0, totD2 = 0, totC1 = 0, totC2 = 0, totDelta = 0;
+        weeklyData.forEach(r => {
+            totD1 += r.d1;
+            totD2 += r.d2;
+            totC1 += r.c1;
+            totC2 += r.c2;
+            totDelta += r.delta;
         });
         return { totD1, totD2, totC1, totC2, totDelta };
-    }, [visibleWeeks, skillMultiplier, geoMultiplier]);
+    }, [weeklyData]);
+
+    const [metricUnit, setMetricUnit] = useState('hrs'); // 'hrs' | 'fte'
+
+    const FTE_CONV = 37.5 * Math.max(1, visibleWeeks.length);
+    const toFte = (hrs) => (hrs / FTE_CONV).toFixed(1);
 
     return (
         <div className="space-y-4 w-full">
@@ -4385,8 +4896,9 @@ function ScenarioComparisonView({
                     {/* A. Geography Hierarchy Scope Filter (Hierarchical Tree Dropdown with Radio Buttons) */}
                     <div className="relative z-50">
                         <div className="flex items-center justify-between h-5 mb-1.5">
-                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1">
-                                <span>🌐 Geography Scope</span>
+                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                                <IconGlobe className="w-3.5 h-3.5 text-slate-500" />
+                                <span>Geography Scope</span>
                             </label>
                             <span className="text-[10px] text-blue-600 font-bold">Hierarchical Tree</span>
                         </div>
@@ -4402,39 +4914,44 @@ function ScenarioComparisonView({
                     {/* B. Skill Type Filter (HEC, KAC, All Skills) */}
                     <div>
                         <div className="flex items-center justify-between h-5 mb-1.5">
-                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
-                                ⚡ Skill Type Filter
+                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                                <IconBolt className="w-3.5 h-3.5 text-slate-500" />
+                                <span>Skill Type Filter</span>
                             </label>
                             <span className="text-[10px] text-slate-400 font-medium">Heating vs Appliance</span>
                         </div>
                         <div className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200 h-[44px]">
                             {[
-                                { id: 'ALL', label: 'All Skills', icon: '🌐' },
-                                { id: 'HEC', label: 'HEC Core', icon: '⚡' },
-                                { id: 'KAC', label: 'KAC Appliance', icon: '🔧' }
-                            ].map(s => (
-                                <button
-                                    key={s.id}
-                                    type="button"
-                                    onClick={() => setSkillFilter(s.id)}
-                                    className={`flex-1 h-full text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                                        skillFilter === s.id
-                                            ? 'bg-white text-[#005eb8] shadow-xs border border-slate-200/80'
-                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                                    }`}
-                                >
-                                    <span>{s.icon}</span>
-                                    <span>{s.label}</span>
-                                </button>
-                            ))}
+                                { id: 'ALL', label: 'All Skills', icon: IconGlobe },
+                                { id: 'HEC', label: 'HEC Core', icon: IconBolt },
+                                { id: 'KAC', label: 'KAC Appliance', icon: IconWrench }
+                            ].map(s => {
+                                const IconComp = s.icon;
+                                return (
+                                    <button
+                                        key={s.id}
+                                        type="button"
+                                        onClick={() => setSkillFilter(s.id)}
+                                        className={`flex-1 h-full text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                                            skillFilter === s.id
+                                                ? 'bg-white text-[#005eb8] shadow-xs border border-slate-200/80'
+                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                        }`}
+                                    >
+                                        <IconComp className="w-3.5 h-3.5" />
+                                        <span>{s.label}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
                     {/* C. Date Range Filter with Quick Horizon Presets */}
                     <div>
                         <div className="flex items-center justify-between h-5 mb-1.5">
-                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
-                                📅 Date Range Filter
+                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                                <IconCalendar className="w-3.5 h-3.5 text-slate-500" />
+                                <span>Date Range Filter</span>
                             </label>
                             <span className="text-[10px] text-slate-400 font-semibold">{visibleWeeks.length} Wks Selected</span>
                         </div>
@@ -4477,7 +4994,7 @@ function ScenarioComparisonView({
                     <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-extrabold text-slate-400 uppercase tracking-wider text-[10px]">Active Filters:</span>
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-[#005eb8] font-bold text-xs border border-blue-200">
-                            <span>{selectedGeo.type === 'national' ? '🌐' : '📍'}</span>
+                            {selectedGeo.type === 'national' ? <IconGlobe className="w-3.5 h-3.5 text-[#005eb8]" /> : <IconPin className="w-3.5 h-3.5 text-[#005eb8]" />}
                             <span>{getScopeDisplay()}</span>
                         </span>
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">
@@ -4528,21 +5045,133 @@ function ScenarioComparisonView({
                 </div>
             </div>
 
+            {/* 2.5 EXECUTIVE AI SCENARIO TAKEAWAYS BANNER */}
+            <div className="rounded-2xl p-4 bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-sky-50/80 border border-blue-200/90 shadow-xs glow-card relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#005eb8] via-indigo-500 to-sky-400"></div>
+                <div className="relative z-10">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-blue-200/60">
+                        <div className="flex items-center gap-2">
+                            <span className="w-7 h-7 rounded-lg bg-blue-600/10 text-[#005eb8] border border-blue-200/80 flex items-center justify-center shadow-2xs">
+                                <IconLightbulb className="w-4 h-4 text-[#005eb8]" />
+                            </span>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight uppercase">
+                                    Executive Strategic Takeaways & Variance Synthesis
+                                </h4>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100/70 text-[#005eb8] border border-blue-200">
+                                    AI Scenario Synthesis
+                                </span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-[11px]">
+                            <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold text-xs font-mono shadow-2xs">
+                                {totals.totDelta >= 0 ? `Net Headroom: +${totals.totDelta.toLocaleString()} hrs (+${toFte(totals.totDelta)} FTE)` : `Net Deficit: ${totals.totDelta.toLocaleString()} hrs (${toFte(totals.totDelta)} FTE)`}
+                            </span>
+                            <span className="px-2.5 py-1 rounded-full bg-white text-slate-700 border border-blue-200 font-bold text-xs shadow-2xs">
+                                Automated Scenario Intelligence
+                            </span>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 text-xs">
+                        {/* Workforce Posture */}
+                        <div className="bg-white p-3 rounded-xl border border-blue-200/80 shadow-2xs hover:shadow-xs hover:border-blue-300 transition">
+                            <div className="flex items-center gap-1.5 text-blue-700 font-extrabold text-xs mb-1">
+                                <IconScale className="w-3.5 h-3.5 text-blue-700" />
+                                <span>Workforce Posture</span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+                                Comparison plan delivers an overall <b className="text-emerald-700 font-mono font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">+{totals.totDelta.toLocaleString()} hrs</b> (+{toFte(totals.totDelta)} FTE) buffer improvement over Baseline across the {visibleWeeks.length}-week horizon, mitigating peak surge risks.
+                            </p>
+                        </div>
+
+                        {/* Capacity Expansion Levers */}
+                        <div className="bg-white p-3 rounded-xl border border-emerald-200/80 shadow-2xs hover:shadow-xs hover:border-emerald-300 transition">
+                            <div className="flex items-center gap-1.5 text-emerald-700 font-extrabold text-xs mb-1">
+                                <IconBolt className="w-3.5 h-3.5 text-emerald-700" />
+                                <span>Capacity Expansion Levers</span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+                                Available hours increase by <b className="text-emerald-700 font-mono font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">{totals.totC2 - totals.totC1 >= 0 ? '+' : ''}{(totals.totC2 - totals.totC1).toLocaleString()} hrs</b> ({totals.totC2 - totals.totC1 >= 0 ? '+' : ''}{toFte(totals.totC2 - totals.totC1)} FTE), driven by gross hours uplift (+472 hrs) and sickness / downtime recovery.
+                            </p>
+                        </div>
+
+                        {/* Demand Mix Rebalancing */}
+                        <div className="bg-white p-3 rounded-xl border border-purple-200/80 shadow-2xs hover:shadow-xs hover:border-purple-300 transition">
+                            <div className="flex items-center gap-1.5 text-purple-700 font-extrabold text-xs mb-1">
+                                <IconTrendingUp className="w-3.5 h-3.5 text-purple-700" />
+                                <span>Demand Mix Rebalancing</span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+                                Total demand adjusts by <b className="text-blue-700 font-mono font-bold bg-blue-50 px-1 py-0.2 rounded border border-blue-200">{totals.totD2 - totals.totD1 >= 0 ? '+' : ''}{(totals.totD2 - totals.totD1).toLocaleString()} hrs</b> ({toFte(totals.totD2 - totals.totD1)} FTE) through HEC Upgrade acceleration (+435 hrs) and reduced HEC repair backlog (-615 hrs).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 3. EXECUTIVE KPI METRIC CARDS HEADER WITH HOURS <-> FTE TOGGLE */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <IconTarget className="w-4 h-4 text-[#005eb8]" />
+                        <span>Executive Scenario KPI Scorecard</span>
+                    </span>
+                    <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">
+                        {metricUnit === 'fte' ? 'FTE Unit Mode (37.5h / Wk)' : 'Total Hours Mode'}
+                    </span>
+                </div>
+
+                {/* Hours <-> FTE Unit Toggle */}
+                <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-bold gap-1 shadow-2xs">
+                    <button
+                        type="button"
+                        onClick={() => setMetricUnit('hrs')}
+                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                            metricUnit === 'hrs'
+                                ? 'bg-white text-[#005eb8] shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                        }`}
+                        title="Display values in total standard working hours"
+                    >
+                        <IconClock className="w-3.5 h-3.5" />
+                        <span>Hours</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setMetricUnit('fte')}
+                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                            metricUnit === 'fte'
+                                ? 'bg-white text-[#005eb8] shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                        }`}
+                        title="Display values normalized to standard Centrica FTEs (37.5 hrs/week)"
+                    >
+                        <IconUsers className="w-3.5 h-3.5" />
+                        <span>FTE (37.5h)</span>
+                    </button>
+                </div>
+            </div>
+
             {/* 3. EXECUTIVE KPI METRIC CARDS */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 relative z-10">
                 {/* Net Delta Imbalance */}
                 <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden group">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Net Imbalance Delta</span>
+                    <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Net Imbalance Delta</span>
+                        <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shadow-2xs flex-shrink-0">
+                            <IconScale className="w-3.5 h-3.5 text-emerald-600" />
+                        </div>
+                    </div>
                     <div className="flex items-baseline gap-1 mt-1.5">
                         <span className="text-xl sm:text-2xl font-black text-emerald-600 tracking-tight font-mono">
-                            +{totals.totDelta.toLocaleString()}
+                            {metricUnit === 'fte' ? `+${toFte(totals.totDelta)}` : `+${totals.totDelta.toLocaleString()}`}
                         </span>
-                        <span className="text-xs text-slate-500 font-bold">hrs</span>
+                        <span className="text-xs text-slate-500 font-bold">{metricUnit === 'fte' ? 'FTE' : 'hrs'}</span>
                     </div>
                     <div className="mt-1.5 flex items-center gap-1">
                         <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-extrabold">
-                            ▲ Comparison Advantage
+                            {metricUnit === 'fte' ? `▲ +${toFte(totals.totDelta)} FTE advantage` : '▲ Comparison Advantage'}
                         </span>
                     </div>
                 </div>
@@ -4550,37 +5179,58 @@ function ScenarioComparisonView({
                 {/* Comparison Demand */}
                 <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-[#005eb8]"></div>
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Demand</span>
+                    <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Demand</span>
+                        <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 text-[#005eb8] flex items-center justify-center shadow-2xs flex-shrink-0">
+                            <IconDemand className="w-3.5 h-3.5 text-[#005eb8]" />
+                        </div>
+                    </div>
                     <div className="flex items-baseline gap-1 mt-1.5">
                         <span className="text-xl sm:text-2xl font-black text-[#005eb8] tracking-tight font-mono">
-                            {totals.totD2.toLocaleString()}
+                            {metricUnit === 'fte' ? toFte(totals.totD2) : totals.totD2.toLocaleString()}
                         </span>
-                        <span className="text-xs text-slate-500 font-bold">hrs</span>
+                        <span className="text-xs text-slate-500 font-bold">{metricUnit === 'fte' ? 'FTE' : 'hrs'}</span>
                     </div>
                     <span className="text-[10px] text-slate-500 mt-1.5 block truncate font-medium">
-                        {totals.totD2 - totals.totD1 >= 0 ? '+' : ''}{(totals.totD2 - totals.totD1).toLocaleString()} hrs vs Baseline ({totals.totD1.toLocaleString()})
+                        {metricUnit === 'fte'
+                            ? `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${toFte(totals.totD2 - totals.totD1)} FTE vs Baseline (${toFte(totals.totD1)})`
+                            : `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${(totals.totD2 - totals.totD1).toLocaleString()} hrs vs Baseline (${totals.totD1.toLocaleString()})`
+                        }
                     </span>
                 </div>
 
                 {/* Comparison Capacity */}
                 <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-700 to-slate-900"></div>
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Capacity</span>
+                    <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Capacity</span>
+                        <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-center shadow-2xs flex-shrink-0">
+                            <IconCapacity className="w-3.5 h-3.5 text-slate-800" />
+                        </div>
+                    </div>
                     <div className="flex items-baseline gap-1 mt-1.5">
                         <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono">
-                            {totals.totC2.toLocaleString()}
+                            {metricUnit === 'fte' ? toFte(totals.totC2) : totals.totC2.toLocaleString()}
                         </span>
-                        <span className="text-xs text-slate-500 font-bold">hrs</span>
+                        <span className="text-xs text-slate-500 font-bold">{metricUnit === 'fte' ? 'FTE' : 'hrs'}</span>
                     </div>
                     <span className="text-[10px] text-emerald-600 mt-1.5 block truncate font-bold">
-                        {totals.totC2 - totals.totC1 >= 0 ? '+' : ''}{(totals.totC2 - totals.totC1).toLocaleString()} hrs vs Baseline ({totals.totC1.toLocaleString()})
+                        {metricUnit === 'fte'
+                            ? `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${toFte(totals.totC2 - totals.totC1)} FTE vs Baseline (${toFte(totals.totC1)})`
+                            : `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${(totals.totC2 - totals.totC1).toLocaleString()} hrs vs Baseline (${totals.totC1.toLocaleString()})`
+                        }
                     </span>
                 </div>
 
                 {/* Filter Scope Coverage */}
                 <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Operational Scope</span>
+                    <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Operational Scope</span>
+                        <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shadow-2xs flex-shrink-0">
+                            <IconMap className="w-3.5 h-3.5 text-indigo-600" />
+                        </div>
+                    </div>
                     <div className="text-xs sm:text-sm font-black text-slate-900 mt-1.5 truncate">
                         {selectedGeo.label}
                     </div>
@@ -4599,14 +5249,14 @@ function ScenarioComparisonView({
                 comparisonScenarioId={comparisonScenarioId}
             />
 
-            {/* 5. WEEKLY DEMAND VS CAPACITY VARIANCE BREAKDOWN TABLE */}
+            {/* 5. WEEKLY DEMAND VS CAPACITY VARIANCE BREAKDOWN (COMBINED HORIZON & TABULAR VIEW) */}
             <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden glow-card relative z-10">
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100">
                     <div>
                         <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
                             <span>Weekly Demand vs Capacity Variance Breakdown</span>
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#005eb8] border border-blue-200">
-                                Tabular Precision
+                                Combined View
                             </span>
                         </h4>
                         <p className="text-[11px] text-slate-500">
@@ -4619,85 +5269,115 @@ function ScenarioComparisonView({
                     </span>
                 </div>
 
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
-                    <table className="w-full text-left text-xs border-collapse">
-                        <thead>
-                            {/* Group Header Row */}
-                            <tr className="bg-slate-100/90 text-slate-600 text-[10px] font-extrabold uppercase tracking-wider border-b border-slate-200">
-                                <th className="py-2 px-3 border-r border-slate-200">Planning Horizon</th>
-                                <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 text-blue-700 bg-blue-50/50">Demand (Hours)</th>
-                                <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 text-emerald-800 bg-emerald-50/50">Capacity (Hours)</th>
-                                <th className="py-2 px-3 text-right text-emerald-700 bg-emerald-50/70">Net Variance</th>
-                            </tr>
-                            {/* Sub Header Row */}
-                            <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-[11px]">
-                                <th className="py-2.5 px-3 border-r border-slate-200">Week Commencing</th>
-                                <th className="py-2.5 px-3 text-slate-600">Baseline</th>
-                                <th className="py-2.5 px-3 text-blue-700">Comp</th>
-                                <th className="py-2.5 px-3 text-slate-500 border-r border-slate-200">Δ Demand</th>
-                                <th className="py-2.5 px-3 text-slate-600">Baseline</th>
-                                <th className="py-2.5 px-3 text-emerald-700">Comp</th>
-                                <th className="py-2.5 px-3 text-slate-500 border-r border-slate-200">Δ Capacity</th>
-                                <th className="py-2.5 px-3 text-right text-emerald-700">Delta Imbalance</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 text-slate-700">
-                            {visibleWeeks.map((w) => {
-                                const idx = allWeeks.indexOf(w);
-                                const d1 = Math.round((4300 + idx * 45) * skillMultiplier * geoMultiplier);
-                                const d2 = Math.round((4280 + idx * 40) * skillMultiplier * geoMultiplier);
-                                const c1 = Math.round((4550 + idx * 30) * skillMultiplier * geoMultiplier);
-                                const c2 = Math.round((4610 + idx * 35) * skillMultiplier * geoMultiplier);
-                                const delta = (c2 - d2) - (c1 - d1);
-                                const dVar = d2 - d1;
-                                const cVar = c2 - c1;
-
-                                return (
-                                    <tr key={w} className="hover:bg-blue-50/30 transition">
-                                        <td className="py-2.5 px-3 font-bold text-slate-800 font-mono text-xs border-r border-slate-100">{w}</td>
-                                        <td className="py-2.5 px-3 text-slate-600 font-mono tabular-nums">{d1.toLocaleString()} hrs</td>
-                                        <td className="py-2.5 px-3 font-bold text-blue-700 font-mono tabular-nums">{d2.toLocaleString()} hrs</td>
-                                        <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-slate-500 border-r border-slate-100">
-                                            {dVar >= 0 ? `+${dVar}` : dVar} hrs
-                                        </td>
-                                        <td className="py-2.5 px-3 text-slate-600 font-mono tabular-nums">{c1.toLocaleString()} hrs</td>
-                                        <td className="py-2.5 px-3 font-bold text-emerald-700 font-mono tabular-nums">{c2.toLocaleString()} hrs</td>
-                                        <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-emerald-600 border-r border-slate-100 font-bold">
-                                            {cVar >= 0 ? `+${cVar}` : cVar} hrs
-                                        </td>
-                                        <td className="py-2.5 px-3 font-bold text-right font-mono tabular-nums">
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-extrabold ${
-                                                delta >= 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
-                                            }`}>
-                                                {delta >= 0 ? `+${delta}` : delta} hrs
-                                            </span>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                        <tfoot>
-                            <tr className="bg-slate-100/90 font-black border-t-2 border-slate-300 text-slate-900 text-xs">
-                                <td className="py-3 px-3 border-r border-slate-200 uppercase tracking-wide">Total / Summary</td>
-                                <td className="py-3 px-3 font-mono tabular-nums text-slate-700">{totals.totD1.toLocaleString()} hrs</td>
-                                <td className="py-3 px-3 font-mono tabular-nums text-blue-700">{totals.totD2.toLocaleString()} hrs</td>
-                                <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-slate-600 border-r border-slate-200">
-                                    {totals.totD2 - totals.totD1 >= 0 ? `+${totals.totD2 - totals.totD1}` : totals.totD2 - totals.totD1} hrs
-                                </td>
-                                <td className="py-3 px-3 font-mono tabular-nums text-slate-700">{totals.totC1.toLocaleString()} hrs</td>
-                                <td className="py-3 px-3 font-mono tabular-nums text-emerald-700">{totals.totC2.toLocaleString()} hrs</td>
-                                <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-emerald-600 border-r border-slate-200">
-                                    {totals.totC2 - totals.totC1 >= 0 ? `+${totals.totC2 - totals.totC1}` : totals.totC2 - totals.totC1} hrs
-                                </td>
-                                <td className="py-3 px-3 text-right">
-                                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs font-mono">
-                                        +{totals.totDelta.toLocaleString()} hrs
-                                    </span>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                {/* 8-Week Horizon Trajectory Chart */}
+                <div className="mb-4 p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80">
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-extrabold text-slate-700 flex items-center gap-1.5">
+                            <IconTrendingUp className="w-3.5 h-3.5 text-[#005eb8]" />
+                            <span>8-Week Dual-Horizon Supply vs Demand Gap & Surplus Buffer</span>
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-semibold">
+                            Hover points for exact weekly figures & net headroom
+                        </span>
+                    </div>
+                    <WeeklyDualHorizonChart
+                        weeklyData={weeklyData}
+                        baselineScenarioId={baselineScenarioId}
+                        comparisonScenarioId={comparisonScenarioId}
+                        metricUnit={metricUnit}
+                    />
                 </div>
+
+                {/* Granular Table */}
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                        <table className="w-full text-left text-xs border-collapse">
+                            <thead>
+                                {/* Group Header Row */}
+                                <tr className="bg-slate-100/90 text-slate-600 text-[10px] font-extrabold uppercase tracking-wider border-b border-slate-200">
+                                    <th className="py-2 px-3 border-r border-slate-200">Planning Horizon</th>
+                                    <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 text-blue-700 bg-blue-50/50">Demand ({metricUnit === 'fte' ? 'FTE' : 'Hours'})</th>
+                                    <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 text-emerald-800 bg-emerald-50/50">Capacity ({metricUnit === 'fte' ? 'FTE' : 'Hours'})</th>
+                                    <th className="py-2 px-3 text-right text-emerald-700 bg-emerald-50/70">Net Variance</th>
+                                </tr>
+                                {/* Sub Header Row */}
+                                <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-[11px]">
+                                    <th className="py-2.5 px-3 border-r border-slate-200">Week Commencing</th>
+                                    <th className="py-2.5 px-3 text-slate-600">Baseline</th>
+                                    <th className="py-2.5 px-3 text-blue-700">Comp</th>
+                                    <th className="py-2.5 px-3 text-slate-500 border-r border-slate-200">Δ Demand</th>
+                                    <th className="py-2.5 px-3 text-slate-600">Baseline</th>
+                                    <th className="py-2.5 px-3 text-emerald-700">Comp</th>
+                                    <th className="py-2.5 px-3 text-slate-500 border-r border-slate-200">Δ Capacity</th>
+                                    <th className="py-2.5 px-3 text-right text-emerald-700">Delta Imbalance</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 text-slate-700">
+                                {weeklyData.map((r) => {
+                                    const dVar = r.d2 - r.d1;
+                                    const cVar = r.c2 - r.c1;
+                                    const unitSuffix = metricUnit === 'fte' ? ' FTE' : ' hrs';
+                                    const fmtVal = (val) => metricUnit === 'fte' ? (val / 37.5).toFixed(1) : val.toLocaleString();
+
+                                    return (
+                                        <tr key={r.week} className="hover:bg-blue-50/30 transition">
+                                            <td className="py-2.5 px-3 font-bold text-slate-800 font-mono text-xs border-r border-slate-100">{r.week}</td>
+                                            <td className="py-2.5 px-3 text-slate-600 font-mono tabular-nums">{fmtVal(r.d1)}{unitSuffix}</td>
+                                            <td className="py-2.5 px-3 font-bold text-blue-700 font-mono tabular-nums">{fmtVal(r.d2)}{unitSuffix}</td>
+                                            <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-slate-500 border-r border-slate-100">
+                                                {dVar >= 0 ? `+${fmtVal(dVar)}` : fmtVal(dVar)}{unitSuffix}
+                                            </td>
+                                            <td className="py-2.5 px-3 text-slate-600 font-mono tabular-nums">{fmtVal(r.c1)}{unitSuffix}</td>
+                                            <td className="py-2.5 px-3 font-bold text-emerald-700 font-mono tabular-nums">{fmtVal(r.c2)}{unitSuffix}</td>
+                                            <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-emerald-600 border-r border-slate-100 font-bold">
+                                                {cVar >= 0 ? `+${fmtVal(cVar)}` : fmtVal(cVar)}{unitSuffix}
+                                            </td>
+                                            <td className="py-2.5 px-3 font-bold text-right font-mono tabular-nums">
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-extrabold ${
+                                                    r.delta >= 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                                }`}>
+                                                    {r.delta >= 0 ? `+${fmtVal(r.delta)}` : fmtVal(r.delta)}{unitSuffix}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                            <tfoot>
+                                <tr className="bg-slate-100/90 font-black border-t-2 border-slate-300 text-slate-900 text-xs">
+                                    <td className="py-3 px-3 border-r border-slate-200 uppercase tracking-wide">Total / Summary</td>
+                                    <td className="py-3 px-3 font-mono tabular-nums text-slate-700">
+                                        {metricUnit === 'fte' ? toFte(totals.totD1) + ' FTE' : totals.totD1.toLocaleString() + ' hrs'}
+                                    </td>
+                                    <td className="py-3 px-3 font-mono tabular-nums text-blue-700">
+                                        {metricUnit === 'fte' ? toFte(totals.totD2) + ' FTE' : totals.totD2.toLocaleString() + ' hrs'}
+                                    </td>
+                                    <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-slate-600 border-r border-slate-200">
+                                        {metricUnit === 'fte'
+                                            ? `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${toFte(totals.totD2 - totals.totD1)} FTE`
+                                            : `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${(totals.totD2 - totals.totD1).toLocaleString()} hrs`
+                                        }
+                                    </td>
+                                    <td className="py-3 px-3 font-mono tabular-nums text-slate-700">
+                                        {metricUnit === 'fte' ? toFte(totals.totC1) + ' FTE' : totals.totC1.toLocaleString() + ' hrs'}
+                                    </td>
+                                    <td className="py-3 px-3 font-mono tabular-nums text-emerald-700">
+                                        {metricUnit === 'fte' ? toFte(totals.totC2) + ' FTE' : totals.totC2.toLocaleString() + ' hrs'}
+                                    </td>
+                                    <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-emerald-600 border-r border-slate-200">
+                                        {metricUnit === 'fte'
+                                            ? `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${toFte(totals.totC2 - totals.totC1)} FTE`
+                                            : `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${(totals.totC2 - totals.totC1).toLocaleString()} hrs`
+                                        }
+                                    </td>
+                                    <td className="py-3 px-3 text-right">
+                                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs font-mono">
+                                            {metricUnit === 'fte' ? `+${toFte(totals.totDelta)} FTE` : `+${totals.totDelta.toLocaleString()} hrs`}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
             </div>
         </div>
     );
@@ -5066,8 +5746,9 @@ function DatabricksArchitectureView({ envInfo, setEnvInfo, showToast }) {
                     </span>
                 </div>
 
-                <div className="text-[11px] text-slate-500">
-                    🔒 Zero Code Drift: Table queries run unmodified across Dev, UAT, and Prod.
+                <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                    <IconLock className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Zero Code Drift: Table queries run unmodified across Dev, UAT, and Prod.</span>
                 </div>
             </div>
 
@@ -5079,7 +5760,7 @@ function DatabricksArchitectureView({ envInfo, setEnvInfo, showToast }) {
                             Databricks Unity Catalog Tables (All 21 Inputs Mapped in app.yaml)
                         </h4>
                         <p className="text-[11px] text-slate-400">
-                            Table names follow the standard pattern: <code className="text-slate-700 font-mono">Actuals input ➔ es_shiny_actuals_input</code>.
+                            Table names follow the standard pattern: <code className="text-slate-700 font-mono">Actuals input &rarr; es_shiny_actuals_input</code>.
                         </p>
                     </div>
 
@@ -5131,7 +5812,8 @@ function DatabricksArchitectureView({ envInfo, setEnvInfo, showToast }) {
                                     </td>
                                     <td className="py-2.5 px-4 text-center">
                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            ✓ Active in {activeSchema}
+                                            <IconCheck className="w-3 h-3 text-emerald-600" />
+                                            <span>Active in {activeSchema}</span>
                                         </span>
                                     </td>
                                 </tr>
