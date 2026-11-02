@@ -253,6 +253,20 @@ try:
             assert cdata["moduleKey"] == mod_k, f"Module key mismatch: {cdata['moduleKey']} vs {mod_k}"
             print(f"Verified calculation module '{mod_k}': {len(cdata['rows'])} rows, {len(cdata['columns'])} columns ({CALC_MODULE_METADATA[mod_k]['title']})")
 
+        # Verify Dem vs Cap Matrix Tab Weekly Operational Enhancements (User Request)
+        assert "DemVsCapView" in js_content, "DemVsCapView component missing in react_app.js"
+        assert "Demand vs Capacity Operational Matrix" in js_content, "Operational matrix title missing"
+        assert "Weekly Imbalances Matrix" in js_content, "Weekly Imbalances Matrix sub-tab missing"
+        assert "Weekly Net Imbalance FTE & SLA Buffer Profile" in js_content, "Weekly Net Imbalance Profile missing"
+        assert "Regional Weekly Rollup Matrix" in js_content, "Regional Weekly Rollup Matrix missing"
+        assert "Weekly Inday Workload Buffer View" in js_content, "Weekly Inday Workload Buffer View missing"
+        assert "Weekly Deficit Mitigation Action Log" in js_content, "Weekly Deficit Mitigation Action Log missing"
+        assert "WEEKLY_DATES" in js_content, "WEEKLY_DATES missing"
+        assert "formatWeekCol" in js_content, "formatWeekCol helper missing"
+        assert "getPatchRegionName" in js_content, "getPatchRegionName helper missing"
+        assert "downloadTableAsCsv" in js_content, "downloadTableAsCsv helper missing"
+        print("Verified Dem vs Cap Matrix tab: Strictly Weekly Operational Horizon, Weekly Imbalance Matrix, Profile Bar Chart, Regional Rollup, Inday Buffer, and Deficit Action Log!")
+
         print("ALL MODERN REACT + PYSHINY VERIFICATION CHECKS PASSED!")
 except Exception as e:
     print(f"Verification test failed: {e}")

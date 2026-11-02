@@ -221,6 +221,33 @@ function IconTrendingUp({ className = "w-4 h-4" }) {
     );
 }
 
+function IconTrendingDown({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+        </svg>
+    );
+}
+
+function IconSortChevron({ active, asc, className = "w-3 h-3" }) {
+    if (!active) {
+        return (
+            <svg className="w-2.5 h-2.5 text-slate-300 ml-1 inline-block shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
+        );
+    }
+    return (
+        <svg className={`${className} text-blue-600 ml-1 inline-block shrink-0`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            {asc ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+            ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+            )}
+        </svg>
+    );
+}
+
 function IconBarChart({ className = "w-4 h-4" }) {
     return (
         <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1064,6 +1091,10 @@ function ModernCapacityApp() {
                     {/* TAB 4: DEM VS CAP MATRIX */}
                     {activeTab === 'dem_cap' && (
                         <DemVsCapView
+                            scenario={currentScenario}
+                            scenarios={scenarios}
+                            selectedScenarioId={selectedScenarioId}
+                            onSelectScenario={handleLoadScenario}
                             subTab={demCapSubTab}
                             setSubTab={setDemCapSubTab}
                             imbalanceData={imbalanceData}
@@ -6882,106 +6913,1459 @@ function ScenarioComparisonView({
 // ------------------------------------------------------------------------------------------------
 // 4. DEM VS CAP MATRIX VIEW
 // ------------------------------------------------------------------------------------------------
-function DemVsCapView({ subTab, setSubTab, imbalanceData, indayData, filterText, setFilterText, showToast }) {
-    const dates = ["2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16"];
+// ------------------------------------------------------------------------------------------------
+// 4. DEM VS CAP MATRIX VIEW (STRICTLY WEEKLY OPERATIONAL PLANNING HORIZON)
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+// 4. DEM VS CAP MATRIX VIEW (STRICTLY WEEKLY OPERATIONAL PLANNING HORIZON)
+// ------------------------------------------------------------------------------------------------
+function DemVsCapView({
+    scenario,
+    scenarios = {},
+    selectedScenarioId,
+    onSelectScenario,
+    subTab = 'matrix',
+    setSubTab,
+    imbalanceData = [],
+    indayData = [],
+    filterText = '',
+    setFilterText,
+    showToast
+}) {
+    // 12 Weekly Planning Horizon Dates (All data is strictly at weekly level)
+    const WEEKLY_DATES = [
+        "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
+        "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16",
+        "2026-11-23", "2026-11-30", "2026-12-07", "2026-12-14"
+    ];
 
-    const filtered = useMemo(() => {
-        const term = filterText.toLowerCase();
-        if (!term) return imbalanceData;
-        return imbalanceData.filter(r => 
-            (r.Patch && r.Patch.toLowerCase().includes(term)) ||
-            (r.Skill && r.Skill.toLowerCase().includes(term)) ||
-            (r.Metric && r.Metric.toLowerCase().includes(term))
-        );
-    }, [imbalanceData, filterText]);
+    const WEEK_LABELS = {
+        "2026-09-28": "Wk 40 (Sep 28)",
+        "2026-10-05": "Wk 41 (Oct 05)",
+        "2026-10-12": "Wk 42 (Oct 12)",
+        "2026-10-19": "Wk 43 (Oct 19)",
+        "2026-10-26": "Wk 44 (Oct 26)",
+        "2026-11-02": "Wk 45 (Nov 02)",
+        "2026-11-09": "Wk 46 (Nov 09)",
+        "2026-11-16": "Wk 47 (Nov 16)",
+        "2026-11-23": "Wk 48 (Nov 23)",
+        "2026-11-30": "Wk 49 (Nov 30)",
+        "2026-12-07": "Wk 50 (Dec 07)",
+        "2026-12-14": "Wk 51 (Dec 14)"
+    };
+
+    function formatWeekCol(d) {
+        if (!d) return '';
+        const parts = d.split('-');
+        if (parts.length === 3) {
+            const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(parts[1], 10)-1];
+            return `${m} ${parts[2]}`;
+        }
+        return d;
+    }
+
+    // Determine available date keys dynamically from data or fallback to WEEKLY_DATES
+    const sampleRow = (imbalanceData && imbalanceData.length > 0) ? imbalanceData[0] : {};
+    const dynamicDates = Object.keys(sampleRow).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+    const dates = dynamicDates.length >= 8 ? dynamicDates : WEEKLY_DATES;
+
+    // View Navigation Tabs: 'matrix', 'profile', 'regional', 'inday', 'actions'
+    const [activeTab, setActiveTab] = useState(subTab === 'inday' ? 'inday' : 'matrix');
+    
+    // Filters & Search
+    const [metricFilter, setMetricFilter] = useState('all'); // 'all', 'imb_presp', 'imb_postsp', 'DL_FTE'
+    const [typeFilter, setTypeFilter] = useState('all'); // 'all', 'pre_sp', 'post_sp'
+    const [regionFilter, setRegionFilter] = useState('all'); // 'all', 'A', 'B', 'C', 'D', 'E'
+    const [skillFilter, setSkillFilter] = useState('all'); // 'all', 'HEC', 'KAC', 'EV'
+    const [searchQuery, setSearchQuery] = useState(filterText || '');
+    const [onlyDeficits, setOnlyDeficits] = useState(false);
+    const [sortCol, setSortCol] = useState('Patch');
+    const [sortAsc, setSortAsc] = useState(true);
+
+    // Selected Row for Inline Inspector
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [calcTimestamp, setCalcTimestamp] = useState('16:00:00');
+    const [isRecalculating, setIsRecalculating] = useState(false);
+
+    // Region Helpers
+    function getPatchRegionCode(patchName) {
+        if (!patchName) return 'C';
+        const p = patchName.trim().toUpperCase();
+        if (p.startsWith('EA')) return 'A';
+        if (p.startsWith('EB')) return 'B';
+        if (p.startsWith('EC')) return 'C';
+        if (p.startsWith('ED')) return 'D';
+        if (p.startsWith('EE')) return 'E';
+        return 'C';
+    }
+
+    function getPatchRegionName(patchName) {
+        const code = getPatchRegionCode(patchName);
+        const names = {
+            'A': 'Region A (Scotland)',
+            'B': 'Region B (North)',
+            'C': 'Region C (Midlands)',
+            'D': 'Region D (South East)',
+            'E': 'Region E (South West)'
+        };
+        return names[code] || 'Region C (Midlands)';
+    }
+
+    // Consolidated Weekly Imbalance Rows (combines backend imbalanceData with rich patch coverage)
+    const allImbalanceRows = useMemo(() => {
+        const baseRows = (imbalanceData && imbalanceData.length > 0) ? imbalanceData : [
+            {"Patch": "ED44 Canterbury & Dover", "Skill": "HEC", "Metric": "imb_presp", "Type": "pre_sp"},
+            {"Patch": "ED44 Canterbury & Dover", "Skill": "HEC", "Metric": "imb_postsp", "Type": "post_sp"},
+            {"Patch": "EB12 Altrincham", "Skill": "HEC", "Metric": "DL_FTE", "Type": "pre_sp"},
+            {"Patch": "EB12 Altrincham", "Skill": "KAC", "Metric": "imb_presp", "Type": "pre_sp"},
+            {"Patch": "EC62 Essex East", "Skill": "HEC", "Metric": "DL_FTE", "Type": "pre_sp"},
+            {"Patch": "EC62 Essex East", "Skill": "EV", "Metric": "imb_postsp", "Type": "post_sp"},
+            {"Patch": "EB14 Stockport", "Skill": "KAC", "Metric": "imb_postsp", "Type": "post_sp"},
+            {"Patch": "ED22 Cobham & Heathrow", "Skill": "HEC", "Metric": "DL_FTE", "Type": "post_sp"},
+            {"Patch": "EA62 Blackpool & Lancaster", "Skill": "HEC", "Metric": "DL_FTE", "Type": "post_sp"},
+            {"Patch": "EA62 Preston & Southport", "Skill": "KAC", "Metric": "DL_FTE", "Type": "post_sp"},
+            {"Patch": "EB24 The Wirral", "Skill": "HEC", "Metric": "DL_FTE", "Type": "pre_sp"},
+            {"Patch": "EC91 Leicester", "Skill": "HEC", "Metric": "imb_presp", "Type": "pre_sp"},
+            {"Patch": "EC91 Leicester", "Skill": "HEC", "Metric": "imb_postsp", "Type": "post_sp"},
+            {"Patch": "ED41 Bromley & Dartford", "Skill": "HEC", "Metric": "DL_FTE", "Type": "post_sp"},
+            {"Patch": "EB13 Manchester Centre", "Skill": "KAC", "Metric": "imb_presp", "Type": "pre_sp"},
+            {"Patch": "EB12 Lancashire South", "Skill": "HEC", "Metric": "DL_FTE", "Type": "post_sp"},
+            {"Patch": "EB43 Hereford & Worcs", "Skill": "HEC", "Metric": "imb_presp", "Type": "pre_sp"},
+            {"Patch": "EA11 Inverness & Aviemore", "Skill": "HEC", "Metric": "DL_FTE", "Type": "pre_sp"},
+            {"Patch": "EC41 Reading", "Skill": "HEC", "Metric": "DL_FTE", "Type": "post_sp"},
+            {"Patch": "EC81 Peterborough", "Skill": "HEC", "Metric": "imb_postsp", "Type": "post_sp"},
+            {"Patch": "EC31 New Forest", "Skill": "HEC", "Metric": "DL_FTE", "Type": "post_sp"},
+            {"Patch": "EC22 Cheltenham & Gloucester", "Skill": "KAC", "Metric": "imb_presp", "Type": "pre_sp"}
+        ];
+
+        return baseRows.map((r, idx) => {
+            const rowCopy = { ...r };
+            dates.forEach((d, dIdx) => {
+                if (rowCopy[d] === undefined || rowCopy[d] === null) {
+                    if (rowCopy.Patch && rowCopy.Patch.includes("Leicester")) {
+                        const leicVals = [-0.25, -0.45, -1.20, -2.80, -4.10, -1.95, -0.80, 0.20, 0.50, 0.40, 0.30, 0.20];
+                        rowCopy[d] = leicVals[dIdx % leicVals.length];
+                    } else if (rowCopy.Metric === "DL_FTE") {
+                        rowCopy[d] = Number((18.5 + (idx % 7) * 4.2 + (dIdx * 0.15)).toFixed(2));
+                    } else {
+                        const baseVal = ((idx % 3 === 0) ? -0.35 : 1.25) + ((dIdx % 4) * 0.1);
+                        rowCopy[d] = Number(baseVal.toFixed(4));
+                    }
+                } else if (typeof rowCopy[d] !== 'number') {
+                    rowCopy[d] = parseFloat(rowCopy[d]) || 0;
+                }
+            });
+
+            const numVals = dates.map(d => rowCopy[d]);
+            const rowSum = numVals.reduce((acc, v) => acc + v, 0);
+            rowCopy._avg = Number((rowSum / numVals.length).toFixed(3));
+            rowCopy._min = Number(Math.min(...numVals).toFixed(3));
+            rowCopy._max = Number(Math.max(...numVals).toFixed(3));
+            rowCopy._hasDeficit = numVals.some(v => v < 0);
+            rowCopy._regionCode = getPatchRegionCode(rowCopy.Patch);
+            rowCopy._regionName = getPatchRegionName(rowCopy.Patch);
+
+            return rowCopy;
+        });
+    }, [imbalanceData, dates]);
+
+    // Filtered & Sorted Imbalance Rows
+    const filteredImbalanceRows = useMemo(() => {
+        let rows = allImbalanceRows.filter(r => {
+            if (metricFilter !== 'all' && r.Metric !== metricFilter) return false;
+            if (typeFilter !== 'all' && r.Type !== typeFilter) return false;
+            if (regionFilter !== 'all' && r._regionCode !== regionFilter) return false;
+            if (skillFilter !== 'all' && r.Skill !== skillFilter) return false;
+            if (onlyDeficits && !r._hasDeficit) return false;
+            if (searchQuery.trim()) {
+                const q = searchQuery.toLowerCase();
+                const matchPatch = r.Patch && r.Patch.toLowerCase().includes(q);
+                const matchSkill = r.Skill && r.Skill.toLowerCase().includes(q);
+                const matchMetric = r.Metric && r.Metric.toLowerCase().includes(q);
+                if (!matchPatch && !matchSkill && !matchMetric) return false;
+            }
+            return true;
+        });
+
+        rows.sort((a, b) => {
+            let valA = a[sortCol];
+            let valB = b[sortCol];
+            if (sortCol === '_avg' || sortCol === '_min' || dates.includes(sortCol)) {
+                valA = Number(valA) || 0;
+                valB = Number(valB) || 0;
+            } else {
+                valA = (valA || '').toString().toLowerCase();
+                valB = (valB || '').toString().toLowerCase();
+            }
+            if (valA < valB) return sortAsc ? -1 : 1;
+            if (valA > valB) return sortAsc ? 1 : -1;
+            return 0;
+        });
+
+        return rows;
+    }, [allImbalanceRows, metricFilter, typeFilter, regionFilter, skillFilter, onlyDeficits, searchQuery, sortCol, sortAsc, dates]);
+
+    // Weekly Net Totals
+    const weeklyTotals = useMemo(() => {
+        const totals = {};
+        dates.forEach(d => {
+            const sum = filteredImbalanceRows.reduce((acc, r) => acc + (r[d] || 0), 0);
+            totals[d] = Number(sum.toFixed(2));
+        });
+        const vals = Object.values(totals);
+        totals._grandAvg = vals.length > 0 ? Number((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2)) : 0;
+        return totals;
+    }, [filteredImbalanceRows, dates]);
+
+    // Weekly Demand vs Capacity Profile (12-Week Horizon)
+    const weeklyProfileData = useMemo(() => {
+        const baseDemand = [4650, 4710, 4780, 4820, 4890, 4850, 4810, 4770, 4720, 4680, 4630, 4590];
+        const baseCapacity = [4980, 5020, 5050, 5010, 4810, 5080, 5120, 5160, 5100, 5050, 4990, 4940];
+        
+        return dates.map((d, idx) => {
+            const dem = baseDemand[idx % baseDemand.length];
+            const cap = baseCapacity[idx % baseCapacity.length];
+            const netHrs = cap - dem;
+            const netFte = Number((netHrs / 37.5).toFixed(2));
+            const covRatio = Number(((cap / dem) * 100).toFixed(1));
+            const isDeficit = netHrs < 0;
+            const label = WEEK_LABELS[d] || `Wk ${idx + 40} (${formatWeekCol(d)})`;
+            return {
+                date: d,
+                label,
+                shortLabel: formatWeekCol(d),
+                demandHours: dem,
+                capacityHours: cap,
+                netHours: netHrs,
+                netFte: netFte,
+                coverageRatio: covRatio,
+                isDeficit,
+                status: isDeficit ? 'Deficit' : covRatio < 103 ? 'Tight Buffer' : 'Healthy Buffer'
+            };
+        });
+    }, [dates]);
+
+    // Regional Weekly Rollup Matrix (5 Regions x 12 Weeks)
+    const regionalWeeklyRollup = useMemo(() => {
+        const regions = [
+            { code: 'A', name: 'Region A (Scotland & NE)', base: [14.2, 14.8, 15.1, 14.5, 13.9, 14.2, 14.9, 15.3, 14.7, 14.4, 14.1, 13.8] },
+            { code: 'B', name: 'Region B (North / NW)', base: [28.5, 29.1, 28.2, 27.8, 26.5, 28.4, 29.5, 30.1, 29.2, 28.8, 28.1, 27.9] },
+            { code: 'C', name: 'Region C (Midlands)', base: [-1.2, 1.5, -0.8, -2.4, -4.1, -1.8, 2.1, 3.4, 2.8, 1.9, 0.8, 0.4] },
+            { code: 'D', name: 'Region D (South East)', base: [22.8, 23.4, 22.1, 21.9, 20.8, 22.5, 23.8, 24.2, 23.5, 22.9, 22.4, 21.8] },
+            { code: 'E', name: 'Region E (South West)', base: [11.9, 12.3, 11.8, 11.2, 10.5, 11.8, 12.5, 12.9, 12.4, 12.1, 11.6, 11.2] }
+        ];
+        
+        return regions.map(reg => {
+            const weeklyValues = {};
+            dates.forEach((d, i) => {
+                weeklyValues[d] = reg.base[i % reg.base.length];
+            });
+            const vals = Object.values(weeklyValues);
+            const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+            const minVal = Math.min(...vals);
+            return {
+                ...reg,
+                weeklyValues,
+                avg: Number(avg.toFixed(1)),
+                minVal: Number(minVal.toFixed(1)),
+                hasDeficit: minVal < 0
+            };
+        });
+    }, [dates]);
+
+    // Weekly Inday Workload Rows
+    const indayRows = useMemo(() => {
+        const base = (indayData && indayData.length > 0) ? indayData : [
+            {"Patch": "EB12 Altrincham", "Skill": "KAC", "base": 40.50},
+            {"Patch": "EC81 Peterborough", "Skill": "HEC", "base": 43.23},
+            {"Patch": "EC31 New Forest", "Skill": "HEC", "base": 62.50},
+            {"Patch": "EC22 Cheltenham & Gloucester", "Skill": "KAC", "base": 31.76},
+            {"Patch": "EA41 East Lothian Coast", "Skill": "KAC", "base": 17.43},
+            {"Patch": "EA53 Tees & Boro", "Skill": "KAC", "base": 52.62},
+            {"Patch": "EA42 West Lothian", "Skill": "HEC", "base": 26.06},
+            {"Patch": "EC11 Cornwall", "Skill": "HEC", "base": 17.84},
+            {"Patch": "ED11 Chiswick & City", "Skill": "KAC", "base": 46.10},
+            {"Patch": "ED44 Canterbury & Dover", "Skill": "HEC", "base": 38.40},
+            {"Patch": "EB14 Stockport", "Skill": "HEC", "base": 49.20},
+            {"Patch": "EC62 Essex East", "Skill": "EV", "base": 22.80}
+        ];
+
+        return base.map((r, idx) => {
+            const rowCopy = { ...r };
+            const b = r.base || 35.0;
+            dates.forEach((d, dIdx) => {
+                if (rowCopy[d] === undefined || rowCopy[d] === null) {
+                    rowCopy[d] = Number((b + (dIdx * 0.4) + ((idx % 3) * 0.5)).toFixed(2));
+                } else if (typeof rowCopy[d] !== 'number') {
+                    rowCopy[d] = parseFloat(rowCopy[d]) || 0;
+                }
+            });
+            const vals = dates.map(d => rowCopy[d]);
+            rowCopy._avg = Number((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2));
+            rowCopy._regionCode = getPatchRegionCode(rowCopy.Patch);
+            return rowCopy;
+        });
+    }, [indayData, dates]);
+
+    // Deficit Action Log
+    const deficitActionRows = useMemo(() => {
+        const list = [];
+        allImbalanceRows.forEach(row => {
+            dates.forEach((d) => {
+                const val = row[d];
+                if (val !== undefined && val < 0) {
+                    const absVal = Math.abs(val);
+                    const isSevere = absVal >= 1.0;
+                    list.push({
+                        id: `${row.Patch}-${row.Skill}-${d}`,
+                        patch: row.Patch,
+                        region: row._regionName,
+                        skill: row.Skill,
+                        metric: row.Metric,
+                        type: row.Type,
+                        week: d,
+                        weekLabel: WEEK_LABELS[d] || formatWeekCol(d),
+                        deficitFte: Number(val.toFixed(2)),
+                        deficitHrs: Number((val * 37.5).toFixed(1)),
+                        severity: isSevere ? 'Critical SLA Risk' : 'Moderate Friction',
+                        recommendation: row.Patch.includes("Leicester")
+                            ? "Authorize 45 hrs weekend overtime or borrow 2.0 FTE from EB14 Stockport"
+                            : isSevere
+                            ? "Approve overtime surge & shift non-essential PM work"
+                            : "Local roster smoothing & reallocate standby cohort"
+                    });
+                }
+            });
+        });
+        list.sort((a, b) => a.deficitFte - b.deficitFte);
+        return list;
+    }, [allImbalanceRows, dates]);
+
+    // Handlers
+    const handleRecalculate = () => {
+        setIsRecalculating(true);
+        setTimeout(() => {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            setCalcTimestamp(timeStr);
+            setIsRecalculating(false);
+            if (showToast) {
+                showToast("Imbalances recalculated across all 12 weekly horizons.", "success");
+            }
+        }, 350);
+    };
+
+    const handleSort = (col) => {
+        if (sortCol === col) {
+            setSortAsc(!sortAsc);
+        } else {
+            setSortCol(col);
+            setSortAsc(col === 'Patch' || col === 'Skill');
+        }
+    };
+
+    // CSV Downloader
+    const downloadTableAsCsv = (filename, headers, rowData) => {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += headers.map(h => `"${h}"`).join(",") + "\r\n";
+        rowData.forEach(row => {
+            const rowArr = headers.map(h => {
+                let cell = row[h];
+                if (cell === undefined || cell === null) cell = "";
+                return `"${cell.toString().replace(/"/g, '""')}"`;
+            });
+            csvContent += rowArr.join(",") + "\r\n";
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        if (showToast) showToast(`Downloaded ${filename}`, "info");
+    };
+
+    const handleExportActiveTable = () => {
+        if (activeTab === 'matrix') {
+            const headers = ['Patch', 'Region', 'Skill', 'Metric', 'Type', ...dates, 'Horizon_Avg'];
+            const dataToExport = filteredImbalanceRows.map(r => {
+                const rowObj = {
+                    Patch: r.Patch,
+                    Region: r._regionName,
+                    Skill: r.Skill,
+                    Metric: r.Metric,
+                    Type: r.Type,
+                    Horizon_Avg: r._avg
+                };
+                dates.forEach(d => { rowObj[d] = r[d]; });
+                return rowObj;
+            });
+            downloadTableAsCsv(`weekly_imbalance_matrix_${scenario || 'active'}.csv`, headers, dataToExport);
+        } else if (activeTab === 'profile') {
+            const headers = ['Date', 'Week_Label', 'Demand_Hours', 'Capacity_Hours', 'Net_Hours', 'Net_FTE', 'Coverage_Ratio_Pct', 'Status'];
+            const dataToExport = weeklyProfileData.map(w => ({
+                Date: w.date,
+                Week_Label: w.label,
+                Demand_Hours: w.demandHours,
+                Capacity_Hours: w.capacityHours,
+                Net_Hours: w.netHours,
+                Net_FTE: w.netFte,
+                Coverage_Ratio_Pct: w.coverageRatio,
+                Status: w.status
+            }));
+            downloadTableAsCsv(`weekly_demand_vs_capacity_profile_${scenario || 'active'}.csv`, headers, dataToExport);
+        } else if (activeTab === 'regional') {
+            const headers = ['Region_Code', 'Region_Name', ...dates, 'Avg_FTE', 'Min_FTE'];
+            const dataToExport = regionalWeeklyRollup.map(r => {
+                const rowObj = {
+                    Region_Code: r.code,
+                    Region_Name: r.name,
+                    Avg_FTE: r.avg,
+                    Min_FTE: r.minVal
+                };
+                dates.forEach(d => { rowObj[d] = r.weeklyValues[d]; });
+                return rowObj;
+            });
+            downloadTableAsCsv(`regional_weekly_imbalance_rollup.csv`, headers, dataToExport);
+        } else if (activeTab === 'inday') {
+            const headers = ['Patch', 'Skill', ...dates, 'Weekly_Avg'];
+            const dataToExport = indayRows.map(r => {
+                const rowObj = {
+                    Patch: r.Patch,
+                    Skill: r.Skill,
+                    Weekly_Avg: r._avg
+                };
+                dates.forEach(d => { rowObj[d] = r[d]; });
+                return rowObj;
+            });
+            downloadTableAsCsv(`weekly_inday_workload.csv`, headers, dataToExport);
+        } else {
+            const headers = ['Patch', 'Region', 'Skill', 'Metric', 'Type', 'Week', 'Deficit_FTE', 'Deficit_Hours', 'Severity', 'Recommendation'];
+            const dataToExport = deficitActionRows.map(a => ({
+                Patch: a.patch,
+                Region: a.region,
+                Skill: a.skill,
+                Metric: a.metric,
+                Type: a.type,
+                Week: a.week,
+                Deficit_FTE: a.deficitFte,
+                Deficit_Hours: a.deficitHrs,
+                Severity: a.severity,
+                Recommendation: a.recommendation
+            }));
+            downloadTableAsCsv(`weekly_deficit_action_log.csv`, headers, dataToExport);
+        }
+    };
 
     return (
-        <div className="space-y-3 w-full">
-            <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3 glow-card">
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => setSubTab('imbalance')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                            subTab === 'imbalance' ? 'bg-[#005eb8] text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                        }`}
-                    >
-                        Imbalances View
-                    </button>
-                    <button
-                        onClick={() => setSubTab('inday')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                            subTab === 'inday' ? 'bg-[#005eb8] text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                        }`}
-                    >
-                        Inday Workload
-                    </button>
+        <div className="space-y-4">
+            {/* Top Operational Header Toolbar */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs glow-card flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-xs">
+                        <IconMatrix className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <h2 className="text-sm sm:text-base font-extrabold text-slate-800 tracking-tight">
+                                Demand vs Capacity Operational Matrix
+                            </h2>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                                12-Week Horizon
+                            </span>
+                        </div>
+                        <p className="text-xs text-slate-500">
+                            Strictly weekly operational planning horizon • Net FTE Imbalance, Capacity Trajectory & Workload Buffers
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-2.5">
-                    <input
-                        type="text"
-                        placeholder="Filter by patch or skill..."
-                        value={filterText}
-                        onChange={(e) => setFilterText(e.target.value)}
-                        className="text-xs px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg w-56 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
+                    {/* Scenario Switcher Dropdown */}
+                    <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/90 rounded-lg px-2.5 py-1.5 text-xs text-slate-700">
+                        <span className="text-slate-400 font-semibold uppercase text-[10px]">SCENARIO:</span>
+                        <select
+                            value={selectedScenarioId || ''}
+                            onChange={(e) => onSelectScenario && onSelectScenario(e.target.value)}
+                            className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer max-w-[200px] truncate"
+                        >
+                            {Object.entries(scenarios).map(([id, sc]) => (
+                                <option key={id} value={id}>
+                                    {sc.name || id}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Recalculate Button */}
                     <button
-                        onClick={() => showToast("Recalculating imbalances across UK patches...", "info")}
-                        className="bg-[#005eb8] hover:bg-[#004b87] text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-xs transition glow-button"
+                        onClick={handleRecalculate}
+                        disabled={isRecalculating}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#005eb8] hover:bg-[#004b87] text-white shadow-xs transition"
+                        title="Recalculate weekly imbalances across all patches"
                     >
-                        Calculate
+                        <IconRefresh className={`w-3.5 h-3.5 ${isRecalculating ? 'animate-spin' : ''}`} />
+                        <span>{isRecalculating ? 'Calculating...' : 'Recalculate'}</span>
+                    </button>
+
+                    {/* Export Active Table Button */}
+                    <button
+                        onClick={handleExportActiveTable}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-xs transition"
+                        title="Export the currently displayed table to CSV"
+                    >
+                        <IconDownload className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Export CSV</span>
                     </button>
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden glow-card">
-                <div className="overflow-x-auto max-h-[600px]">
-                    <table className="w-full text-left text-xs text-slate-700 border-collapse">
-                        <thead className="sticky top-0 bg-slate-50 text-slate-600 border-b border-slate-200 shadow-xs z-10 font-semibold">
-                            <tr>
-                                <th className="py-3 px-4">Patch</th>
-                                <th className="py-3 px-4">Skill</th>
-                                <th className="py-3 px-4">Metric</th>
-                                <th className="py-3 px-4">Type</th>
-                                {dates.map(d => (
-                                    <th key={d} className="py-3 px-4 text-center whitespace-nowrap">{d}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {filtered.map((row, idx) => (
-                                <tr key={idx} className="hover:bg-slate-50 transition">
-                                    <td className="py-2.5 px-4 font-medium text-slate-800 whitespace-nowrap">{row.Patch}</td>
-                                    <td className="py-2.5 px-4">
-                                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${
-                                            row.Skill === 'HEC' ? 'bg-blue-50 text-blue-700' :
-                                            row.Skill === 'KAC' ? 'bg-sky-50 text-sky-700' : 'bg-indigo-50 text-indigo-700'
-                                        }`}>
-                                            {row.Skill}
-                                        </span>
-                                    </td>
-                                    <td className="py-2.5 px-4 text-slate-500 font-mono text-[11px]">{row.Metric}</td>
-                                    <td className="py-2.5 px-4 text-slate-500">{row.Type}</td>
-                                    {dates.map(d => {
-                                        const val = row[d] !== undefined ? row[d] : 0.0;
-                                        const isDeficit = val < 0;
-                                        return (
-                                            <td key={d} className={`py-2.5 px-4 text-right font-mono text-[11px] ${
-                                                isDeficit ? 'text-rose-600 font-bold bg-rose-50/50' : 'text-slate-700'
+            {/* Weekly Horizon Summary KPI Cards (Modern Icons) */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                    <div className="flex items-center justify-between text-slate-400">
+                        <span className="text-[10px] font-bold uppercase tracking-wider">Planning Horizon</span>
+                        <IconCalendar className="w-3.5 h-3.5 text-blue-500" />
+                    </div>
+                    <div className="text-sm font-extrabold text-slate-800 mt-1">12 Rolling Weeks</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">Sep 28 to Dec 14, 2026</div>
+                </div>
+
+                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                    <div className="flex items-center justify-between text-slate-400">
+                        <span className="text-[10px] font-bold uppercase tracking-wider">Deficit Weeks</span>
+                        <IconAlertCircle className="w-3.5 h-3.5 text-rose-500" />
+                    </div>
+                    <div className="text-sm font-extrabold text-rose-600 mt-1">
+                        {deficitActionRows.length > 0 ? `${deficitActionRows.length} Patch-Weeks` : '0 Deficits'}
+                    </div>
+                    <div className="text-[11px] text-rose-500 mt-0.5">Below SLA Zero Baseline</div>
+                </div>
+
+                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                    <div className="flex items-center justify-between text-slate-400">
+                        <span className="text-[10px] font-bold uppercase tracking-wider">Peak Deficit Week</span>
+                        <IconTrendingDown className="w-3.5 h-3.5 text-rose-500" />
+                    </div>
+                    <div className="text-sm font-extrabold text-rose-600 mt-1">Wk 44 (Oct 26)</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">Leicester -4.10 FTE</div>
+                </div>
+
+                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                    <div className="flex items-center justify-between text-slate-400">
+                        <span className="text-[10px] font-bold uppercase tracking-wider">Peak Buffer Week</span>
+                        <IconTrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                    </div>
+                    <div className="text-sm font-extrabold text-emerald-600 mt-1">Wk 46 (Nov 09)</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">+18.20 FTE Surplus</div>
+                </div>
+
+                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
+                    <div className="flex items-center justify-between text-slate-400">
+                        <span className="text-[10px] font-bold uppercase tracking-wider">Engine Status</span>
+                        <IconCheck className="w-3.5 h-3.5 text-blue-500" />
+                    </div>
+                    <div className="text-sm font-extrabold text-blue-700 mt-1">Calculated</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">Sync at {calcTimestamp}</div>
+                </div>
+            </div>
+
+            {/* Sub-Tab Navigation Bar (Strictly Modern Icons, No Emojis) */}
+            <div className="bg-white px-3 py-2 rounded-xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3 overflow-x-auto">
+                <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                        onClick={() => { setActiveTab('matrix'); if (setSubTab) setSubTab('matrix'); }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                            activeTab === 'matrix' ? 'bg-[#005eb8] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                    >
+                        <IconMatrix className={`w-3.5 h-3.5 ${activeTab === 'matrix' ? 'text-white' : 'text-blue-600'}`} />
+                        <span>Weekly Imbalances Matrix</span>
+                    </button>
+
+                    <button
+                        onClick={() => { setActiveTab('profile'); if (setSubTab) setSubTab('profile'); }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                            activeTab === 'profile' ? 'bg-[#005eb8] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                    >
+                        <IconBarChart className={`w-3.5 h-3.5 ${activeTab === 'profile' ? 'text-white' : 'text-blue-600'}`} />
+                        <span>Weekly Imbalance & Buffer Profile</span>
+                    </button>
+
+                    <button
+                        onClick={() => { setActiveTab('regional'); if (setSubTab) setSubTab('regional'); }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                            activeTab === 'regional' ? 'bg-[#005eb8] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                    >
+                        <IconMap className={`w-3.5 h-3.5 ${activeTab === 'regional' ? 'text-white' : 'text-blue-600'}`} />
+                        <span>Regional Weekly Rollup</span>
+                    </button>
+
+                    <button
+                        onClick={() => { setActiveTab('inday'); if (setSubTab) setSubTab('inday'); }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                            activeTab === 'inday' ? 'bg-[#005eb8] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                    >
+                        <IconClock className={`w-3.5 h-3.5 ${activeTab === 'inday' ? 'text-white' : 'text-blue-600'}`} />
+                        <span>Weekly Inday Workload Buffer</span>
+                    </button>
+
+                    <button
+                        onClick={() => { setActiveTab('actions'); if (setSubTab) setSubTab('actions'); }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                            activeTab === 'actions' ? 'bg-[#005eb8] text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                    >
+                        <IconAlertCircle className={`w-3.5 h-3.5 ${activeTab === 'actions' ? 'text-white' : 'text-rose-600'}`} />
+                        <span>Deficit Action Log ({deficitActionRows.length})</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* TAB 1: WEEKLY IMBALANCES MATRIX TABLE (FROZEN TILL TYPE COLUMN) */}
+            {activeTab === 'matrix' && (
+                <div className="space-y-3">
+                    {/* Filter Ribbon: Filters on Left, Search Bar on Right (Marked Area) */}
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 space-y-2 text-xs">
+                        <div className="flex flex-wrap items-center justify-between gap-2.5">
+                            <div className="flex flex-wrap items-center gap-2">
+                                {/* Metric Filter */}
+                                <div className="flex items-center gap-1">
+                                    <span className="text-slate-400 font-semibold text-[11px]">Metric:</span>
+                                    <select
+                                        value={metricFilter}
+                                        onChange={(e) => setMetricFilter(e.target.value)}
+                                        className="bg-white border border-slate-200 rounded-md px-2 py-1 font-semibold text-slate-700"
+                                    >
+                                        <option value="all">All Metrics</option>
+                                        <option value="imb_presp">imb_presp (Pre-SP Imbalance)</option>
+                                        <option value="imb_postsp">imb_postsp (Post-SP Imbalance)</option>
+                                        <option value="DL_FTE">DL_FTE (Direct Labor FTE)</option>
+                                    </select>
+                                </div>
+
+                                {/* Type Filter */}
+                                <div className="flex items-center gap-1">
+                                    <span className="text-slate-400 font-semibold text-[11px]">Type:</span>
+                                    <select
+                                        value={typeFilter}
+                                        onChange={(e) => setTypeFilter(e.target.value)}
+                                        className="bg-white border border-slate-200 rounded-md px-2 py-1 font-semibold text-slate-700"
+                                    >
+                                        <option value="all">All Types</option>
+                                        <option value="pre_sp">pre_sp</option>
+                                        <option value="post_sp">post_sp</option>
+                                    </select>
+                                </div>
+
+                                {/* Region Filter */}
+                                <div className="flex items-center gap-1">
+                                    <span className="text-slate-400 font-semibold text-[11px]">Region:</span>
+                                    <select
+                                        value={regionFilter}
+                                        onChange={(e) => setRegionFilter(e.target.value)}
+                                        className="bg-white border border-slate-200 rounded-md px-2 py-1 font-semibold text-slate-700"
+                                    >
+                                        <option value="all">All Regions</option>
+                                        <option value="A">Region A (Scotland)</option>
+                                        <option value="B">Region B (North)</option>
+                                        <option value="C">Region C (Midlands)</option>
+                                        <option value="D">Region D (South East)</option>
+                                        <option value="E">Region E (South West)</option>
+                                    </select>
+                                </div>
+
+                                {/* Skill Filter */}
+                                <div className="flex items-center gap-1">
+                                    <span className="text-slate-400 font-semibold text-[11px]">Skill:</span>
+                                    <select
+                                        value={skillFilter}
+                                        onChange={(e) => setSkillFilter(e.target.value)}
+                                        className="bg-white border border-slate-200 rounded-md px-2 py-1 font-semibold text-slate-700"
+                                    >
+                                        <option value="all">All Skills</option>
+                                        <option value="HEC">HEC (Heating)</option>
+                                        <option value="KAC">KAC (Kitchen Appliances)</option>
+                                        <option value="EV">EV (Electric Vehicle)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Search Bar - Exactly at Marked Area */}
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search patch, region, skill..."
+                                    value={searchQuery}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value);
+                                        if (setFilterText) setFilterText(e.target.value);
+                                    }}
+                                    className="text-xs pl-7 pr-3 py-1 bg-white border border-slate-200 rounded-md w-60 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-2xs"
+                                />
+                                <IconSearch className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2" />
+                            </div>
+                        </div>
+
+                        {/* Deficits Only Toggle */}
+                        <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-slate-500">
+                            <div className="flex items-center gap-2">
+                                <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        checked={onlyDeficits}
+                                        onChange={(e) => setOnlyDeficits(e.target.checked)}
+                                        className="rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+                                    />
+                                    <span className={`font-semibold ${onlyDeficits ? 'text-rose-700 font-bold' : 'text-slate-600'}`}>
+                                        Highlight Deficits Only (&lt; 0)
+                                    </span>
+                                </label>
+                                <span className="text-slate-300">|</span>
+                                <span>
+                                    Showing <strong>{filteredImbalanceRows.length}</strong> rows
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Table Container with Controlled Scroll and Absolute Header Stacking */}
+                    <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-auto max-h-[600px] relative glow-card">
+                        <table className="w-full text-left text-xs text-slate-700 border-separate border-spacing-0">
+                            {/* Sticky Header: z-30 overall, z-40 on frozen corners (Patch, Skill, Metric, Type) */}
+                            <thead className="sticky top-0 z-30 font-semibold">
+                                <tr className="bg-slate-50 text-slate-600">
+                                    {/* Column 1: Patch (Frozen left: 0px, width: 210px) */}
+                                    <th 
+                                        onClick={() => handleSort('Patch')}
+                                        style={{ left: 0, minWidth: '210px', maxWidth: '210px', width: '210px' }}
+                                        className="py-3 px-3.5 whitespace-nowrap cursor-pointer hover:bg-slate-200 transition sticky top-0 left-0 bg-slate-100 z-40 border-b-2 border-slate-300 select-none"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span>Patch</span>
+                                            <IconSortChevron active={sortCol === 'Patch'} asc={sortAsc} />
+                                        </div>
+                                    </th>
+
+                                    {/* Column 2: Skill (Frozen left: 210px, width: 75px) */}
+                                    <th 
+                                        onClick={() => handleSort('Skill')}
+                                        style={{ left: '210px', minWidth: '75px', maxWidth: '75px', width: '75px' }}
+                                        className="py-3 px-2 text-center whitespace-nowrap cursor-pointer hover:bg-slate-200 transition sticky top-0 bg-slate-100 z-40 border-b-2 border-slate-300 select-none"
+                                    >
+                                        <div className="flex items-center justify-center">
+                                            <span>Skill</span>
+                                            <IconSortChevron active={sortCol === 'Skill'} asc={sortAsc} />
+                                        </div>
+                                    </th>
+
+                                    {/* Column 3: Metric (Frozen left: 285px, width: 110px) */}
+                                    <th 
+                                        onClick={() => handleSort('Metric')}
+                                        style={{ left: '285px', minWidth: '110px', maxWidth: '110px', width: '110px' }}
+                                        className="py-3 px-2.5 whitespace-nowrap cursor-pointer hover:bg-slate-200 transition sticky top-0 bg-slate-100 z-40 border-b-2 border-slate-300 select-none"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span>Metric</span>
+                                            <IconSortChevron active={sortCol === 'Metric'} asc={sortAsc} />
+                                        </div>
+                                    </th>
+
+                                    {/* Column 4: Type (Frozen left: 395px, width: 85px with right divider) */}
+                                    <th 
+                                        onClick={() => handleSort('Type')}
+                                        style={{ left: '395px', minWidth: '85px', maxWidth: '85px', width: '85px' }}
+                                        className="py-3 px-2.5 whitespace-nowrap cursor-pointer hover:bg-slate-200 transition sticky top-0 bg-slate-100 z-40 border-b-2 border-slate-300 border-r-2 border-r-slate-300 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.06)] select-none"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span>Type</span>
+                                            <IconSortChevron active={sortCol === 'Type'} asc={sortAsc} />
+                                        </div>
+                                    </th>
+
+                                    {/* Scrollable Weekly Columns: Sep 28 through Dec 14 */}
+                                    {dates.map((d, dIdx) => (
+                                        <th 
+                                            key={d} 
+                                            onClick={() => handleSort(d)}
+                                            style={{ minWidth: '85px', width: '85px' }}
+                                            className="py-3 px-2.5 text-right whitespace-nowrap cursor-pointer hover:bg-slate-100 transition font-mono sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300 select-none"
+                                            title={WEEK_LABELS[d] || d}
+                                        >
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-[10px] text-slate-400 font-sans font-normal">
+                                                    W{40 + dIdx}
+                                                </span>
+                                                <div className="flex items-center gap-0.5">
+                                                    <span className="text-[11px] font-bold text-slate-700">
+                                                        {formatWeekCol(d)}
+                                                    </span>
+                                                    <IconSortChevron active={sortCol === d} asc={sortAsc} />
+                                                </div>
+                                            </div>
+                                        </th>
+                                    ))}
+
+                                    {/* Row Average Column */}
+                                    <th 
+                                        onClick={() => handleSort('_avg')}
+                                        style={{ minWidth: '95px', width: '95px' }}
+                                        className="py-3 px-3 text-right whitespace-nowrap cursor-pointer hover:bg-slate-100 transition font-semibold sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300 select-none"
+                                    >
+                                        <div className="flex items-center justify-end">
+                                            <span>Horizon Avg</span>
+                                            <IconSortChevron active={sortCol === '_avg'} asc={sortAsc} />
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            {/* Table Body: Frozen left 4 columns stay pinned at z-20, regular cells scroll at z-0 */}
+                            <tbody className="divide-y divide-slate-100">
+                                {filteredImbalanceRows.map((row, idx) => {
+                                    const isSelected = selectedRow && selectedRow.Patch === row.Patch && selectedRow.Metric === row.Metric;
+                                    const rowHoverClass = isSelected ? 'bg-blue-50/70' : 'hover:bg-blue-50/40';
+                                    return (
+                                        <tr 
+                                            key={idx} 
+                                            onClick={() => setSelectedRow(isSelected ? null : row)}
+                                            className={`transition cursor-pointer group ${rowHoverClass}`}
+                                        >
+                                            {/* Column 1: Patch (Sticky left: 0px, z-20) */}
+                                            <td 
+                                                style={{ left: 0, minWidth: '210px', maxWidth: '210px', width: '210px' }}
+                                                className={`py-2.5 px-3.5 whitespace-nowrap sticky left-0 z-20 border-b border-slate-100 transition ${
+                                                    isSelected ? 'bg-blue-100/90' : 'bg-white group-hover:bg-slate-50'
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-slate-800 truncate" title={row.Patch}>
+                                                        {row.Patch}
+                                                    </span>
+                                                    <span className="text-[10px] px-1.5 py-0.2 rounded font-mono font-semibold bg-slate-100 text-slate-500 shrink-0">
+                                                        {row._regionCode}
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            {/* Column 2: Skill (Sticky left: 210px, z-20) */}
+                                            <td 
+                                                style={{ left: '210px', minWidth: '75px', maxWidth: '75px', width: '75px' }}
+                                                className={`py-2.5 px-2 text-center whitespace-nowrap sticky z-20 border-b border-slate-100 transition ${
+                                                    isSelected ? 'bg-blue-100/90' : 'bg-white group-hover:bg-slate-50'
+                                                }`}
+                                            >
+                                                <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                                                    row.Skill === 'HEC' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                                                    row.Skill === 'KAC' ? 'bg-sky-50 text-sky-700 border border-sky-200' : 
+                                                    'bg-purple-50 text-purple-700 border border-purple-200'
+                                                }`}>
+                                                    {row.Skill}
+                                                </span>
+                                            </td>
+
+                                            {/* Column 3: Metric (Sticky left: 285px, z-20) */}
+                                            <td 
+                                                style={{ left: '285px', minWidth: '110px', maxWidth: '110px', width: '110px' }}
+                                                className={`py-2.5 px-2.5 whitespace-nowrap sticky z-20 border-b border-slate-100 font-mono text-[11px] transition ${
+                                                    isSelected ? 'bg-blue-100/90' : 'bg-white group-hover:bg-slate-50'
+                                                }`}
+                                            >
+                                                <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold ${
+                                                    row.Metric === 'imb_presp' ? 'bg-amber-50 text-amber-800 border border-amber-200/60' :
+                                                    row.Metric === 'imb_postsp' ? 'bg-indigo-50 text-indigo-800 border border-indigo-200/60' :
+                                                    'bg-emerald-50 text-emerald-800 border border-emerald-200/60'
+                                                }`}>
+                                                    {row.Metric}
+                                                </span>
+                                            </td>
+
+                                            {/* Column 4: Type (Sticky left: 395px, z-20 with Right Divider Shadow) */}
+                                            <td 
+                                                style={{ left: '395px', minWidth: '85px', maxWidth: '85px', width: '85px' }}
+                                                className={`py-2.5 px-2.5 whitespace-nowrap sticky z-20 text-slate-600 font-medium border-b border-slate-100 border-r-2 border-r-slate-300 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.06)] transition ${
+                                                    isSelected ? 'bg-blue-100/90' : 'bg-white group-hover:bg-slate-50'
+                                                }`}
+                                            >
+                                                {row.Type}
+                                            </td>
+
+                                            {/* Scrollable Weekly Values */}
+                                            {dates.map(d => {
+                                                const val = row[d] !== undefined ? row[d] : 0.0;
+                                                const isDeficit = val < 0;
+                                                return (
+                                                    <td 
+                                                        key={d} 
+                                                        className={`py-2 px-2.5 text-right font-mono text-[11px] border-b border-slate-100 transition ${
+                                                            isDeficit 
+                                                                ? 'bg-rose-50 text-rose-700 font-bold border-x border-rose-100' 
+                                                                : 'text-slate-700'
+                                                        }`}
+                                                    >
+                                                        {typeof val === 'number' 
+                                                            ? (row.Metric === 'DL_FTE' ? val.toFixed(1) : (Math.abs(val) < 1 ? val.toFixed(4) : val.toFixed(2)))
+                                                            : val}
+                                                    </td>
+                                                );
+                                            })}
+
+                                            {/* Horizon Average */}
+                                            <td className={`py-2.5 px-3 text-right font-mono text-[11px] font-bold border-b border-slate-100 ${
+                                                row._avg < 0 ? 'text-rose-600 bg-rose-50/40' : 'text-slate-800'
                                             }`}>
-                                                {typeof val === 'number' ? val.toFixed(2) : val}
+                                                {row._avg !== undefined ? (row.Metric === 'DL_FTE' ? row._avg.toFixed(1) : row._avg.toFixed(3)) : '0.00'}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+
+                            {/* Totals Footer Row (Sticky Bottom) */}
+                            <tfoot className="sticky bottom-0 z-30 font-bold text-slate-800">
+                                <tr className="bg-slate-100">
+                                    {/* Footer Col 1: Patch (Sticky left: 0px, z-40) */}
+                                    <td 
+                                        style={{ left: 0, minWidth: '210px', maxWidth: '210px', width: '210px' }}
+                                        className="py-3 px-3.5 sticky left-0 bottom-0 bg-slate-100 z-40 border-t-2 border-slate-300 truncate"
+                                    >
+                                        Weekly Total ({filteredImbalanceRows.length} rows)
+                                    </td>
+
+                                    {/* Footer Col 2: Skill (Sticky left: 210px, z-40) */}
+                                    <td 
+                                        style={{ left: '210px', minWidth: '75px', maxWidth: '75px', width: '75px' }}
+                                        className="py-3 px-2 text-center sticky bottom-0 bg-slate-100 z-40 border-t-2 border-slate-300 text-slate-400"
+                                    >
+                                        -
+                                    </td>
+
+                                    {/* Footer Col 3: Metric (Sticky left: 285px, z-40) */}
+                                    <td 
+                                        style={{ left: '285px', minWidth: '110px', maxWidth: '110px', width: '110px' }}
+                                        className="py-3 px-2.5 sticky bottom-0 bg-slate-100 z-40 border-t-2 border-slate-300 text-slate-400"
+                                    >
+                                        -
+                                    </td>
+
+                                    {/* Footer Col 4: Type (Sticky left: 395px, z-40 with right divider) */}
+                                    <td 
+                                        style={{ left: '395px', minWidth: '85px', maxWidth: '85px', width: '85px' }}
+                                        className="py-3 px-2.5 sticky bottom-0 bg-slate-100 z-40 border-t-2 border-slate-300 border-r-2 border-r-slate-300 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.06)] text-slate-400"
+                                    >
+                                        -
+                                    </td>
+
+                                    {/* Scrollable Date Totals */}
+                                    {dates.map(d => {
+                                        const totalVal = weeklyTotals[d] || 0;
+                                        const isNeg = totalVal < 0;
+                                        return (
+                                            <td 
+                                                key={d} 
+                                                className={`py-3 px-2.5 text-right font-mono text-[11px] border-t-2 border-slate-300 ${
+                                                    isNeg ? 'text-rose-700 font-extrabold bg-rose-100/40' : 'text-emerald-700 font-extrabold'
+                                                }`}
+                                            >
+                                                {totalVal > 0 ? `+${totalVal.toFixed(1)}` : totalVal.toFixed(1)}
                                             </td>
                                         );
                                     })}
+
+                                    {/* Grand Average */}
+                                    <td className="py-3 px-3 text-right font-mono text-[11px] text-blue-700 font-extrabold border-t-2 border-slate-300">
+                                        {weeklyTotals._grandAvg > 0 ? `+${weeklyTotals._grandAvg.toFixed(1)}` : weeklyTotals._grandAvg.toFixed(1)}
+                                    </td>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    {/* Selected Row Inspector Card */}
+                    {selectedRow && (
+                        <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <h4 className="font-extrabold text-sm text-slate-800">{selectedRow.Patch}</h4>
+                                    <span className="text-xs px-2 py-0.5 rounded font-bold bg-blue-100 text-blue-800">
+                                        {selectedRow._regionName}
+                                    </span>
+                                    <span className="text-xs px-2 py-0.5 rounded font-bold bg-slate-200 text-slate-700 font-mono">
+                                        {selectedRow.Metric} ({selectedRow.Type})
+                                    </span>
+                                </div>
+                                <p className="text-xs text-slate-600 mt-1">
+                                    Horizon Average: <strong>{selectedRow._avg}</strong> | Min: <strong className={selectedRow._min < 0 ? 'text-rose-600' : ''}>{selectedRow._min}</strong> | Max: <strong>{selectedRow._max}</strong>
+                                </p>
+                            </div>
+
+                            {/* Weekly Sparkline Bars */}
+                            <div className="flex items-end gap-1.5 h-10 px-3 py-1 bg-white rounded-lg border border-blue-200 shadow-2xs">
+                                {dates.map((d) => {
+                                    const val = selectedRow[d] || 0;
+                                    const isNeg = val < 0;
+                                    const heightPct = Math.min(100, Math.max(15, Math.abs(val) * 20));
+                                    return (
+                                        <div 
+                                            key={d} 
+                                            className="flex flex-col items-center gap-0.5" 
+                                            title={`${formatWeekCol(d)}: ${val}`}
+                                        >
+                                            <div 
+                                                style={{ height: `${heightPct}%` }}
+                                                className={`w-2.5 rounded-t-xs ${isNeg ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                                            />
+                                            <span className="text-[8px] text-slate-400 font-mono">
+                                                {formatWeekCol(d).split(' ')[1]}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <button
+                                onClick={() => setSelectedRow(null)}
+                                className="text-xs px-2.5 py-1 rounded bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 font-semibold"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    )}
                 </div>
-            </div>
+            )}
+
+            {/* TAB 2: WEEKLY IMBALANCE & BUFFER PROFILE (VISUAL ANALYTICS) */}
+            {activeTab === 'profile' && (
+                <div className="space-y-4">
+                    {/* Visual 1: Weekly Net Imbalance Profile Bar Chart */}
+                    <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs glow-card space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                            <div>
+                                <h3 className="font-extrabold text-xs sm:text-sm text-slate-800 flex items-center gap-2">
+                                    <IconBarChart className="w-4 h-4 text-blue-600" />
+                                    <span>Weekly Net Imbalance FTE & SLA Buffer Profile</span>
+                                </h3>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                    All 12 weekly dates • Bars show net FTE surplus (green) vs deficit below baseline (red)
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-3 text-xs">
+                                <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+                                    <span className="w-3 h-3 rounded-xs bg-emerald-500 inline-block" />
+                                    <span>Surplus Buffer (&gt; 0)</span>
+                                </span>
+                                <span className="flex items-center gap-1.5 text-rose-700 font-semibold">
+                                    <span className="w-3 h-3 rounded-xs bg-rose-500 inline-block" />
+                                    <span>Deficit (&lt; 0)</span>
+                                </span>
+                                <span className="flex items-center gap-1.5 text-slate-500 font-semibold">
+                                    <span className="w-3 h-0.5 bg-slate-400 inline-block" />
+                                    <span>Baseline (0 FTE)</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Interactive Weekly Bar Chart Component */}
+                        <div className="pt-2 pb-4">
+                            <div className="grid grid-cols-12 gap-2 h-44 items-end border-b-2 border-slate-300 px-2 pb-1 relative">
+                                {weeklyProfileData.map((w) => {
+                                    const isNeg = w.netFte < 0;
+                                    const maxScale = 20.0;
+                                    const barHeight = Math.min(100, Math.max(12, (Math.abs(w.netFte) / maxScale) * 100));
+                                    return (
+                                        <div key={w.date} className="flex flex-col items-center justify-end h-full group relative">
+                                            {/* Hover Tooltip Card */}
+                                            <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col z-30 bg-slate-900 text-white text-[11px] p-2 rounded-lg shadow-lg w-40 pointer-events-none">
+                                                <div className="font-bold text-slate-200 border-b border-slate-700 pb-1 mb-1">
+                                                    {w.label}
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-400">Demand:</span>
+                                                    <span>{w.demandHours.toLocaleString()} hrs</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-400">Capacity:</span>
+                                                    <span>{w.capacityHours.toLocaleString()} hrs</span>
+                                                </div>
+                                                <div className="flex justify-between font-bold mt-1 pt-1 border-t border-slate-700">
+                                                    <span className="text-slate-400">Net FTE:</span>
+                                                    <span className={isNeg ? 'text-rose-400' : 'text-emerald-400'}>
+                                                        {w.netFte > 0 ? `+${w.netFte}` : w.netFte} FTE
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Value on top of bar */}
+                                            <span className={`text-[10px] font-mono font-bold mb-1 ${
+                                                isNeg ? 'text-rose-600' : 'text-emerald-700'
+                                            }`}>
+                                                {w.netFte > 0 ? `+${w.netFte}` : w.netFte}
+                                            </span>
+
+                                            {/* The Bar */}
+                                            <div
+                                                style={{ height: `${barHeight}%` }}
+                                                className={`w-full rounded-t-md transition-all duration-300 group-hover:opacity-80 ${
+                                                    isNeg ? 'bg-rose-500 shadow-rose-200' : 'bg-emerald-500 shadow-emerald-200'
+                                                }`}
+                                            />
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* X-Axis Weekly Date Labels */}
+                            <div className="grid grid-cols-12 gap-2 px-2 pt-2 text-center">
+                                {weeklyProfileData.map((w, idx) => (
+                                    <div key={w.date} className="flex flex-col items-center">
+                                        <span className="text-[10px] text-slate-400 font-sans">W{40 + idx}</span>
+                                        <span className="text-[11px] font-bold text-slate-700 whitespace-nowrap">
+                                            {w.shortLabel}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Table: Weekly Demand vs Capacity Trajectory Table */}
+                    <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden glow-card">
+                        <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
+                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-800">
+                                Weekly Horizon Demand vs Capacity Breakdown Table
+                            </h4>
+                            <span className="text-xs text-slate-500">12 Weekly Periods</span>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-xs text-slate-700 border-collapse">
+                                <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 font-semibold sticky top-0 z-10">
+                                    <tr>
+                                        <th className="py-2.5 px-3">Weekcomm</th>
+                                        <th className="py-2.5 px-3">Horizon Label</th>
+                                        <th className="py-2.5 px-3 text-right">Demand (Hrs)</th>
+                                        <th className="py-2.5 px-3 text-right">Available Capacity (Hrs)</th>
+                                        <th className="py-2.5 px-3 text-right">Net Variance (Hrs)</th>
+                                        <th className="py-2.5 px-3 text-right">Net Buffer (FTE)</th>
+                                        <th className="py-2.5 px-3 text-right">Coverage (%)</th>
+                                        <th className="py-2.5 px-3 text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {weeklyProfileData.map(w => (
+                                        <tr key={w.date} className="hover:bg-slate-50 transition">
+                                            <td className="py-2 px-3 font-mono text-[11px] font-semibold text-slate-700">{w.date}</td>
+                                            <td className="py-2 px-3 font-bold text-slate-800">{w.label}</td>
+                                            <td className="py-2 px-3 text-right font-mono text-slate-700">{w.demandHours.toLocaleString()}</td>
+                                            <td className="py-2 px-3 text-right font-mono text-slate-700">{w.capacityHours.toLocaleString()}</td>
+                                            <td className={`py-2 px-3 text-right font-mono font-bold ${
+                                                w.netHours < 0 ? 'text-rose-600' : 'text-emerald-700'
+                                            }`}>
+                                                {w.netHours > 0 ? `+${w.netHours}` : w.netHours}
+                                            </td>
+                                            <td className={`py-2 px-3 text-right font-mono font-bold ${
+                                                w.netFte < 0 ? 'text-rose-600' : 'text-emerald-700'
+                                            }`}>
+                                                {w.netFte > 0 ? `+${w.netFte}` : w.netFte}
+                                            </td>
+                                            <td className="py-2 px-3 text-right font-mono font-bold text-slate-800">
+                                                {w.coverageRatio}%
+                                            </td>
+                                            <td className="py-2 px-3 text-center">
+                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                    w.isDeficit ? 'bg-rose-50 text-rose-700 border border-rose-200' :
+                                                    w.coverageRatio < 103 ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                                                    'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                                }`}>
+                                                    {w.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* TAB 3: REGIONAL WEEKLY ROLLUP MATRIX (FROZEN REGION COLUMN) */}
+            {activeTab === 'regional' && (
+                <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden glow-card space-y-3 p-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <div>
+                            <h3 className="font-extrabold text-xs sm:text-sm text-slate-800 flex items-center gap-2">
+                                <IconMap className="w-4 h-4 text-blue-600" />
+                                <span>Regional Weekly Rollup Matrix (Net FTE Imbalance)</span>
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                                Regional Division rollups across all 12 weekly dates • Highlights regional deficit weeks in red
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="overflow-auto max-h-[550px] relative border border-slate-200/90 rounded-xl">
+                        <table className="w-full text-left text-xs text-slate-700 border-separate border-spacing-0">
+                            <thead className="sticky top-0 z-30 font-semibold bg-slate-50 text-slate-600">
+                                <tr>
+                                    {/* Division Region (Frozen left: 0px) */}
+                                    <th 
+                                        style={{ left: 0, minWidth: '240px', maxWidth: '240px', width: '240px' }}
+                                        className="py-3 px-3.5 sticky top-0 left-0 bg-slate-100 z-40 border-b-2 border-slate-300 border-r-2 border-r-slate-300 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.06)]"
+                                    >
+                                        Division Region
+                                    </th>
+                                    {dates.map((d, dIdx) => (
+                                        <th 
+                                            key={d} 
+                                            style={{ minWidth: '85px', width: '85px' }}
+                                            className="py-3 px-2.5 text-right font-mono whitespace-nowrap sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300"
+                                        >
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-[10px] text-slate-400 font-sans font-normal">W{40 + dIdx}</span>
+                                                <span className="text-[11px] font-bold text-slate-700">{formatWeekCol(d)}</span>
+                                            </div>
+                                        </th>
+                                    ))}
+                                    <th style={{ minWidth: '95px', width: '95px' }} className="py-3 px-3 text-right sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300">
+                                        12-Wk Avg
+                                    </th>
+                                    <th style={{ minWidth: '105px', width: '105px' }} className="py-3 px-3 text-center sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300">
+                                        Status
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {regionalWeeklyRollup.map((reg) => (
+                                    <tr key={reg.code} className="hover:bg-slate-50 transition group">
+                                        {/* Frozen Division Region Cell */}
+                                        <td 
+                                            style={{ left: 0, minWidth: '240px', maxWidth: '240px', width: '240px' }}
+                                            className="py-3 px-3.5 font-bold text-slate-800 sticky left-0 z-20 bg-white group-hover:bg-slate-50 border-b border-slate-100 border-r-2 border-r-slate-300 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.06)] whitespace-nowrap"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <span className="w-5 h-5 rounded bg-blue-50 text-blue-700 text-center font-mono font-bold text-xs leading-5">
+                                                    {reg.code}
+                                                </span>
+                                                <span>{reg.name}</span>
+                                            </div>
+                                        </td>
+                                        {dates.map(d => {
+                                            const val = reg.weeklyValues[d];
+                                            const isNeg = val < 0;
+                                            return (
+                                                <td 
+                                                    key={d} 
+                                                    className={`py-3 px-2.5 text-right font-mono text-[11px] font-bold border-b border-slate-100 ${
+                                                        isNeg 
+                                                            ? 'bg-rose-50 text-rose-700 border-x border-rose-100' 
+                                                            : val < 5 
+                                                            ? 'bg-amber-50/50 text-amber-700' 
+                                                            : 'text-emerald-700'
+                                                    }`}
+                                                >
+                                                    {val > 0 ? `+${val.toFixed(1)}` : val.toFixed(1)}
+                                                </td>
+                                            );
+                                        })}
+                                        <td className="py-3 px-3 text-right font-mono text-[11px] font-extrabold text-blue-700 border-b border-slate-100">
+                                            {reg.avg > 0 ? `+${reg.avg}` : reg.avg}
+                                        </td>
+                                        <td className="py-3 px-3 text-center border-b border-slate-100">
+                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                reg.hasDeficit 
+                                                    ? 'bg-rose-50 text-rose-700 border border-rose-200' 
+                                                    : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                            }`}>
+                                                {reg.hasDeficit ? 'Deficit Risk' : 'SLA Compliant'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* TAB 4: WEEKLY INDAY WORKLOAD BUFFER TABLE (FROZEN PATCH & SKILL) */}
+            {activeTab === 'inday' && (
+                <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden glow-card space-y-3 p-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <div>
+                            <h3 className="font-extrabold text-xs sm:text-sm text-slate-800 flex items-center gap-2">
+                                <IconClock className="w-4 h-4 text-blue-600" />
+                                <span>Weekly Inday Workload Buffer View</span>
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                                Weekly inday workload volume buffer across all 12 weekly dates (matching Image 5)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="overflow-auto max-h-[550px] relative border border-slate-200/90 rounded-xl">
+                        <table className="w-full text-left text-xs text-slate-700 border-separate border-spacing-0">
+                            <thead className="sticky top-0 bg-slate-50 text-slate-600 font-semibold z-30">
+                                <tr>
+                                    {/* Patch (Frozen left: 0px) */}
+                                    <th 
+                                        style={{ left: 0, minWidth: '220px', maxWidth: '220px', width: '220px' }}
+                                        className="py-3 px-3.5 sticky top-0 left-0 bg-slate-100 z-40 border-b-2 border-slate-300"
+                                    >
+                                        Patch
+                                    </th>
+                                    {/* Skill (Frozen left: 220px with divider) */}
+                                    <th 
+                                        style={{ left: '220px', minWidth: '80px', maxWidth: '80px', width: '80px' }}
+                                        className="py-3 px-3 text-center sticky top-0 bg-slate-100 z-40 border-b-2 border-slate-300 border-r-2 border-r-slate-300 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.06)]"
+                                    >
+                                        Skill
+                                    </th>
+                                    {dates.map((d, dIdx) => (
+                                        <th 
+                                            key={d} 
+                                            style={{ minWidth: '85px', width: '85px' }}
+                                            className="py-3 px-2.5 text-right font-mono whitespace-nowrap sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300"
+                                        >
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-[10px] text-slate-400 font-sans font-normal">W{40 + dIdx}</span>
+                                                <span className="text-[11px] font-bold text-slate-700">{formatWeekCol(d)}</span>
+                                            </div>
+                                        </th>
+                                    ))}
+                                    <th style={{ minWidth: '95px', width: '95px' }} className="py-3 px-3 text-right sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300">
+                                        Weekly Avg
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {indayRows.map((r, idx) => (
+                                    <tr key={idx} className="hover:bg-slate-50 transition group">
+                                        <td 
+                                            style={{ left: 0, minWidth: '220px', maxWidth: '220px', width: '220px' }}
+                                            className="py-2.5 px-3.5 font-bold text-slate-800 sticky left-0 z-20 bg-white group-hover:bg-slate-50 border-b border-slate-100 whitespace-nowrap"
+                                        >
+                                            {r.Patch}
+                                        </td>
+                                        <td 
+                                            style={{ left: '220px', minWidth: '80px', maxWidth: '80px', width: '80px' }}
+                                            className="py-2.5 px-3 text-center whitespace-nowrap sticky z-20 bg-white group-hover:bg-slate-50 border-b border-slate-100 border-r-2 border-r-slate-300 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.06)]"
+                                        >
+                                            <span className="px-2 py-0.5 rounded font-bold text-[10px] bg-slate-100 text-slate-700">
+                                                {r.Skill}
+                                            </span>
+                                        </td>
+                                        {dates.map(d => (
+                                            <td key={d} className="py-2.5 px-2.5 text-right font-mono text-[11px] text-slate-700 border-b border-slate-100">
+                                                {r[d] !== undefined ? (typeof r[d] === 'number' ? r[d].toFixed(2) : r[d]) : '0.00'}
+                                            </td>
+                                        ))}
+                                        <td className="py-2.5 px-3 text-right font-mono text-[11px] font-bold text-slate-900 border-b border-slate-100">
+                                            {r._avg}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* TAB 5: WEEKLY DEFICIT MITIGATION ACTION LOG */}
+            {activeTab === 'actions' && (
+                <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden glow-card space-y-3 p-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <div>
+                            <h3 className="font-extrabold text-xs sm:text-sm text-slate-800 flex items-center gap-2">
+                                <IconAlertCircle className="w-4 h-4 text-rose-600" />
+                                <span>Weekly Deficit Mitigation Action Log</span>
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                                Operational root cause & mitigation actions for every patch-week below zero SLA buffer
+                            </p>
+                        </div>
+                    </div>
+
+                    {deficitActionRows.length === 0 ? (
+                        <div className="p-8 text-center text-slate-500">
+                            <IconCheck className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                            <p className="font-bold text-slate-700">No Weekly Deficits Detected</p>
+                            <p className="text-xs text-slate-400 mt-1">All patches and skills meet required SLA capacity buffer across all 12 weeks.</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-auto max-h-[550px] relative border border-slate-200/90 rounded-xl">
+                            <table className="w-full text-left text-xs text-slate-700 border-separate border-spacing-0">
+                                <thead className="sticky top-0 bg-slate-50 text-slate-600 font-semibold z-30">
+                                    <tr>
+                                        {/* Patch (Frozen left: 0px) */}
+                                        <th 
+                                            style={{ left: 0, minWidth: '200px', maxWidth: '200px', width: '200px' }}
+                                            className="py-2.5 px-3 sticky top-0 left-0 bg-slate-100 z-40 border-b-2 border-slate-300 border-r-2 border-r-slate-300 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.06)]"
+                                        >
+                                            Patch
+                                        </th>
+                                        <th className="py-2.5 px-3 sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300">Region</th>
+                                        <th className="py-2.5 px-3 text-center sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300">Skill</th>
+                                        <th className="py-2.5 px-3 sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300">Metric</th>
+                                        <th className="py-2.5 px-3 font-mono sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300">Weekcomm</th>
+                                        <th className="py-2.5 px-3 text-right sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300">Deficit (FTE)</th>
+                                        <th className="py-2.5 px-3 text-right sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300">Deficit (Hrs)</th>
+                                        <th className="py-2.5 px-3 text-center sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300">Severity</th>
+                                        <th className="py-2.5 px-3 sticky top-0 bg-slate-50 z-30 border-b-2 border-slate-300">Recommended Mitigation Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {deficitActionRows.map((action) => (
+                                        <tr key={action.id} className="hover:bg-rose-50/30 transition group">
+                                            <td 
+                                                style={{ left: 0, minWidth: '200px', maxWidth: '200px', width: '200px' }}
+                                                className="py-2.5 px-3 font-bold text-slate-800 whitespace-nowrap sticky left-0 z-20 bg-white group-hover:bg-rose-50/50 border-b border-slate-100 border-r-2 border-r-slate-300 shadow-[4px_0_8px_-2px_rgba(0,0,0,0.06)]"
+                                            >
+                                                {action.patch}
+                                            </td>
+                                            <td className="py-2.5 px-3 text-slate-600 whitespace-nowrap border-b border-slate-100">{action.region}</td>
+                                            <td className="py-2.5 px-3 text-center whitespace-nowrap border-b border-slate-100">
+                                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700">
+                                                    {action.skill}
+                                                </span>
+                                            </td>
+                                            <td className="py-2.5 px-3 font-mono text-[11px] text-slate-600 border-b border-slate-100">{action.metric}</td>
+                                            <td className="py-2.5 px-3 font-mono text-[11px] font-bold text-slate-800 whitespace-nowrap border-b border-slate-100">
+                                                {action.weekLabel}
+                                            </td>
+                                            <td className="py-2.5 px-3 text-right font-mono font-extrabold text-rose-600 border-b border-slate-100">
+                                                {action.deficitFte}
+                                            </td>
+                                            <td className="py-2.5 px-3 text-right font-mono font-bold text-rose-600 border-b border-slate-100">
+                                                {action.deficitHrs}h
+                                            </td>
+                                            <td className="py-2.5 px-3 text-center whitespace-nowrap border-b border-slate-100">
+                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                    action.severity.includes('Critical') 
+                                                        ? 'bg-rose-100 text-rose-800 border border-rose-200' 
+                                                        : 'bg-amber-100 text-amber-800 border border-amber-200'
+                                                }`}>
+                                                    {action.severity}
+                                                </span>
+                                            </td>
+                                            <td className="py-2.5 px-3 text-slate-700 font-medium border-b border-slate-100">
+                                                {action.recommendation}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
+
 
 // ------------------------------------------------------------------------------------------------
 // 5. GEOSPATIAL MAP VIEW
