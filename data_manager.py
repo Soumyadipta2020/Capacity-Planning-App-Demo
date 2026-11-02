@@ -404,6 +404,412 @@ def get_file_remark(filename: str, fallback_label: str = "") -> str:
     return f"Active configuration for {fallback_label or filename} (Updated)"
 
 
+def _generate_sample_df_for_category(input_key: str) -> pd.DataFrame:
+    """Helper to generate sample DataFrame for an input category."""
+    if input_key == "actuals_input":
+        return SampleDataGenerator.get_imbalance_data()
+    elif input_key == "resource_plan":
+        return SampleDataGenerator.get_capacity_fte_data()
+    elif input_key == "fte_transfer":
+        return pd.DataFrame([
+            {"From": "EA1", "To": "EA2", "FTE": 1.5, "Reason": "Peak Winter Demand"},
+            {"From": "EB1", "To": "EB2", "FTE": 2.0, "Reason": "Storm Response"},
+            {"From": "EC1", "To": "EC2", "FTE": 1.0, "Reason": "Apprentice Support"}
+        ])
+    elif input_key == "recruitment_grounded":
+        return pd.DataFrame([
+            {"Cohort": "Grounded Q3 Cohort 1", "Headcount": 25, "Skill": "HEC", "Start Date": "2026-10-01"},
+            {"Cohort": "Grounded Q3 Cohort 2", "Headcount": 20, "Skill": "KAC", "Start Date": "2026-11-01"},
+            {"Cohort": "Grounded Q4 Cohort 1", "Headcount": 15, "Skill": "EV", "Start Date": "2026-12-01"}
+        ])
+    elif input_key == "recruitment_ungrounded":
+        return pd.DataFrame([
+            {"Cohort": "Ungrounded Upside A", "Headcount": 40, "Skill": "HEC", "Probability": "75%"},
+            {"Cohort": "Ungrounded Upside B", "Headcount": 30, "Skill": "EV", "Probability": "60%"},
+            {"Cohort": "Contingent Academy C", "Headcount": 20, "Skill": "KAC", "Probability": "80%"}
+        ])
+    elif input_key == "baseline_assumptions":
+        return pd.DataFrame([
+            {"Metric": "Contractual Standard Hours", "Value": 37.5, "Unit": "hrs/week"},
+            {"Metric": "Shift Length", "Value": 7.5, "Unit": "hrs/day"},
+            {"Metric": "Working Days per Week", "Value": 5, "Unit": "days"},
+            {"Metric": "Annual Leave Factor", "Value": 11.2, "Unit": "%"}
+        ])
+    elif input_key == "downtime_overlays_percentage":
+        return SampleDataGenerator.get_overlays_data("Percentage")
+    elif input_key == "downtime_overlays_hours":
+        return SampleDataGenerator.get_overlays_data("Hours")
+    elif input_key == "downtime_overlays_hours_fte":
+        return SampleDataGenerator.get_overlays_data("Hrs/FTE")
+    elif input_key == "overtime":
+        return pd.DataFrame([
+            {"Rate": "1.5x Standard", "Cap": "10 hrs/week", "Voluntary": "Yes", "Authorized": "Yes"},
+            {"Rate": "2.0x Weekend", "Cap": "8 hrs/week", "Voluntary": "Yes", "Authorized": "Pre-Approved"}
+        ])
+    elif input_key == "baseline_productivity":
+        return pd.DataFrame([
+            {"Skill": "HEC", "Rate": 3.8, "Target": 4.0, "Benchmark Year": 2025},
+            {"Skill": "KAC", "Rate": 3.5, "Target": 3.8, "Benchmark Year": 2025},
+            {"Skill": "EV", "Rate": 2.2, "Target": 2.5, "Benchmark Year": 2026}
+        ])
+    elif input_key == "training_snm":
+        return pd.DataFrame([
+            {"Course": "SNM Tier 2 Academy", "Attendees": 30, "Duration": "2 weeks", "Location": "Leeds Academy"},
+            {"Course": "EV Installer Level 3", "Attendees": 18, "Duration": "3 weeks", "Location": "Dartford Academy"},
+            {"Course": "Heat Pump Fundamentals", "Attendees": 24, "Duration": "4 weeks", "Location": "Leicester Academy"}
+        ])
+    elif input_key == "ctr_capacity":
+        return pd.DataFrame([
+            {"Agency": "Centrica Flex Contractors", "Contractors": 50, "Skill": "HEC", "Status": "Active"},
+            {"Agency": "UK Field Solutions", "Contractors": 30, "Skill": "KAC", "Status": "Standby"},
+            {"Agency": "GreenEnergy Tech Partners", "Contractors": 20, "Skill": "EV", "Status": "Mobilizing"}
+        ])
+    elif input_key == "attrition":
+        return SampleDataGenerator.get_attrition_data()
+    elif input_key == "recruitment_config":
+        return pd.DataFrame([
+            {"Week": 1, "Ramp": "20%", "Productivity Factor": 0.20},
+            {"Week": 4, "Ramp": "50%", "Productivity Factor": 0.50},
+            {"Week": 8, "Ramp": "80%", "Productivity Factor": 0.80},
+            {"Week": 12, "Ramp": "100%", "Productivity Factor": 1.00}
+        ])
+    elif input_key == "demand_input":
+        return SampleDataGenerator.get_demand_jobs_data()
+    elif input_key == "job_time_assumptions":
+        return SampleDataGenerator.get_job_times_data()
+    elif input_key == "hec_on_kac_demand":
+        return pd.DataFrame([
+            {"Skill": "HEC", "Support": "KAC", "Ratio": 0.85, "Max Weekly Hours": 120},
+            {"Skill": "HEC", "Support": "KAC Tier 2", "Ratio": 0.60, "Max Weekly Hours": 60}
+        ])
+    elif input_key == "hec_on_ev_demand":
+        return pd.DataFrame([
+            {"Skill": "HEC", "Support": "EV", "Ratio": 0.90, "Max Weekly Hours": 80},
+            {"Skill": "HEC", "Support": "EV Commercial", "Ratio": 0.70, "Max Weekly Hours": 40}
+        ])
+    elif input_key == "geography_mapping":
+        return SampleDataGenerator.get_geog_mapping_data()
+    elif input_key == "week_to_month":
+        return SampleDataGenerator.get_week_to_month_data()
+    else:
+        return pd.DataFrame([{"ID": 1, "Name": input_key, "Status": "Active"}])
+
+
+def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
+    """
+    Reads tabular data for the specified input category and file version.
+    Locates the file in data/<folder>/, parses CSV or Excel into records and column list.
+    If the file is not on disk, automatically generates sample data for that category and saves it.
+    """
+    if not input_key or not filename:
+        return {
+            "success": False,
+            "inputKey": input_key or "",
+            "fileName": filename or "",
+            "columns": [],
+            "rows": [],
+            "totalRows": 0,
+            "error": "Input category and filename must be provided."
+        }
+    
+    folder = CATEGORY_FOLDER_MAP.get(input_key, "capacity")
+    data_dir = EnvironmentConfig.get_data_dir() / folder
+    data_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Generate list of candidate file paths to search on disk
+    candidates = [
+        data_dir / filename,
+        data_dir / f"{filename}.csv",
+        data_dir / filename.replace(":", "-"),
+        data_dir / f"{filename.replace(':', '-')}.csv",
+        data_dir / f"{filename}.xlsx",
+        data_dir / f"{filename.replace(':', '-')}.xlsx"
+    ]
+    
+    target_path = None
+    for cand in candidates:
+        if cand.exists() and cand.is_file():
+            target_path = cand
+            break
+            
+    # If not found via exact candidates, perform case-insensitive stem matching
+    if target_path is None and data_dir.exists():
+        clean_target = filename.replace(":", "-").lower()
+        for f in data_dir.iterdir():
+            if f.is_file() and (f.stem.lower() == clean_target or f.name.lower() == clean_target):
+                target_path = f
+                break
+
+    # If file still doesn't exist on disk, generate sample data using the category generator
+    if target_path is None:
+        try:
+            df = _generate_sample_df_for_category(input_key)
+            safe_name = filename.replace(":", "-")
+            if not safe_name.endswith((".csv", ".xlsx", ".xls")):
+                safe_name = f"{safe_name}.csv"
+            target_path = data_dir / safe_name
+            df.to_csv(target_path, index=False)
+        except Exception as e:
+            return {
+                "success": False,
+                "inputKey": input_key,
+                "fileName": filename,
+                "columns": [],
+                "rows": [],
+                "totalRows": 0,
+                "error": f"File '{filename}' not found and could not generate fallback: {e}"
+            }
+            
+    try:
+        if target_path.suffix.lower() in [".xlsx", ".xls"]:
+            df = pd.read_excel(target_path)
+        else:
+            df = pd.read_csv(target_path)
+            
+        # Clean null/NaN values for JSON serialization
+        df = df.where(pd.notnull(df), None)
+        columns = [str(c) for c in df.columns]
+        rows = df.to_dict(orient="records")
+        
+        return {
+            "success": True,
+            "inputKey": input_key,
+            "fileName": filename,
+            "filePath": target_path.name,
+            "columns": columns,
+            "rows": rows,
+            "totalRows": len(rows),
+            "error": None
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "inputKey": input_key,
+            "fileName": filename,
+            "columns": [],
+            "rows": [],
+            "totalRows": 0,
+            "error": f"Failed reading table '{target_path.name}': {e}"
+        }
+
+
+# ================================================================================================
+# CALCULATION MODULES ENGINE (FTE, DOWNTIME, PRODUCTIVITY -> CAPACITY; DEMAND -> IMBALANCE)
+# ================================================================================================
+
+CALC_MODULE_METADATA = {
+    "imbalance": {
+        "name": "Imbalance Calculation Module",
+        "title": "Imbalance Calculation Module",
+        "category": "Combined Master Engine",
+        "role": "Combines Capacity and Demand to calculate patch surpluses, deficits, and coverage ratios",
+        "formula": "Net Imbalance (Hours) = Capacity Hours - Demand Hours | Coverage Ratio = (Capacity / Demand) * 100% | Net Imbalance (FTE) = Net Imbalance Hours / 37.5",
+        "feedsInto": "Executive Planning, Patch Rebalancing & Overtime Authorization",
+        "inputs": ["Capacity Calculation Output", "Demand Calculation Output"]
+    },
+    "capacity": {
+        "name": "Capacity Calculation Module",
+        "title": "Capacity Calculation Module",
+        "category": "Capacity Engine",
+        "role": "Calculates Net Available Productive Hours and Capacity Jobs from FTE, Downtime, and Productivity",
+        "formula": "Available Hours = Gross FTE Hours - Downtime Hours | Net Capacity (Jobs) = Available Hours * Productivity Pace",
+        "feedsInto": "Imbalance Calculation Module",
+        "inputs": ["FTE Calculation Module", "Downtime Calculation Module", "Productivity Calculation Module"]
+    },
+    "fte": {
+        "name": "FTE Calculation Module",
+        "title": "FTE Calculation Module",
+        "category": "Resource & Staffing Feed",
+        "role": "Determines total effective field headcount, contractual hours, and mutual aid transfers",
+        "formula": "Effective FTE = Active Headcount + Recruitment Cohorts - Leavers ± Inter-Patch Transfers",
+        "feedsInto": "Capacity Calculation Module",
+        "inputs": ["resource_plan", "fte_transfer", "recruitment_grounded", "recruitment_ungrounded", "attrition"]
+    },
+    "downtime": {
+        "name": "Downtime Overlays Calculation Module",
+        "title": "Downtime Overlays Calculation Module",
+        "category": "Non-Productive Factors Feed",
+        "role": "Calculates planned and unplanned non-productive downtime (absence, sickness, training, meetings)",
+        "formula": "Total Downtime Hours = Gross Contract Hours * (Sickness% + Holiday% + Training% + Meeting% + Weather%)",
+        "feedsInto": "Capacity Calculation Module",
+        "inputs": ["downtime_overlays_percentage", "downtime_overlays_hours", "downtime_overlays_hours_fte", "baseline_assumptions"]
+    },
+    "productivity": {
+        "name": "Productivity Calculation Module",
+        "title": "Productivity Calculation Module",
+        "category": "Efficiency & Benchmark Feed",
+        "role": "Determines standard task completion durations, productive paces, and learning curve ramps by skill",
+        "formula": "Productivity Pace (jobs/day) = Daily Shift Hours (7.5) / Standard Task Duration (Hours/Job)",
+        "feedsInto": "Capacity Calculation Module",
+        "inputs": ["baseline_productivity", "job_time_assumptions", "recruitment_config"]
+    },
+    "demand": {
+        "name": "Demand Calculation Module",
+        "title": "Demand Calculation Module",
+        "category": "Customer Workload Engine",
+        "role": "Forecasts customer breakdown volume, task mix, and converts job demand into required labor hours",
+        "formula": "Total Demand Hours = Σ (Forecasted Jobs by Work Code * Standard Task Duration)",
+        "feedsInto": "Imbalance Calculation Module",
+        "inputs": ["demand_input", "job_time_assumptions", "hec_on_kac_demand", "hec_on_ev_demand"]
+    }
+}
+
+def _generate_imbalance_calc_df() -> pd.DataFrame:
+    """Generates Imbalance Calculation Module table combining Capacity and Demand."""
+    rows = []
+    patches = PATCHES[:20]
+    skills = ["HEC", "KAC", "EV"]
+    for i, p in enumerate(patches):
+        skill = skills[i % len(skills)]
+        dem_hrs = round(1100.0 + (i * 45.5) + random.uniform(-40, 60), 1)
+        cap_factors = [0.93, 0.96, 1.05, 1.08, 1.02, 0.94, 1.06, 0.98, 1.04, 0.91]
+        cap_factor = cap_factors[i % len(cap_factors)]
+        cap_hrs = round(dem_hrs * cap_factor, 1)
+        imb_hrs = round(cap_hrs - dem_hrs, 1)
+        imb_fte = round(imb_hrs / 37.5, 2)
+        cov_ratio = round((cap_hrs / dem_hrs) * 100, 1)
+        status = "Surplus" if cov_ratio >= 102.0 else ("Deficit" if cov_ratio <= 98.0 else "Balanced")
+        action = "Mutual aid export to adjacent patch" if status == "Surplus" else ("Authorize weekend surge overtime" if status == "Deficit" else "Within normal operating tolerance")
+        
+        rows.append({
+            "Patch": p,
+            "Skill": skill,
+            "Weekcomm": "2026-10-05",
+            "Demand Hours": dem_hrs,
+            "Capacity Hours": cap_hrs,
+            "Net Imbalance (Hours)": imb_hrs,
+            "Net Imbalance (FTE)": imb_fte,
+            "Coverage Ratio (%)": f"{cov_ratio}%",
+            "Status": status,
+            "Calculation Stage": "post_sp" if i % 2 == 0 else "pre_sp",
+            "Operational Recommendation": action
+        })
+    return pd.DataFrame(rows)
+
+def _generate_capacity_calc_df() -> pd.DataFrame:
+    """Generates Capacity Calculation Module table fed by FTE, Downtime, and Productivity."""
+    rows = []
+    patches = PATCHES[:20]
+    skills = ["HEC", "KAC", "EV"]
+    for i, p in enumerate(patches):
+        skill = skills[i % len(skills)]
+        fte = round(28.0 + (i * 1.5) + random.uniform(-1.0, 2.0), 1)
+        contract_hrs = 37.5
+        gross_hrs = round(fte * contract_hrs, 1)
+        down_pct = round(12.5 + (i % 5) * 0.8, 1)
+        down_hrs = round(gross_hrs * (down_pct / 100.0), 1)
+        avail_hrs = round(gross_hrs - down_hrs, 1)
+        prod_rate = 3.8 if skill == "HEC" else (3.5 if skill == "KAC" else 2.2)
+        cap_jobs = int(avail_hrs * (prod_rate / 7.5))
+        
+        rows.append({
+            "Patch": p,
+            "Skill": skill,
+            "Weekcomm": "2026-10-05",
+            "Effective FTE": fte,
+            "Contract Shift (Hrs/Wk)": contract_hrs,
+            "Gross Capacity Hours": gross_hrs,
+            "Downtime Rate (%)": f"{down_pct}%",
+            "Downtime Hours": down_hrs,
+            "Net Available Hours": avail_hrs,
+            "Productivity Pace (Jobs/Day)": prod_rate,
+            "Net Capacity (Jobs)": cap_jobs,
+            "Engine Status": "Calculated & Verified"
+        })
+    return pd.DataFrame(rows)
+
+def _generate_fte_calc_df() -> pd.DataFrame:
+    """Generates FTE Calculation Module table (Staffing, Headcount, Transfers)."""
+    df = SampleDataGenerator.get_capacity_fte_data()
+    return df
+
+def _generate_downtime_calc_df() -> pd.DataFrame:
+    """Generates Downtime Overlays Calculation Module table."""
+    df = SampleDataGenerator.get_overlays_data("Percentage")
+    return df
+
+def _generate_productivity_calc_df() -> pd.DataFrame:
+    """Generates Productivity Calculation Module table (Standard Durations & Benchmark Paces)."""
+    data = [
+        {"Skill": "HEC", "Work Code": "W00", "Product": "Gas Heating Breakdown Repair", "Standard Task Duration (Hrs)": 1.45, "Productivity Pace (Jobs/Day)": 3.8, "Weekly Output Target (Jobs)": 19, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+        {"Skill": "HEC", "Work Code": "W01", "Product": "First Time Fix Gas Appliance", "Standard Task Duration (Hrs)": 1.25, "Productivity Pace (Jobs/Day)": 4.0, "Weekly Output Target (Jobs)": 20, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+        {"Skill": "HEC", "Work Code": "W17", "Product": "S&R EHI Bonding Leads", "Standard Task Duration (Hrs)": 1.85, "Productivity Pace (Jobs/Day)": 3.2, "Weekly Output Target (Jobs)": 16, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+        {"Skill": "HEC", "Work Code": "W18", "Product": "CHI Fuse Board Upgrade", "Standard Task Duration (Hrs)": 2.10, "Productivity Pace (Jobs/Day)": 2.8, "Weekly Output Target (Jobs)": 14, "Benchmark Year": 2026, "Ramp Factor": "95%"},
+        {"Skill": "HEC", "Work Code": "W20", "Product": "H Code Heating System Powerflush", "Standard Task Duration (Hrs)": 1.95, "Productivity Pace (Jobs/Day)": 3.0, "Weekly Output Target (Jobs)": 15, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+        {"Skill": "HEC", "Work Code": "W23", "Product": "Electrical Heating Circuit Repair", "Standard Task Duration (Hrs)": 1.65, "Productivity Pace (Jobs/Day)": 3.4, "Weekly Output Target (Jobs)": 17, "Benchmark Year": 2026, "Ramp Factor": "90%"},
+        {"Skill": "HEC", "Work Code": "W26", "Product": "Breakdown Assist Tier 1", "Standard Task Duration (Hrs)": 1.35, "Productivity Pace (Jobs/Day)": 3.8, "Weekly Output Target (Jobs)": 19, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+        {"Skill": "HEC", "Work Code": "W31", "Product": "EICR Domestic Electrical Inspection", "Standard Task Duration (Hrs)": 2.50, "Productivity Pace (Jobs/Day)": 2.2, "Weekly Output Target (Jobs)": 11, "Benchmark Year": 2026, "Ramp Factor": "95%"},
+        {"Skill": "KAC", "Work Code": "W01", "Product": "KAC Whitegoods Appliance Repair", "Standard Task Duration (Hrs)": 1.55, "Productivity Pace (Jobs/Day)": 3.5, "Weekly Output Target (Jobs)": 18, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+        {"Skill": "KAC", "Work Code": "W17", "Product": "KAC Appliance Annual Safety Check", "Standard Task Duration (Hrs)": 1.15, "Productivity Pace (Jobs/Day)": 4.2, "Weekly Output Target (Jobs)": 21, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+        {"Skill": "EV", "Work Code": "W23", "Product": "EV Charging Point Home Installation", "Standard Task Duration (Hrs)": 2.75, "Productivity Pace (Jobs/Day)": 2.2, "Weekly Output Target (Jobs)": 11, "Benchmark Year": 2026, "Ramp Factor": "85%"},
+        {"Skill": "EV", "Work Code": "W26", "Product": "EV Fast Charger Commissioning", "Standard Task Duration (Hrs)": 1.90, "Productivity Pace (Jobs/Day)": 2.6, "Weekly Output Target (Jobs)": 13, "Benchmark Year": 2026, "Ramp Factor": "90%"}
+    ]
+    return pd.DataFrame(data)
+
+def _generate_demand_calc_df() -> pd.DataFrame:
+    """Generates Demand Calculation Module table (Forecasted Jobs & Required Demand Hours)."""
+    df = SampleDataGenerator.get_demand_jobs_data()
+    return df
+
+def get_calculation_module_data(module_key: str) -> Dict[str, Any]:
+    """
+    Returns structured tabular data and operational metadata for a selected calculation module:
+    fte, downtime, productivity, capacity, demand, imbalance.
+    """
+    key = module_key.lower().strip() if module_key else "imbalance"
+    meta = CALC_MODULE_METADATA.get(key, CALC_MODULE_METADATA["imbalance"])
+    
+    try:
+        if key == "imbalance":
+            df = _generate_imbalance_calc_df()
+        elif key == "capacity":
+            df = _generate_capacity_calc_df()
+        elif key == "fte":
+            df = _generate_fte_calc_df()
+        elif key == "downtime":
+            df = _generate_downtime_calc_df()
+        elif key == "productivity":
+            df = _generate_productivity_calc_df()
+        elif key == "demand":
+            df = _generate_demand_calc_df()
+        else:
+            df = _generate_imbalance_calc_df()
+            
+        df = df.where(pd.notnull(df), None)
+        columns = [str(c) for c in df.columns]
+        rows = df.to_dict(orient="records")
+        
+        return {
+            "success": True,
+            "moduleKey": key,
+            "moduleName": meta["name"],
+            "category": meta["category"],
+            "role": meta["role"],
+            "formula": meta["formula"],
+            "feedsInto": meta["feedsInto"],
+            "inputs": meta["inputs"],
+            "columns": columns,
+            "rows": rows,
+            "totalRows": len(rows),
+            "error": None
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "moduleKey": key,
+            "moduleName": meta["name"],
+            "category": meta["category"],
+            "role": meta["role"],
+            "formula": meta["formula"],
+            "feedsInto": meta["feedsInto"],
+            "inputs": meta["inputs"],
+            "columns": [],
+            "rows": [],
+            "totalRows": 0,
+            "error": str(e)
+        }
+
+
 
 class ScenarioManager:
     """Handles storing, retrieving, and serializing planning scenarios."""

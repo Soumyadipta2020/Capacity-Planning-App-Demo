@@ -307,6 +307,31 @@ function IconLock({ className = "w-4 h-4" }) {
     );
 }
 
+function IconEye({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+    );
+}
+
+function IconMaximize({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+        </svg>
+    );
+}
+
+function IconMinimize({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 14h6m0 0v6m0-6L3 21m17-7h-6m0 0v6m0-6l7 7M10 10V4m0 6H4m6 0L3 3m10 7h6m-6 0V4m0 6l7-7" />
+        </svg>
+    );
+}
+
 // ================================================================================================
 // TIMESTAMP PARSING & SORTING HELPER
 // ================================================================================================
@@ -473,6 +498,13 @@ function ModernCapacityApp() {
     const [inputsChoices, setInputsChoices] = useState({});
     const [deletedHistory, setDeletedHistory] = useState({});
     const [remarksMap, setRemarksMap] = useState({});
+    const [tableDataCache, setTableDataCache] = useState({});
+
+    // Calculation Modules Modal State (FTE, Downtime, Productivity -> Capacity; Demand -> Imbalance)
+    const [isCalcModalOpen, setIsCalcModalOpen] = useState(false);
+    const [selectedCalcModule, setSelectedCalcModule] = useState('imbalance');
+    const [calcModulesCache, setCalcModulesCache] = useState({});
+    const [isCalcLoading, setIsCalcLoading] = useState(false);
 
     // Tabular Data
     const [imbalanceData, setImbalanceData] = useState([]);
@@ -512,6 +544,8 @@ function ModernCapacityApp() {
                 setInputsState(initialSelections);
             }
             if (init.remarksMap) setRemarksMap(init.remarksMap);
+            if (init.initialTableData) setTableDataCache(init.initialTableData);
+            if (init.initialCalcModulesData) setCalcModulesCache(init.initialCalcModulesData);
             if (init.imbalanceData) setImbalanceData(init.imbalanceData);
             if (init.indayWorkloadData) setIndayWorkloadData(init.indayWorkloadData);
             if (init.geographyDatasets) setGeographyDatasets(init.geographyDatasets);
@@ -534,8 +568,47 @@ function ModernCapacityApp() {
             window.Shiny.addCustomMessageHandler('update_env_status', function(data) {
                 if (data) setEnvInfo(data);
             });
+
+            window.Shiny.addCustomMessageHandler('response_input_file_data', function(data) {
+                if (data && data.fileName) {
+                    setTableDataCache(prev => ({
+                        ...prev,
+                        [data.fileName]: data
+                    }));
+                }
+            });
+
+            window.Shiny.addCustomMessageHandler('response_calc_module_data', function(data) {
+                if (data && data.moduleKey) {
+                    setCalcModulesCache(prev => ({
+                        ...prev,
+                        [data.moduleKey]: data
+                    }));
+                    setIsCalcLoading(false);
+                }
+            });
         }
     }, []);
+
+    // Request Calculation Module Data (FTE, Downtime, Productivity, Capacity, Demand, Imbalance)
+    const handleRequestCalcModule = (mod) => {
+        setSelectedCalcModule(mod);
+        if (calcModulesCache[mod]) return;
+        setIsCalcLoading(true);
+        if (window.Shiny && window.Shiny.setInputValue) {
+            window.Shiny.setInputValue('request_calc_module_data', {
+                moduleKey: mod,
+                requestId: Date.now()
+            }, { priority: 'event' });
+        }
+        setTimeout(() => {
+            setCalcModulesCache(prev => {
+                if (prev[mod]) return prev;
+                return { ...prev, [mod]: getClientFallbackCalcModule(mod) };
+            });
+            setIsCalcLoading(false);
+        }, 1000);
+    };
 
     // Current scenario object
     const currentScenario = useMemo(() => {
@@ -891,6 +964,18 @@ function ModernCapacityApp() {
                     {/* Right Action Icons & Shortcuts */}
                     <div className="flex items-center gap-2 flex-shrink-0">
                         <button
+                            type="button"
+                            onClick={() => {
+                                setIsCalcModalOpen(true);
+                                handleRequestCalcModule(selectedCalcModule || 'imbalance');
+                            }}
+                            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-[#005eb8] text-[#005eb8] hover:text-white border border-blue-200 hover:border-[#005eb8] transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button"
+                            title="View Calculation Modules (FTE, Downtime, Productivity, Capacity, Demand, Imbalance)"
+                        >
+                            <IconEye className="w-3.5 h-3.5" />
+                            <span>View Calculations</span>
+                        </button>
+                        <button
                             onClick={() => setActiveTab('inputs')}
                             className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 transition flex items-center gap-1.5 shadow-xs hover:border-blue-300"
                         >
@@ -951,6 +1036,8 @@ function ModernCapacityApp() {
                             inputsState={inputsState}
                             inputsChoices={inputsChoices}
                             remarksMap={remarksMap}
+                            tableDataCache={tableDataCache}
+                            setTableDataCache={setTableDataCache}
                             onInputChange={handleInputChange}
                             onInputDelete={handleInputDelete}
                             onInputUndo={handleInputUndo}
@@ -1086,6 +1173,19 @@ function ModernCapacityApp() {
                     </div>
                 </div>
             )}
+
+            {/* FLOATING WINDOW: CALCULATION MODULES MODAL (FTE, DOWNTIME, PRODUCTIVITY -> CAPACITY; DEMAND -> IMBALANCE) */}
+            {isCalcModalOpen && (
+                <CalculationModulesModal
+                    isOpen={isCalcModalOpen}
+                    activeModule={selectedCalcModule}
+                    onChangeModule={(mod) => handleRequestCalcModule(mod)}
+                    onClose={() => setIsCalcModalOpen(false)}
+                    data={calcModulesCache[selectedCalcModule] || getClientFallbackCalcModule(selectedCalcModule)}
+                    loading={isCalcLoading}
+                    showToast={showToast}
+                />
+            )}
         </div>
     );
 }
@@ -1116,13 +1216,6 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
-                        onClick={onConfigureInputs}
-                        className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg border border-slate-200/90 shadow-xs transition flex items-center gap-1.5 hover:border-blue-400 hover:text-blue-700"
-                    >
-                        <IconSliders className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Configure 21 Inputs</span>
-                    </button>
                     <button
                         onClick={onCompareScenario}
                         className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg border border-slate-200/90 shadow-xs transition flex items-center gap-1.5 hover:border-blue-400 hover:text-blue-700"
@@ -2449,6 +2542,1275 @@ function DownloadTemplatesView({ showToast }) {
     );
 }
 
+// ================================================================================================
+// CSV PARSER, CLIENT FALLBACK GENERATOR & TABLE EXPORT HELPERS
+// ================================================================================================
+function parseCsvToTable(csvText) {
+    if (!csvText || typeof csvText !== 'string') return { columns: [], rows: [], totalRows: 0 };
+    const lines = csvText.replace(/^\uFEFF/, '').split(/\r\n|\n|\r/).filter(l => l.trim().length > 0);
+    if (lines.length === 0) return { columns: [], rows: [], totalRows: 0 };
+    
+    const headerLine = lines[0];
+    const delim = headerLine.includes('\t') ? '\t' : (headerLine.includes(';') && !headerLine.includes(',') ? ';' : ',');
+    const columns = headerLine.split(delim).map(c => c.trim().replace(/^["']|["']$/g, '').trim());
+    
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+        const rawRow = lines[i].split(delim).map(c => c.trim().replace(/^["']|["']$/g, '').trim());
+        const rowObj = {};
+        columns.forEach((col, idx) => {
+            rowObj[col] = rawRow[idx] !== undefined ? rawRow[idx] : "";
+        });
+        rows.push(rowObj);
+    }
+    return { columns, rows, totalRows: rows.length };
+}
+
+function generateClientFallbackTable(inputKey, fileName) {
+    const rule = SCHEMA_VALIDATION_RULES[inputKey] || { required: ["item", "value"] };
+    const requiredCols = rule.required && rule.required.length > 0 
+        ? rule.required.map(c => c.charAt(0).toUpperCase() + c.slice(1)) 
+        : ["ID", "Category", "Value"];
+    
+    const columns = [...requiredCols];
+    if (!columns.some(c => c.toLowerCase().includes("week") || c.toLowerCase().includes("date"))) columns.push("Weekcomm");
+    if (!columns.some(c => c.toLowerCase().includes("status"))) columns.push("Status");
+    if (!columns.some(c => c.toLowerCase().includes("remark") || c.toLowerCase().includes("notes"))) columns.push("Remarks");
+
+    const rows = [];
+    const patches = [
+        "EA11 Inverness & Aviemore", "EB12 Altrincham", "EC62 Essex East", 
+        "ED44 Canterbury & Dover", "EC41 Reading", "EA12 Aberdeen North",
+        "EB14 Stockport", "EC22 Cheltenham & Gloucester", "ED11 Chiswick & City"
+    ];
+    const skills = ["HEC", "KAC", "EV"];
+    const dates = ["2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26", "2026-11-02"];
+    
+    for (let i = 1; i <= 30; i++) {
+        const row = {};
+        columns.forEach(col => {
+            const lc = col.toLowerCase();
+            if (lc.includes("patch") || lc.includes("territory") || lc.includes("location")) {
+                row[col] = patches[i % patches.length];
+            } else if (lc.includes("skill")) {
+                row[col] = skills[i % skills.length];
+            } else if (lc.includes("status")) {
+                row[col] = i % 5 === 0 ? "Leaver" : "Active";
+            } else if (lc.includes("week") || lc.includes("date")) {
+                row[col] = dates[i % dates.length];
+            } else if (lc.includes("val") || lc.includes("headcount") || lc.includes("fte") || lc.includes("hours") || lc.includes("ratio") || lc.includes("rate") || lc.includes("attendees") || lc.includes("contractors")) {
+                row[col] = (Math.round((i * 2.5 + 15) * 10) / 10).toString();
+            } else if (lc.includes("work code")) {
+                row[col] = `W0${(i % 5) + 1}`;
+            } else if (lc.includes("region")) {
+                row[col] = ["A", "B", "C", "D", "E"][i % 5];
+            } else if (lc.includes("acdm")) {
+                row[col] = `A${(i % 3) + 1}`;
+            } else if (lc.includes("from")) {
+                row[col] = `EA${(i % 3) + 1}`;
+            } else if (lc.includes("to")) {
+                row[col] = `EA${((i + 1) % 3) + 1}`;
+            } else if (lc.includes("cohort")) {
+                row[col] = `Cohort ${(i % 4) + 1} Q${((i % 4) + 1)}`;
+            } else if (lc.includes("metric")) {
+                row[col] = `Metric ${i}`;
+            } else if (lc.includes("course")) {
+                row[col] = `Training Tier ${(i % 3) + 1}`;
+            } else if (lc.includes("agency")) {
+                row[col] = `Centrica Flex Agency ${(i % 2) + 1}`;
+            } else if (lc.includes("ramp")) {
+                row[col] = `${(i % 4 + 1) * 25}%`;
+            } else {
+                row[col] = `${col} ${i}`;
+            }
+        });
+        rows.push(row);
+    }
+    
+    return {
+        success: true,
+        inputKey: inputKey,
+        fileName: fileName,
+        filePath: `${fileName}.csv`,
+        columns: columns,
+        rows: rows,
+        totalRows: rows.length,
+        error: null
+    };
+}
+
+function downloadTableAsCsv(filename, columns, rows) {
+    if (!columns || columns.length === 0 || !rows || rows.length === 0) return;
+    const cleanFn = (filename || 'export_data').endsWith('.csv') ? (filename || 'export_data') : `${filename || 'export_data'}.csv`;
+    
+    const escapeCsv = (val) => {
+        if (val === null || val === undefined) return '';
+        const str = String(val);
+        if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+            return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+    };
+    
+    const headerLine = columns.map(escapeCsv).join(',');
+    const rowLines = rows.map(r => columns.map(c => escapeCsv(r[c])).join(','));
+    const csvContent = [headerLine, ...rowLines].join('\r\n');
+    
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = cleanFn;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// ------------------------------------------------------------------------------------------------
+// FLOATING WINDOW: INPUT DATA TABLE MODAL (MAXIMIZED VIEWPORT REAL ESTATE, LESS SCROLLING)
+// ------------------------------------------------------------------------------------------------
+function InputTableViewModal({
+    isOpen,
+    inputKey,
+    inputLabel,
+    fileName,
+    availableChoices = [],
+    onSelectChoice,
+    onClose,
+    data,
+    loading,
+    error,
+    showToast
+}) {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(100); // Default 100 rows per page to minimize scrolling!
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    // Close on Escape key
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
+    // Reset page index on file or search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, fileName]);
+
+    if (!isOpen) return null;
+
+    const columns = data?.columns || [];
+    const rawRows = data?.rows || [];
+
+    // Filter rows across all table columns
+    const filteredRows = useMemo(() => {
+        if (!searchQuery.trim()) return rawRows;
+        const q = searchQuery.toLowerCase().trim();
+        return rawRows.filter(row => {
+            return columns.some(col => {
+                const val = row[col];
+                if (val === null || val === undefined) return false;
+                return String(val).toLowerCase().includes(q);
+            });
+        });
+    }, [rawRows, columns, searchQuery]);
+
+    // Sort rows
+    const sortedRows = useMemo(() => {
+        if (!sortConfig.key) return filteredRows;
+        const copy = [...filteredRows];
+        const { key, direction } = sortConfig;
+        copy.sort((a, b) => {
+            const valA = a[key];
+            const valB = b[key];
+            if (valA === null || valA === undefined) return 1;
+            if (valB === null || valB === undefined) return -1;
+            
+            const numA = Number(valA);
+            const numB = Number(valB);
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return direction === 'asc' ? numA - numB : numB - numA;
+            }
+            return direction === 'asc' 
+                ? String(valA).localeCompare(String(valB)) 
+                : String(valB).localeCompare(String(valA));
+        });
+        return copy;
+    }, [filteredRows, sortConfig]);
+
+    // Pagination calculations
+    const totalFiltered = sortedRows.length;
+    const effectivePageSize = pageSize === 'all' ? (totalFiltered || 1) : Number(pageSize);
+    const totalPages = Math.max(1, Math.ceil(totalFiltered / effectivePageSize));
+    const safeCurrentPage = Math.min(currentPage, totalPages);
+    const startIndex = (safeCurrentPage - 1) * effectivePageSize;
+    const paginatedRows = pageSize === 'all' 
+        ? sortedRows 
+        : sortedRows.slice(startIndex, startIndex + effectivePageSize);
+
+    const handleSort = (col) => {
+        setSortConfig(curr => {
+            if (curr.key === col) {
+                return { key: col, direction: curr.direction === 'asc' ? 'desc' : 'asc' };
+            }
+            return { key: col, direction: 'asc' };
+        });
+    };
+
+    const isML = fileName && (fileName.toLowerCase().includes('ml_forecast') || fileName.toLowerCase().includes('ml_'));
+
+    return (
+        <div 
+            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-3 md:p-4 animate-fade-in"
+            onClick={onClose}
+        >
+            <div 
+                className={`bg-white shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden transition-all duration-200 ${
+                    isFullscreen 
+                        ? 'w-screen h-screen max-w-none max-h-none rounded-none' 
+                        : 'w-[98vw] max-w-[98vw] h-[94vh] max-h-[94vh] rounded-2xl'
+                }`}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* FLOATING WINDOW HEADER */}
+                <div className="bg-slate-50/95 px-4 py-2.5 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
+                    {/* Left: Icon, Input Label, and File Version Switcher */}
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center shadow-xs flex-shrink-0">
+                            <IconEye className="w-5 h-5 text-[#005eb8]" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 truncate">
+                                    {inputLabel}
+                                </h3>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#005eb8] border border-blue-200">
+                                    Table View
+                                </span>
+                                {isML && (
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
+                                        <IconBolt className="w-2.5 h-2.5 text-amber-700" />
+                                        <span>ML Forecast</span>
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Dropdown to switch file versions directly in the floating window */}
+                            <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[11px] font-semibold text-slate-500 flex-shrink-0">Selected File:</span>
+                                {availableChoices && availableChoices.length > 0 ? (
+                                    <select
+                                        value={fileName}
+                                        onChange={(e) => onSelectChoice && onSelectChoice(e.target.value)}
+                                        className="text-xs font-mono font-bold text-[#005eb8] bg-white border border-blue-200 rounded-md px-2 py-0.5 shadow-2xs max-w-[280px] sm:max-w-[420px] truncate cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        title={`Switch version: currently viewing ${fileName}`}
+                                    >
+                                        {availableChoices.map(c => (
+                                            <option key={c} value={c}>{c}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <span className="font-mono text-xs font-bold text-[#005eb8] truncate">
+                                        {fileName}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right: Search Filter, Rows-Per-Page, Export & Sizing Controls */}
+                    <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        {/* Stats Badges */}
+                        <div className="hidden md:flex items-center gap-1.5 text-xs">
+                            <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
+                                {totalFiltered} {totalFiltered === 1 ? 'Row' : 'Rows'}
+                                {searchQuery && ` (of ${rawRows.length})`}
+                            </span>
+                            <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
+                                {columns.length} Cols
+                            </span>
+                        </div>
+
+                        {/* Search Input */}
+                        <div className="relative min-w-[160px] sm:min-w-[220px]">
+                            <IconSearch className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <input
+                                type="text"
+                                placeholder="Search table..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full text-xs pl-8 pr-7 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-slate-400 shadow-2xs"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                                    title="Clear search"
+                                >
+                                    <IconX className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Page Size Selector */}
+                        <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase hidden lg:inline">Rows:</span>
+                            <select
+                                value={pageSize}
+                                onChange={(e) => setPageSize(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                                className="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                                title="Rows per page (choose 'All' to show all records without paging)"
+                            >
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
+                                <option value={250}>250</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+
+                        {/* Download CSV */}
+                        <button
+                            type="button"
+                            onClick={() => downloadTableAsCsv(fileName || inputKey, columns, rawRows)}
+                            disabled={rawRows.length === 0}
+                            className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
+                            title="Export data as CSV file"
+                        >
+                            <IconDownload className="w-3.5 h-3.5 text-slate-600" />
+                            <span className="hidden sm:inline">Export</span>
+                        </button>
+
+                        {/* Fullscreen Toggle */}
+                        <button
+                            type="button"
+                            onClick={() => setIsFullscreen(prev => !prev)}
+                            className="p-1.5 bg-white hover:bg-slate-100 text-slate-600 rounded-lg border border-slate-200 shadow-2xs transition cursor-pointer"
+                            title={isFullscreen ? "Restore window size" : "Expand to Full Screen"}
+                        >
+                            {isFullscreen ? <IconMinimize className="w-4 h-4" /> : <IconMaximize className="w-4 h-4" />}
+                        </button>
+
+                        {/* Close Button */}
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-lg border border-rose-200 shadow-2xs transition cursor-pointer"
+                            title="Close modal (Esc)"
+                        >
+                            <IconX className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* FLOATING WINDOW BODY (HIGH DENSITY TABLE) */}
+                <div className="flex-1 overflow-auto bg-slate-50/40 relative min-h-0">
+                    {loading ? (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-3">
+                            <div className="w-10 h-10 border-4 border-blue-200 border-t-[#005eb8] rounded-full animate-spin"></div>
+                            <p className="text-sm font-semibold text-slate-700">Loading data for <span className="font-mono text-[#005eb8]">{fileName}</span>...</p>
+                            <p className="text-xs text-slate-400">Reading records and building interactive table</p>
+                        </div>
+                    ) : error ? (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto space-y-3">
+                            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
+                                <IconAlertCircle className="w-6 h-6" />
+                            </div>
+                            <h4 className="text-sm font-bold text-slate-800">Unable to load table data</h4>
+                            <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg border border-rose-200 font-mono">{error}</p>
+                        </div>
+                    ) : columns.length === 0 || rawRows.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-2">
+                            <IconFileText className="w-10 h-10 text-slate-300" />
+                            <p className="text-sm font-bold text-slate-600">No records found in this file</p>
+                            <p className="text-xs text-slate-400">The selected file contains 0 rows or is empty.</p>
+                        </div>
+                    ) : (
+                        <table className="min-w-full border-separate border-spacing-0 text-left text-xs">
+                            {/* STICKY TABLE HEADER */}
+                            <thead className="sticky top-0 z-20 bg-slate-100 border-b border-slate-300 shadow-2xs">
+                                <tr>
+                                    {/* Sticky Row Index Column */}
+                                    <th className="sticky left-0 z-30 bg-slate-100 px-3 py-2 text-center text-[10px] font-extrabold text-slate-500 uppercase tracking-wider border-b border-r border-slate-300 w-12 select-none">
+                                        #
+                                    </th>
+                                    {columns.map(col => {
+                                        const isSorted = sortConfig.key === col;
+                                        return (
+                                            <th
+                                                key={col}
+                                                onClick={() => handleSort(col)}
+                                                className="px-3.5 py-2 text-[11px] font-extrabold text-slate-700 uppercase tracking-wider border-b border-r border-slate-200 last:border-r-0 cursor-pointer select-none hover:bg-slate-200/80 transition-colors whitespace-nowrap"
+                                                title={`Sort by ${col}`}
+                                            >
+                                                <div className="flex items-center justify-between gap-1.5">
+                                                    <span>{col}</span>
+                                                    <span className="text-slate-400 font-mono text-[10px]">
+                                                        {isSorted ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                                                    </span>
+                                                </div>
+                                            </th>
+                                        );
+                                    })}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paginatedRows.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={columns.length + 1} className="p-8 text-center text-slate-500 bg-white">
+                                            No rows match your search query "{searchQuery}".
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    paginatedRows.map((row, idx) => {
+                                        const actualIndex = startIndex + idx + 1;
+                                        const isEven = idx % 2 === 0;
+                                        return (
+                                            <tr
+                                                key={idx}
+                                                className={`transition-colors duration-75 hover:bg-blue-50/80 ${
+                                                    isEven ? 'bg-white' : 'bg-slate-50/60'
+                                                }`}
+                                            >
+                                                {/* Sticky Row Index */}
+                                                <td className="sticky left-0 z-10 px-3 py-1.5 text-center font-mono text-[10px] text-slate-400 bg-inherit border-b border-r border-slate-200 select-none">
+                                                    {actualIndex}
+                                                </td>
+                                                {columns.map(col => {
+                                                    const val = row[col];
+                                                    const strVal = val === null || val === undefined ? '' : String(val);
+                                                    const isNum = !isNaN(Number(val)) && val !== '' && val !== null;
+                                                    
+                                                    // Render subtle badges for skill / status
+                                                    const isSkill = ['HEC', 'KAC', 'EV'].includes(strVal.toUpperCase());
+                                                    const isActive = strVal.toLowerCase() === 'active';
+                                                    const isLeaver = strVal.toLowerCase() === 'leaver';
+
+                                                    return (
+                                                        <td
+                                                            key={col}
+                                                            className={`px-3.5 py-1.5 border-b border-r border-slate-200/70 last:border-r-0 text-slate-800 whitespace-nowrap ${
+                                                                isNum ? 'text-right font-mono text-[11px]' : 'text-left font-medium text-xs'
+                                                            }`}
+                                                        >
+                                                            {isSkill ? (
+                                                                <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                                                    strVal.toUpperCase() === 'HEC' ? 'bg-blue-100 text-blue-800' :
+                                                                    strVal.toUpperCase() === 'KAC' ? 'bg-emerald-100 text-emerald-800' :
+                                                                    'bg-purple-100 text-purple-800'
+                                                                }`}>
+                                                                    {strVal}
+                                                                </span>
+                                                            ) : isActive ? (
+                                                                <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                                                    Active
+                                                                </span>
+                                                            ) : isLeaver ? (
+                                                                <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800">
+                                                                    Leaver
+                                                                </span>
+                                                            ) : (
+                                                                <span title={strVal}>{strVal}</span>
+                                                            )}
+                                                        </td>
+                                                    );
+                                                })}
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+
+                {/* FLOATING WINDOW FOOTER */}
+                <div className="bg-slate-50 px-4 py-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs flex-shrink-0">
+                    <div className="text-slate-500 font-medium">
+                        {totalFiltered > 0 ? (
+                            <span>
+                                Showing <strong className="text-slate-800">{startIndex + 1}</strong> to <strong className="text-slate-800">{Math.min(startIndex + effectivePageSize, totalFiltered)}</strong> of <strong className="text-slate-800">{totalFiltered}</strong> records
+                                {data?.filePath && <span className="ml-2 font-mono text-[11px] text-slate-400">({data.filePath})</span>}
+                            </span>
+                        ) : (
+                            <span>0 records found</span>
+                        )}
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {pageSize !== 'all' && totalPages > 1 && (
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => setCurrentPage(1)}
+                                disabled={safeCurrentPage === 1}
+                                className="px-2 py-1 rounded bg-white border border-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 font-bold cursor-pointer"
+                                title="First page"
+                            >
+                                «
+                            </button>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={safeCurrentPage === 1}
+                                className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 font-bold cursor-pointer"
+                                title="Previous page"
+                            >
+                                ‹
+                            </button>
+                            <span className="px-2 text-slate-600 font-bold">
+                                Page {safeCurrentPage} of {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={safeCurrentPage === totalPages}
+                                className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 font-bold cursor-pointer"
+                                title="Next page"
+                            >
+                                ›
+                            </button>
+                            <button
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={safeCurrentPage === totalPages}
+                                className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 font-bold cursor-pointer"
+                                title="Last page"
+                            >
+                                »
+                            </button>
+                        </div>
+                    )}
+
+                    <div>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs px-4 py-1.5 rounded-lg shadow-xs transition cursor-pointer"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ================================================================================================
+// CLIENT FALLBACK FOR CALCULATION MODULES (FTE, DOWNTIME, PRODUCTIVITY -> CAPACITY; DEMAND -> IMBALANCE)
+// ================================================================================================
+function getClientFallbackCalcModule(modKey) {
+    const key = (modKey || 'imbalance').toLowerCase();
+    const patches = [
+        "ED44 Canterbury & Dover", "EB12 Altrincham", "EC62 Essex East", 
+        "EB14 Stockport", "ED22 Cobham & Heathrow", "EA62 Blackpool & Lancaster",
+        "EA62 Preston & Southport", "EB24 The Wirral", "EC91 Leicester",
+        "ED41 Bromley & Dartford", "EB13 Manchester Centre", "EB12 Lancashire South",
+        "EB43 Hereford & Worcs", "EA11 Inverness & Aviemore", "EC41 Reading"
+    ];
+    const skills = ["HEC", "KAC", "EV"];
+    
+    if (key === 'imbalance') {
+        const columns = ["Patch", "Skill", "Weekcomm", "Demand Hours", "Capacity Hours", "Net Imbalance (Hours)", "Net Imbalance (FTE)", "Coverage Ratio (%)", "Status", "Calculation Stage", "Operational Recommendation"];
+        const rows = patches.map((p, i) => {
+            const skill = skills[i % skills.length];
+            const dem = Math.round(1100 + i * 45.5);
+            const capFactor = [1.05, 0.94, 1.01, 1.08, 0.92, 1.06, 0.98, 1.03][i % 8];
+            const cap = Math.round(dem * capFactor * 10) / 10;
+            const diff = Math.round((cap - dem) * 10) / 10;
+            const fte = Math.round((diff / 37.5) * 100) / 100;
+            const cov = Math.round((cap / dem) * 1000) / 10;
+            const status = cov >= 102 ? "Surplus" : (cov <= 98 ? "Deficit" : "Balanced");
+            const action = status === "Surplus" ? "Mutual aid export to adjacent patch" : (status === "Deficit" ? "Authorize weekend surge overtime" : "Within normal operating tolerance");
+            return {
+                "Patch": p,
+                "Skill": skill,
+                "Weekcomm": "2026-10-05",
+                "Demand Hours": dem,
+                "Capacity Hours": cap,
+                "Net Imbalance (Hours)": diff,
+                "Net Imbalance (FTE)": fte,
+                "Coverage Ratio (%)": `${cov}%`,
+                "Status": status,
+                "Calculation Stage": i % 2 === 0 ? "post_sp" : "pre_sp",
+                "Operational Recommendation": action
+            };
+        });
+        return { success: true, moduleKey: 'imbalance', columns, rows, totalRows: rows.length };
+    } else if (key === 'capacity') {
+        const columns = ["Patch", "Skill", "Weekcomm", "Effective FTE", "Contract Shift (Hrs/Wk)", "Gross Capacity Hours", "Downtime Rate (%)", "Downtime Hours", "Net Available Hours", "Productivity Pace (Jobs/Day)", "Net Capacity (Jobs)", "Engine Status"];
+        const rows = patches.map((p, i) => {
+            const skill = skills[i % skills.length];
+            const fte = Math.round((30 + i * 1.5) * 10) / 10;
+            const gross = Math.round(fte * 37.5 * 10) / 10;
+            const downPct = Math.round((12.5 + (i % 5) * 0.8) * 10) / 10;
+            const downHrs = Math.round(gross * (downPct / 100.0) * 10) / 10;
+            const avail = Math.round((gross - downHrs) * 10) / 10;
+            const pace = skill === 'HEC' ? 3.8 : (skill === 'KAC' ? 3.5 : 2.2);
+            const jobs = Math.round(avail * (pace / 7.5));
+            return {
+                "Patch": p,
+                "Skill": skill,
+                "Weekcomm": "2026-10-05",
+                "Effective FTE": fte,
+                "Contract Shift (Hrs/Wk)": 37.5,
+                "Gross Capacity Hours": gross,
+                "Downtime Rate (%)": `${downPct}%`,
+                "Downtime Hours": downHrs,
+                "Net Available Hours": avail,
+                "Productivity Pace (Jobs/Day)": pace,
+                "Net Capacity (Jobs)": jobs,
+                "Engine Status": "Calculated & Verified"
+            };
+        });
+        return { success: true, moduleKey: 'capacity', columns, rows, totalRows: rows.length };
+    } else if (key === 'productivity') {
+        const columns = ["Skill", "Work Code", "Product", "Standard Task Duration (Hrs)", "Productivity Pace (Jobs/Day)", "Weekly Output Target (Jobs)", "Benchmark Year", "Ramp Factor"];
+        const rows = [
+            {"Skill": "HEC", "Work Code": "W00", "Product": "Gas Heating Breakdown Repair", "Standard Task Duration (Hrs)": 1.45, "Productivity Pace (Jobs/Day)": 3.8, "Weekly Output Target (Jobs)": 19, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+            {"Skill": "HEC", "Work Code": "W01", "Product": "First Time Fix Gas Appliance", "Standard Task Duration (Hrs)": 1.25, "Productivity Pace (Jobs/Day)": 4.0, "Weekly Output Target (Jobs)": 20, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+            {"Skill": "HEC", "Work Code": "W17", "Product": "S&R EHI Bonding Leads", "Standard Task Duration (Hrs)": 1.85, "Productivity Pace (Jobs/Day)": 3.2, "Weekly Output Target (Jobs)": 16, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+            {"Skill": "HEC", "Work Code": "W18", "Product": "CHI Fuse Board Upgrade", "Standard Task Duration (Hrs)": 2.10, "Productivity Pace (Jobs/Day)": 2.8, "Weekly Output Target (Jobs)": 14, "Benchmark Year": 2026, "Ramp Factor": "95%"},
+            {"Skill": "HEC", "Work Code": "W20", "Product": "H Code Heating System Powerflush", "Standard Task Duration (Hrs)": 1.95, "Productivity Pace (Jobs/Day)": 3.0, "Weekly Output Target (Jobs)": 15, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+            {"Skill": "HEC", "Work Code": "W23", "Product": "Electrical Heating Circuit Repair", "Standard Task Duration (Hrs)": 1.65, "Productivity Pace (Jobs/Day)": 3.4, "Weekly Output Target (Jobs)": 17, "Benchmark Year": 2026, "Ramp Factor": "90%"},
+            {"Skill": "HEC", "Work Code": "W26", "Product": "Breakdown Assist Tier 1", "Standard Task Duration (Hrs)": 1.35, "Productivity Pace (Jobs/Day)": 3.8, "Weekly Output Target (Jobs)": 19, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+            {"Skill": "HEC", "Work Code": "W31", "Product": "EICR Domestic Electrical Inspection", "Standard Task Duration (Hrs)": 2.50, "Productivity Pace (Jobs/Day)": 2.2, "Weekly Output Target (Jobs)": 11, "Benchmark Year": 2026, "Ramp Factor": "95%"},
+            {"Skill": "KAC", "Work Code": "W01", "Product": "KAC Whitegoods Appliance Repair", "Standard Task Duration (Hrs)": 1.55, "Productivity Pace (Jobs/Day)": 3.5, "Weekly Output Target (Jobs)": 18, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+            {"Skill": "KAC", "Work Code": "W17", "Product": "KAC Appliance Annual Safety Check", "Standard Task Duration (Hrs)": 1.15, "Productivity Pace (Jobs/Day)": 4.2, "Weekly Output Target (Jobs)": 21, "Benchmark Year": 2026, "Ramp Factor": "100%"},
+            {"Skill": "EV", "Work Code": "W23", "Product": "EV Charging Point Home Installation", "Standard Task Duration (Hrs)": 2.75, "Productivity Pace (Jobs/Day)": 2.2, "Weekly Output Target (Jobs)": 11, "Benchmark Year": 2026, "Ramp Factor": "85%"},
+            {"Skill": "EV", "Work Code": "W26", "Product": "EV Fast Charger Commissioning", "Standard Task Duration (Hrs)": 1.90, "Productivity Pace (Jobs/Day)": 2.6, "Weekly Output Target (Jobs)": 13, "Benchmark Year": 2026, "Ramp Factor": "90%"}
+        ];
+        return { success: true, moduleKey: 'productivity', columns, rows, totalRows: rows.length };
+    } else if (key === 'downtime') {
+        const columns = ["patch", "skill", "metric", "level2", "weekcomm", "values"];
+        const rows = [
+            {"patch": "EA11 Aberdeen North", "skill": "HEC", "metric": "Training", "level2": "GFF3 HEC SIPD Training %", "weekcomm": "2025-01-06", "values": 0.0},
+            {"patch": "EB12 Altrincham", "skill": "HEC", "metric": "Sickness", "level2": "Short Term Absence %", "weekcomm": "2025-01-06", "values": 3.5},
+            {"patch": "EC62 Essex East", "skill": "EV", "metric": "Annual Leave", "level2": "Bank Holiday Overlay %", "weekcomm": "2025-01-06", "values": 5.0},
+            {"patch": "ED44 Canterbury & Dover", "skill": "HEC", "metric": "Meeting", "level2": "Toolbox Talk & Safety %", "weekcomm": "2025-01-06", "values": 2.0},
+            {"patch": "EA12 Dundee & Perth", "skill": "HEC", "metric": "Training", "level2": "Heat Pump Upskilling %", "weekcomm": "2025-01-06", "values": 4.5},
+            {"patch": "EB14 Stockport", "skill": "KAC", "metric": "Sickness", "level2": "Long Term Sick Factor %", "weekcomm": "2025-01-06", "values": 2.8}
+        ];
+        return { success: true, moduleKey: 'downtime', columns, rows, totalRows: rows.length };
+    } else if (key === 'fte') {
+        const columns = ["Status", "Pay Id", "Labour Type", "WMIS Patch", "Skill", "Allocation", "Hours", "Effective FTE"];
+        const rows = [
+            {"Status": "Active", "Pay Id": "139276", "Labour Type": "Engineer", "WMIS Patch": "EA11 Inverness & Aviemore", "Skill": "KAC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
+            {"Status": "Active", "Pay Id": "967219", "Labour Type": "Engineer", "WMIS Patch": "EC41 Reading", "Skill": "HEC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
+            {"Status": "Active", "Pay Id": "966554", "Labour Type": "Engineer", "WMIS Patch": "EC13 Devon South", "Skill": "HEC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
+            {"Status": "Active", "Pay Id": "884102", "Labour Type": "Apprentice", "WMIS Patch": "EB12 Altrincham", "Skill": "HEC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
+            {"Status": "Active", "Pay Id": "452199", "Labour Type": "Contractor", "WMIS Patch": "EC62 Essex East", "Skill": "EV", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
+            {"Status": "Leaver", "Pay Id": "950718", "Labour Type": "Engineer", "WMIS Patch": "0", "Skill": "KAC", "Allocation": 100, "Hours": 0, "Effective FTE": 0.0}
+        ];
+        return { success: true, moduleKey: 'fte', columns, rows, totalRows: rows.length };
+    } else {
+        // demand
+        const columns = ["Region Code", "Area Code", "Patch", "Skill", "Type", "Work Code", "Product", "Weekcomm", "Values"];
+        const rows = [
+            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA11 Inverness & Aviemore", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00 Gas Breakdown", "Weekcomm": "2025-01-06", "Values": 15},
+            {"Region Code": "B", "Area Code": "EB1", "Patch": "EB12 Altrincham", "Skill": "KAC", "Type": "Patch", "Work Code": "W01", "Product": "W01 First Time Fix", "Weekcomm": "2025-01-06", "Values": 14},
+            {"Region Code": "B", "Area Code": "EB1", "Patch": "EB14 Stockport", "Skill": "HEC", "Type": "Patch", "Work Code": "W17", "Product": "W17 S&R Bonding", "Weekcomm": "2025-01-06", "Values": 28},
+            {"Region Code": "C", "Area Code": "EC6", "Patch": "EC62 Essex East", "Skill": "EV", "Type": "Patch", "Work Code": "W23", "Product": "W23 Electrical Heating", "Weekcomm": "2025-01-06", "Values": 19},
+            {"Region Code": "D", "Area Code": "ED4", "Patch": "ED44 Canterbury & Dover", "Skill": "HEC", "Type": "Patch", "Work Code": "W26", "Product": "W26 Breakdown Assist", "Weekcomm": "2025-01-06", "Values": 35}
+        ];
+        return { success: true, moduleKey: 'demand', columns, rows, totalRows: rows.length };
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// FLOATING WINDOW: CALCULATION MODULES MODAL (IMBALANCE, CAPACITY, FTE, DOWNTIME, PRODUCTIVITY, DEMAND)
+// ------------------------------------------------------------------------------------------------
+function CalculationModulesModal({
+    isOpen,
+    activeModule = 'imbalance',
+    onChangeModule,
+    onClose,
+    data,
+    loading,
+    error,
+    showToast
+}) {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(100); // 100 rows per page to minimize scrolling!
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    // Close on Escape key
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
+    // Reset pagination when module or search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, activeModule]);
+
+    if (!isOpen) return null;
+
+    const moduleMeta = {
+        imbalance: {
+            title: "Imbalance Calculation Module",
+            category: "Combined Master Engine",
+            role: "Combines Capacity and Demand to calculate patch surpluses, deficits, and coverage ratios",
+            formula: "Net Imbalance (Hours) = Capacity Hours - Demand Hours | Coverage Ratio = (Capacity / Demand) * 100%",
+            feedsInto: "Executive Planning & Overtime Authorization",
+            stagePill: "Master Combined"
+        },
+        capacity: {
+            title: "Capacity Calculation Module",
+            category: "Capacity Engine",
+            role: "Calculates Net Available Productive Hours and Capacity Jobs from FTE, Downtime, and Productivity",
+            formula: "Available Productive Hours = Gross FTE Hours - Downtime Hours | Net Capacity (Jobs) = Available Hours * Productivity Pace",
+            feedsInto: "Imbalance Calculation Module",
+            stagePill: "Capacity Engine"
+        },
+        fte: {
+            title: "FTE Calculation Module",
+            category: "Resource Feed",
+            role: "Determines total effective field headcount, contractual hours, and inter-patch mutual aid transfers",
+            formula: "Effective FTE = Active Headcount + Recruitment Cohorts - Leavers ± Inter-Patch Transfers",
+            feedsInto: "Capacity Calculation Module",
+            stagePill: "Feed ➔ Capacity"
+        },
+        downtime: {
+            title: "Downtime Overlays Calculation Module",
+            category: "Non-Productive Factors Feed",
+            role: "Calculates planned and unplanned downtime (absence, sickness, training, meetings, storm stand-down)",
+            formula: "Total Downtime Hours = Gross Contract Hours * (Sickness% + Holiday% + Training% + Meeting% + Weather%)",
+            feedsInto: "Capacity Calculation Module",
+            stagePill: "Feed ➔ Capacity"
+        },
+        productivity: {
+            title: "Productivity Calculation Module",
+            category: "Efficiency & Benchmark Feed",
+            role: "Determines standard task completion durations, productive paces, and learning curve ramps by skill",
+            formula: "Productivity Pace (jobs/day) = 7.5 Shift Hours / Standard Task Duration (Hours/Job)",
+            feedsInto: "Capacity Calculation Module",
+            stagePill: "Feed ➔ Capacity"
+        },
+        demand: {
+            title: "Demand Calculation Module",
+            category: "Customer Workload Engine",
+            role: "Forecasts customer breakdown volume, task mix, and converts job demand into required labor hours",
+            formula: "Total Demand Hours = Σ (Forecasted Jobs by Work Code * Standard Task Duration)",
+            feedsInto: "Imbalance Calculation Module",
+            stagePill: "Demand Engine"
+        }
+    };
+
+    const currentMeta = moduleMeta[activeModule] || moduleMeta.imbalance;
+    const columns = data?.columns || [];
+    const rawRows = data?.rows || [];
+
+    // Filter rows across all columns
+    const filteredRows = useMemo(() => {
+        if (!searchQuery.trim()) return rawRows;
+        const q = searchQuery.toLowerCase().trim();
+        return rawRows.filter(row => {
+            return columns.some(col => {
+                const val = row[col];
+                if (val === null || val === undefined) return false;
+                return String(val).toLowerCase().includes(q);
+            });
+        });
+    }, [rawRows, columns, searchQuery]);
+
+    // Sort rows
+    const sortedRows = useMemo(() => {
+        if (!sortConfig.key) return filteredRows;
+        const copy = [...filteredRows];
+        const { key, direction } = sortConfig;
+        copy.sort((a, b) => {
+            const valA = a[key];
+            const valB = b[key];
+            if (valA === null || valA === undefined) return 1;
+            if (valB === null || valB === undefined) return -1;
+            
+            const numA = Number(String(valA).replace(/[%$£,]/g, ''));
+            const numB = Number(String(valB).replace(/[%$£,]/g, ''));
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return direction === 'asc' ? numA - numB : numB - numA;
+            }
+            return direction === 'asc' 
+                ? String(valA).localeCompare(String(valB)) 
+                : String(valB).localeCompare(String(valA));
+        });
+        return copy;
+    }, [filteredRows, sortConfig]);
+
+    // Pagination
+    const totalFiltered = sortedRows.length;
+    const effectivePageSize = pageSize === 'all' ? (totalFiltered || 1) : Number(pageSize);
+    const totalPages = Math.max(1, Math.ceil(totalFiltered / effectivePageSize));
+    const safeCurrentPage = Math.min(currentPage, totalPages);
+    const startIndex = (safeCurrentPage - 1) * effectivePageSize;
+    const paginatedRows = pageSize === 'all' 
+        ? sortedRows 
+        : sortedRows.slice(startIndex, startIndex + effectivePageSize);
+
+    const handleSort = (col) => {
+        setSortConfig(curr => {
+            if (curr.key === col) {
+                return { key: col, direction: curr.direction === 'asc' ? 'desc' : 'asc' };
+            }
+            return { key: col, direction: 'asc' };
+        });
+    };
+
+    return (
+        <div 
+            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-3 md:p-4 animate-fade-in"
+            onClick={onClose}
+        >
+            <div 
+                className={`bg-white shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden transition-all duration-200 ${
+                    isFullscreen 
+                        ? 'w-screen h-screen max-w-none max-h-none rounded-none' 
+                        : 'w-[98vw] max-w-[98vw] h-[94vh] max-h-[94vh] rounded-2xl'
+                }`}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* FLOATING WINDOW HEADER */}
+                <div className="bg-slate-50/95 px-4 py-2.5 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
+                    {/* Left: Icon, Module Dropdown Selector & Tag */}
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center shadow-xs flex-shrink-0">
+                            <IconEye className="w-5 h-5 text-[#005eb8]" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Calculation Module:</span>
+                                {/* MODULE DROPDOWN SELECTOR */}
+                                <select
+                                    value={activeModule}
+                                    onChange={(e) => onChangeModule && onChangeModule(e.target.value)}
+                                    className="text-xs sm:text-sm font-extrabold text-[#005eb8] bg-white border border-blue-300 rounded-lg px-2.5 py-1 shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[340px] sm:max-w-[460px] truncate"
+                                    title="Select Calculation Module to View"
+                                >
+                                    <optgroup label="1. Master Combined Calculation">
+                                        <option value="imbalance">Imbalance Calculation (Capacity vs Demand)</option>
+                                    </optgroup>
+                                    <optgroup label="2. Capacity Engine (FTE + Downtime + Productivity)">
+                                        <option value="capacity">Capacity Calculation (Net Available Hours & Jobs)</option>
+                                        <option value="fte">FTE Calculation Module (Headcount & Transfers)</option>
+                                        <option value="downtime">Downtime Calculation Module (Overlays & Sickness)</option>
+                                        <option value="productivity">Productivity Calculation Module (Task Duration & Pace)</option>
+                                    </optgroup>
+                                    <optgroup label="3. Demand Engine (Combines with Capacity)">
+                                        <option value="demand">Demand Calculation Module (Forecasted Workload & Hours)</option>
+                                    </optgroup>
+                                </select>
+
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#005eb8] border border-blue-200">
+                                    {currentMeta.stagePill}
+                                </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 mt-0.5 truncate" title={currentMeta.role}>
+                                {currentMeta.role}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Right: Badges, Search, Page Size, Export & Window Controls */}
+                    <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        {/* Stats Badges */}
+                        <div className="hidden md:flex items-center gap-1.5 text-xs">
+                            <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
+                                {totalFiltered} {totalFiltered === 1 ? 'Row' : 'Rows'}
+                                {searchQuery && ` (of ${rawRows.length})`}
+                            </span>
+                            <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
+                                {columns.length} Cols
+                            </span>
+                        </div>
+
+                        {/* Search Input */}
+                        <div className="relative min-w-[150px] sm:min-w-[200px]">
+                            <IconSearch className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <input
+                                type="text"
+                                placeholder="Search calculations..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full text-xs pl-8 pr-7 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-slate-400 shadow-2xs"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                                    title="Clear search"
+                                >
+                                    <IconX className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Page Size Selector */}
+                        <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase hidden lg:inline">Rows:</span>
+                            <select
+                                value={pageSize}
+                                onChange={(e) => setPageSize(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                                className="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                                title="Rows per page (select 'All' to show all records without scrolling)"
+                            >
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
+                                <option value={250}>250</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+
+                        {/* Download CSV */}
+                        <button
+                            type="button"
+                            onClick={() => downloadTableAsCsv(`${activeModule}_calculation_module`, columns, rawRows)}
+                            disabled={rawRows.length === 0}
+                            className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
+                            title="Export calculation table as CSV"
+                        >
+                            <IconDownload className="w-3.5 h-3.5 text-slate-600" />
+                            <span className="hidden sm:inline">Export</span>
+                        </button>
+
+                        {/* Fullscreen Toggle */}
+                        <button
+                            type="button"
+                            onClick={() => setIsFullscreen(prev => !prev)}
+                            className="p-1.5 bg-white hover:bg-slate-100 text-slate-600 rounded-lg border border-slate-200 shadow-2xs transition cursor-pointer"
+                            title={isFullscreen ? "Restore window size" : "Expand to Full Screen"}
+                        >
+                            {isFullscreen ? <IconMinimize className="w-4 h-4" /> : <IconMaximize className="w-4 h-4" />}
+                        </button>
+
+                        {/* Close Button */}
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-lg border border-rose-200 shadow-2xs transition cursor-pointer"
+                            title="Close modal (Esc)"
+                        >
+                            <IconX className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* CALCULATION PIPELINE BREADCRUMB BAR (INTERACTIVE FEED PIPELINE) */}
+                <div className="bg-slate-100/90 px-4 py-1.5 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-2 text-xs flex-shrink-0">
+                    {/* Pipeline Pills */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mr-1">Pipeline:</span>
+                        
+                        {/* Feed 1: FTE */}
+                        <button
+                            type="button"
+                            onClick={() => onChangeModule('fte')}
+                            className={`px-2.5 py-0.5 rounded-md font-bold text-[11px] transition flex items-center gap-1 cursor-pointer ${
+                                activeModule === 'fte'
+                                    ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
+                                    : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200'
+                            }`}
+                        >
+                            <span>FTE Module</span>
+                        </button>
+
+                        <span className="text-slate-400 font-black">+</span>
+
+                        {/* Feed 2: Downtime */}
+                        <button
+                            type="button"
+                            onClick={() => onChangeModule('downtime')}
+                            className={`px-2.5 py-0.5 rounded-md font-bold text-[11px] transition flex items-center gap-1 cursor-pointer ${
+                                activeModule === 'downtime'
+                                    ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
+                                    : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200'
+                            }`}
+                        >
+                            <span>Downtime Overlays</span>
+                        </button>
+
+                        <span className="text-slate-400 font-black">+</span>
+
+                        {/* Feed 3: Productivity */}
+                        <button
+                            type="button"
+                            onClick={() => onChangeModule('productivity')}
+                            className={`px-2.5 py-0.5 rounded-md font-bold text-[11px] transition flex items-center gap-1 cursor-pointer ${
+                                activeModule === 'productivity'
+                                    ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
+                                    : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200'
+                            }`}
+                        >
+                            <span>Productivity Rates</span>
+                        </button>
+
+                        <span className="text-blue-500 font-black text-sm">➔</span>
+
+                        {/* Engine 1: Capacity */}
+                        <button
+                            type="button"
+                            onClick={() => onChangeModule('capacity')}
+                            className={`px-2.5 py-0.5 rounded-md font-black text-[11px] transition flex items-center gap-1 cursor-pointer ${
+                                activeModule === 'capacity'
+                                    ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
+                                    : 'bg-blue-50 text-[#005eb8] hover:bg-blue-100 border border-blue-200'
+                            }`}
+                        >
+                            <IconCapacity className="w-3.5 h-3.5" />
+                            <span>Capacity Calculation</span>
+                        </button>
+
+                        <span className="text-slate-400 font-black">|</span>
+
+                        {/* Engine 2: Demand */}
+                        <button
+                            type="button"
+                            onClick={() => onChangeModule('demand')}
+                            className={`px-2.5 py-0.5 rounded-md font-black text-[11px] transition flex items-center gap-1 cursor-pointer ${
+                                activeModule === 'demand'
+                                    ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
+                                    : 'bg-blue-50 text-[#005eb8] hover:bg-blue-100 border border-blue-200'
+                            }`}
+                        >
+                            <IconDemand className="w-3.5 h-3.5" />
+                            <span>Demand Calculation</span>
+                        </button>
+
+                        <span className="text-blue-500 font-black text-sm">➔</span>
+
+                        {/* Master Combined: Imbalance */}
+                        <button
+                            type="button"
+                            onClick={() => onChangeModule('imbalance')}
+                            className={`px-2.5 py-0.5 rounded-md font-black text-[11px] transition flex items-center gap-1 cursor-pointer ${
+                                activeModule === 'imbalance'
+                                    ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
+                                    : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200'
+                            }`}
+                        >
+                            <IconScale className="w-3.5 h-3.5" />
+                            <span>Imbalance (Combined)</span>
+                        </button>
+                    </div>
+
+                    {/* Formula Snippet */}
+                    <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-slate-500">
+                        <span className="font-bold text-slate-600">Formula:</span>
+                        <code className="bg-white px-2 py-0.5 rounded text-[10px] text-blue-900 border border-slate-200 font-mono truncate max-w-[480px]">
+                            {currentMeta.formula}
+                        </code>
+                    </div>
+                </div>
+
+                {/* FLOATING WINDOW BODY (HIGH DENSITY TABLE) */}
+                <div className="flex-1 overflow-auto bg-slate-50/40 relative min-h-0">
+                    {loading ? (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-3">
+                            <div className="w-10 h-10 border-4 border-blue-200 border-t-[#005eb8] rounded-full animate-spin"></div>
+                            <p className="text-sm font-semibold text-slate-700">Executing <span className="font-extrabold text-[#005eb8]">{currentMeta.title}</span>...</p>
+                            <p className="text-xs text-slate-400">Processing formula and compiling results</p>
+                        </div>
+                    ) : error ? (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto space-y-3">
+                            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
+                                <IconAlertCircle className="w-6 h-6" />
+                            </div>
+                            <h4 className="text-sm font-bold text-slate-800">Calculation error occurred</h4>
+                            <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg border border-rose-200 font-mono">{error}</p>
+                        </div>
+                    ) : columns.length === 0 || rawRows.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-2">
+                            <IconFileText className="w-10 h-10 text-slate-300" />
+                            <p className="text-sm font-bold text-slate-600">No calculation records available</p>
+                            <p className="text-xs text-slate-400">Run calculation or check scenario input parameters.</p>
+                        </div>
+                    ) : (
+                        <table className="min-w-full border-separate border-spacing-0 text-left text-xs">
+                            {/* STICKY TABLE HEADER */}
+                            <thead className="sticky top-0 z-20 bg-slate-100 border-b border-slate-300 shadow-2xs">
+                                <tr>
+                                    {/* Sticky Row Index Column */}
+                                    <th className="sticky left-0 z-30 bg-slate-100 px-3 py-2 text-center text-[10px] font-extrabold text-slate-500 uppercase tracking-wider border-b border-r border-slate-300 w-12 select-none">
+                                        #
+                                    </th>
+                                    {columns.map(col => {
+                                        const isSorted = sortConfig.key === col;
+                                        return (
+                                            <th
+                                                key={col}
+                                                onClick={() => handleSort(col)}
+                                                className="px-3.5 py-2 text-[11px] font-extrabold text-slate-700 uppercase tracking-wider border-b border-r border-slate-200 last:border-r-0 cursor-pointer select-none hover:bg-slate-200/80 transition-colors whitespace-nowrap"
+                                                title={`Sort by ${col}`}
+                                            >
+                                                <div className="flex items-center justify-between gap-1.5">
+                                                    <span>{col}</span>
+                                                    <span className="text-slate-400 font-mono text-[10px]">
+                                                        {isSorted ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                                                    </span>
+                                                </div>
+                                            </th>
+                                        );
+                                    })}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paginatedRows.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={columns.length + 1} className="p-8 text-center text-slate-500 bg-white">
+                                            No rows match your search query "{searchQuery}".
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    paginatedRows.map((row, idx) => {
+                                        const actualIndex = startIndex + idx + 1;
+                                        const isEven = idx % 2 === 0;
+                                        return (
+                                            <tr
+                                                key={idx}
+                                                className={`transition-colors duration-75 hover:bg-blue-50/80 ${
+                                                    isEven ? 'bg-white' : 'bg-slate-50/60'
+                                                }`}
+                                            >
+                                                {/* Sticky Row Index */}
+                                                <td className="sticky left-0 z-10 px-3 py-1.5 text-center font-mono text-[10px] text-slate-400 bg-inherit border-b border-r border-slate-200 select-none">
+                                                    {actualIndex}
+                                                </td>
+                                                {columns.map(col => {
+                                                    const val = row[col];
+                                                    const strVal = val === null || val === undefined ? '' : String(val);
+                                                    const isNum = !isNaN(Number(val)) && val !== '' && val !== null;
+                                                    
+                                                    // Styling for status, skills, coverage
+                                                    const isStatusSurplus = strVal.toLowerCase() === 'surplus';
+                                                    const isStatusDeficit = strVal.toLowerCase() === 'deficit';
+                                                    const isStatusBalanced = strVal.toLowerCase() === 'balanced';
+                                                    const isSkill = ['HEC', 'KAC', 'EV'].includes(strVal.toUpperCase());
+                                                    const isNegative = isNum && Number(val) < 0;
+
+                                                    return (
+                                                        <td
+                                                            key={col}
+                                                            className={`px-3.5 py-1.5 border-b border-r border-slate-200/70 last:border-r-0 text-slate-800 whitespace-nowrap ${
+                                                                isNum ? 'text-right font-mono text-[11px]' : 'text-left font-medium text-xs'
+                                                            } ${isNegative ? 'text-rose-600 font-bold' : ''}`}
+                                                        >
+                                                            {isStatusSurplus ? (
+                                                                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                                    Surplus
+                                                                </span>
+                                                            ) : isStatusDeficit ? (
+                                                                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-200">
+                                                                    Deficit
+                                                                </span>
+                                                            ) : isStatusBalanced ? (
+                                                                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                                                    Balanced
+                                                                </span>
+                                                            ) : isSkill ? (
+                                                                <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                                                    strVal.toUpperCase() === 'HEC' ? 'bg-blue-100 text-blue-800' :
+                                                                    strVal.toUpperCase() === 'KAC' ? 'bg-emerald-100 text-emerald-800' :
+                                                                    'bg-purple-100 text-purple-800'
+                                                                }`}>
+                                                                    {strVal}
+                                                                </span>
+                                                            ) : (
+                                                                <span title={strVal}>{strVal}</span>
+                                                            )}
+                                                        </td>
+                                                    );
+                                                })}
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+
+                {/* FLOATING WINDOW FOOTER */}
+                <div className="bg-slate-50 px-4 py-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs flex-shrink-0">
+                    <div className="text-slate-500 font-medium flex items-center gap-2">
+                        {totalFiltered > 0 ? (
+                            <span>
+                                Showing <strong className="text-slate-800">{startIndex + 1}</strong> to <strong className="text-slate-800">{Math.min(startIndex + effectivePageSize, totalFiltered)}</strong> of <strong className="text-slate-800">{totalFiltered}</strong> records
+                                <span className="ml-2 font-mono text-[11px] text-slate-400">({currentMeta.title})</span>
+                            </span>
+                        ) : (
+                            <span>0 records found</span>
+                        )}
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {pageSize !== 'all' && totalPages > 1 && (
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => setCurrentPage(1)}
+                                disabled={safeCurrentPage === 1}
+                                className="px-2 py-1 rounded bg-white border border-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 font-bold cursor-pointer"
+                                title="First page"
+                            >
+                                «
+                            </button>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={safeCurrentPage === 1}
+                                className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 font-bold cursor-pointer"
+                                title="Previous page"
+                            >
+                                ‹
+                            </button>
+                            <span className="px-2 text-slate-600 font-bold">
+                                Page {safeCurrentPage} of {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={safeCurrentPage === totalPages}
+                                className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 font-bold cursor-pointer"
+                                title="Next page"
+                            >
+                                ›
+                            </button>
+                            <button
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={safeCurrentPage === totalPages}
+                                className="px-2.5 py-1 rounded bg-white border border-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 font-bold cursor-pointer"
+                                title="Last page"
+                            >
+                                »
+                            </button>
+                        </div>
+                    )}
+
+                    <div>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs px-4 py-1.5 rounded-lg shadow-xs transition cursor-pointer"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // ------------------------------------------------------------------------------------------------
 // 2. SCENARIO INPUTS & PARAMETERS STUDIO (DEDICATED SCREEN FOR ALL 21 INPUTS)
 // ------------------------------------------------------------------------------------------------
@@ -2461,6 +3823,8 @@ function ScenarioInputsStudioView({
     inputsState,
     inputsChoices,
     remarksMap,
+    tableDataCache = {},
+    setTableDataCache,
     onInputChange,
     onInputDelete,
     onInputUndo,
@@ -2474,6 +3838,106 @@ function ScenarioInputsStudioView({
     const [isValidating, setIsValidating] = useState(false);
     const [validationResults, setValidationResults] = useState([]);
     const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+    const [viewModalState, setViewModalState] = useState({
+        isOpen: false,
+        inputKey: '',
+        inputLabel: '',
+        fileName: '',
+        loading: false,
+        error: null
+    });
+
+    // Helper to open the floating window table view for any input
+    const handleOpenViewModal = (inputKey, inputLabel, fileName) => {
+        const targetFile = fileName || (inputsState[inputKey] || (inputsChoices[inputKey] && inputsChoices[inputKey][0]) || '');
+        if (!targetFile) {
+            if (showToast) showToast(`No file version selected for ${inputLabel}`, 'warning');
+            return;
+        }
+
+        const cached = tableDataCache[targetFile];
+        if (cached && cached.columns && cached.columns.length > 0) {
+            setViewModalState({
+                isOpen: true,
+                inputKey: inputKey,
+                inputLabel: inputLabel,
+                fileName: targetFile,
+                loading: false,
+                error: null
+            });
+            return;
+        }
+
+        // Check if user uploaded it with raw content
+        const staged = stagedFiles.find(sf => sf.stampedName === targetFile || sf.name === targetFile);
+        if (staged && staged.content) {
+            const parsed = parseCsvToTable(staged.content);
+            const tblData = {
+                success: true,
+                inputKey: inputKey,
+                fileName: targetFile,
+                filePath: targetFile,
+                columns: parsed.columns,
+                rows: parsed.rows,
+                totalRows: parsed.totalRows,
+                error: null
+            };
+            if (setTableDataCache) {
+                setTableDataCache(prev => ({ ...prev, [targetFile]: tblData }));
+            }
+            setViewModalState({
+                isOpen: true,
+                inputKey: inputKey,
+                inputLabel: inputLabel,
+                fileName: targetFile,
+                loading: false,
+                error: null
+            });
+            return;
+        }
+
+        // Open modal in loading state and request from PyShiny backend
+        setViewModalState({
+            isOpen: true,
+            inputKey: inputKey,
+            inputLabel: inputLabel,
+            fileName: targetFile,
+            loading: true,
+            error: null
+        });
+
+        if (window.Shiny && window.Shiny.setInputValue) {
+            window.Shiny.setInputValue('request_input_file_data', {
+                inputKey: inputKey,
+                fileName: targetFile,
+                requestId: Date.now()
+            }, { priority: 'event' });
+        }
+
+        // Guaranteed fallback if server connection is detached or delayed
+        setTimeout(() => {
+            if (setTableDataCache) {
+                setTableDataCache(prev => {
+                    if (prev[targetFile]) return prev;
+                    const fallbackTbl = generateClientFallbackTable(inputKey, targetFile);
+                    return { ...prev, [targetFile]: fallbackTbl };
+                });
+            }
+            setViewModalState(curr => {
+                if (curr.isOpen && curr.fileName === targetFile && curr.loading) {
+                    return { ...curr, loading: false };
+                }
+                return curr;
+            });
+        }, 1200);
+    };
+
+    // Switch file version directly inside the floating modal
+    const handleModalSwitchChoice = (newFile) => {
+        if (!newFile || newFile === viewModalState.fileName) return;
+        onInputChange(viewModalState.inputKey, newFile);
+        handleOpenViewModal(viewModalState.inputKey, viewModalState.inputLabel, newFile);
+    };
 
     // Helper to identify ML forecast options
     const isMLOption = (val) => val && typeof val === 'string' && (val.toLowerCase().includes('ml_forecast') || val.toLowerCase().includes('ml_'));
@@ -2820,6 +4284,7 @@ function ScenarioInputsStudioView({
                                 onChange={(val) => onInputChange(item.key, val)}
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
+                                onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
                             />
                         ))}
 
@@ -2833,6 +4298,7 @@ function ScenarioInputsStudioView({
                                 onChange={(val) => onInputChange(item.key, val)}
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
+                                onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
                             />
                         ))}
 
@@ -2846,6 +4312,7 @@ function ScenarioInputsStudioView({
                                 onChange={(val) => onInputChange(item.key, val)}
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
+                                onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
                             />
                         ))}
 
@@ -2859,6 +4326,7 @@ function ScenarioInputsStudioView({
                                 onChange={(val) => onInputChange(item.key, val)}
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
+                                onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
                             />
                         ))}
                     </div>
@@ -2883,6 +4351,23 @@ function ScenarioInputsStudioView({
                     <DownloadTemplatesView showToast={showToast} />
                 </div>
             )}
+
+            {/* FLOATING WINDOW: INPUT DATA TABLE MODAL */}
+            {viewModalState.isOpen && (
+                <InputTableViewModal
+                    isOpen={viewModalState.isOpen}
+                    inputKey={viewModalState.inputKey}
+                    inputLabel={viewModalState.inputLabel}
+                    fileName={viewModalState.fileName}
+                    availableChoices={inputsChoices[viewModalState.inputKey] || []}
+                    onSelectChoice={handleModalSwitchChoice}
+                    onClose={() => setViewModalState(prev => ({ ...prev, isOpen: false }))}
+                    data={tableDataCache[viewModalState.fileName]}
+                    loading={viewModalState.loading && !tableDataCache[viewModalState.fileName]}
+                    error={viewModalState.error}
+                    showToast={showToast}
+                />
+            )}
         </div>
     );
 }
@@ -2890,7 +4375,7 @@ function ScenarioInputsStudioView({
 // ------------------------------------------------------------------------------------------------
 // REUSABLE MODERN INPUT CARD WITH DELETE, UNDO & REMARKS
 // ------------------------------------------------------------------------------------------------
-function ModernInputCard({ label, choices = [], selected, remarks, onChange, onDelete, onUndo }) {
+function ModernInputCard({ label, choices = [], selected, remarks, onChange, onDelete, onUndo, onView }) {
     // Ensure dropdown options are ordered by date timestamp descending (latest at top of dropdown)
     const sortedChoices = useMemo(() => {
         const copy = [...choices];
@@ -3005,9 +4490,20 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                     </select>
                 </div>
 
+                {/* View button with Eye icon */}
+                <button
+                    type="button"
+                    onClick={() => onView && onView(activeSelected)}
+                    className="inline-flex items-center gap-1.5 bg-blue-50 hover:bg-[#005eb8] text-[#005eb8] hover:text-white font-bold text-xs px-2.5 py-1.5 rounded-lg border border-blue-200 hover:border-[#005eb8] transition duration-150 flex-shrink-0 hover:shadow-xs active:scale-95 cursor-pointer glow-button"
+                    title={`View ${label} table (${activeSelected})`}
+                >
+                    <IconEye className="w-3.5 h-3.5" />
+                    <span>View</span>
+                </button>
+
                 <button
                     onClick={onDelete}
-                    className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs px-3 py-1.5 rounded-lg border border-rose-200 transition flex-shrink-0 hover:shadow-xs"
+                    className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs px-3 py-1.5 rounded-lg border border-rose-200 transition flex-shrink-0 hover:shadow-xs cursor-pointer"
                     title="Delete version"
                 >
                     Delete
@@ -3015,7 +4511,7 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
 
                 <button
                     onClick={onUndo}
-                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg border border-slate-200 transition flex-shrink-0 hover:shadow-xs"
+                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg border border-slate-200 transition flex-shrink-0 hover:shadow-xs cursor-pointer"
                     title="Undo delete"
                 >
                     Undo

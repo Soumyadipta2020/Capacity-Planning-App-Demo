@@ -22,6 +22,7 @@ from data_manager import (
     get_file_remark,
     ScenarioManager,
     SampleDataGenerator,
+    load_input_table_data,
     DATE_COLS,
     PATCHES,
     SKILLS
@@ -74,9 +75,49 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
         input_deleted_history[input_key] = reactive.Value([])
 
         def attach_input_handlers(key: str, lbl: str):
+            btn_view_key = f"btn_view_{key}"
             btn_del_key = f"btn_del_{key}"
             btn_undo_key = f"btn_undo_{key}"
             remarks_key = f"ui_remarks_{key}"
+
+            # View handler for this specific input
+            @reactive.effect
+            @reactive.event(input[btn_view_key])
+            def _on_view():
+                try:
+                    curr = input[key]()
+                except Exception:
+                    curr = None
+                if not curr:
+                    return
+                tbl = load_input_table_data(key, curr)
+                if not tbl.get("success"):
+                    ui.notification_show(f"Error loading {curr}: {tbl.get('error')}", type="warning")
+                    return
+                
+                rows = tbl.get("rows", [])
+                cols = tbl.get("columns", [])
+                df = pd.DataFrame(rows)
+                
+                ui.modal_show(
+                    ui.modal(
+                        ui.div(
+                            {"class": "p-3"},
+                            ui.div(
+                                {"class": "d-flex justify-content-between align-items-center mb-3"},
+                                ui.h5(f"{lbl}: {curr}", class_="mb-0 text-primary fw-bold"),
+                                ui.span(f"{len(rows)} Rows | {len(cols)} Columns", class_="badge bg-primary")
+                            ),
+                            ui.div(
+                                {"style": "max-height: 70vh; overflow: auto;"},
+                                ui.HTML(df.to_html(classes="table table-striped table-hover table-bordered table-sm", index=False))
+                            )
+                        ),
+                        title=f"Input Table View - {lbl}",
+                        size="xl",
+                        easy_close=True
+                    )
+                )
 
             # Delete handler for this specific input
             @reactive.effect

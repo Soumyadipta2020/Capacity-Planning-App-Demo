@@ -198,7 +198,7 @@ try:
         print("Verified Dual Waterfall Analysis: Capacity Waterfall (7 metrics & formula) and Demand Waterfall (7 metrics & formula)!")
 
         # Verify python data_manager.py geography mapping dataframe has Region, ACDM, territory
-        from data_manager import SampleDataGenerator
+        from data_manager import SampleDataGenerator, load_input_table_data, DEFAULT_INPUT_OPTIONS
         df_geo = SampleDataGenerator.get_geog_mapping_data()
         assert "Region" in df_geo.columns, "Region missing in get_geog_mapping_data"
         assert "ACDM" in df_geo.columns, "ACDM missing in get_geog_mapping_data"
@@ -206,6 +206,52 @@ try:
         geo_dict = SampleDataGenerator.get_all_geography_files_data()
         assert len(geo_dict) > 0, "No geography files loaded in get_all_geography_files_data"
         print("Verified backend geography dataframe structure and file loader matching user specification!")
+
+        # Verify Input Table View Floating Window & Backend Table Loader (User Request)
+        assert "IconEye" in js_content, "IconEye component missing in react_app.js"
+        assert "InputTableViewModal" in js_content, "InputTableViewModal component missing in react_app.js"
+        assert "handleOpenViewModal" in js_content, "handleOpenViewModal missing in react_app.js"
+        assert "parseCsvToTable" in js_content, "parseCsvToTable missing in react_app.js"
+        assert "generateClientFallbackTable" in js_content, "generateClientFallbackTable missing in react_app.js"
+        assert "downloadTableAsCsv" in js_content, "downloadTableAsCsv missing in react_app.js"
+        assert "request_input_file_data" in js_content, "request_input_file_data event missing in react_app.js"
+        assert "response_input_file_data" in js_content, "response_input_file_data handler missing in react_app.js"
+        assert "w-[98vw] max-w-[98vw] h-[94vh] max-h-[94vh]" in js_content, "Maximized floating window size missing in modal"
+
+        # Verify load_input_table_data works for all 21 categories and returns structured table records
+        tested_count = 0
+        for cat_k, opts in DEFAULT_INPUT_OPTIONS.items():
+            if opts:
+                first_opt = opts[0]
+                tbl = load_input_table_data(cat_k, first_opt)
+                assert tbl["success"] is True, f"Failed loading table for {cat_k} ({first_opt}): {tbl.get('error')}"
+                assert len(tbl["columns"]) > 0, f"No columns returned for {cat_k} ({first_opt})"
+                assert len(tbl["rows"]) > 0, f"No rows returned for {cat_k} ({first_opt})"
+                tested_count += 1
+        assert tested_count == 21, f"Expected 21 categories tested, got {tested_count}"
+        print(f"Verified load_input_table_data successfully loaded table data for all {tested_count} operational inputs!")
+
+        # Verify Calculation Modules Floating Window & Backend Calculation Engine (User Request)
+        assert "CalculationModulesModal" in js_content, "CalculationModulesModal missing in react_app.js"
+        assert "getClientFallbackCalcModule" in js_content, "getClientFallbackCalcModule missing in react_app.js"
+        assert "handleRequestCalcModule" in js_content, "handleRequestCalcModule missing in react_app.js"
+        assert "request_calc_module_data" in js_content, "request_calc_module_data event missing in react_app.js"
+        assert "response_calc_module_data" in js_content, "response_calc_module_data handler missing in react_app.js"
+        assert "View Calculations" in js_content, "'View Calculations' button missing in react_app.js"
+        print("Verified front-end CalculationModulesModal, dropdown switcher, and 'View Calculations' buttons in react_app.js!")
+
+        # Verify get_calculation_module_data works for all 6 calculation modules:
+        # 1. imbalance, 2. capacity, 3. fte, 4. downtime, 5. productivity, 6. demand
+        from data_manager import get_calculation_module_data, CALC_MODULE_METADATA
+        calc_modules = ["imbalance", "capacity", "fte", "downtime", "productivity", "demand"]
+        for mod_k in calc_modules:
+            assert mod_k in CALC_MODULE_METADATA, f"Module {mod_k} missing in CALC_MODULE_METADATA"
+            cdata = get_calculation_module_data(mod_k)
+            assert cdata["success"] is True, f"Failed getting calculation module data for {mod_k}: {cdata.get('error')}"
+            assert len(cdata["columns"]) > 0, f"No columns returned for module {mod_k}"
+            assert len(cdata["rows"]) > 0, f"No rows returned for module {mod_k}"
+            assert cdata["moduleKey"] == mod_k, f"Module key mismatch: {cdata['moduleKey']} vs {mod_k}"
+            print(f"Verified calculation module '{mod_k}': {len(cdata['rows'])} rows, {len(cdata['columns'])} columns ({CALC_MODULE_METADATA[mod_k]['title']})")
 
         print("ALL MODERN REACT + PYSHINY VERIFICATION CHECKS PASSED!")
 except Exception as e:

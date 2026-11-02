@@ -32,6 +32,12 @@ def make_input_widget(input_id: str, label: str, choices: list, selected: str = 
                 )
             ),
             ui.input_action_button(
+                f"btn_view_{input_id}",
+                "View",
+                class_="btn-primary-custom",
+                style="height: 38px; line-height: 1; padding: 0 16px;"
+            ),
+            ui.input_action_button(
                 f"btn_del_{input_id}",
                 "Delete",
                 class_="btn-danger-custom",

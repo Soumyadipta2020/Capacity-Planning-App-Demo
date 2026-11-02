@@ -16,7 +16,9 @@ from data_manager import (
     DEFAULT_REMARKS,
     ScenarioManager,
     SampleDataGenerator,
-    register_uploaded_file
+    register_uploaded_file,
+    load_input_table_data,
+    get_calculation_module_data
 )
 from engine.data_engine import CapacityDataEngine
 from ui import (
@@ -167,6 +169,41 @@ def server(input, output, session):
                 "message": f"Switched Databricks stage to '{EnvironmentConfig.get_stage().upper()}' (Schema: {EnvironmentConfig.get_schema()})",
                 "type": "info"
             })
+
+    # Handle Input File Table Data Request from React UI
+    @reactive.effect
+    @reactive.event(input.request_input_file_data)
+    def _on_request_input_file_data():
+        req = input.request_input_file_data()
+        if not req or not isinstance(req, dict):
+            return
+        
+        input_key = req.get("inputKey", "")
+        file_name = req.get("fileName", "")
+        request_id = req.get("requestId", None)
+        
+        result = load_input_table_data(input_key, file_name)
+        if request_id is not None:
+            result["requestId"] = request_id
+            
+        session.send_custom_message("response_input_file_data", result)
+
+    # Handle Calculation Module Data Request from React UI
+    @reactive.effect
+    @reactive.event(input.request_calc_module_data)
+    def _on_request_calc_module_data():
+        req = input.request_calc_module_data()
+        if not req or not isinstance(req, dict):
+            return
+        
+        module_key = req.get("moduleKey", "imbalance")
+        request_id = req.get("requestId", None)
+        
+        result = get_calculation_module_data(module_key)
+        if request_id is not None:
+            result["requestId"] = request_id
+            
+        session.send_custom_message("response_calc_module_data", result)
 
     # Register standard PyShiny server handlers (calculators, downloads, classic views)
     register_server_handlers(input, output, session)

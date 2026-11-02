@@ -14,7 +14,9 @@ from data_manager import (
     DEFAULT_INPUT_OPTIONS,
     DEFAULT_REMARKS,
     ScenarioManager,
-    SampleDataGenerator
+    SampleDataGenerator,
+    load_input_table_data,
+    get_calculation_module_data
 )
 from engine.data_engine import CapacityDataEngine
 
@@ -23,12 +25,34 @@ def create_modern_ui_page():
     sm = ScenarioManager()
     engine = CapacityDataEngine()
     
+    # Pre-load initial table data for currently selected input versions
+    initial_table_data = {}
+    for cat_key, opts in DEFAULT_INPUT_OPTIONS.items():
+        if opts:
+            first_opt = opts[0]
+            try:
+                tbl = load_input_table_data(cat_key, first_opt)
+                if tbl.get("success"):
+                    initial_table_data[first_opt] = tbl
+            except Exception:
+                pass
+
+    # Pre-load calculation modules data (fte, downtime, productivity -> capacity; demand -> imbalance)
+    initial_calc_data = {}
+    for mod_key in ["imbalance", "capacity", "fte", "downtime", "productivity", "demand"]:
+        try:
+            initial_calc_data[mod_key] = get_calculation_module_data(mod_key)
+        except Exception:
+            pass
+
     # Pre-serialize initial scenario data for the React client
     initial_data = {
         "envInfo": engine.get_engine_status(),
         "scenarios": sm.get_all_scenarios(),
         "inputOptions": DEFAULT_INPUT_OPTIONS,
         "remarksMap": DEFAULT_REMARKS,
+        "initialTableData": initial_table_data,
+        "initialCalcModulesData": initial_calc_data,
         "imbalanceData": SampleDataGenerator.get_imbalance_data().to_dict(orient="records"),
         "indayWorkloadData": SampleDataGenerator.get_inday_workload_data().to_dict(orient="records"),
         "geographyDatasets": SampleDataGenerator.get_all_geography_files_data(),
