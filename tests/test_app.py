@@ -267,6 +267,40 @@ try:
         assert "downloadTableAsCsv" in js_content, "downloadTableAsCsv helper missing"
         print("Verified Dem vs Cap Matrix tab: Strictly Weekly Operational Horizon, Weekly Imbalance Matrix, Profile Bar Chart, Regional Rollup, Inday Buffer, and Deficit Action Log!")
 
+        # Verify Executive Summary Monte Carlo Shortfall Risk Card (User Request)
+        assert "MonteCarloSimulationModal" in js_content, "MonteCarloSimulationModal component missing in react_app.js"
+        assert "Shortfall Risk" in js_content, "Shortfall Risk card title missing in react_app.js"
+        assert "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5" in js_content, "5-column grid layout missing in Bento grid"
+        assert "10,000 Iterations" in js_content, "10,000 Iterations label missing in Monte Carlo modal"
+        assert "handleRerunSimulation" in js_content, "handleRerunSimulation missing in react_app.js"
+        assert "handleExportSimulationCsv" in js_content, "handleExportSimulationCsv missing in react_app.js"
+        print("Verified Executive Summary: Monte Carlo Capacity Shortfall Risk Card (5th Card) and Interactive Simulation Modal!")
+
+        # Verify Weekly Trajectory Envelope: Demand as Bars, Capacity as Line, Flexible Any Date Range Filter
+        assert "Demand (Bars)" in js_content, "Demand (Bars) legend missing in react_app.js"
+        assert "Capacity (Line)" in js_content, "Capacity (Line) legend missing in react_app.js"
+        assert "trajectoryStartDate" in js_content, "trajectoryStartDate state missing in react_app.js"
+        assert "trajectoryEndDate" in js_content, "trajectoryEndDate state missing in react_app.js"
+        assert "handleTrajectoryStartChange" in js_content, "handleTrajectoryStartChange handler missing in react_app.js"
+        assert "handleTrajectoryEndChange" in js_content, "handleTrajectoryEndChange handler missing in react_app.js"
+        assert "demandBarGrad" in js_content, "demandBarGrad gradient definition missing in react_app.js"
+        assert "capacityEnvelopeGrad" in js_content, "capacityEnvelopeGrad gradient definition missing in react_app.js"
+        assert "capLinePath" in js_content, "capLinePath curve calculation missing in react_app.js"
+        assert "handleTrajectoryPreset" not in js_content, "handleTrajectoryPreset should be removed per user request"
+        assert "labelInterval" in js_content, "labelInterval logic missing for spacing X-axis labels with gaps"
+        assert "h-56" in js_content, "h-56 height container missing for utilizing upper white space"
+        print("Verified Weekly Trajectory Envelope: Demand as Bars, Capacity as Line, Gapped X-Axis Labels, Year in Date Filters, and Full Upper White Space Utilization!")
+
+        # Verify Operational Trajectory Trends Sparkline Section (Inspiration: Last 12 Weeks)
+        assert "Continuous Operational Trajectory" in js_content, "Continuous Operational Trajectory header missing in react_app.js"
+        assert "generateSparkline" in js_content, "generateSparkline helper missing in react_app.js"
+        assert "FTE Required" in js_content, "FTE Required trend card missing in react_app.js"
+        assert "Gross Hours" in js_content, "Gross Hours trend card missing in react_app.js"
+        assert "Total Downtime" in js_content, "Total Downtime trend card missing in react_app.js"
+        assert "Productivity" in js_content, "Productivity trend card missing in react_app.js"
+        assert "Imbalance" in js_content, "Imbalance trend card missing in react_app.js"
+        print("Verified Operational Trajectory Trends: 5 Sparkline Cards (FTE Required, Gross Hours, Total Downtime, Productivity, Imbalance) placed in the marked area in between!")
+
         print("ALL MODERN REACT + PYSHINY VERIFICATION CHECKS PASSED!")
 except Exception as e:
     print(f"Verification test failed: {e}")

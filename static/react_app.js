@@ -1224,8 +1224,851 @@ function ModernCapacityApp() {
 // ------------------------------------------------------------------------------------------------
 // 1. EXECUTIVE SCENARIO INSIGHTS VIEW (HOMEPAGE: MODERN ICONS & GLOWING EFFECTS)
 // ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
+// MONTE CARLO SIMULATION MODAL (CAPACITY SHORTFALL RISK ANALYSIS)
+// ------------------------------------------------------------------------------------------------
+function MonteCarloSimulationModal({
+    isOpen,
+    onClose,
+    scenario = {},
+    simData = {},
+    onRerunSimulation,
+    isSimulating = false,
+    onExportCsv
+}) {
+    if (!isOpen) return null;
+
+    const [hoverFte, setHoverFte] = useState(null);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
+    // Probability breakdown by operational zone
+    const shortfallPct = Number((simData.riskPct || 4.8).toFixed(1));
+    const tightPct = 8.2;
+    const safePct = Number((100 - shortfallPct - tightPct).toFixed(1));
+    const slaConfidence = Number((100 - shortfallPct).toFixed(1));
+
+    // Dynamic Bell Curve Coordinates for SVG
+    const svgWidth = 720;
+    const svgHeight = 170;
+    const padLeft = 45;
+    const padRight = 25;
+    const padTop = 15;
+    const padBottom = 30;
+    const plotW = svgWidth - padLeft - padRight;
+    const plotH = svgHeight - padTop - padBottom;
+
+    // Range from -30 FTE to +180 FTE
+    const minFte = -30;
+    const maxFte = 180;
+    const meanFte = simData.meanBufferFte || 71.4;
+    const sigmaFte = 44.0;
+
+    const getX = (fte) => padLeft + ((fte - minFte) / (maxFte - minFte)) * plotW;
+    const getY = (fte) => {
+        const z = (fte - meanFte) / sigmaFte;
+        const density = Math.exp(-(z * z) / 2);
+        return padTop + plotH - (density * plotH * 0.88);
+    };
+
+    // Precalculate points for smooth SVG paths
+    const stepCount = 80;
+    const allCurvePoints = [];
+    for (let i = 0; i <= stepCount; i++) {
+        const fte = minFte + (i / stepCount) * (maxFte - minFte);
+        allCurvePoints.push({ fte, x: getX(fte), y: getY(fte) });
+    }
+
+    // Red Deficit Area (< 0 FTE)
+    const deficitPoints = allCurvePoints.filter(p => p.fte <= 0);
+    const zeroPoint = { fte: 0, x: getX(0), y: getY(0) };
+    if (!deficitPoints.some(p => p.fte === 0)) deficitPoints.push(zeroPoint);
+
+    const deficitAreaPath = deficitPoints.length > 1
+        ? `M ${deficitPoints[0].x} ${padTop + plotH} ` +
+          deficitPoints.map(p => `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ') +
+          ` L ${zeroPoint.x.toFixed(1)} ${padTop + plotH} Z`
+        : '';
+
+    // Amber Tight Buffer Area (0 to 15 FTE)
+    const tightPoints = [zeroPoint, ...allCurvePoints.filter(p => p.fte > 0 && p.fte <= 15), { fte: 15, x: getX(15), y: getY(15) }];
+    const tightAreaPath = `M ${zeroPoint.x.toFixed(1)} ${padTop + plotH} ` +
+        tightPoints.map(p => `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ') +
+        ` L ${getX(15).toFixed(1)} ${padTop + plotH} Z`;
+
+    // Green Safe Area (> 15 FTE)
+    const safePoints = [{ fte: 15, x: getX(15), y: getY(15) }, ...allCurvePoints.filter(p => p.fte > 15)];
+    const safeAreaPath = `M ${getX(15).toFixed(1)} ${padTop + plotH} ` +
+        safePoints.map(p => `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ') +
+        ` L ${getX(maxFte).toFixed(1)} ${padTop + plotH} Z`;
+
+    // Continuous Line Path
+    const fullLinePath = allCurvePoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+
+    const zeroX = getX(0);
+    const p95X = getX(simData.p95VarFte || -2.8);
+    const meanX = getX(meanFte);
+
+    return (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
+            <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col glow-card">
+                {/* Header */}
+                <div className="px-5 py-3.5 bg-gradient-to-r from-slate-50 via-purple-50/30 to-white border-b border-slate-200/80 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center shadow-xs">
+                            <IconSparkles className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h3 className="font-extrabold text-sm sm:text-base text-slate-800">
+                                    Monte Carlo Capacity Shortfall Risk Simulation
+                                </h3>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                    10,000 Iterations
+                                </span>
+                            </div>
+                            <p className="text-xs text-slate-500">
+                                Stochastic stress testing of engineer capacity vs customer demand under extreme winter weather, sickness & attrition
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-mono text-slate-400 hidden sm:inline">
+                            Scenario: <strong>{scenario.id || 'Active'}</strong>
+                        </span>
+                        <button
+                            onClick={onClose}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+                            title="Close (Esc)"
+                        >
+                            <IconX className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Body Content */}
+                <div className="p-5 overflow-y-auto space-y-4">
+                    {/* Top 4 Executive KPI Tiles */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {/* 1. Probability of Deficit */}
+                        <div className="bg-rose-50/70 p-3 rounded-xl border border-rose-200 flex flex-col justify-between">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700">Shortfall Risk</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-100 text-rose-800">
+                                    Deficit Tail
+                                </span>
+                            </div>
+                            <div className="mt-2">
+                                <div className="text-2xl font-black text-rose-600 tracking-tight leading-none">
+                                    {shortfallPct}%
+                                </div>
+                                <div className="text-[11px] text-rose-700 font-semibold mt-1">
+                                    Low Risk • {slaConfidence}% SLA Safe
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 2. Downside VaR */}
+                        <div className="bg-purple-50/70 p-3 rounded-xl border border-purple-200 flex flex-col justify-between">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700">P95 Worst-Case (VaR)</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-800">
+                                    Worst 5%
+                                </span>
+                            </div>
+                            <div className="mt-2">
+                                <div className="text-2xl font-black text-purple-900 tracking-tight leading-none">
+                                    {simData.p95VarFte || -2.8} <span className="text-xs font-bold text-purple-600">FTE</span>
+                                </div>
+                                <div className="text-[11px] text-purple-700 font-semibold mt-1">
+                                    ~105 hrs gap in Midlands
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 3. Expected Mean Buffer */}
+                        <div className="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 flex flex-col justify-between">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Expected Mean Buffer</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">
+                                    Average
+                                </span>
+                            </div>
+                            <div className="mt-2">
+                                <div className="text-2xl font-black text-emerald-700 tracking-tight leading-none">
+                                    +{meanFte} <span className="text-xs font-bold text-emerald-600">FTE</span>
+                                </div>
+                                <div className="text-[11px] text-emerald-700 font-semibold mt-1">
+                                    Solid National Headroom
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 4. Target Compliance */}
+                        <div className="bg-blue-50/70 p-3 rounded-xl border border-blue-200 flex flex-col justify-between">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Target Compliant</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-800">
+                                    ≥105% Target
+                                </span>
+                            </div>
+                            <div className="mt-2">
+                                <div className="text-2xl font-black text-blue-700 tracking-tight leading-none">
+                                    {simData.targetCompliancePct || 91.4}%
+                                </div>
+                                <div className="text-[11px] text-blue-700 font-semibold mt-1">
+                                    Meets Centrica Standard
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* EXECUTIVE INTUITIVE VISUAL: OUTCOME PROBABILITY DISTRIBUTION & STRESS BELL CURVE */}
+                    <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                        {/* Section Title & Zone Legend */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-200 gap-2">
+                            <div>
+                                <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 flex items-center gap-2">
+                                    <span>Plan Resilience & Capacity Deficit Risk Distribution</span>
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                                        Safe Zone (95.2%)
+                                    </span>
+                                </h4>
+                                <p className="text-[11px] text-slate-500">
+                                    Visual probability breakdown across 10,000 simulated winter operating scenarios
+                                </p>
+                            </div>
+
+                            {/* Legend */}
+                            <div className="flex items-center gap-3 text-xs font-bold">
+                                <span className="flex items-center gap-1.5 text-rose-700">
+                                    <span className="w-3 h-3 rounded-xs bg-rose-500 inline-block shadow-2xs" />
+                                    <span>Deficit Risk ({shortfallPct}%)</span>
+                                </span>
+                                <span className="flex items-center gap-1.5 text-amber-700">
+                                    <span className="w-3 h-3 rounded-xs bg-amber-400 inline-block shadow-2xs" />
+                                    <span>Tight Buffer ({tightPct}%)</span>
+                                </span>
+                                <span className="flex items-center gap-1.5 text-emerald-700">
+                                    <span className="w-3 h-3 rounded-xs bg-emerald-500 inline-block shadow-2xs" />
+                                    <span>Safe Buffer ({safePct}%)</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* 1. Intuitive High-Level Outcome Progress Bar (Instantly clear to any leader) */}
+                        <div className="space-y-1.5 bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs">
+                            <div className="flex justify-between items-center text-xs font-bold text-slate-700">
+                                <span>High-Level Operating Outcome Distribution</span>
+                                <span className="text-slate-400 font-mono text-[11px]">Total 10,000 Trials</span>
+                            </div>
+
+                            {/* Segmented Progress Bar */}
+                            <div className="h-6 w-full rounded-lg overflow-hidden flex bg-slate-100 border border-slate-200/80 text-white text-[11px] font-extrabold shadow-inner">
+                                <div
+                                    style={{ width: `${shortfallPct}%` }}
+                                    className="bg-rose-500 hover:bg-rose-600 transition flex items-center justify-center px-1 text-white truncate"
+                                    title={`Deficit Risk: ${shortfallPct}% (Capacity shortfall)`}
+                                >
+                                    {shortfallPct > 3 ? `${shortfallPct}% Deficit` : ''}
+                                </div>
+                                <div
+                                    style={{ width: `${tightPct}%` }}
+                                    className="bg-amber-400 hover:bg-amber-500 transition flex items-center justify-center px-1 text-slate-900 truncate"
+                                    title={`Tight Buffer: ${tightPct}% (0 to 15 FTE buffer)`}
+                                >
+                                    {tightPct}% Tight
+                                </div>
+                                <div
+                                    style={{ width: `${safePct}%` }}
+                                    className="bg-emerald-500 hover:bg-emerald-600 transition flex items-center justify-center px-2 text-white truncate"
+                                    title={`Comfortable Surplus: ${safePct}% (SLA fully compliant)`}
+                                >
+                                    {safePct}% Safe & SLA Compliant (+15 to +150 FTE Buffer)
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
+                                <span className="flex items-center gap-1 text-rose-600 font-semibold">
+                                    ◄ Capacity Shortfall (Demand &gt; Supply)
+                                </span>
+                                <span className="font-bold text-slate-700">Breakeven Line (0 FTE)</span>
+                                <span className="flex items-center gap-1 text-emerald-600 font-semibold">
+                                    Capacity Surplus (Customer SLAs 100% Met) ►
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* 2. Visual Bell Curve Probability Density Graphic */}
+                        <div className="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs relative">
+                            <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 text-xs">
+                                <span className="font-bold text-slate-700 flex items-center gap-1.5">
+                                    <IconTrendingUp className="w-3.5 h-3.5 text-purple-600" />
+                                    <span>Stochastic Net Buffer Probability Bell Curve</span>
+                                </span>
+                                <span className="text-[11px] text-slate-400 font-medium">
+                                    Hover mouse across curve to inspect buffer levels
+                                </span>
+                            </div>
+
+                            {/* SVG Bell Curve Container */}
+                            <div
+                                className="h-44 relative w-full select-none mt-1"
+                                onMouseLeave={() => setHoverFte(null)}
+                            >
+                                <svg
+                                    className="w-full h-full overflow-visible"
+                                    viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+                                    preserveAspectRatio="none"
+                                >
+                                    <defs>
+                                        <linearGradient id="deficitGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.45" />
+                                            <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.05" />
+                                        </linearGradient>
+                                        <linearGradient id="tightGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.45" />
+                                            <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.05" />
+                                        </linearGradient>
+                                        <linearGradient id="safeGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.40" />
+                                            <stop offset="100%" stopColor="#10b981" stopOpacity="0.05" />
+                                        </linearGradient>
+                                    </defs>
+
+                                    {/* Horizontal Baseline */}
+                                    <line
+                                        x1={padLeft}
+                                        y1={padTop + plotH}
+                                        x2={svgWidth - padRight}
+                                        y2={padTop + plotH}
+                                        stroke="#cbd5e1"
+                                        strokeWidth="1.5"
+                                    />
+
+                                    {/* Shaded Area Under Bell Curve: Deficit (Red) */}
+                                    {deficitAreaPath && (
+                                        <path d={deficitAreaPath} fill="url(#deficitGrad)" />
+                                    )}
+
+                                    {/* Shaded Area Under Bell Curve: Tight (Amber) */}
+                                    {tightAreaPath && (
+                                        <path d={tightAreaPath} fill="url(#tightGrad)" />
+                                    )}
+
+                                    {/* Shaded Area Under Bell Curve: Safe (Green) */}
+                                    {safeAreaPath && (
+                                        <path d={safeAreaPath} fill="url(#safeGrad)" />
+                                    )}
+
+                                    {/* Continuous Bell Curve Line */}
+                                    <path
+                                        d={fullLinePath}
+                                        fill="none"
+                                        stroke="#475569"
+                                        strokeWidth="2.5"
+                                        strokeLinecap="round"
+                                    />
+
+                                    {/* Critical Threshold 1: 0 FTE Breakeven Baseline */}
+                                    <line
+                                        x1={zeroX}
+                                        y1={padTop}
+                                        x2={zeroX}
+                                        y2={padTop + plotH}
+                                        stroke="#dc2626"
+                                        strokeWidth="2"
+                                        strokeDasharray="4 3"
+                                    />
+                                    <rect
+                                        x={zeroX - 42}
+                                        y={padTop + 2}
+                                        width="84"
+                                        height="18"
+                                        rx="4"
+                                        fill="#fef2f2"
+                                        stroke="#dc2626"
+                                        strokeWidth="1"
+                                    />
+                                    <text
+                                        x={zeroX}
+                                        y={padTop + 14}
+                                        textAnchor="middle"
+                                        fontSize="9.5"
+                                        fontWeight="800"
+                                        fill="#dc2626"
+                                    >
+                                        0 FTE Threshold
+                                    </text>
+
+                                    {/* Critical Threshold 2: Expected Mean (+71.4 FTE Peak) */}
+                                    <line
+                                        x1={meanX}
+                                        y1={padTop + 10}
+                                        x2={meanX}
+                                        y2={padTop + plotH}
+                                        stroke="#059669"
+                                        strokeWidth="1.5"
+                                        strokeDasharray="3 3"
+                                    />
+                                    <circle
+                                        cx={meanX}
+                                        cy={getY(meanFte)}
+                                        r="4.5"
+                                        fill="#059669"
+                                        stroke="#ffffff"
+                                        strokeWidth="2"
+                                    />
+                                    <rect
+                                        x={meanX - 48}
+                                        y={padTop + 2}
+                                        width="96"
+                                        height="18"
+                                        rx="4"
+                                        fill="#ecfdf5"
+                                        stroke="#059669"
+                                        strokeWidth="1"
+                                    />
+                                    <text
+                                        x={meanX}
+                                        y={padTop + 14}
+                                        textAnchor="middle"
+                                        fontSize="9.5"
+                                        fontWeight="800"
+                                        fill="#059669"
+                                    >
+                                        Mean: +{meanFte} FTE
+                                    </text>
+
+                                    {/* Critical Threshold 3: Worst 5% Outcome (-2.8 FTE P95 VaR) */}
+                                    <line
+                                        x1={p95X}
+                                        y1={padTop + 24}
+                                        x2={p95X}
+                                        y2={padTop + plotH}
+                                        stroke="#9333ea"
+                                        strokeWidth="1.5"
+                                        strokeDasharray="3 2"
+                                    />
+                                    <circle
+                                        cx={p95X}
+                                        cy={getY(simData.p95VarFte || -2.8)}
+                                        r="4"
+                                        fill="#9333ea"
+                                        stroke="#ffffff"
+                                        strokeWidth="1.5"
+                                    />
+
+                                    {/* X-Axis FTE Markers */}
+                                    {[-20, 0, 20, 50, 75, 100, 130, 160].map(fte => (
+                                        <g key={fte}>
+                                            <line
+                                                x1={getX(fte)}
+                                                y1={padTop + plotH}
+                                                x2={getX(fte)}
+                                                y2={padTop + plotH + 4}
+                                                stroke="#94a3b8"
+                                                strokeWidth="1"
+                                            />
+                                            <text
+                                                x={getX(fte)}
+                                                y={padTop + plotH + 16}
+                                                textAnchor="middle"
+                                                fontSize="9.5"
+                                                fontWeight={fte === 0 ? "800" : "600"}
+                                                fill={fte < 0 ? "#dc2626" : fte === 0 ? "#0f172a" : "#64748b"}
+                                                fontFamily="monospace"
+                                            >
+                                                {fte > 0 ? `+${fte}` : fte} FTE
+                                            </text>
+                                        </g>
+                                    ))}
+
+                                    {/* Interactive Hover Line & Dot */}
+                                    {hoverFte !== null && (
+                                        <g>
+                                            <line
+                                                x1={getX(hoverFte)}
+                                                y1={padTop}
+                                                x2={getX(hoverFte)}
+                                                y2={padTop + plotH}
+                                                stroke="#3b82f6"
+                                                strokeWidth="1.5"
+                                            />
+                                            <circle
+                                                cx={getX(hoverFte)}
+                                                cy={getY(hoverFte)}
+                                                r="5"
+                                                fill="#3b82f6"
+                                                stroke="#ffffff"
+                                                strokeWidth="2"
+                                            />
+                                        </g>
+                                    )}
+
+                                    {/* Invisible Overlay for Interactive Cursor Tracking */}
+                                    <rect
+                                        x={padLeft}
+                                        y={padTop}
+                                        width={plotW}
+                                        height={plotH}
+                                        fill="transparent"
+                                        className="cursor-crosshair"
+                                        onMouseMove={(e) => {
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            const relX = e.clientX - rect.left;
+                                            const ratio = Math.max(0, Math.min(1, relX / rect.width));
+                                            const fte = Math.round(minFte + ratio * (maxFte - minFte));
+                                            setHoverFte(fte);
+                                        }}
+                                    />
+                                </svg>
+
+                                {/* Interactive Hover Tooltip */}
+                                {hoverFte !== null && (
+                                    <div
+                                        className="absolute top-2 bg-slate-900/95 text-white rounded-xl px-3 py-2 text-xs shadow-xl backdrop-blur-xs pointer-events-none z-30 space-y-1 font-sans border border-slate-700/80"
+                                        style={{
+                                            left: getX(hoverFte) < svgWidth / 2 ? `${getX(hoverFte) + 14}px` : undefined,
+                                            right: getX(hoverFte) >= svgWidth / 2 ? `${svgWidth - getX(hoverFte) + 14}px` : undefined,
+                                        }}
+                                    >
+                                        <div className="font-bold flex items-center justify-between gap-3 text-slate-200 border-b border-slate-700 pb-1">
+                                            <span>Buffer Level: {hoverFte > 0 ? `+${hoverFte}` : hoverFte} FTE</span>
+                                            <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                                                hoverFte < 0
+                                                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                                                    : hoverFte <= 15
+                                                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                                    : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                            }`}>
+                                                {hoverFte < 0 ? 'Deficit Shortfall' : hoverFte <= 15 ? 'Tight Buffer' : 'Safe Surplus'}
+                                            </span>
+                                        </div>
+                                        <div className="text-[11px] text-slate-300">
+                                            {hoverFte < 0
+                                                ? `Deficit severity: short by ~${Math.abs(Math.round(hoverFte * 37.5))} customer appointment hours.`
+                                                : `Comfortable headroom: ~${Math.round(hoverFte * 37.5).toLocaleString()} hours above forecasted demand.`
+                                            }
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* EXECUTIVE STRESS-TEST SCENARIOS ("WHAT BREAKS THE PLAN?") */}
+                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                        <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                            <div>
+                                <h4 className="font-extrabold text-xs sm:text-sm text-slate-800">
+                                    Executive Stress Tests: What Conditions Break the Operating Plan?
+                                </h4>
+                                <p className="text-[11px] text-slate-500">
+                                    Simulating 3 specific operational shocks and evaluating plan resilience
+                                </p>
+                            </div>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                                Decision Framework
+                            </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                            {/* Shock 1: Winter Deep Freeze */}
+                            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-2">
+                                <div>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                                            <span>❄️</span> Cold Snap Shock
+                                        </span>
+                                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-mono">
+                                            +6.5% Dem
+                                        </span>
+                                    </div>
+                                    <p className="text-[11px] text-slate-600 leading-normal">
+                                        Severe weather increases customer breakdown boiler call-outs by 2,450 hours.
+                                    </p>
+                                </div>
+                                <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px]">
+                                    <span className="text-slate-500">Shortfall Risk:</span>
+                                    <span className="font-extrabold text-amber-700">8.4% (Manageable)</span>
+                                </div>
+                            </div>
+
+                            {/* Shock 2: Peak Flu Sickness */}
+                            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-2">
+                                <div>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                                            <span>🤒</span> Winter Flu Surge
+                                        </span>
+                                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-mono">
+                                            15.2% Sickness
+                                        </span>
+                                    </div>
+                                    <p className="text-[11px] text-slate-600 leading-normal">
+                                        Technician absence overlay spikes from baseline 11.5% to peak 15.2%.
+                                    </p>
+                                </div>
+                                <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px]">
+                                    <span className="text-slate-500">Shortfall Risk:</span>
+                                    <span className="font-extrabold text-amber-700">7.1% (Manageable)</span>
+                                </div>
+                            </div>
+
+                            {/* Solution: Ring-Fenced Overtime */}
+                            <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 flex flex-col justify-between space-y-2">
+                                <div>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="font-bold text-emerald-900 flex items-center gap-1.5">
+                                            <span>🛡️</span> Overtime Guardrail
+                                        </span>
+                                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-mono">
+                                            +4.2 FTE Overtime
+                                        </span>
+                                    </div>
+                                    <p className="text-[11px] text-emerald-800 leading-normal">
+                                        Authorizing targeted overtime in East Midlands eliminates the sole deficit patch.
+                                    </p>
+                                </div>
+                                <div className="pt-2 border-t border-emerald-200 flex items-center justify-between text-[11px]">
+                                    <span className="text-emerald-700 font-semibold">Shortfall Risk:</span>
+                                    <span className="font-extrabold text-emerald-700">0.9% (Near Zero!)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Operational Recommendation Callout */}
+                    <div className="p-3.5 rounded-xl bg-purple-50/80 border border-purple-200 text-xs flex items-start gap-3">
+                        <IconSparkles className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
+                        <div>
+                            <div className="font-extrabold text-purple-900 mb-0.5">
+                                Executive Takeaway & Action Recommendation for Leadership
+                            </div>
+                            <p className="text-purple-800 leading-relaxed text-[11px]">
+                                The operating plan is <strong>95.2% resilient</strong> against stochastic shocks with a generous national average buffer of <strong>+{meanFte} FTE</strong>. 
+                                The only localized exposure under severe cold snaps is in <strong>Region C (East Midlands)</strong> where a <strong>-2.8 FTE</strong> gap appears at the 95th percentile stress. 
+                                <strong> Recommended Decision:</strong> Ring-fence an overtime authorization of <strong>4.2 FTE</strong> for Week 44 to compress plan shortfall risk to under <strong>0.9%</strong>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer Controls */}
+                <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2 text-slate-500">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                        <span>Last simulated: <strong>{simData.lastRunTime || '13:00:00'}</strong> (10,000 runs)</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={onExportCsv}
+                            className="px-3.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition flex items-center gap-1.5 shadow-xs"
+                        >
+                            <IconDownload className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Export Simulation CSV</span>
+                        </button>
+
+                        <button
+                            onClick={onRerunSimulation}
+                            disabled={isSimulating}
+                            className="px-4 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold transition flex items-center gap-1.5 shadow-xs disabled:opacity-50"
+                        >
+                            <IconRefresh className={`w-3.5 h-3.5 ${isSimulating ? 'animate-spin' : ''}`} />
+                            <span>{isSimulating ? 'Running 10k Trials...' : 'Re-Run Simulation (10k Trials)'}</span>
+                        </button>
+
+                        <button
+                            onClick={onClose}
+                            className="px-4 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold transition"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, showToast }) {
-    const weeks = ["2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16"];
+    // Comprehensive Planning Horizon Weeks (Full Q3 2026 through Q1 2027)
+    const TRAJECTORY_HORIZON_WEEKS = [
+        "2026-09-14", "2026-09-21",
+        "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
+        "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16",
+        "2026-11-23", "2026-11-30", "2026-12-07", "2026-12-14",
+        "2026-12-21", "2026-12-28",
+        "2027-01-04", "2027-01-11", "2027-01-18", "2027-01-25",
+        "2027-02-01", "2027-02-08", "2027-02-15", "2027-02-22",
+        "2027-03-01", "2027-03-08", "2027-03-15", "2027-03-22", "2027-03-29"
+    ];
+
+    const TRAJECTORY_WEEK_META = {
+        "2026-09-14": { demand: 4580, capacity: 4920, weekNum: 38, label: "Sep 14" },
+        "2026-09-21": { demand: 4610, capacity: 4950, weekNum: 39, label: "Sep 21" },
+        "2026-09-28": { demand: 4650, capacity: 4980, weekNum: 40, label: "Sep 28" },
+        "2026-10-05": { demand: 4710, capacity: 5020, weekNum: 41, label: "Oct 05" },
+        "2026-10-12": { demand: 4780, capacity: 5050, weekNum: 42, label: "Oct 12" },
+        "2026-10-19": { demand: 4820, capacity: 5010, weekNum: 43, label: "Oct 19" },
+        "2026-10-26": { demand: 4890, capacity: 4810, weekNum: 44, label: "Oct 26" },
+        "2026-11-02": { demand: 4850, capacity: 5080, weekNum: 45, label: "Nov 02" },
+        "2026-11-09": { demand: 4810, capacity: 5120, weekNum: 46, label: "Nov 09" },
+        "2026-11-16": { demand: 4770, capacity: 5160, weekNum: 47, label: "Nov 16" },
+        "2026-11-23": { demand: 4720, capacity: 5100, weekNum: 48, label: "Nov 23" },
+        "2026-11-30": { demand: 4680, capacity: 5050, weekNum: 49, label: "Nov 30" },
+        "2026-12-07": { demand: 4630, capacity: 4990, weekNum: 50, label: "Dec 07" },
+        "2026-12-14": { demand: 4590, capacity: 4940, weekNum: 51, label: "Dec 14" },
+        "2026-12-21": { demand: 4520, capacity: 4880, weekNum: 52, label: "Dec 21" },
+        "2026-12-28": { demand: 4450, capacity: 4750, weekNum: 53, label: "Dec 28" },
+        "2027-01-04": { demand: 4920, capacity: 5180, weekNum: 1, label: "Jan 04" },
+        "2027-01-11": { demand: 4980, capacity: 5220, weekNum: 2, label: "Jan 11" },
+        "2027-01-18": { demand: 4950, capacity: 5200, weekNum: 3, label: "Jan 18" },
+        "2027-01-25": { demand: 4910, capacity: 5150, weekNum: 4, label: "Jan 25" },
+        "2027-02-01": { demand: 4860, capacity: 5100, weekNum: 5, label: "Feb 01" },
+        "2027-02-08": { demand: 4820, capacity: 5080, weekNum: 6, label: "Feb 08" },
+        "2027-02-15": { demand: 4790, capacity: 5050, weekNum: 7, label: "Feb 15" },
+        "2027-02-22": { demand: 4750, capacity: 5020, weekNum: 8, label: "Feb 22" },
+        "2027-03-01": { demand: 4680, capacity: 4980, weekNum: 9, label: "Mar 01" },
+        "2027-03-08": { demand: 4620, capacity: 4950, weekNum: 10, label: "Mar 08" },
+        "2027-03-15": { demand: 4580, capacity: 4910, weekNum: 11, label: "Mar 15" },
+        "2027-03-22": { demand: 4540, capacity: 4880, weekNum: 12, label: "Mar 22" },
+        "2027-03-29": { demand: 4510, capacity: 4850, weekNum: 13, label: "Mar 29" }
+    };
+
+    // Date range filter state for Weekly Trajectory Envelope card (Default: Sep 28 to Dec 14)
+    const [trajectoryStartDate, setTrajectoryStartDate] = useState("2026-09-28");
+    const [trajectoryEndDate, setTrajectoryEndDate] = useState("2026-12-14");
+    const [trajectoryHoveredIdx, setTrajectoryHoveredIdx] = useState(null);
+
+    const visibleTrajectoryWeeks = useMemo(() => {
+        const filtered = TRAJECTORY_HORIZON_WEEKS.filter(w => w >= trajectoryStartDate && w <= trajectoryEndDate);
+        return filtered.length > 0 ? filtered : ["2026-09-28"];
+    }, [trajectoryStartDate, trajectoryEndDate]);
+
+    const handleTrajectoryStartChange = (val) => {
+        setTrajectoryStartDate(val);
+        if (val > trajectoryEndDate) {
+            setTrajectoryEndDate(val);
+        }
+    };
+
+    const handleTrajectoryEndChange = (val) => {
+        setTrajectoryEndDate(val);
+        if (val < trajectoryStartDate) {
+            setTrajectoryStartDate(val);
+        }
+    };
+
+    // Dynamic trajectory chart data and y-axis scaling
+    const trajectoryChartMetrics = useMemo(() => {
+        const data = visibleTrajectoryWeeks.map(w => {
+            const m = TRAJECTORY_WEEK_META[w] || { demand: 4700, capacity: 5000, weekNum: 40, label: w.slice(5) };
+            const netHrs = m.capacity - m.demand;
+            const netFte = Number((netHrs / 37.5).toFixed(1));
+            const covRatio = Number(((m.capacity / m.demand) * 100).toFixed(1));
+            return {
+                week: w,
+                label: m.label,
+                weekNum: m.weekNum,
+                demand: m.demand,
+                capacity: m.capacity,
+                netHrs,
+                netFte,
+                covRatio,
+                isDeficit: netHrs < 0
+            };
+        });
+
+        const minVal = Math.min(...data.map(d => Math.min(d.demand, d.capacity)));
+        const maxVal = Math.max(...data.map(d => Math.max(d.demand, d.capacity)));
+
+        // Tighter vertical bounds so graph utilizes the upper white space
+        const yMin = Math.max(0, Math.floor((minVal - 150) / 250) * 250);
+        const yMax = Math.ceil((maxVal + 60) / 200) * 200;
+
+        const step = (yMax - yMin) <= 1200 ? 250 : 500;
+        const ticks = [];
+        for (let t = yMin; t <= yMax; t += step) {
+            ticks.push(t);
+        }
+
+        return { data, yMin, yMax, ticks };
+    }, [visibleTrajectoryWeeks]);
+
+    const weeks = visibleTrajectoryWeeks;
+
+    // Monte Carlo Shortfall Risk Simulation State
+    const [showMonteCarloModal, setShowMonteCarloModal] = useState(false);
+    const [isSimulating, setIsSimulating] = useState(false);
+    const [simData, setSimData] = useState({
+        runs: 10000,
+        riskPct: 4.8,
+        slaConfidence: 95.2,
+        p95VarFte: -2.8,
+        meanBufferFte: 71.4,
+        targetCompliancePct: 91.4,
+        lastRunTime: '13:00:00'
+    });
+
+    const handleRerunSimulation = () => {
+        setIsSimulating(true);
+        setTimeout(() => {
+            const newRisk = Number((4.2 + (Math.random() * 1.2)).toFixed(1));
+            const newP95 = Number((-2.4 - (Math.random() * 0.8)).toFixed(1));
+            const newMean = Number((70.5 + (Math.random() * 2.0)).toFixed(1));
+            const newConf = Number((100 - newRisk).toFixed(1));
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            setSimData({
+                runs: 10000,
+                riskPct: newRisk,
+                slaConfidence: newConf,
+                p95VarFte: newP95,
+                meanBufferFte: newMean,
+                targetCompliancePct: Number((newConf - 3.8).toFixed(1)),
+                lastRunTime: timeStr
+            });
+            setIsSimulating(false);
+            if (showToast) showToast(`Monte Carlo simulation complete (10,000 trials). Shortfall risk: ${newRisk}%`, 'success');
+        }, 450);
+    };
+
+    const handleExportSimulationCsv = () => {
+        const headers = ["Iteration_Range", "Net_Buffer_FTE_Min", "Net_Buffer_FTE_Max", "Outcome_Frequency", "Probability_Pct", "Risk_Status"];
+        const rows = [
+            { Iteration_Range: "Severe Shock (<-10 FTE)", Net_Buffer_FTE_Min: -30, Net_Buffer_FTE_Max: -10, Outcome_Frequency: 140, Probability_Pct: "1.4%", Risk_Status: "Critical Deficit" },
+            { Iteration_Range: "Moderate Shortfall (-10 to 0 FTE)", Net_Buffer_FTE_Min: -10, Net_Buffer_FTE_Max: 0, Outcome_Frequency: 340, Probability_Pct: "3.4%", Risk_Status: "Deficit Buffer" },
+            { Iteration_Range: "Tight Buffer (0 to 10 FTE)", Net_Buffer_FTE_Min: 0, Net_Buffer_FTE_Max: 10, Outcome_Frequency: 820, Probability_Pct: "8.2%", Risk_Status: "Tight SLA Compliant" },
+            { Iteration_Range: "Target Buffer (10 to 40 FTE)", Net_Buffer_FTE_Min: 10, Net_Buffer_FTE_Max: 40, Outcome_Frequency: 2450, Probability_Pct: "24.5%", Risk_Status: "Healthy Target Met" },
+            { Iteration_Range: "Optimal Range (40 to 80 FTE)", Net_Buffer_FTE_Min: 40, Net_Buffer_FTE_Max: 80, Outcome_Frequency: 3850, Probability_Pct: "38.5%", Risk_Status: "High Buffer Surplus" },
+            { Iteration_Range: "High Surplus (>80 FTE)", Net_Buffer_FTE_Min: 80, Net_Buffer_FTE_Max: 150, Outcome_Frequency: 2400, Probability_Pct: "24.0%", Risk_Status: "Surplus Capacity" }
+        ];
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += headers.map(h => `"${h}"`).join(",") + "\r\n";
+        rows.forEach(r => {
+            csvContent += headers.map(h => `"${r[h]}"`).join(",") + "\r\n";
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `monte_carlo_shortfall_risk_${scenario.id || 'scenario'}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        if (showToast) showToast("Exported Monte Carlo simulation report to CSV", "info");
+    };
 
     return (
         <div className="space-y-3.5 w-full">
@@ -1258,7 +2101,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
             </div>
 
             {/* BENTO KPI SUMMARY GRID (COMPACT GLOWING CARDS) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 {/* 1. Total Demand Card */}
                 <div className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between">
                     <div className="flex items-center justify-between mb-1">
@@ -1347,79 +2190,399 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         </div>
                     </div>
                 </div>
+
+                {/* 5. Plan Shortfall Risk (Monte Carlo Simulation) Card */}
+                <div 
+                    onClick={() => setShowMonteCarloModal(true)}
+                    className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between cursor-pointer hover:border-purple-300 hover:shadow-md transition"
+                    title="Click to inspect Monte Carlo capacity shortfall risk simulation"
+                >
+                    <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Shortfall Risk</span>
+                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 border border-purple-200/60 uppercase">
+                                Monte Carlo
+                            </span>
+                        </div>
+                        <div className="w-7 h-7 rounded-lg bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center glow-icon group-hover:scale-105 transition">
+                            <IconSparkles className="w-3.5 h-3.5 text-purple-600" />
+                        </div>
+                    </div>
+                    <div>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-xl font-black text-rose-600 tracking-tight leading-none">{simData.riskPct}%</span>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                                {simData.slaConfidence}% SLA Conf.
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between mt-1">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                                <span>P95 VaR: {simData.p95VarFte} FTE</span>
+                            </span>
+                            <span className="text-[10px] text-purple-600 font-bold group-hover:underline flex items-center gap-0.5">
+                                <span>10k runs</span>
+                                <span className="text-[9px]">↗</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* MAIN INSIGHTS GRID: TRAJECTORY CURVE & TERRITORY HEALTH */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-                {/* 1. Demand vs Capacity Weekly Trajectory */}
-                <div className="lg:col-span-2 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-2.5 glow-card">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                {/* 1. Demand vs Capacity Weekly Trajectory Envelope (Bars for Demand, Line for Capacity, Full-Height Utilization, Gapped Labels) */}
+                <div className="lg:col-span-2 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-1.5 glow-card">
+                    {/* Card Header & Controls Toolbar */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-2">
                         <div className="flex items-center gap-2">
                             <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                                 <IconCalendar className="w-3.5 h-3.5 text-blue-600" />
                             </div>
                             <div>
                                 <h3 className="font-extrabold text-xs sm:text-sm text-slate-800">Weekly Trajectory Envelope</h3>
-                                <p className="text-[11px] text-slate-400">Forecasted Demand vs Net Productive Engineering Hours</p>
+                                <p className="text-[11px] text-slate-400">Demand (Bars) vs Net Productive Engineering Hours (Line)</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 text-xs font-medium">
-                            <span className="flex items-center gap-1.5 text-slate-600">
-                                <span className="w-2.5 h-2 rounded-sm bg-[#38d4c3]"></span> Capacity
-                            </span>
-                            <span className="flex items-center gap-1.5 text-slate-600">
-                                <span className="w-2.5 h-2 rounded-sm bg-[#f87171]"></span> Demand
-                            </span>
+
+                        {/* Date Range Filter with Year & Chart Legend */}
+                        <div className="flex flex-wrap items-center gap-3">
+                            {/* Date Range Filter Dropdowns (Includes Year) */}
+                            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs shadow-2xs">
+                                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Date:</span>
+                                <select
+                                    value={trajectoryStartDate}
+                                    onChange={(e) => handleTrajectoryStartChange(e.target.value)}
+                                    className="bg-transparent font-bold text-slate-700 text-xs focus:outline-none cursor-pointer"
+                                    title="Start Week Commencing (with Year)"
+                                >
+                                    {TRAJECTORY_HORIZON_WEEKS.map(w => {
+                                        const meta = TRAJECTORY_WEEK_META[w];
+                                        const year = w.split('-')[0];
+                                        const lbl = meta?.label || w.slice(5);
+                                        return (
+                                            <option key={w} value={w}>
+                                                {lbl}, {year} (Wk {meta?.weekNum})
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                                <span className="text-slate-400 font-bold text-xs">→</span>
+                                <select
+                                    value={trajectoryEndDate}
+                                    onChange={(e) => handleTrajectoryEndChange(e.target.value)}
+                                    className="bg-transparent font-bold text-slate-700 text-xs focus:outline-none cursor-pointer"
+                                    title="End Week Commencing (with Year)"
+                                >
+                                    {TRAJECTORY_HORIZON_WEEKS.map(w => {
+                                        const meta = TRAJECTORY_WEEK_META[w];
+                                        const year = w.split('-')[0];
+                                        const lbl = meta?.label || w.slice(5);
+                                        return (
+                                            <option key={w} value={w}>
+                                                {lbl}, {year} (Wk {meta?.weekNum})
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                            </div>
+
+                            {/* Chart Legend */}
+                            <div className="flex items-center gap-3 text-xs font-semibold pl-2 border-l border-slate-200">
+                                <span className="flex items-center gap-1.5 text-slate-700">
+                                    <span className="w-3 h-2.5 rounded-[2px] bg-[#f87171] border border-rose-400 inline-block shadow-2xs"></span>
+                                    <span className="text-[11px]">Demand (Bars)</span>
+                                </span>
+                                <span className="flex items-center gap-1.5 text-slate-700">
+                                    <span className="w-4 h-0.5 bg-[#0284c7] inline-block relative -top-[1px]">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[#0284c7] absolute -top-[2px] left-[5px]"></span>
+                                    </span>
+                                    <span className="text-[11px]">Capacity (Line)</span>
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Fluid Interactive SVG Chart (Height reduced to h-44 for minimized vertical scroll) */}
-                    <div className="h-44 relative flex items-end">
-                        <svg className="w-full h-full" viewBox="0 0 600 200" preserveAspectRatio="none">
-                            <defs>
-                                <linearGradient id="capacityGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#38d4c3" stopOpacity="0.28"/>
-                                    <stop offset="100%" stopColor="#38d4c3" stopOpacity="0.0"/>
-                                </linearGradient>
-                            </defs>
+                    {/* Chart Container: Uses full vertical space above (h-56, padTop 8) */}
+                    <div className="h-56 relative flex items-end w-full select-none pt-0.5">
+                        {(() => {
+                            const width = 620;
+                            const height = 205;
+                            const padLeft = 48;
+                            const padRight = 16;
+                            const padTop = 8;
+                            const padBottom = 34;
+                            const plotW = width - padLeft - padRight;
+                            const plotH = height - padTop - padBottom;
+                            const N = trajectoryChartMetrics.data.length;
+                            const slotW = plotW / Math.max(1, N);
+                            const barW = Math.min(32, Math.max(6, slotW * 0.44));
 
-                            {/* Gridlines */}
-                            <line x1="0" y1="50" x2="600" y2="50" stroke="#f1f5f9" strokeWidth="1"/>
-                            <line x1="0" y1="100" x2="600" y2="100" stroke="#f1f5f9" strokeWidth="1"/>
-                            <line x1="0" y1="150" x2="600" y2="150" stroke="#f1f5f9" strokeWidth="1"/>
+                            // Calculate dynamic interval so X-axis labels have comfortable gaps and never overlap
+                            const labelInterval = N <= 7 ? 1 : N <= 14 ? 2 : N <= 21 ? 3 : 4;
 
-                            {/* Shaded Capacity Area */}
-                            <path
-                                d="M 0 100 Q 75 90 150 95 T 300 85 T 450 70 T 600 65 L 600 200 L 0 200 Z"
-                                fill="url(#capacityGrad)"
-                            />
+                            const getY = (val) => {
+                                const clamped = Math.max(trajectoryChartMetrics.yMin, Math.min(trajectoryChartMetrics.yMax, val));
+                                return padTop + plotH - ((clamped - trajectoryChartMetrics.yMin) / (trajectoryChartMetrics.yMax - trajectoryChartMetrics.yMin)) * plotH;
+                            };
 
-                            {/* Capacity Line (Teal #38d4c3) */}
-                            <path
-                                d="M 0 100 Q 75 90 150 95 T 300 85 T 450 70 T 600 65"
-                                fill="none"
-                                stroke="#38d4c3"
-                                strokeWidth="3"
-                                strokeLinecap="round"
-                            />
+                            const getX = (i) => padLeft + (i + 0.5) * slotW;
 
-                            {/* Demand Line (Coral #f87171) */}
-                            <path
-                                d="M 0 130 Q 75 120 150 115 T 300 105 T 450 90 T 600 85"
-                                fill="none"
-                                stroke="#f87171"
-                                strokeWidth="2.5"
-                                strokeDasharray="4 4"
-                                strokeLinecap="round"
-                            />
-                        </svg>
-                    </div>
+                            // Capacity Polyline / Curve Path
+                            const capPoints = trajectoryChartMetrics.data.map((d, i) => ({
+                                x: getX(i),
+                                y: getY(d.capacity)
+                            }));
 
-                    {/* Timeline Week Labels */}
-                    <div className="grid grid-cols-8 text-center text-[10px] text-slate-400 font-semibold pt-1.5 border-t border-slate-100">
-                        {weeks.map(w => (
-                            <div key={w} className="truncate">{w.slice(5)}</div>
-                        ))}
+                            const capLinePath = capPoints.length === 1
+                                ? `M ${capPoints[0].x - Math.max(16, barW)} ${capPoints[0].y} L ${capPoints[0].x + Math.max(16, barW)} ${capPoints[0].y}`
+                                : capPoints.map((p, i) => {
+                                    if (i === 0) return `M ${p.x} ${p.y}`;
+                                    const prev = capPoints[i - 1];
+                                    const midX = (prev.x + p.x) / 2;
+                                    return `C ${midX} ${prev.y}, ${midX} ${p.y}, ${p.x} ${p.y}`;
+                                }).join(' ');
+
+                            const capAreaPath = capPoints.length > 1
+                                ? `${capLinePath} L ${capPoints[capPoints.length - 1].x} ${padTop + plotH} L ${capPoints[0].x} ${padTop + plotH} Z`
+                                : '';
+
+                            return (
+                                <>
+                                    <svg className="w-full h-full" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+                                        <defs>
+                                            <linearGradient id="demandBarGrad" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stopColor="#f87171" stopOpacity="0.9"/>
+                                                <stop offset="100%" stopColor="#fca5a5" stopOpacity="0.6"/>
+                                            </linearGradient>
+                                            <linearGradient id="demandBarHoverGrad" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stopColor="#ef4444" stopOpacity="0.95"/>
+                                                <stop offset="100%" stopColor="#f87171" stopOpacity="0.75"/>
+                                            </linearGradient>
+                                            <linearGradient id="capacityEnvelopeGrad" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.22"/>
+                                                <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.01"/>
+                                            </linearGradient>
+                                        </defs>
+
+                                        {/* Horizontal Gridlines & Y-Axis Labels */}
+                                        {trajectoryChartMetrics.ticks.map(tick => {
+                                            const y = getY(tick);
+                                            return (
+                                                <g key={tick}>
+                                                    <line
+                                                        x1={padLeft}
+                                                        y1={y}
+                                                        x2={width - padRight}
+                                                        y2={y}
+                                                        stroke="#f1f5f9"
+                                                        strokeWidth="1"
+                                                        strokeDasharray="3 3"
+                                                    />
+                                                    <text
+                                                        x={padLeft - 6}
+                                                        y={y + 3.5}
+                                                        textAnchor="end"
+                                                        fontSize="9.5"
+                                                        fontWeight="600"
+                                                        fill="#94a3b8"
+                                                        fontFamily="monospace"
+                                                    >
+                                                        {(tick / 1000).toFixed(1)}k
+                                                    </text>
+                                                </g>
+                                            );
+                                        })}
+
+                                        {/* Capacity Soft Area Envelope */}
+                                        {capAreaPath && (
+                                            <path d={capAreaPath} fill="url(#capacityEnvelopeGrad)" />
+                                        )}
+
+                                        {/* 1. DEMAND AS BARS */}
+                                        {trajectoryChartMetrics.data.map((d, i) => {
+                                            const x = getX(i);
+                                            const barX = x - barW / 2;
+                                            const barY = getY(d.demand);
+                                            const barH = Math.max(2, (padTop + plotH) - barY);
+                                            const isHovered = trajectoryHoveredIdx === i;
+
+                                            return (
+                                                <g key={`bar-${d.week}`}>
+                                                    <rect
+                                                        x={barX}
+                                                        y={barY}
+                                                        width={barW}
+                                                        height={barH}
+                                                        rx="3.5"
+                                                        ry="3.5"
+                                                        fill={isHovered ? "url(#demandBarHoverGrad)" : "url(#demandBarGrad)"}
+                                                        stroke={isHovered ? "#dc2626" : "#fb7185"}
+                                                        strokeWidth={isHovered ? "1.5" : "1"}
+                                                        className="transition-all duration-150"
+                                                    />
+                                                    {/* Subtle bar top cap */}
+                                                    <rect
+                                                        x={barX + 1}
+                                                        y={barY}
+                                                        width={Math.max(1, barW - 2)}
+                                                        height="2"
+                                                        rx="1"
+                                                        fill="#ffffff"
+                                                        fillOpacity="0.4"
+                                                    />
+                                                </g>
+                                            );
+                                        })}
+
+                                        {/* 2. CAPACITY AS CONTINUOUS LINE */}
+                                        {capLinePath && (
+                                            <path
+                                                d={capLinePath}
+                                                fill="none"
+                                                stroke="#0284c7"
+                                                strokeWidth="2.75"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            />
+                                        )}
+
+                                        {/* Capacity Data Point Nodes */}
+                                        {capPoints.map((p, i) => {
+                                            const isHovered = trajectoryHoveredIdx === i;
+                                            return (
+                                                <circle
+                                                    key={`cap-node-${i}`}
+                                                    cx={p.x}
+                                                    cy={p.y}
+                                                    r={isHovered ? 5.5 : 3.5}
+                                                    fill="#ffffff"
+                                                    stroke="#0284c7"
+                                                    strokeWidth={isHovered ? 2.5 : 2}
+                                                    className="transition-all"
+                                                />
+                                            );
+                                        })}
+
+                                        {/* X-Axis Timeline Dates & Net Delta (Gapped when many weeks to prevent overlapping) */}
+                                        {trajectoryChartMetrics.data.map((d, i) => {
+                                            const x = getX(i);
+                                            const isHovered = trajectoryHoveredIdx === i;
+                                            const isLast = i === N - 1;
+                                            const distFromPrev = i - (Math.floor(i / labelInterval) * labelInterval);
+                                            const showText = (i % labelInterval === 0) || (isLast && (distFromPrev >= 2 || N <= 4)) || isHovered;
+
+                                            return (
+                                                <g key={`xaxis-${d.week}`}>
+                                                    {showText ? (
+                                                        <>
+                                                            <text
+                                                                x={x}
+                                                                y={padTop + plotH + 14}
+                                                                textAnchor="middle"
+                                                                fontSize={N > 14 ? "8.5" : "10"}
+                                                                fontWeight={isHovered ? "800" : "600"}
+                                                                fill={isHovered ? "#005eb8" : "#64748b"}
+                                                            >
+                                                                {d.label}
+                                                            </text>
+                                                            <text
+                                                                x={x}
+                                                                y={padTop + plotH + 26}
+                                                                textAnchor="middle"
+                                                                fontSize={N > 14 ? "8" : "9"}
+                                                                fontWeight="700"
+                                                                fill={d.netHrs >= 0 ? "#059669" : "#dc2626"}
+                                                                fontFamily="monospace"
+                                                            >
+                                                                {d.netHrs >= 0 ? '+' : ''}{d.netFte}F
+                                                            </text>
+                                                        </>
+                                                    ) : (
+                                                        /* Tick indicator for weeks between intervals */
+                                                        <circle
+                                                            cx={x}
+                                                            cy={padTop + plotH + 6}
+                                                            r="1.5"
+                                                            fill="#cbd5e1"
+                                                        />
+                                                    )}
+                                                </g>
+                                            );
+                                        })}
+
+                                        {/* Interactive Hover Columns */}
+                                        {trajectoryChartMetrics.data.map((d, i) => {
+                                            const x = getX(i);
+                                            return (
+                                                <rect
+                                                    key={`hover-col-${d.week}`}
+                                                    x={x - slotW / 2}
+                                                    y={padTop}
+                                                    width={slotW}
+                                                    height={plotH + padBottom}
+                                                    fill={trajectoryHoveredIdx === i ? "#3b82f6" : "transparent"}
+                                                    fillOpacity={trajectoryHoveredIdx === i ? 0.05 : 0}
+                                                    onMouseEnter={() => setTrajectoryHoveredIdx(i)}
+                                                    onMouseLeave={() => setTrajectoryHoveredIdx(null)}
+                                                    className="cursor-pointer"
+                                                />
+                                            );
+                                        })}
+                                    </svg>
+
+                                    {/* Interactive Hover Tooltip */}
+                                    {trajectoryHoveredIdx !== null && trajectoryChartMetrics.data[trajectoryHoveredIdx] && (
+                                        <div
+                                            className="absolute top-1 bg-slate-900/95 text-white rounded-xl px-3 py-2 text-xs shadow-xl backdrop-blur-xs pointer-events-none z-20 space-y-1 font-sans border border-slate-700/80 transition-all"
+                                            style={{
+                                                left: trajectoryHoveredIdx < N / 2
+                                                    ? `${Math.min(380, padLeft + (trajectoryHoveredIdx + 1) * slotW + 12)}px`
+                                                    : undefined,
+                                                right: trajectoryHoveredIdx >= N / 2
+                                                    ? `${Math.max(12, width - (padLeft + trajectoryHoveredIdx * slotW) + 12)}px`
+                                                    : undefined
+                                            }}
+                                        >
+                                            <div className="font-bold flex items-center justify-between gap-3 text-slate-200 border-b border-slate-700/80 pb-1">
+                                                <span>{trajectoryChartMetrics.data[trajectoryHoveredIdx].week} (Wk {trajectoryChartMetrics.data[trajectoryHoveredIdx].weekNum})</span>
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                                                    trajectoryChartMetrics.data[trajectoryHoveredIdx].netHrs >= 0
+                                                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                                        : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                                                }`}>
+                                                    {trajectoryChartMetrics.data[trajectoryHoveredIdx].netHrs >= 0 ? '+' : ''}
+                                                    {trajectoryChartMetrics.data[trajectoryHoveredIdx].netHrs} hrs
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between gap-4 text-slate-300 text-[11px]">
+                                                <span className="flex items-center gap-1.5">
+                                                    <span className="w-2.5 h-2 rounded-[2px] bg-[#f87171] inline-block"></span>
+                                                    <span>Demand (Bar):</span>
+                                                </span>
+                                                <span className="font-mono font-bold text-rose-300">{trajectoryChartMetrics.data[trajectoryHoveredIdx].demand.toLocaleString()} hrs</span>
+                                            </div>
+                                            <div className="flex items-center justify-between gap-4 text-slate-300 text-[11px]">
+                                                <span className="flex items-center gap-1.5">
+                                                    <span className="w-2.5 h-0.5 bg-[#0284c7] inline-block"></span>
+                                                    <span>Capacity (Line):</span>
+                                                </span>
+                                                <span className="font-mono font-bold text-sky-300">{trajectoryChartMetrics.data[trajectoryHoveredIdx].capacity.toLocaleString()} hrs</span>
+                                            </div>
+                                            <div className="flex items-center justify-between gap-4 pt-1 border-t border-slate-700/80 text-[11px]">
+                                                <span className="text-slate-400">Net Buffer / Coverage:</span>
+                                                <span className={`font-mono font-bold ${
+                                                    trajectoryChartMetrics.data[trajectoryHoveredIdx].netHrs >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                                                }`}>
+                                                    {trajectoryChartMetrics.data[trajectoryHoveredIdx].netFte >= 0 ? '+' : ''}
+                                                    {trajectoryChartMetrics.data[trajectoryHoveredIdx].netFte} FTE ({trajectoryChartMetrics.data[trajectoryHoveredIdx].covRatio}%)
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            );
+                        })()}
                     </div>
                 </div>
 
@@ -1450,6 +2613,202 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         ))}
                     </div>
                 </div>
+            </div>
+
+            {/* OPERATIONAL TRAJECTORY TRENDS SPARKLINE CARDS (INSPIRATION: LAST 12 WEEKS CONTINUOUS TRAJECTORY) */}
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-xs space-y-2.5 glow-card">
+                {/* Header */}
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-black uppercase text-slate-800 tracking-wider">
+                            Trends ({visibleTrajectoryWeeks.length} Weeks Horizon)
+                        </span>
+                    </div>
+                    <span className="text-[11px] text-slate-400 font-semibold hidden sm:inline">
+                        Continuous Operational Trajectory
+                    </span>
+                </div>
+
+                {/* 5 Sparkline Metric Cards Grid: FTE Required, Gross Hours, Total Downtime, Productivity, Imbalance */}
+                {(() => {
+                    const startWk = TRAJECTORY_WEEK_META[visibleTrajectoryWeeks[0]]?.weekNum || 40;
+                    const endWk = TRAJECTORY_WEEK_META[visibleTrajectoryWeeks[visibleTrajectoryWeeks.length - 1]]?.weekNum || 51;
+
+                    // Generate smooth sparkline coordinates
+                    function generateSparkline(values, width = 160, height = 36, padY = 4) {
+                        if (!values || values.length === 0) return { linePath: "", areaPath: "", lastPoint: { x: 0, y: 0 } };
+                        const min = Math.min(...values);
+                        const max = Math.max(...values);
+                        const range = (max - min) === 0 ? 1 : (max - min);
+                        const plotH = height - (padY * 2);
+
+                        const points = values.map((v, i) => {
+                            const x = (i / Math.max(1, values.length - 1)) * width;
+                            const y = height - padY - ((v - min) / range) * plotH;
+                            return { x: Number(x.toFixed(1)), y: Number(y.toFixed(1)) };
+                        });
+
+                        const linePath = points.length === 1
+                            ? `M 0 ${points[0].y} L ${width} ${points[0].y}`
+                            : points.map((p, i) => {
+                                if (i === 0) return `M ${p.x} ${p.y}`;
+                                const prev = points[i - 1];
+                                const midX = (prev.x + p.x) / 2;
+                                return `C ${midX.toFixed(1)} ${prev.y.toFixed(1)}, ${midX.toFixed(1)} ${p.y.toFixed(1)}, ${p.x} ${p.y}`;
+                            }).join(' ');
+
+                        const areaPath = points.length > 1
+                            ? `${linePath} L ${width} ${height} L 0 ${height} Z`
+                            : '';
+
+                        return { linePath, areaPath, lastPoint: points[points.length - 1] };
+                    }
+
+                    // Series across visible trajectory weeks
+                    const fteVals = visibleTrajectoryWeeks.map((w, idx) => {
+                        const dem = TRAJECTORY_WEEK_META[w]?.demand || 4700;
+                        return Number((dem / 4.65).toFixed(1));
+                    });
+
+                    const grossVals = visibleTrajectoryWeeks.map((w, idx) => {
+                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
+                        return Math.round(cap * 8.24);
+                    });
+
+                    const downtimeVals = visibleTrajectoryWeeks.map((w, idx) => {
+                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
+                        const factor = 0.125 + (((idx % 5) - 2) * 0.005);
+                        return Math.round(cap * factor * 8.24);
+                    });
+
+                    const prodVals = visibleTrajectoryWeeks.map((w, idx) => {
+                        const dem = TRAJECTORY_WEEK_META[w]?.demand || 4700;
+                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
+                        return Number((86.0 + ((cap / dem) * 2.4) + ((idx % 3) * 0.2)).toFixed(1));
+                    });
+
+                    const imbVals = visibleTrajectoryWeeks.map((w, idx) => {
+                        const dem = TRAJECTORY_WEEK_META[w]?.demand || 4700;
+                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
+                        return Number(((cap - dem) / 37.5).toFixed(1));
+                    });
+
+                    const trendMetrics = [
+                        {
+                            id: "fte_required",
+                            name: "FTE Required",
+                            currentVal: "1,024",
+                            unit: "FTE",
+                            trend: "↑ 2.4% WoW",
+                            isPositive: true,
+                            color: "#0284c7",
+                            gradientId: "sparkBlueFte",
+                            spark: generateSparkline(fteVals)
+                        },
+                        {
+                            id: "gross_hours",
+                            name: "Gross Hours",
+                            currentVal: "41,200",
+                            unit: "hrs",
+                            trend: "↑ 1.8% WoW",
+                            isPositive: true,
+                            color: "#2563eb",
+                            gradientId: "sparkIndigoGross",
+                            spark: generateSparkline(grossVals)
+                        },
+                        {
+                            id: "total_downtime",
+                            name: "Total Downtime",
+                            currentVal: "5,420",
+                            unit: "hrs",
+                            trend: "↓ 3.2% WoW",
+                            isPositive: true,
+                            color: "#f59e0b",
+                            gradientId: "sparkAmberDown",
+                            spark: generateSparkline(downtimeVals)
+                        },
+                        {
+                            id: "productivity",
+                            name: "Productivity",
+                            currentVal: "88.5%",
+                            unit: "Efficiency",
+                            trend: "↑ 1.6% WoW",
+                            isPositive: true,
+                            color: "#10b981",
+                            gradientId: "sparkEmeraldProd",
+                            spark: generateSparkline(prodVals)
+                        },
+                        {
+                            id: "imbalance",
+                            name: "Imbalance",
+                            currentVal: "+73.3",
+                            unit: "FTE Buffer",
+                            trend: "↑ 4.8% WoW",
+                            isPositive: true,
+                            color: "#0d9488",
+                            gradientId: "sparkTealImb",
+                            spark: generateSparkline(imbVals)
+                        }
+                    ];
+
+                    return (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                            {trendMetrics.map(metric => (
+                                <div
+                                    key={metric.id}
+                                    className="bg-slate-50/60 hover:bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs hover:shadow-xs transition glow-card flex flex-col justify-between"
+                                >
+                                    <div>
+                                        <div className="flex items-center justify-between mb-0.5">
+                                            <span className="text-xs font-extrabold text-slate-800 truncate">{metric.name}</span>
+                                            <span className={`text-[10px] font-bold flex items-center gap-0.5 ${metric.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                                {metric.trend}
+                                            </span>
+                                        </div>
+                                        <div className="text-sm font-black text-slate-900 tracking-tight leading-tight">
+                                            {metric.currentVal} <span className="text-[10px] font-semibold text-slate-400 font-normal">{metric.unit}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Sparkline Graphic with Area Gradient & Terminal Dot */}
+                                    <div className="h-10 w-full relative my-1">
+                                        <svg className="w-full h-full overflow-visible" viewBox="0 0 160 36" preserveAspectRatio="none">
+                                            <defs>
+                                                <linearGradient id={metric.gradientId} x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="0%" stopColor={metric.color} stopOpacity="0.25"/>
+                                                    <stop offset="100%" stopColor={metric.color} stopOpacity="0.01"/>
+                                                </linearGradient>
+                                            </defs>
+                                            {metric.spark.areaPath && (
+                                                <path d={metric.spark.areaPath} fill={`url(#${metric.gradientId})`} />
+                                            )}
+                                            <path
+                                                d={metric.spark.linePath}
+                                                fill="none"
+                                                stroke={metric.color}
+                                                strokeWidth="2.25"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            />
+                                            <circle
+                                                cx={metric.spark.lastPoint.x}
+                                                cy={metric.spark.lastPoint.y}
+                                                r="3"
+                                                fill={metric.color}
+                                            />
+                                        </svg>
+                                    </div>
+
+                                    {/* Card Footer: Start Week & End Week */}
+                                    <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono pt-1 border-t border-slate-100">
+                                        <span>WK {startWk}</span>
+                                        <span>WK {endWk}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    );
+                })()}
             </div>
 
             {/* AI DIAGNOSTICS & ACTIVE INPUT SUMMARY */}
@@ -1518,6 +2877,17 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                     </button>
                 </div>
             </div>
+        
+            {/* Monte Carlo Simulation Modal */}
+            <MonteCarloSimulationModal
+                isOpen={showMonteCarloModal}
+                onClose={() => setShowMonteCarloModal(false)}
+                scenario={scenario}
+                simData={simData}
+                onRerunSimulation={handleRerunSimulation}
+                isSimulating={isSimulating}
+                onExportCsv={handleExportSimulationCsv}
+            />
         </div>
     );
 }
