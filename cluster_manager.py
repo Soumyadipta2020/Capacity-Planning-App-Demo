@@ -984,7 +984,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
                 "is_offline": "false",
             }
             cluster_info.set(local_status)
-            _send_client_message("update_cluster_status", local_status)
+            await session.send_custom_message("update_cluster_status", local_status)
             return
 
         storage_mode = EnvironmentConfig.get_storage_mode()
@@ -999,7 +999,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
             cluster_info.set(health)
 
             # Broadcast updated cluster status to React client
-            session.send_custom_message("update_cluster_status", health)
+            await session.send_custom_message("update_cluster_status", health)
 
             state = health.get("state", "UNKNOWN")
             is_offline = health.get("is_offline") == "true" or state in OFFLINE_STATES
@@ -1017,7 +1017,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
                 dismissed = offline_modal_dismissed()
 
             # If cluster is RUNNING (can_read == "true"):
-            if health.get("can_read") == "true":
+            if health.get("can_read") == "true" or state == RUNNING_STATE:
                 if modal_state in {"starting", "offline_prompt"}:
                     print(
                         f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [CLUSTER READY] Poller detected RUNNING compute. Auto-closing modals and loading data.",
@@ -1026,7 +1026,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
                     cluster_modal_state.set("none")
                     _hide_cluster_modal()
                     ui.notification_show("Databricks cluster is running! Loading data...", type="message", duration=5)
-                    session.send_custom_message("update_env_status", engine.get_engine_status())
+                    await session.send_custom_message("update_env_status", engine.get_engine_status())
                 # While RUNNING, check every 15s to detect if compute terminates from idle timeout:
                 reactive.invalidate_later(15)
                 return
@@ -1105,7 +1105,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
 
                 health = await asyncio.to_thread(engine.check_health_now)
                 cluster_info.set(health)
-                session.send_custom_message("update_cluster_status", health)
+                await session.send_custom_message("update_cluster_status", health)
                 state = health.get("state", "UNKNOWN")
                 can_read = health.get("can_read") == "true"
 
@@ -1124,8 +1124,8 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
                         type="message",
                         duration=5,
                     )
-                    session.send_custom_message("update_env_status", engine.get_engine_status())
-                    session.send_custom_message("show_toast", {
+                    await session.send_custom_message("update_env_status", engine.get_engine_status())
+                    await session.send_custom_message("show_toast", {
                         "message": f"Databricks cluster '{cluster_name or 'Cluster'}' is online and ready!",
                         "type": "success"
                     })
@@ -1197,7 +1197,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
             try:
                 health = await asyncio.to_thread(engine.check_health_now)
                 cluster_info.set(health)
-                session.send_custom_message("update_cluster_status", health)
+                await session.send_custom_message("update_cluster_status", health)
                 state = health.get("state", "UNKNOWN")
                 is_offline = health.get("is_offline") == "true" or state in OFFLINE_STATES
                 if is_offline:
@@ -1249,8 +1249,8 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
     async def on_react_check_health():
         health = await asyncio.to_thread(engine.check_health_now)
         cluster_info.set(health)
-        session.send_custom_message("update_cluster_status", health)
-        session.send_custom_message("update_env_status", engine.get_engine_status())
+        await session.send_custom_message("update_cluster_status", health)
+        await session.send_custom_message("update_env_status", engine.get_engine_status())
 
     # React JS bridge listener to trigger start cluster
     @reactive.effect

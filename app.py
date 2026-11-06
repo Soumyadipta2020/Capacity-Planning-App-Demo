@@ -134,7 +134,7 @@ def server(input, output, session):
     # Handle Scenario Save from React UI
     @reactive.effect
     @reactive.event(input.save_scenario_event)
-    def _on_react_save():
+    async def _on_react_save():
         data = input.save_scenario_event()
         if not data:
             return
@@ -148,13 +148,13 @@ def server(input, output, session):
         new_id = sm.save_scenario(plan_type, month, version, remarks, inputs)
         
         # Broadcast updated scenarios back to React
-        session.send_custom_message("update_scenario_data", {
+        await session.send_custom_message("update_scenario_data", {
             "scenarios": sm.get_all_scenarios(),
             "selectedScenarioId": new_id,
             "inputsState": inputs,
             "envInfo": engine.get_engine_status()
         })
-        session.send_custom_message("show_toast", {
+        await session.send_custom_message("show_toast", {
             "message": f"Scenario '{new_id}' saved successfully to backend!",
             "type": "success"
         })
@@ -162,19 +162,19 @@ def server(input, output, session):
     # Handle Scenario Load from React UI
     @reactive.effect
     @reactive.event(input.load_scenario_event)
-    def _on_react_load():
+    async def _on_react_load():
         scenario_id = input.load_scenario_event()
         if not scenario_id:
             return
         
         scen = sm.get_scenario(scenario_id)
         if scen:
-            session.send_custom_message("update_scenario_data", {
+            await session.send_custom_message("update_scenario_data", {
                 "selectedScenarioId": scenario_id,
                 "inputsState": scen.get("inputs", {}),
                 "envInfo": engine.get_engine_status()
             })
-            session.send_custom_message("show_toast", {
+            await session.send_custom_message("show_toast", {
                 "message": f"Loaded scenario: {scenario_id}",
                 "type": "info"
             })
@@ -182,7 +182,7 @@ def server(input, output, session):
     # Handle Bulk File Upload & Ingestion from React UI
     @reactive.effect
     @reactive.event(input.bulk_upload_event)
-    def _on_react_bulk_upload():
+    async def _on_react_bulk_upload():
         data = input.bulk_upload_event()
         if not data or not isinstance(data, dict):
             return
@@ -198,7 +198,7 @@ def server(input, output, session):
                 register_uploaded_file(f_type, f_name, f_remarks, f_content)
                 saved_count += 1
                 
-        session.send_custom_message("show_toast", {
+        await session.send_custom_message("show_toast", {
             "message": f"Successfully registered {saved_count} validated file(s) in backend.",
             "type": "success"
         })
@@ -206,13 +206,13 @@ def server(input, output, session):
     # Handle Stage Switching (dev / uat / prod simulation) from React UI
     @reactive.effect
     @reactive.event(input.switch_stage_event)
-    def _on_switch_stage():
+    async def _on_switch_stage():
         stage = input.switch_stage_event()
         if stage in ["dev", "uat", "prod", ""]:
             EnvironmentConfig.set_stage_override(stage)
             updated_status = engine.get_engine_status()
-            session.send_custom_message("update_env_status", updated_status)
-            session.send_custom_message("show_toast", {
+            await session.send_custom_message("update_env_status", updated_status)
+            await session.send_custom_message("show_toast", {
                 "message": f"Switched Databricks stage to '{EnvironmentConfig.get_stage().upper()}' (Schema: {EnvironmentConfig.get_schema()})",
                 "type": "info"
             })
@@ -220,7 +220,7 @@ def server(input, output, session):
     # Handle Input File Table Data Request from React UI
     @reactive.effect
     @reactive.event(input.request_input_file_data)
-    def _on_request_input_file_data():
+    async def _on_request_input_file_data():
         req = input.request_input_file_data()
         if not req or not isinstance(req, dict):
             return
@@ -233,12 +233,12 @@ def server(input, output, session):
         if request_id is not None:
             result["requestId"] = request_id
             
-        session.send_custom_message("response_input_file_data", result)
+        await session.send_custom_message("response_input_file_data", result)
 
     # Handle Calculation Module Data Request from React UI
     @reactive.effect
     @reactive.event(input.request_calc_module_data)
-    def _on_request_calc_module_data():
+    async def _on_request_calc_module_data():
         req = input.request_calc_module_data()
         if not req or not isinstance(req, dict):
             return
@@ -250,7 +250,7 @@ def server(input, output, session):
         if request_id is not None:
             result["requestId"] = request_id
             
-        session.send_custom_message("response_calc_module_data", result)
+        await session.send_custom_message("response_calc_module_data", result)
 
     # Register standard PyShiny server handlers (calculators, downloads, classic views)
     register_server_handlers(input, output, session)
