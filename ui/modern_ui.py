@@ -370,6 +370,14 @@ def create_modern_ui_page():
                 ::-webkit-scrollbar-thumb:hover {
                     background: #94a3b8;
                 }
+
+                /* Guarantee raw PyShiny bootstrap modal popups do not overlay modern React UI */
+                #shiny-modal-wrapper, #shiny-modal-wrapper .modal, #shiny-modal-wrapper .modal-backdrop {
+                    display: none !important;
+                }
+                body > .modal-backdrop {
+                    display: none !important;
+                }
                 """
             ),
             

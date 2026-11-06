@@ -392,6 +392,17 @@ def register_uploaded_file(file_type: str, filename: str, remarks: str = "", con
                 f.write(content)
         except Exception as e:
             print(f"Warning: could not write uploaded file to disk: {e}")
+
+        # Ingest into Databricks Unity Catalog Delta table if compute is active
+        try:
+            from engine.data_engine import CapacityDataEngine
+            engine = CapacityDataEngine.get_instance()
+            if engine.is_databricks_active():
+                import io
+                df_up = pd.read_csv(io.StringIO(content))
+                engine.append_uploaded_file_to_databricks(file_type, clean_name, df_up)
+        except Exception as e:
+            print(f"[Databricks] Upload Delta ingestion warning: {e}")
             
     return True
 
@@ -498,19 +509,32 @@ def _generate_sample_df_for_category(input_key: str) -> pd.DataFrame:
 def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
     """
     Reads tabular data for the specified input category and file version.
-    Locates the file in data/<folder>/, parses CSV or Excel into records and column list.
-    If the file is not on disk, automatically generates sample data for that category and saves it.
+    When Databricks mode is active and compute is available, queries Databricks Unity Catalog
+    Delta table (<catalog>.<schema>.es_shiny_<input_key>), auto-creating it if not present.
+    Otherwise falls back to local data/<folder>/ CSV or category sample generator.
     """
-    if not input_key or not filename:
+    if not input_key:
         return {
             "success": False,
-            "inputKey": input_key or "",
+            "inputKey": "",
             "fileName": filename or "",
             "columns": [],
             "rows": [],
             "totalRows": 0,
-            "error": "Input category and filename must be provided."
+            "error": "Input category must be provided."
         }
+
+    # Route to Databricks Unity Catalog when compute is active
+    try:
+        from engine.data_engine import CapacityDataEngine
+        engine = CapacityDataEngine.get_instance()
+        if engine.is_databricks_active():
+            return engine.load_input_table_data(input_key, filename=filename)
+    except Exception as e:
+        from cluster_manager import ClusterStartingError
+        if isinstance(e, ClusterStartingError):
+            raise
+        print(f"[Databricks] Falling back to local filesystem for '{input_key}': {e}")
     
     folder = CATEGORY_FOLDER_MAP.get(input_key, "capacity")
     data_dir = EnvironmentConfig.get_data_dir() / folder
@@ -826,7 +850,8 @@ class ScenarioManager:
             with open(self.scenarios_file, "w", encoding="utf-8") as f:
                 json.dump(default_scenarios, f, indent=2)
 
-    def _generate_default_scenarios(self) -> Dict[str, Any]:
+    @classmethod
+    def _generate_default_scenarios(cls) -> Dict[str, Any]:
         """Creates sample scenarios matching user screenshots."""
         scenario_jul = {
             "id": "LV JUL V.1 2026-07-07 12:46:46",
@@ -877,6 +902,29 @@ class ScenarioManager:
         }
 
     def get_all_scenarios(self) -> Dict[str, Any]:
+        """
+        Retrieves all planning scenarios.
+        Queries Databricks Unity Catalog `es_shiny_scenarios` Delta table when compute is active,
+        and falls back to local `scenarios.json`.
+        """
+        try:
+            from engine.data_engine import CapacityDataEngine
+            engine = CapacityDataEngine.get_instance()
+            if engine.is_databricks_active():
+                db_scens = engine.load_scenarios()
+                if db_scens:
+                    try:
+                        with open(self.scenarios_file, "w", encoding="utf-8") as f:
+                            json.dump(db_scens, f, indent=2)
+                    except Exception:
+                        pass
+                    return db_scens
+        except Exception as e:
+            from cluster_manager import ClusterStartingError
+            if isinstance(e, ClusterStartingError):
+                raise
+            print(f"[Databricks] Scenarios read fallback: {e}")
+
         try:
             with open(self.scenarios_file, "r", encoding="utf-8") as f:
                 return json.load(f)
@@ -899,12 +947,12 @@ class ScenarioManager:
         remarks: str,
         inputs: Dict[str, str]
     ) -> str:
-        """Saves a new scenario and returns its unique scenario id."""
+        """Saves a new scenario and persists to both local storage and Unity Catalog."""
         scenarios = self.get_all_scenarios()
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         scenario_id = f"{plan_type} {month} V.{version} {now_str}"
         
-        scenarios[scenario_id] = {
+        new_scen = {
             "id": scenario_id,
             "plan_type": plan_type,
             "month": month,
@@ -913,20 +961,52 @@ class ScenarioManager:
             "created_at": now_str,
             "inputs": inputs
         }
+        scenarios[scenario_id] = new_scen
         
-        with open(self.scenarios_file, "w", encoding="utf-8") as f:
-            json.dump(scenarios, f, indent=2)
+        try:
+            with open(self.scenarios_file, "w", encoding="utf-8") as f:
+                json.dump(scenarios, f, indent=2)
+        except Exception as e:
+            print(f"Warning: could not write local scenarios.json: {e}")
+
+        try:
+            from engine.data_engine import CapacityDataEngine
+            engine = CapacityDataEngine.get_instance()
+            if engine.is_databricks_active():
+                engine.save_scenario_to_databricks(new_scen)
+        except Exception as e:
+            from cluster_manager import ClusterStartingError
+            if isinstance(e, ClusterStartingError):
+                raise
+            print(f"[Databricks] Save scenario Delta warning: {e}")
             
         return scenario_id
 
     def delete_scenario(self, scenario_id: str) -> bool:
         scenarios = self.get_all_scenarios()
+        deleted = False
         if scenario_id in scenarios:
             del scenarios[scenario_id]
-            with open(self.scenarios_file, "w", encoding="utf-8") as f:
-                json.dump(scenarios, f, indent=2)
-            return True
-        return False
+            try:
+                with open(self.scenarios_file, "w", encoding="utf-8") as f:
+                    json.dump(scenarios, f, indent=2)
+            except Exception:
+                pass
+            deleted = True
+
+        try:
+            from engine.data_engine import CapacityDataEngine
+            engine = CapacityDataEngine.get_instance()
+            if engine.is_databricks_active():
+                engine.delete_scenario_from_databricks(scenario_id)
+                deleted = True
+        except Exception as e:
+            from cluster_manager import ClusterStartingError
+            if isinstance(e, ClusterStartingError):
+                raise
+            print(f"[Databricks] Delete scenario Delta warning: {e}")
+
+        return deleted
 
 
 class SampleDataGenerator:

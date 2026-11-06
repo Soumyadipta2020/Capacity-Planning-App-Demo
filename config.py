@@ -193,15 +193,18 @@ class EnvironmentConfig:
     def get_storage_mode(cls) -> str:
         """
         Determines active storage/execution mode:
-        'databricks' if in a Databricks container, STORAGE_MODE=databricks, or cluster configured;
-        defaults to 'databricks' to actively monitor compute health like the reference app.
-        Use STORAGE_MODE=csv or STORAGE_MODE=local to run strictly offline.
+        - 'databricks' if deployed in a Databricks container or STORAGE_MODE=databricks.
+        - 'local' if running locally in VS Code without explicit Databricks configuration.
+        In VS Code, Databricks compute status checks are bypassed to run completely offline.
         """
         mode = os.environ.get("STORAGE_MODE", "").strip().lower()
         if mode in {"csv", "local"}:
             return "local"
         if mode in {"databricks", "delta", "spark"}:
             return "databricks"
+        # If running in VS Code (local development), default to local mode
+        if cls.is_vscode():
+            return "local"
         return "databricks"
 
     @classmethod

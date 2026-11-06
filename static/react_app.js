@@ -515,6 +515,9 @@ function ModernCapacityApp() {
         is_offline: "false"
     });
 
+    // Native React Cluster & Session Management Floating Modal State
+    const [activeClusterModal, setActiveClusterModal] = useState(null);
+
     // Scenario State
     const [scenarios, setScenarios] = useState({});
     const [selectedScenarioId, setSelectedScenarioId] = useState("LV OCT V.0 2026-10-29 16:00:00");
@@ -617,6 +620,16 @@ function ModernCapacityApp() {
                 if (data) {
                     setClusterInfo(data);
                 }
+            });
+
+            window.Shiny.addCustomMessageHandler('show_cluster_modal', function(data) {
+                if (data) {
+                    setActiveClusterModal(data);
+                }
+            });
+
+            window.Shiny.addCustomMessageHandler('hide_cluster_modal', function(data) {
+                setActiveClusterModal(null);
             });
 
             window.Shiny.addCustomMessageHandler('response_input_file_data', function(data) {
@@ -1078,9 +1091,11 @@ function ModernCapacityApp() {
                         </button>
                         <button
                             onClick={() => {
-                                if (window.Shiny && window.Shiny.setInputValue) {
-                                    window.Shiny.setInputValue('btn_logout_session', Date.now(), { priority: 'event' });
-                                }
+                                setActiveClusterModal({
+                                    type: 'logout',
+                                    user_email: envInfo.user_email || 'user@centrica.com',
+                                    databricks_host: envInfo.databricks_host || ''
+                                });
                             }}
                             className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-rose-50/80 hover:bg-rose-100 text-rose-700 border border-rose-200/80 transition flex items-center gap-1.5 shadow-xs"
                             title="End active session or log out of Databricks"
@@ -1130,9 +1145,11 @@ function ModernCapacityApp() {
                         {(clusterInfo.is_offline === 'true' || ['TERMINATED', 'STOPPED', 'OFFLINE'].includes(clusterInfo.state)) ? (
                             <button
                                 onClick={() => {
-                                    if (window.Shiny && window.Shiny.setInputValue) {
-                                        window.Shiny.setInputValue('btn_banner_start_cluster', Date.now(), { priority: 'event' });
-                                    }
+                                    setActiveClusterModal({
+                                        type: 'offline',
+                                        cluster_name: clusterInfo.cluster_name,
+                                        state: clusterInfo.state
+                                    });
                                 }}
                                 className="px-3 py-1 bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs rounded-lg shadow-xs transition active:scale-95 flex items-center gap-1.5"
                             >
@@ -1235,7 +1252,13 @@ function ModernCapacityApp() {
 
                     {/* TAB 8: DATABRICKS ARCHITECTURE */}
                     {activeTab === 'architecture' && (
-                        <DatabricksArchitectureView envInfo={envInfo} setEnvInfo={setEnvInfo} clusterInfo={clusterInfo} showToast={showToast} />
+                        <DatabricksArchitectureView 
+                            envInfo={envInfo} 
+                            setEnvInfo={setEnvInfo} 
+                            clusterInfo={clusterInfo} 
+                            showToast={showToast} 
+                            onOpenClusterModal={setActiveClusterModal} 
+                        />
                     )}
                 </main>
             </div>
@@ -1330,6 +1353,349 @@ function ModernCapacityApp() {
                     showToast={showToast}
                 />
             )}
+
+            {/* NATIVE REACT / TAILWIND CLUSTER & SESSION MANAGEMENT FLOATING MODAL */}
+            {activeClusterModal && (
+                <ClusterManagementModal
+                    modalData={activeClusterModal}
+                    clusterInfo={clusterInfo}
+                    envInfo={envInfo}
+                    onClose={() => {
+                        setActiveClusterModal(null);
+                        if (window.Shiny && window.Shiny.setInputValue) {
+                            window.Shiny.setInputValue('btn_offline_modal_dismiss', Date.now(), { priority: 'event' });
+                            window.Shiny.setInputValue('btn_dismiss_logout_modal', Date.now(), { priority: 'event' });
+                        }
+                    }}
+                    onStartCluster={() => {
+                        setActiveClusterModal({
+                            type: 'starting',
+                            cluster_name: activeClusterModal.cluster_name || clusterInfo.cluster_name
+                        });
+                        if (window.Shiny && window.Shiny.setInputValue) {
+                            window.Shiny.setInputValue('btn_start_cluster_confirm', Date.now(), { priority: 'event' });
+                        }
+                    }}
+                    onDismissStarting={() => {
+                        setActiveClusterModal(null);
+                        if (window.Shiny && window.Shiny.setInputValue) {
+                            window.Shiny.setInputValue('btn_dismiss_starting_modal', Date.now(), { priority: 'event' });
+                        }
+                    }}
+                    onEndSession={() => {
+                        setActiveClusterModal({ type: 'session_ended' });
+                        if (window.Shiny && window.Shiny.setInputValue) {
+                            window.Shiny.setInputValue('btn_confirm_end_session', Date.now(), { priority: 'event' });
+                        }
+                    }}
+                    onResumeSession={() => {
+                        setActiveClusterModal(null);
+                        if (window.Shiny && window.Shiny.setInputValue) {
+                            window.Shiny.setInputValue('btn_resume_session', Date.now(), { priority: 'event' });
+                        }
+                    }}
+                    onRetryHealth={() => {
+                        if (window.Shiny && window.Shiny.setInputValue) {
+                            window.Shiny.setInputValue('check_cluster_health_event', Date.now(), { priority: 'event' });
+                        }
+                        if (showToast) showToast("Refreshing compute cluster health...", "info");
+                    }}
+                    showToast={showToast}
+                />
+            )}
+        </div>
+    );
+}
+
+// ================================================================================================
+// DATABRICKS CLUSTER & SESSION MANAGEMENT FLOATING MODAL (NATIVE REACT / TAILWIND)
+// ================================================================================================
+function ClusterManagementModal({
+    modalData,
+    clusterInfo,
+    envInfo,
+    onClose,
+    onStartCluster,
+    onDismissStarting,
+    onEndSession,
+    onResumeSession,
+    onRetryHealth,
+    showToast
+}) {
+    if (!modalData) return null;
+
+    const modalType = modalData.type || 'offline';
+    const clusterName = modalData.cluster_name || (clusterInfo && clusterInfo.cluster_name) || "Field Capacity Spark Cluster";
+    const clusterState = modalData.state || (clusterInfo && clusterInfo.state) || "OFFLINE";
+    const userEmail = modalData.user_email || (envInfo && envInfo.user_email) || "user@centrica.com";
+    const databricksHost = modalData.databricks_host || (envInfo && envInfo.databricks_host) || "";
+    const cleanHost = databricksHost.startsWith("http") ? databricksHost : (databricksHost ? `https://${databricksHost}` : "");
+    const logoutUrl = cleanHost ? `${cleanHost.replace(/\/$/, '')}/login.html` : "/login.html";
+
+    // Escape listener
+    React.useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                if (modalType !== 'session_ended' && modalType !== 'starting') {
+                    onClose();
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [modalType]);
+
+    return (
+        <div 
+            onClick={() => {
+                if (modalType !== 'session_ended' && modalType !== 'starting') {
+                    onClose();
+                }
+            }}
+            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+        >
+            <div 
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden animate-slide-up flex flex-col"
+            >
+                {/* --- 1. LOGOUT CONFIRMATION MODAL --- */}
+                {modalType === 'logout' && (
+                    <div className="p-6 flex flex-col items-center text-center">
+                        <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-rose-600 mb-3 shadow-xs">
+                            <svg className="w-6 h-6 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-extrabold text-slate-900 mb-1">Log Out or End Your Session</h3>
+                        <p className="text-xs text-slate-500 max-w-sm mb-4 leading-relaxed">
+                            You can pause your active working session or sign out of your Databricks workspace completely.
+                        </p>
+
+                        {userEmail && (
+                            <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs">
+                                <span className="text-slate-400 font-medium">Logged in as:</span>
+                                <span className="font-bold text-slate-800">{userEmail}</span>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left mb-5">
+                            {/* Option 1: End Session */}
+                            <div className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition bg-gradient-to-b from-white to-slate-50/50 flex flex-col justify-between">
+                                <div>
+                                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] mb-2.5">
+                                        <svg className="w-4 h-4 text-[#005eb8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="10" y1="15" x2="10" y2="9"></line>
+                                            <line x1="14" y1="15" x2="14" y2="9"></line>
+                                        </svg>
+                                    </div>
+                                    <h4 className="text-sm font-bold text-slate-900 mb-1">End App Session</h4>
+                                    <p className="text-[11px] text-slate-500 leading-normal mb-3">
+                                        Pause background compute polling and lock the dashboard without losing your login credentials.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={onEndSession}
+                                    className="w-full py-2 px-3 rounded-lg bg-[#005eb8] hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                                >
+                                    End Session
+                                </button>
+                            </div>
+
+                            {/* Option 2: Log Out Databricks */}
+                            <div className="p-4 rounded-xl border border-slate-200 hover:border-rose-300 hover:shadow-md transition bg-gradient-to-b from-white to-rose-50/20 flex flex-col justify-between">
+                                <div>
+                                    <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-2.5">
+                                        <svg className="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                            <polyline points="16 17 21 12 16 7"></polyline>
+                                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                                        </svg>
+                                    </div>
+                                    <h4 className="text-sm font-bold text-slate-900 mb-1">Log Out of Databricks</h4>
+                                    <p className="text-[11px] text-slate-500 leading-normal mb-3">
+                                        Sign out completely from your Databricks workspace and close this application session.
+                                    </p>
+                                </div>
+                                <a
+                                    href={logoutUrl}
+                                    target="_top"
+                                    className="w-full py-2 px-3 rounded-lg border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                                >
+                                    <span>Log Out</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={onClose}
+                            className="text-xs font-semibold text-slate-500 hover:text-slate-800 py-1.5 px-4 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                )}
+
+                {/* --- 2. CLUSTER OFFLINE MODAL --- */}
+                {modalType === 'offline' && (
+                    <div className="p-6 flex flex-col items-center text-center">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mb-3 shadow-xs">
+                            <svg className="w-6 h-6 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-extrabold text-slate-900 mb-1">Databricks Cluster is Offline</h3>
+                        <p className="text-xs text-slate-500 max-w-sm mb-4 leading-relaxed">
+                            The compute cluster is currently {clusterState.toLowerCase()}. Would you like to start the cluster to query live Unity Catalog tables and execute calculations?
+                        </p>
+
+                        <div className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3 mb-5 flex flex-col items-center">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">COMPUTE CLUSTER</span>
+                            <span className="text-sm font-bold text-slate-800 mb-1">{clusterName}</span>
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100/80 text-amber-800 text-[11px] font-bold border border-amber-200">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                <span>{clusterState}</span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-center gap-3 w-full">
+                            <button
+                                onClick={onStartCluster}
+                                className="flex-1 py-2.5 px-4 rounded-xl bg-[#005eb8] hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                                <IconBolt className="w-4 h-4 text-white" />
+                                <span>Yes, Start Cluster</span>
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 font-semibold text-xs transition cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* --- 3. CLUSTER STARTING MODAL --- */}
+                {modalType === 'starting' && (
+                    <div className="p-6 flex flex-col items-center text-center">
+                        <div className="relative w-14 h-14 flex items-center justify-center mb-3">
+                            <div className="w-12 h-12 border-4 border-blue-100 border-t-[#005eb8] rounded-full animate-spin"></div>
+                            <div className="absolute w-6 h-6 flex items-center justify-center">
+                                <IconBolt className="w-3.5 h-3.5 text-[#005eb8]" />
+                            </div>
+                        </div>
+                        <h3 className="text-lg font-extrabold text-slate-900 mb-1">Starting Databricks Cluster...</h3>
+                        <p className="text-xs text-slate-500 max-w-sm mb-4 leading-relaxed">
+                            Startup has been requested for <span className="font-bold text-slate-800">{clusterName}</span>. Compute typically takes 2 to 4 minutes to become ready. The app will automatically connect and load data once online.
+                        </p>
+
+                        <div className="w-full bg-blue-50/60 border border-blue-200/60 rounded-xl p-3 mb-5 flex items-center justify-between text-xs text-blue-900">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
+                                <span className="font-semibold">Polling cluster health every 2s</span>
+                            </div>
+                            <span className="font-mono font-bold text-[#005eb8]">STARTING</span>
+                        </div>
+
+                        <button
+                            onClick={onDismissStarting}
+                            className="py-2 px-5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 font-semibold text-xs transition shadow-xs cursor-pointer"
+                        >
+                            Wait in Background
+                        </button>
+                    </div>
+                )}
+
+                {/* --- 4. CLUSTER ERROR MODAL --- */}
+                {modalType === 'error' && (
+                    <div className="p-6 flex flex-col items-center text-center">
+                        <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-3 shadow-xs">
+                            <IconAlertCircle className="w-6 h-6 text-rose-600" />
+                        </div>
+                        <h3 className="text-lg font-extrabold text-slate-900 mb-1">Cluster Connection Issue</h3>
+                        <p className="text-xs text-slate-500 max-w-sm mb-4 leading-relaxed">
+                            An error occurred while communicating with Databricks compute.
+                        </p>
+
+                        <div className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 mb-5 text-left font-mono text-[11px] text-slate-700 max-h-32 overflow-y-auto">
+                            {modalData.message || "Failed to reach Databricks API or SQL Warehouse endpoint."}
+                        </div>
+
+                        <div className="flex items-center justify-center gap-3 w-full">
+                            <button
+                                onClick={onRetryHealth}
+                                className="flex-1 py-2.5 px-4 rounded-xl bg-[#005eb8] hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                            >
+                                Retry Health Check
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 font-semibold text-xs transition cursor-pointer"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* --- 5. SESSION INACTIVE MODAL --- */}
+                {modalType === 'inactive' && (
+                    <div className="p-6 flex flex-col items-center text-center">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 mb-3 shadow-xs">
+                            <IconClock className="w-6 h-6 text-slate-600" />
+                        </div>
+                        <h3 className="text-lg font-extrabold text-slate-900 mb-1">Session Inactive</h3>
+                        <p className="text-xs text-slate-500 max-w-sm mb-5 leading-relaxed">
+                            The Databricks cluster is offline and no activity was detected for 30 minutes. Background polling was paused to conserve resources.
+                        </p>
+
+                        <button
+                            onClick={onResumeSession}
+                            className="py-2.5 px-6 rounded-xl bg-[#005eb8] hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                        >
+                            Resume Session
+                        </button>
+                    </div>
+                )}
+
+                {/* --- 6. SESSION ENDED MODAL --- */}
+                {modalType === 'session_ended' && (
+                    <div className="p-6 flex flex-col items-center text-center">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] mb-3 shadow-xs">
+                            <IconLock className="w-6 h-6 text-[#005eb8]" />
+                        </div>
+                        <h3 className="text-lg font-extrabold text-slate-900 mb-1">Application Session Paused</h3>
+                        <p className="text-xs text-slate-500 max-w-sm mb-5 leading-relaxed">
+                            Your working session has been paused and background compute polling is stopped. You can resume your session at any time or sign out completely.
+                        </p>
+
+                        <div className="flex items-center justify-center gap-3 w-full">
+                            <button
+                                onClick={onResumeSession}
+                                className="flex-1 py-2.5 px-4 rounded-xl bg-[#005eb8] hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                            >
+                                Return to Dashboard
+                            </button>
+                            <a
+                                href={logoutUrl}
+                                target="_top"
+                                className="py-2.5 px-4 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                                <span>Log Out of Databricks</span>
+                            </a>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-4">
+                            You may also safely close this browser tab.
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
@@ -9936,7 +10302,7 @@ function FinancialImpactView() {
 // ------------------------------------------------------------------------------------------------
 // 8. DATABRICKS ARCHITECTURE VIEW
 // ------------------------------------------------------------------------------------------------
-function DatabricksArchitectureView({ envInfo, setEnvInfo, clusterInfo, showToast }) {
+function DatabricksArchitectureView({ envInfo, setEnvInfo, clusterInfo, showToast, onOpenClusterModal }) {
     const [searchTable, setSearchTable] = useState('');
     const activeStage = (envInfo.stage || 'dev').toLowerCase();
     const activeCatalog = envInfo.catalog || 'capacity_planning';
@@ -10086,7 +10452,13 @@ function DatabricksArchitectureView({ envInfo, setEnvInfo, clusterInfo, showToas
                         {clusterInfo && (clusterInfo.is_offline === 'true' || ['TERMINATED', 'STOPPED', 'OFFLINE'].includes(clusterInfo.state)) && (
                             <button
                                 onClick={() => {
-                                    if (window.Shiny && window.Shiny.setInputValue) {
+                                    if (onOpenClusterModal) {
+                                        onOpenClusterModal({
+                                            type: 'offline',
+                                            cluster_name: clusterInfo.cluster_name,
+                                            state: clusterInfo.state
+                                        });
+                                    } else if (window.Shiny && window.Shiny.setInputValue) {
                                         window.Shiny.setInputValue('btn_banner_start_cluster', Date.now(), { priority: 'event' });
                                     }
                                 }}

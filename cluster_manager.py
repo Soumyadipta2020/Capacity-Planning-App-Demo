@@ -180,6 +180,10 @@ class ClusterManager:
         """Checks if a Databricks cluster ID or warehouse ID is configured."""
         if self._simulated_state is not None:
             return True
+        from config import EnvironmentConfig
+        # In VS Code (local mode), Databricks compute is not configured unless explicitly in databricks storage mode
+        if EnvironmentConfig.is_vscode() and EnvironmentConfig.get_storage_mode() in {"local", "csv"}:
+            return False
         cid = self._get_setting("databricks_cluster_id") or os.environ.get("DATABRICKS_CLUSTER_ID", "").strip()
         wid = self._get_setting("databricks_warehouse_id") or os.environ.get("DATABRICKS_WAREHOUSE_ID", "").strip()
         return bool(cid or wid)
@@ -205,8 +209,11 @@ class ClusterManager:
             return name, sim.upper()
 
         from config import EnvironmentConfig
-        storage_mode = EnvironmentConfig.get_storage_mode()
+        # For VS Code, skip Databricks compute queries and run completely offline
+        if EnvironmentConfig.is_vscode() and not self.is_cluster_configured():
+            return "Local Storage", "LOCAL"
 
+        storage_mode = EnvironmentConfig.get_storage_mode()
         cluster_id = self._get_setting("databricks_cluster_id") or os.environ.get("DATABRICKS_CLUSTER_ID", "").strip()
         warehouse_id = self._get_setting("databricks_warehouse_id") or os.environ.get("DATABRICKS_WAREHOUSE_ID", "").strip()
 
@@ -215,6 +222,8 @@ class ClusterManager:
             return "Local Storage", "LOCAL"
 
         if not cluster_id and not warehouse_id:
+            if EnvironmentConfig.is_vscode():
+                return "Local Storage", "LOCAL"
             raise RuntimeError("DATABRICKS_CLUSTER_ID or DATABRICKS_WAREHOUSE_ID is required for Databricks compute.")
 
         client = self.get_workspace_client()
@@ -232,6 +241,21 @@ class ClusterManager:
 
     def check_health_now(self) -> dict[str, str]:
         """Performs a direct single on-demand health check against Databricks API."""
+        from config import EnvironmentConfig
+        # For VS Code without configured compute, skip API check and return LOCAL
+        if EnvironmentConfig.is_vscode() and not self.is_cluster_configured():
+            new_status = {
+                "state": "LOCAL",
+                "cluster_name": "Local Storage",
+                "message": "VS Code local mode active. Databricks compute checks disabled.",
+                "can_read": "true",
+                "is_offline": "false",
+            }
+            with self._status_lock:
+                self._cluster_status = new_status
+                self._last_status_check = time.time()
+            return dict(new_status)
+
         try:
             name, state = self.get_compute_info()
             if name:
@@ -293,7 +317,18 @@ class ClusterManager:
         """
         Returns cached status if queried within 6 seconds; otherwise queries Databricks.
         This rate-limits polling checks and prevents spamming the Databricks API.
+        For VS Code without configured compute, immediately returns LOCAL without querying Databricks.
         """
+        from config import EnvironmentConfig
+        if EnvironmentConfig.is_vscode() and not self.is_cluster_configured():
+            return {
+                "state": "LOCAL",
+                "cluster_name": "Local Storage",
+                "message": "VS Code local mode active. Databricks compute checks disabled.",
+                "can_read": "true",
+                "is_offline": "false",
+            }
+
         now = time.time()
         with self._status_lock:
             cached = dict(self._cluster_status)
@@ -848,6 +883,47 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
     cluster_modal_state = reactive.value("none")
     offline_modal_dismissed = reactive.value(False)
     cluster_poll_trigger = reactive.value(0)
+    ui_mode = os.environ.get("CAPACITY_UI_MODE", "modern").lower()
+
+    def _send_client_message(msg_type: str, payload: Any):
+        """Safely dispatches custom message to client whether inside sync or async context."""
+        try:
+            res = session.send_custom_message(msg_type, payload)
+            if asyncio.iscoroutine(res):
+                try:
+                    loop = asyncio.get_running_loop()
+                    loop.create_task(res)
+                except RuntimeError:
+                    pass
+        except Exception:
+            pass
+
+    def _show_cluster_modal(modal_type: str, **kwargs):
+        """Displays cluster floating modal: native React event in modern mode, Bootstrap modal in classic mode."""
+        if ui_mode == "classic":
+            if modal_type == "offline":
+                ui.modal_show(cluster_offline_modal(cluster_name=kwargs.get("cluster_name", ""), state=kwargs.get("state", "OFFLINE")))
+            elif modal_type == "starting":
+                ui.modal_show(cluster_starting_modal(cluster_name=kwargs.get("cluster_name", "")))
+            elif modal_type == "error":
+                ui.modal_show(cluster_error_modal(kwargs.get("message", "An error occurred.")))
+            elif modal_type == "inactive":
+                ui.modal_show(session_inactive_modal())
+            elif modal_type == "logout":
+                ui.modal_show(logout_confirmation_modal(user_email=kwargs.get("user_email", ""), databricks_host=kwargs.get("databricks_host", "")))
+            elif modal_type == "session_ended":
+                ui.modal_show(session_ended_modal(databricks_host=kwargs.get("databricks_host", "")))
+        else:
+            payload = {"type": modal_type, **kwargs}
+            _send_client_message("show_cluster_modal", payload)
+
+    def _hide_cluster_modal():
+        """Hides cluster floating modal across both modern React and classic Shiny modes."""
+        if ui_mode == "classic":
+            ui.modal_remove()
+        else:
+            _send_client_message("hide_cluster_modal", {})
+            ui.modal_remove()
 
     def trigger_cluster_poll():
         cluster_poll_trigger.set(cluster_poll_trigger() + 1)
@@ -855,6 +931,9 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
     @output
     @render.ui
     def cluster_banner():
+        if ui_mode != "classic":
+            # In modern React mode, React renders its own native Tailwind cluster banner
+            return None
         storage_mode = EnvironmentConfig.get_storage_mode()
         return render_cluster_banner(cluster_info(), storage_mode=storage_mode)
 
@@ -871,6 +950,8 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
     # Inactivity monitor: if compute is offline and 30m pass without activity, pause polling
     @reactive.effect
     def check_user_inactivity():
+        if EnvironmentConfig.is_vscode() and not engine.cluster_manager.is_cluster_configured():
+            return
         if is_app_inactive():
             return
         now = time.time()
@@ -886,13 +967,26 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
             )
             is_app_inactive.set(True)
             cluster_modal_state.set("inactive")
-            ui.modal_show(session_inactive_modal())
+            _show_cluster_modal("inactive")
             return
         reactive.invalidate_later(60)
 
     @reactive.effect
     async def poll_cluster_health():
         cluster_poll_trigger()
+        # In VS Code local development, do not query or poll Databricks compute status
+        if EnvironmentConfig.is_vscode() and not engine.cluster_manager.is_cluster_configured():
+            local_status = {
+                "state": "LOCAL",
+                "cluster_name": "Local Storage",
+                "message": "VS Code local mode active. Databricks compute checks disabled.",
+                "can_read": "true",
+                "is_offline": "false",
+            }
+            cluster_info.set(local_status)
+            _send_client_message("update_cluster_status", local_status)
+            return
+
         storage_mode = EnvironmentConfig.get_storage_mode()
         if storage_mode not in {"databricks", "spark"}:
             return
@@ -930,7 +1024,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
                         flush=True,
                     )
                     cluster_modal_state.set("none")
-                    ui.modal_remove()
+                    _hide_cluster_modal()
                     ui.notification_show("Databricks cluster is running! Loading data...", type="message", duration=5)
                     session.send_custom_message("update_env_status", engine.get_engine_status())
                 # While RUNNING, check every 15s to detect if compute terminates from idle timeout:
@@ -955,8 +1049,8 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
                         flush=True,
                     )
                     cluster_modal_state.set("offline_prompt")
-                    ui.modal_remove()
-                    ui.modal_show(cluster_offline_modal(cluster_name=cluster_name, state=state))
+                    _hide_cluster_modal()
+                    _show_cluster_modal("offline", cluster_name=cluster_name, state=state)
                 # STOP POLLING! The cluster is offline and user is notified.
                 # App becomes completely idle. No reactive.invalidate_later!
                 return
@@ -990,7 +1084,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
             flush=True,
         )
         cluster_modal_state.set("starting")
-        ui.modal_show(cluster_starting_modal(cluster_name=cluster_name))
+        _show_cluster_modal("starting", cluster_name=cluster_name)
         try:
             await asyncio.to_thread(engine.start_cluster)
             cluster_info.set(engine.cluster_health())
@@ -1024,7 +1118,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
                     previous_cluster_state = "RUNNING"
                     offline_modal_dismissed.set(False)
                     cluster_modal_state.set("none")
-                    ui.modal_remove()
+                    _hide_cluster_modal()
                     ui.notification_show(
                         f"Databricks compute '{cluster_name or 'Cluster'}' is ready! Loading data...",
                         type="message",
@@ -1044,14 +1138,14 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
                     flush=True,
                 )
                 cluster_modal_state.set("none")
-                ui.modal_remove()
+                _hide_cluster_modal()
                 ui.notification_show("Cluster startup is taking longer than expected. Please check Databricks console.", type="warning", duration=8)
 
         except Exception as exc:
             import traceback
             traceback.print_exc()
             cluster_modal_state.set("error")
-            ui.modal_show(cluster_error_modal(str(exc)))
+            _show_cluster_modal("error", message=str(exc))
 
     @reactive.effect
     @reactive.event(input.btn_offline_modal_dismiss)
@@ -1060,7 +1154,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
         last_user_activity = time.time()
         offline_modal_dismissed.set(True)
         cluster_modal_state.set("none")
-        ui.modal_remove()
+        _hide_cluster_modal()
 
     @reactive.effect
     @reactive.event(input.btn_dismiss_starting_modal)
@@ -1068,7 +1162,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
         nonlocal last_user_activity
         last_user_activity = time.time()
         cluster_modal_state.set("none")
-        ui.modal_remove()
+        _hide_cluster_modal()
         trigger_cluster_poll()
 
     @reactive.effect
@@ -1082,7 +1176,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
         state = info.get("state", "OFFLINE")
         cluster_name = info.get("cluster_name", "")
         cluster_modal_state.set("offline_prompt")
-        ui.modal_show(cluster_offline_modal(cluster_name=cluster_name, state=state))
+        _show_cluster_modal("offline", cluster_name=cluster_name, state=state)
         trigger_cluster_poll()
 
     @reactive.effect
@@ -1097,7 +1191,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
         last_user_activity = time.time()
         offline_modal_dismissed.set(False)
         cluster_modal_state.set("none")
-        ui.modal_remove()
+        _hide_cluster_modal()
         storage_mode = EnvironmentConfig.get_storage_mode()
         if storage_mode == "databricks":
             try:
@@ -1109,7 +1203,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
                 if is_offline:
                     cluster_name = health.get("cluster_name", "")
                     cluster_modal_state.set("offline_prompt")
-                    ui.modal_show(cluster_offline_modal(cluster_name=cluster_name, state=state))
+                    _show_cluster_modal("offline", cluster_name=cluster_name, state=state)
             except Exception:
                 pass
         trigger_cluster_poll()
@@ -1120,7 +1214,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
         user_email = get_current_user(session)
         host = EnvironmentConfig.get_databricks_host()
         cluster_modal_state.set("logout_prompt")
-        ui.modal_show(logout_confirmation_modal(user_email=user_email, databricks_host=host))
+        _show_cluster_modal("logout", user_email=user_email, databricks_host=host)
 
     @reactive.effect
     @reactive.event(input.btn_confirm_end_session)
@@ -1134,13 +1228,13 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
         last_user_activity = time.time()
         cluster_modal_state.set("session_ended")
         host = EnvironmentConfig.get_databricks_host()
-        ui.modal_show(session_ended_modal(databricks_host=host))
+        _show_cluster_modal("session_ended", databricks_host=host)
 
     @reactive.effect
     @reactive.event(input.btn_dismiss_logout_modal)
     def on_dismiss_logout_modal():
         cluster_modal_state.set("none")
-        ui.modal_remove()
+        _hide_cluster_modal()
 
     @session.on_ended
     def on_session_ended():
@@ -1170,7 +1264,7 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
         state = info.get("state", "OFFLINE")
         cluster_name = info.get("cluster_name", "")
         cluster_modal_state.set("offline_prompt")
-        ui.modal_show(cluster_offline_modal(cluster_name=cluster_name, state=state))
+        _show_cluster_modal("offline", cluster_name=cluster_name, state=state)
         trigger_cluster_poll()
 
     return {

@@ -119,11 +119,15 @@ else:
     app_ui = create_modern_ui_page()
 
 def server(input, output, session):
+    engine = CapacityDataEngine.get_instance()
     sm = ScenarioManager()
-    engine = CapacityDataEngine()
 
     # Register Databricks compute lifecycle & cluster management handlers
     register_cluster_handlers(input, output, session, engine=engine)
+
+    # Initiate background auto-creation of Unity Catalog Delta tables only when deployed on Databricks
+    if EnvironmentConfig.is_databricks() or (not EnvironmentConfig.is_vscode() and EnvironmentConfig.get_storage_mode() == "databricks"):
+        engine.ensure_all_tables(async_init=True)
 
     # --- REACT JAVASCRIPT EVENT BRIDGE ---
 
@@ -260,7 +264,7 @@ if __name__ == "__main__":
     host = EnvironmentConfig.get_server_host()
     port = EnvironmentConfig.get_server_port()
     is_db = EnvironmentConfig.is_databricks()
-    engine = CapacityDataEngine()
+    engine = CapacityDataEngine.get_instance()
     status = engine.get_engine_status()
     
     print("=" * 70)

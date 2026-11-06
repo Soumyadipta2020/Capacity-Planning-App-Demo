@@ -94,10 +94,20 @@ def test_cluster_manager_lifecycle():
     print("[3/8] Testing ClusterManager lifecycle and caching...")
     manager = ClusterManager(EnvironmentConfig)
 
-    # In default databricks mode without cluster ID, actively looks for cluster and reports requirement/error
-    health_db = manager.check_health_now()
-    assert health_db["state"] == "ERROR"
-    assert "DATABRICKS_CLUSTER_ID or DATABRICKS_WAREHOUSE_ID is required" in health_db["message"]
+    # In VS Code (local development), it must NOT check for Databricks compute status
+    health_vscode = manager.check_health_now()
+    assert health_vscode["state"] == "LOCAL"
+    assert health_vscode["can_read"] == "true"
+    assert "VS Code local mode active" in health_vscode["message"]
+
+    # In Databricks deployment mode without cluster ID, actively looks for cluster and reports requirement/error
+    EnvironmentConfig.set_environment_override("databricks")
+    try:
+        health_db = manager.check_health_now()
+        assert health_db["state"] == "ERROR"
+        assert "DATABRICKS_CLUSTER_ID or DATABRICKS_WAREHOUSE_ID is required" in health_db["message"]
+    finally:
+        EnvironmentConfig.set_environment_override("")
 
     # In explicit local/csv mode, defaults to LOCAL
     import os
@@ -268,7 +278,7 @@ def test_data_engine_cluster_integration():
 
 
 def test_react_assets_and_layout():
-    print("[8/8] Testing react_app.js and UI templates for cluster management...")
+    print("[8/9] Testing react_app.js and UI templates for cluster management...")
     react_file = Path("static/react_app.js")
     assert react_file.exists()
     content = react_file.read_text(encoding="utf-8")
@@ -300,6 +310,173 @@ def test_react_assets_and_layout():
     print("  React assets, app.yaml, and UI layout verified.")
 
 
+def test_databricks_auto_table_creation_and_usage():
+    print("[9/9] Testing Databricks Unity Catalog table auto-creation and usage...")
+    import re
+    import pandas as pd
+    import numpy as np
+    from data_manager import ScenarioManager, load_input_table_data, register_uploaded_file
+
+    engine = CapacityDataEngine.get_instance()
+
+    # 1. Test DDL type conversion
+    int_s = pd.Series([1, 2, 3])
+    float_s = pd.Series([1.5, 2.7, 3.9])
+    bool_s = pd.Series([True, False, True])
+    str_s = pd.Series(["hello", "world"])
+    assert engine.pandas_dtype_to_spark_sql(int_s) == "BIGINT"
+    assert engine.pandas_dtype_to_spark_sql(float_s) == "DOUBLE"
+    assert engine.pandas_dtype_to_spark_sql(bool_s) == "BOOLEAN"
+    assert engine.pandas_dtype_to_spark_sql(str_s) == "STRING"
+
+    # 2. Test SQL literals and batch insert generation
+    assert engine._sql_literal(None) == "NULL"
+    assert engine._sql_literal(np.nan) == "NULL"
+    assert engine._sql_literal(42) == "42"
+    assert engine._sql_literal("O'Reilly & Sons") == "'O''Reilly & Sons'"
+    assert engine._sql_literal(True) == "TRUE"
+
+    test_df = pd.DataFrame([
+        {"id": 1, "name": "Test 'A'", "rate": 3.5, "flag": True},
+        {"id": 2, "name": "Test 'B'", "rate": 4.2, "flag": False}
+    ])
+    stmts = engine._build_batch_insert_sql("`cat`.`sch`.`tbl`", test_df)
+    assert len(stmts) == 1
+    assert "INSERT INTO `cat`.`sch`.`tbl`" in stmts[0]
+    assert "Test ''A''" in stmts[0]
+
+    # 3. Test seed data loading for all 21 operational inputs
+    for key in EnvironmentConfig.OPERATIONAL_INPUT_LABELS.keys():
+        seed = engine.get_seed_dataframe(key)
+        assert not seed.empty, f"Seed data for '{key}' must not be empty"
+        assert "file_version" in seed.columns, f"'file_version' column missing in seed for '{key}'"
+
+    # 4. Mock Databricks SQL Warehouse cursor to simulate table auto-creation
+    executed_statements = []
+
+    class MockCursor:
+        def __init__(self):
+            self.description = [("id",), ("name",), ("file_version",)]
+            self._tables = set()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            pass
+
+        def execute(self, sql):
+            executed_statements.append(sql.strip())
+            sql_upper = sql.upper().strip()
+            if "CREATE TABLE" in sql_upper:
+                # Extract table name
+                match = re.search(r"CREATE TABLE IF NOT EXISTS [^\.]+\.[^\.]+\.`?([A-Za-z0-9_]+)`?", sql, re.IGNORECASE)
+                if match:
+                    self._tables.add(match.group(1).lower())
+            return self
+
+        def fetchall(self):
+            last_sql = executed_statements[-1].upper() if executed_statements else ""
+            if "SHOW TABLES" in last_sql:
+                # Check if table matches
+                match = re.search(r"LIKE '([^']+)'", executed_statements[-1], re.IGNORECASE)
+                if match and match.group(1).lower() in self._tables:
+                    return [(match.group(1),)]
+                return []
+            if "SELECT" in last_sql:
+                return [("1", "Sample", "baseline")]
+            return []
+
+        def fetchall_arrow(self):
+            last_sql = executed_statements[-1].upper() if executed_statements else ""
+            class MockArrow:
+                def __init__(self, df):
+                    self._df = df
+                def to_pandas(self):
+                    return self._df
+
+            if "SCENARIOS" in last_sql:
+                scen_df = pd.DataFrame([{
+                    "id": "LV JUL V.1 2026-07-07 12:46:46",
+                    "plan_type": "LV",
+                    "month": "JUL",
+                    "version": "1",
+                    "remarks": "Audited baseline",
+                    "created_at": "2026-07-07 12:46:46",
+                    "inputs": '{"actuals_input": "actuals_2026-07-01_final"}'
+                }])
+                return MockArrow(scen_df)
+
+            return MockArrow(pd.DataFrame([{"Patch": "EA11", "Skill": "HEC", "Values": 10.5, "file_version": "baseline"}]))
+
+    mock_cur = MockCursor()
+
+    # Clear verified tables cache for testing auto-creation
+    engine._verified_tables.clear()
+
+    # Test auto-creating an operational table
+    res = engine.ensure_table_exists("actuals_input", cursor=mock_cur)
+    assert res is True
+    assert "es_shiny_actuals_input" in engine._verified_tables
+    # Verify CREATE SCHEMA IF NOT EXISTS and CREATE TABLE IF NOT EXISTS were issued
+    assert any("CREATE SCHEMA IF NOT EXISTS" in s for s in executed_statements)
+    assert any("CREATE TABLE IF NOT EXISTS" in s and "es_shiny_actuals_input" in s for s in executed_statements)
+    assert any("USING DELTA" in s for s in executed_statements)
+    assert any("INSERT INTO" in s and "es_shiny_actuals_input" in s for s in executed_statements)
+
+    # Test auto-creating scenarios table
+    scen_res = engine.ensure_scenarios_table(cursor=mock_cur)
+    assert scen_res is True
+    assert "es_shiny_scenarios" in engine._verified_tables
+    assert any("CREATE TABLE IF NOT EXISTS" in s and "es_shiny_scenarios" in s for s in executed_statements)
+
+    # 5. Test load_input_table_data with active Databricks compute
+    engine.cluster_manager.set_simulated_state(RUNNING_STATE, cluster_name="Field Capacity Spark Cluster")
+    # Patch cluster_manager.get_cursor to return our mock_cur
+    orig_get_cursor = engine.cluster_manager.get_cursor
+    engine.cluster_manager.get_cursor = lambda: mock_cur
+
+    try:
+        data_res = engine.load_input_table_data("actuals_input", filename="actuals_2026-07-01_final")
+        assert data_res["success"] is True
+        assert data_res["inputKey"] == "actuals_input"
+        assert "Databricks Unity Catalog" in data_res["source"]
+        assert data_res["format"] == "Delta Lake"
+        assert len(data_res["rows"]) > 0
+
+        # Test ScenarioManager saving to Databricks
+        sm = ScenarioManager()
+        test_scen_id = sm.save_scenario(
+            plan_type="LV",
+            month="NOV",
+            version="1",
+            remarks="Unit Test Delta Save",
+            inputs={"actuals_input": "actuals_2026-07-01_final"}
+        )
+        assert test_scen_id is not None
+        assert any("MERGE INTO" in s and "es_shiny_scenarios" in s for s in executed_statements)
+
+        # Test ScenarioManager deleting from Databricks
+        sm.delete_scenario(test_scen_id)
+        assert any("DELETE FROM" in s and "es_shiny_scenarios" in s for s in executed_statements)
+
+        # Test register_uploaded_file with Delta ingestion
+        csv_sample = "From,To,FTE,Reason\nEA1,EA2,3.5,Test Transfer\n"
+        reg_ok = register_uploaded_file("fte_transfer", "test_upload_v9_2026-11-06.csv", "Test remark", csv_sample)
+        assert reg_ok is True
+        assert any("INSERT INTO" in s and "es_shiny_fte_transfer" in s for s in executed_statements)
+
+    finally:
+        engine.cluster_manager.get_cursor = orig_get_cursor
+        engine.cluster_manager.set_simulated_state(None)
+
+    # 6. Test background table initializer thread
+    bg_res = engine.ensure_all_tables(async_init=True)
+    assert bg_res["status"] == "background_thread_started"
+
+    print("  Databricks Unity Catalog table auto-creation and usage verified.")
+
+
 if __name__ == "__main__":
     print("=" * 70)
     print(" RUNNING DATABRICKS CLUSTER MANAGEMENT VERIFICATION SUITE")
@@ -312,6 +489,7 @@ if __name__ == "__main__":
     test_config_cluster_settings()
     test_data_engine_cluster_integration()
     test_react_assets_and_layout()
+    test_databricks_auto_table_creation_and_usage()
     print("=" * 70)
     print(" ALL CLUSTER MANAGEMENT VERIFICATION TESTS PASSED SUCCESSFULLY! ")
     print("=" * 70)
