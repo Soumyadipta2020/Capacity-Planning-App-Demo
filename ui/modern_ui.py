@@ -125,14 +125,151 @@ def create_modern_ui_page():
                     overflow: hidden !important;
                     background-color: #fcfdfd !important;
                     font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                }
+                #cluster_banner_container {
+                    width: 100%;
+                    z-index: 50;
+                    flex-shrink: 0;
+                }
+                #cluster_banner_container:empty {
+                    display: none;
                 }
                 #react-root {
                     width: 100vw !important;
-                    height: 100vh !important;
+                    flex: 1 1 0% !important;
+                    min-height: 0 !important;
                     margin: 0 !important;
                     padding: 0 !important;
                     overflow: hidden !important;
                     display: flex;
+                }
+
+                /* Cluster Status Banner & Modals */
+                .health-banner {
+                    align-items: center;
+                    border: 1px solid #d1d5db;
+                    border-radius: 8px;
+                    display: flex;
+                    gap: 12px;
+                    margin: 8px 16px;
+                    min-height: 42px;
+                    padding: 8px 16px;
+                    font-size: 0.85rem;
+                }
+
+                .health-banner.ok {
+                    background: rgba(223, 247, 251, 0.95);
+                    border-color: rgba(0, 174, 239, 0.4);
+                }
+
+                .health-banner.warn {
+                    background: #fff8df;
+                    border-color: #f4d36c;
+                }
+
+                .health-state {
+                    color: #005eb8;
+                    font-weight: 800;
+                    white-space: nowrap;
+                }
+
+                .status-modal-wrapper {
+                    position: relative;
+                    width: 100%;
+                }
+
+                .status-modal-content {
+                    text-align: center;
+                    padding: 28px 24px 20px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .status-modal-spinner {
+                    width: 52px;
+                    height: 52px;
+                    border: 4px solid rgba(0, 94, 184, 0.18);
+                    border-top-color: #005eb8;
+                    border-right-color: #00a3e0;
+                    border-radius: 50%;
+                    animation: modal-spin 0.75s linear infinite;
+                    margin-bottom: 20px;
+                }
+
+                @keyframes modal-spin {
+                    to {
+                        transform: rotate(360deg);
+                    }
+                }
+
+                .status-modal-icon-circle {
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 18px;
+                }
+
+                .status-modal-icon-circle.cluster-offline {
+                    background-color: rgba(244, 162, 97, 0.18);
+                    color: #d97706;
+                    border: 2px solid rgba(244, 162, 97, 0.45);
+                }
+
+                .status-modal-icon-circle.error {
+                    background-color: rgba(255, 138, 138, 0.16);
+                    color: #dc3545;
+                    border: 2px solid rgba(255, 138, 138, 0.4);
+                }
+
+                .status-modal-title {
+                    font-size: 1.3rem;
+                    font-weight: 800;
+                    color: #1e293b;
+                    margin-bottom: 8px;
+                    line-height: 1.25;
+                }
+
+                .status-modal-subtitle {
+                    font-size: 0.92rem;
+                    color: #64748b;
+                    margin-bottom: 20px;
+                    line-height: 1.45;
+                    max-width: 420px;
+                }
+
+                .status-modal-badge-card {
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 10px;
+                    padding: 16px 22px;
+                    margin-bottom: 24px;
+                    width: 100%;
+                    max-width: 400px;
+                    box-shadow: 0 2px 8px rgba(0, 94, 184, 0.04);
+                    text-align: center;
+                }
+
+                .status-modal-id-label {
+                    font-size: 0.74rem;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 0.06em;
+                    color: #64748b;
+                    margin-bottom: 4px;
+                }
+
+                .status-modal-id-value {
+                    font-family: monospace;
+                    font-size: 1.4rem;
+                    font-weight: 800;
+                    color: #005eb8;
+                    letter-spacing: 0.04em;
                 }
                 
                 /* MODERN GLOWING HOVER EFFECTS (BRITISH GAS BLUE THEME) */
@@ -199,6 +336,9 @@ def create_modern_ui_page():
                 ui.HTML(f"window.INITIAL_CAPACITY_DATA = {initial_json};")
             )
         ),
+        
+        # Top cluster banner (visible if cluster is offline/starting/error)
+        ui.div(ui.output_ui("cluster_banner"), id="cluster_banner_container"),
         
         # Root container for React
         ui.div(id="react-root"),

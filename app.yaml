@@ -12,6 +12,12 @@ env:
   - name: "DATABRICKS_APP_PORT"
     value: "8000"
 
+  # Databricks Compute Cluster Configuration (Optional: specify for cluster status management)
+  - name: "DATABRICKS_CLUSTER_ID"
+    value: ""
+  - name: "DATABRICKS_WAREHOUSE_ID"
+    value: ""
+
   # Databricks Unity Catalog: Remains constant across dev, uat, and prod
   - name: "DATABRICKS_CATALOG"
     value: "capacity_planning"

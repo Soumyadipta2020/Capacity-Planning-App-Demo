@@ -161,6 +161,45 @@ class EnvironmentConfig:
         return mappings
 
     @classmethod
+    def get_databricks_cluster_id(cls) -> str:
+        """Retrieves Databricks Cluster ID from environment."""
+        return os.environ.get("DATABRICKS_CLUSTER_ID", "").strip()
+
+    @classmethod
+    def get_databricks_warehouse_id(cls) -> str:
+        """Retrieves Databricks SQL Warehouse ID from environment."""
+        return os.environ.get("DATABRICKS_WAREHOUSE_ID", "").strip()
+
+    @classmethod
+    def get_databricks_host(cls) -> str:
+        """Retrieves Databricks Host URL from environment."""
+        return os.environ.get("DATABRICKS_HOST", "").strip()
+
+    @classmethod
+    def get_databricks_token(cls) -> str:
+        """Retrieves Databricks Token from environment."""
+        return os.environ.get("DATABRICKS_TOKEN", "").strip()
+
+    @classmethod
+    def get_databricks_workspace_id(cls) -> str:
+        """Retrieves Databricks Workspace ID from environment."""
+        return os.environ.get("DATABRICKS_WORKSPACE_ID", "").strip()
+
+    @classmethod
+    def get_storage_mode(cls) -> str:
+        """
+        Determines active storage/execution mode:
+        'databricks' if in a Databricks container, STORAGE_MODE=databricks, or cluster ID is configured;
+        otherwise 'local' / 'csv'.
+        """
+        mode = os.environ.get("STORAGE_MODE", "").strip().lower()
+        if mode in {"databricks", "delta", "spark"}:
+            return "databricks"
+        if cls.is_databricks() or bool(cls.get_databricks_cluster_id()) or bool(cls.get_databricks_warehouse_id()):
+            return "databricks"
+        return "local"
+
+    @classmethod
     def is_databricks(cls) -> bool:
         """
         Detects whether the application is running inside a Databricks Apps container
@@ -250,6 +289,9 @@ class EnvironmentConfig:
             "python_version": sys.version.split()[0],
             "os_system": f"{platform.system()} {platform.release()}",
             "workspace_dir": str(WORKSPACE_DIR),
+            "storage_mode": cls.get_storage_mode(),
+            "databricks_cluster_id": cls.get_databricks_cluster_id() or "Not configured",
+            "databricks_warehouse_id": cls.get_databricks_warehouse_id() or "Not configured",
             "databricks_app_id": os.environ.get("DATABRICKS_APP_ID", "Not set (Local mode)"),
             "databricks_host": os.environ.get("DATABRICKS_HOST", "Not set (Local mode)"),
             "databricks_runtime": os.environ.get("DATABRICKS_RUNTIME_VERSION", "Not set (Local mode)"),

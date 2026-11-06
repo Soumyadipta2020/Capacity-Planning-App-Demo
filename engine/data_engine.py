@@ -18,6 +18,7 @@ import pandas as pd
 import numpy as np
 
 from config import EnvironmentConfig
+from cluster_manager import ClusterManager, ClusterStartingError
 
 class CapacityDataEngine:
     """Manages data access and calculation execution across Unity Catalog and local storage."""
@@ -30,6 +31,19 @@ class CapacityDataEngine:
         self.schema = EnvironmentConfig.get_schema()
         self.spark = self._init_spark_session() if self.is_databricks else None
         self.data_dir = EnvironmentConfig.get_data_dir()
+        self.cluster_manager = ClusterManager(EnvironmentConfig)
+
+    def cluster_health(self, force_refresh: bool = False) -> Dict[str, str]:
+        """Returns cached compute health or queries Databricks API."""
+        return self.cluster_manager.cluster_health(force_refresh=force_refresh)
+
+    def check_health_now(self) -> Dict[str, str]:
+        """Forces an on-demand compute health check against Databricks."""
+        return self.cluster_manager.check_health_now()
+
+    def start_cluster(self) -> None:
+        """Sends startup command to Databricks compute."""
+        self.cluster_manager.start_cluster()
 
     def _init_spark_session(self):
         """Attempts to initialize or retrieve the active Databricks SparkSession."""
@@ -70,6 +84,7 @@ class CapacityDataEngine:
             storage_target = f"Local Filesystem: {self.data_dir}"
             calc_mode = "Local Pandas / NumPy"
 
+        health = self.cluster_health()
         return {
             "engine_type": engine_type,
             "is_databricks": self.is_databricks,
@@ -80,6 +95,10 @@ class CapacityDataEngine:
             "schema": self.schema,
             "storage_target": storage_target,
             "calculation_mode": calc_mode,
+            "storage_mode": EnvironmentConfig.get_storage_mode(),
+            "cluster_info": health,
+            "cluster_name": self.cluster_manager.compute_name,
+            "cluster_state": health.get("state", "LOCAL"),
             "table_mappings": EnvironmentConfig.get_all_table_mappings()
         }
 
@@ -91,7 +110,17 @@ class CapacityDataEngine:
         table_name = self.get_table_name(input_key)
         full_table_path = f"{self.catalog}.{self.schema}.{table_name}"
 
-        # Production / Databricks: PySpark from Unity Catalog
+        # Production / Databricks / Cluster execution:
+        is_cluster_active = (
+            self.is_databricks
+            or EnvironmentConfig.get_storage_mode() == "databricks"
+            or self.cluster_manager._simulated_state is not None
+        )
+        if is_cluster_active and self.cluster_manager.is_cluster_configured():
+            health = self.cluster_health()
+            if health.get("can_read") != "true":
+                raise ClusterStartingError(health.get("state", "OFFLINE"))
+
         if self.is_databricks and self.spark:
             try:
                 df_spark = self.spark.read.table(full_table_path)

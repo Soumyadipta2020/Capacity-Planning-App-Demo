@@ -21,6 +21,7 @@ from data_manager import (
     get_calculation_module_data
 )
 from engine.data_engine import CapacityDataEngine
+from cluster_manager import register_cluster_handlers
 from ui import (
     CUSTOM_CSS,
     get_british_gas_logo_html,
@@ -66,9 +67,12 @@ def create_classic_ui():
         ui.nav_control(ui.HTML(get_british_gas_logo_html())),
         title="Capacity Planning",
         id="main_navbar",
-        header=ui.tags.head(
-            ui.tags.style(CUSTOM_CSS),
-            ui.tags.meta(name="viewport", content="width=device-width, initial-scale=1")
+        header=ui.TagList(
+            ui.tags.head(
+                ui.tags.style(CUSTOM_CSS),
+                ui.tags.meta(name="viewport", content="width=device-width, initial-scale=1")
+            ),
+            ui.output_ui("cluster_banner")
         ),
         fillable=True
     )
@@ -81,6 +85,9 @@ else:
 def server(input, output, session):
     sm = ScenarioManager()
     engine = CapacityDataEngine()
+
+    # Register Databricks compute lifecycle & cluster management handlers
+    register_cluster_handlers(input, output, session, engine=engine)
 
     # --- REACT JAVASCRIPT EVENT BRIDGE ---
 

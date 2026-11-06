@@ -506,6 +506,15 @@ function ModernCapacityApp() {
         calc_mode: "Local Pandas / NumPy"
     });
 
+    // Databricks Compute / Cluster Status State
+    const [clusterInfo, setClusterInfo] = useState({
+        state: "LOCAL",
+        cluster_name: "Local Storage",
+        message: "Using local Pandas / CSV storage.",
+        can_read: "true",
+        is_offline: "false"
+    });
+
     // Scenario State
     const [scenarios, setScenarios] = useState({});
     const [selectedScenarioId, setSelectedScenarioId] = useState("LV OCT V.0 2026-10-29 16:00:00");
@@ -557,7 +566,12 @@ function ModernCapacityApp() {
     useEffect(() => {
         if (window.INITIAL_CAPACITY_DATA) {
             const init = window.INITIAL_CAPACITY_DATA;
-            if (init.envInfo) setEnvInfo(init.envInfo);
+            if (init.envInfo) {
+                setEnvInfo(init.envInfo);
+                if (init.envInfo.cluster_info) {
+                    setClusterInfo(init.envInfo.cluster_info);
+                }
+            }
             if (init.scenarios) setScenarios(init.scenarios);
             if (init.inputOptions) {
                 setInputsChoices(init.inputOptions);
@@ -593,7 +607,16 @@ function ModernCapacityApp() {
             });
 
             window.Shiny.addCustomMessageHandler('update_env_status', function(data) {
-                if (data) setEnvInfo(data);
+                if (data) {
+                    setEnvInfo(data);
+                    if (data.cluster_info) setClusterInfo(data.cluster_info);
+                }
+            });
+
+            window.Shiny.addCustomMessageHandler('update_cluster_status', function(data) {
+                if (data) {
+                    setClusterInfo(data);
+                }
             });
 
             window.Shiny.addCustomMessageHandler('response_input_file_data', function(data) {
@@ -880,21 +903,44 @@ function ModernCapacityApp() {
                     </div>
                 </div>
 
-                {/* Engine Mode Pill (with environment at left) */}
+                {/* Engine & Compute Mode Pills */}
                 {!isSidebarCollapsed && (
-                    <div className="px-4 py-1.5 border-b border-slate-100 flex items-center justify-center gap-2 bg-slate-50/40">
-                        <span className="text-[10px] font-medium text-slate-400 lowercase">environment</span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 ${
-                            envInfo.is_databricks 
-                                ? 'bg-rose-50 text-rose-700 border border-rose-200' 
-                                : 'bg-blue-50 text-blue-700 border border-blue-200/80'
-                        }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${
-                                envInfo.stage === 'prod' ? 'bg-emerald-500' :
-                                envInfo.stage === 'uat' ? 'bg-amber-500' : 'bg-blue-600'
-                            }`}></span>
-                            <span>{envInfo.is_databricks ? `databricks (${envInfo.stage || 'dev'})` : `vscode (${envInfo.stage || 'dev'})`}</span>
-                        </span>
+                    <div className="px-4 py-1.5 border-b border-slate-100 flex flex-col items-center justify-center gap-1 bg-slate-50/40">
+                        <div className="flex items-center justify-center gap-2">
+                            <span className="text-[10px] font-medium text-slate-400 lowercase">environment</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 ${
+                                envInfo.is_databricks 
+                                    ? 'bg-rose-50 text-rose-700 border border-rose-200' 
+                                    : 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                            }`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${
+                                    envInfo.stage === 'prod' ? 'bg-emerald-500' :
+                                    envInfo.stage === 'uat' ? 'bg-amber-500' : 'bg-blue-600'
+                                }`}></span>
+                                <span>{envInfo.is_databricks ? `databricks (${envInfo.stage || 'dev'})` : `vscode (${envInfo.stage || 'dev'})`}</span>
+                            </span>
+                        </div>
+                        {clusterInfo && clusterInfo.state && clusterInfo.state !== 'LOCAL' && (
+                            <div className="flex items-center justify-center gap-2">
+                                <span className="text-[10px] font-medium text-slate-400 lowercase">compute</span>
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 ${
+                                    clusterInfo.state === 'RUNNING' 
+                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
+                                        : (clusterInfo.state === 'STARTING' || clusterInfo.state === 'PENDING' || clusterInfo.state === 'RESIZING')
+                                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                        : 'bg-orange-50 text-orange-700 border border-orange-200'
+                                }`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${
+                                        clusterInfo.state === 'RUNNING' 
+                                            ? 'bg-emerald-500' 
+                                            : (clusterInfo.state === 'STARTING' || clusterInfo.state === 'PENDING')
+                                            ? 'bg-amber-500 animate-pulse'
+                                            : 'bg-orange-500'
+                                    }`}></span>
+                                    <span>{clusterInfo.state.toLowerCase()}</span>
+                                </span>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -1033,6 +1079,57 @@ function ModernCapacityApp() {
                     </div>
                 </header>
 
+                {/* CLUSTER STATUS INLINE BANNER (WHEN OFFLINE OR STARTING OR ERROR) */}
+                {clusterInfo && clusterInfo.state && clusterInfo.state !== 'RUNNING' && clusterInfo.state !== 'LOCAL' && (
+                    <div className={`px-6 py-2 border-b flex items-center justify-between text-xs transition-all flex-shrink-0 z-10 ${
+                        clusterInfo.can_read === 'true' 
+                            ? 'bg-blue-50/90 border-blue-200 text-blue-900' 
+                            : (clusterInfo.state === 'STARTING' || clusterInfo.state === 'PENDING' || clusterInfo.state === 'RESIZING')
+                            ? 'bg-amber-50/95 border-amber-200 text-amber-950'
+                            : clusterInfo.state === 'ERROR'
+                            ? 'bg-rose-50/95 border-rose-200 text-rose-950'
+                            : 'bg-orange-50/95 border-orange-200 text-orange-950'
+                    }`}>
+                        <div className="flex items-center gap-3">
+                            {(clusterInfo.state === 'STARTING' || clusterInfo.state === 'PENDING' || clusterInfo.state === 'RESIZING') ? (
+                                <span className="w-4 h-4 border-2 border-[#005eb8] border-t-transparent rounded-full animate-spin flex-shrink-0"></span>
+                            ) : clusterInfo.state === 'ERROR' ? (
+                                <span className="w-4 h-4 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-[10px] flex-shrink-0">!</span>
+                            ) : (
+                                <svg className="w-4 h-4 text-orange-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                                    <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                                    <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                                </svg>
+                            )}
+                            <div>
+                                <span className="font-extrabold mr-2">
+                                    {clusterInfo.cluster_name ? `${clusterInfo.cluster_name}: ${clusterInfo.state}` : `Cluster ${clusterInfo.state}`}
+                                </span>
+                                <span className="text-slate-600 font-medium">{clusterInfo.message}</span>
+                            </div>
+                        </div>
+
+                        {(clusterInfo.is_offline === 'true' || ['TERMINATED', 'STOPPED', 'OFFLINE'].includes(clusterInfo.state)) ? (
+                            <button
+                                onClick={() => {
+                                    if (window.Shiny && window.Shiny.setInputValue) {
+                                        window.Shiny.setInputValue('btn_banner_start_cluster', Date.now(), { priority: 'event' });
+                                    }
+                                }}
+                                className="px-3 py-1 bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs rounded-lg shadow-xs transition active:scale-95 flex items-center gap-1.5"
+                            >
+                                <span>Start Cluster</span>
+                            </button>
+                        ) : (clusterInfo.state === 'STARTING' || clusterInfo.state === 'PENDING' || clusterInfo.state === 'RESIZING') ? (
+                            <span className="text-blue-700 font-bold text-[11px] flex items-center gap-1.5 bg-white/80 px-2.5 py-1 rounded-md border border-blue-200">
+                                <span>Starting compute (2-4 min)...</span>
+                            </span>
+                        ) : null}
+                    </div>
+                )}
+
                 {/* TAB CONTENT AREA (FLUID SCROLLABLE MAIN WITH TIGHT SPACING) */}
                 <main className="flex-1 overflow-y-auto px-6 py-4 bg-[#fbfcfd] space-y-3.5">
                     {/* TAB 1: EXECUTIVE SCENARIO INSIGHTS (HOMEPAGE) */}
@@ -1122,7 +1219,7 @@ function ModernCapacityApp() {
 
                     {/* TAB 8: DATABRICKS ARCHITECTURE */}
                     {activeTab === 'architecture' && (
-                        <DatabricksArchitectureView envInfo={envInfo} setEnvInfo={setEnvInfo} showToast={showToast} />
+                        <DatabricksArchitectureView envInfo={envInfo} setEnvInfo={setEnvInfo} clusterInfo={clusterInfo} showToast={showToast} />
                     )}
                 </main>
             </div>
@@ -9823,7 +9920,7 @@ function FinancialImpactView() {
 // ------------------------------------------------------------------------------------------------
 // 8. DATABRICKS ARCHITECTURE VIEW
 // ------------------------------------------------------------------------------------------------
-function DatabricksArchitectureView({ envInfo, setEnvInfo, showToast }) {
+function DatabricksArchitectureView({ envInfo, setEnvInfo, clusterInfo, showToast }) {
     const [searchTable, setSearchTable] = useState('');
     const activeStage = (envInfo.stage || 'dev').toLowerCase();
     const activeCatalog = envInfo.catalog || 'capacity_planning';
@@ -9925,6 +10022,98 @@ function DatabricksArchitectureView({ envInfo, setEnvInfo, showToast }) {
                                 </button>
                             );
                         })}
+                    </div>
+                </div>
+            </div>
+
+            {/* Databricks Compute Cluster Management Card */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs glow-card">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3 mb-3">
+                    <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-white shadow-xs ${
+                            clusterInfo && clusterInfo.state === 'RUNNING' ? 'bg-emerald-600' :
+                            (clusterInfo && (clusterInfo.state === 'STARTING' || clusterInfo.state === 'PENDING' || clusterInfo.state === 'RESIZING')) ? 'bg-amber-500' :
+                            clusterInfo && clusterInfo.state === 'LOCAL' ? 'bg-[#005eb8]' :
+                            'bg-orange-500'
+                        }`}>
+                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h4 className="text-xs sm:text-sm font-bold text-slate-900 font-mono">
+                                    {(clusterInfo && clusterInfo.cluster_name) || "Databricks Compute"}
+                                </h4>
+                                <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${
+                                    clusterInfo && clusterInfo.state === 'RUNNING' 
+                                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300' 
+                                        : (clusterInfo && (clusterInfo.state === 'STARTING' || clusterInfo.state === 'PENDING' || clusterInfo.state === 'RESIZING'))
+                                        ? 'bg-amber-50 text-amber-800 border-amber-300 animate-pulse'
+                                        : clusterInfo && clusterInfo.state === 'LOCAL'
+                                        ? 'bg-blue-50 text-blue-800 border-blue-200'
+                                        : 'bg-orange-50 text-orange-800 border-orange-300'
+                                }`}>
+                                    {(clusterInfo && clusterInfo.state) || 'UNKNOWN'}
+                                </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 mt-0.5">
+                                {(clusterInfo && clusterInfo.message) || "Compute cluster lifecycle and execution status"}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        {clusterInfo && (clusterInfo.is_offline === 'true' || ['TERMINATED', 'STOPPED', 'OFFLINE'].includes(clusterInfo.state)) && (
+                            <button
+                                onClick={() => {
+                                    if (window.Shiny && window.Shiny.setInputValue) {
+                                        window.Shiny.setInputValue('btn_banner_start_cluster', Date.now(), { priority: 'event' });
+                                    }
+                                }}
+                                className="px-3.5 py-1.5 bg-[#005eb8] hover:bg-[#004b87] text-white text-xs font-bold rounded-lg shadow-xs transition active:scale-95 flex items-center gap-1.5"
+                            >
+                                <span>Start Cluster</span>
+                            </button>
+                        )}
+                        <button
+                            onClick={() => {
+                                if (window.Shiny && window.Shiny.setInputValue) {
+                                    window.Shiny.setInputValue('check_cluster_health_event', Date.now(), { priority: 'event' });
+                                }
+                                if (showToast) showToast("Checking Databricks compute status...", "info");
+                            }}
+                            className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition active:scale-95 flex items-center gap-1.5"
+                            title="Query Databricks API for latest cluster health"
+                        >
+                            <IconRefresh className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Check Status</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div className="bg-slate-50/70 p-2.5 rounded-lg border border-slate-100">
+                        <span className="text-[10px] uppercase font-bold text-slate-400">Can Execute Queries</span>
+                        <div className="mt-1 font-bold flex items-center gap-1.5 text-slate-800">
+                            <span className={`w-2 h-2 rounded-full ${clusterInfo && clusterInfo.can_read === 'true' ? 'bg-emerald-500' : 'bg-orange-500'}`}></span>
+                            <span>{clusterInfo && clusterInfo.can_read === 'true' ? 'Ready (Queries Permitted)' : 'Blocked (Compute Offline)'}</span>
+                        </div>
+                    </div>
+                    <div className="bg-slate-50/70 p-2.5 rounded-lg border border-slate-100">
+                        <span className="text-[10px] uppercase font-bold text-slate-400">Execution Engine</span>
+                        <div className="mt-1 font-bold text-slate-800 font-mono text-[11px] truncate">
+                            {envInfo.calc_mode || envInfo.calculation_mode || 'Distributed PySpark'}
+                        </div>
+                    </div>
+                    <div className="bg-slate-50/70 p-2.5 rounded-lg border border-slate-100">
+                        <span className="text-[10px] uppercase font-bold text-slate-400">Compute Target</span>
+                        <div className="mt-1 font-bold text-slate-800 font-mono text-[11px] truncate" title={envInfo.storage_target}>
+                            {envInfo.storage_target || `Unity Catalog: ${activeCatalog}.${activeSchema}`}
+                        </div>
                     </div>
                 </div>
             </div>
