@@ -29,7 +29,11 @@ from cluster_manager import (
     cluster_offline_modal,
     cluster_starting_modal,
     cluster_error_modal,
+    session_inactive_modal,
+    logout_confirmation_modal,
+    session_ended_modal,
     render_cluster_banner,
+    get_current_user,
     RUNNING_STATE,
     OFFLINE_STATES,
     STARTING_STATES
@@ -90,11 +94,19 @@ def test_cluster_manager_lifecycle():
     print("[3/8] Testing ClusterManager lifecycle and caching...")
     manager = ClusterManager(EnvironmentConfig)
 
-    # In local mode with no cluster configured, defaults to LOCAL
+    # In default databricks mode without cluster ID, actively looks for cluster and reports requirement/error
+    health_db = manager.check_health_now()
+    assert health_db["state"] == "ERROR"
+    assert "DATABRICKS_CLUSTER_ID or DATABRICKS_WAREHOUSE_ID is required" in health_db["message"]
+
+    # In explicit local/csv mode, defaults to LOCAL
+    import os
+    os.environ["STORAGE_MODE"] = "local"
     health_local = manager.check_health_now()
     assert health_local["state"] == "LOCAL"
     assert health_local["can_read"] == "true"
     assert health_local["cluster_name"] == "Local Storage"
+    del os.environ["STORAGE_MODE"]
 
     # Test simulated OFFLINE state
     manager.set_simulated_state("TERMINATED", cluster_name="Field Capacity Spark Cluster")
@@ -152,6 +164,26 @@ def test_cluster_modals():
     assert "Cluster Startup Failed" in modal_err_html
     assert "Cluster quota exceeded" in modal_err_html
     assert "btn_offline_modal_dismiss" in modal_err_html
+
+    # Inactive modal
+    modal_inact = session_inactive_modal()
+    modal_inact_html = str(modal_inact)
+    assert "Session Inactive" in modal_inact_html
+    assert "btn_resume_session" in modal_inact_html
+
+    # Logout confirmation modal
+    modal_logout = logout_confirmation_modal(user_email="engineer@britishgas.co.uk", databricks_host="adb-12345.azuredatabricks.net")
+    modal_logout_html = str(modal_logout)
+    assert "Log Out or End Your Session" in modal_logout_html
+    assert "engineer@britishgas.co.uk" in modal_logout_html
+    assert "btn_confirm_end_session" in modal_logout_html
+    assert "btn_dismiss_logout_modal" in modal_logout_html
+
+    # Session ended modal
+    modal_ended = session_ended_modal(databricks_host="adb-12345.azuredatabricks.net")
+    modal_ended_html = str(modal_ended)
+    assert "Session Ended" in modal_ended_html
+    assert "btn_resume_session" in modal_ended_html
 
     print("  UI Modals generation verified.")
 

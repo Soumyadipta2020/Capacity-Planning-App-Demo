@@ -1076,6 +1076,22 @@ function ModernCapacityApp() {
                         >
                             <IconSparkles className="w-3.5 h-3.5 text-blue-600" />
                         </button>
+                        <button
+                            onClick={() => {
+                                if (window.Shiny && window.Shiny.setInputValue) {
+                                    window.Shiny.setInputValue('btn_logout_session', Date.now(), { priority: 'event' });
+                                }
+                            }}
+                            className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-rose-50/80 hover:bg-rose-100 text-rose-700 border border-rose-200/80 transition flex items-center gap-1.5 shadow-xs"
+                            title="End active session or log out of Databricks"
+                        >
+                            <svg className="w-3.5 h-3.5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            <span>Log Out</span>
+                        </button>
                     </div>
                 </header>
 

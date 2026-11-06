@@ -19,6 +19,21 @@ UNKNOWN_STATE = "UNKNOWN"
 ERROR_STATE = "ERROR"
 
 
+def get_current_user(session: Session) -> str:
+    """Extracts logged in user email or username from Databricks Apps reverse proxy headers or session."""
+    http_conn = getattr(session, "http_conn", None)
+    if http_conn and hasattr(http_conn, "headers"):
+        headers = http_conn.headers
+        for key in ("x-forwarded-email", "x-forwarded-preferred-username", "x-forwarded-user"):
+            val = headers.get(key)
+            if val and str(val).strip():
+                return str(val).strip()
+    user = getattr(session, "user", None)
+    if user and str(user).strip():
+        return str(user).strip()
+    return ""
+
+
 class ClusterStartingError(RuntimeError):
     """Raised when an attempt to execute a query or load data is made while compute is starting or offline."""
 
@@ -184,18 +199,23 @@ class ClusterManager:
 
     def get_compute_info(self) -> tuple[str, str]:
         """Queries the Databricks API and returns (cluster_or_warehouse_name, state)."""
-        # Simulated state override
         sim = self._simulated_state or os.environ.get("SIMULATE_CLUSTER_STATE")
         if sim:
             name = self._compute_name or "Capacity Planning Spark Cluster"
             return name, sim.upper()
 
+        from config import EnvironmentConfig
+        storage_mode = EnvironmentConfig.get_storage_mode()
+
         cluster_id = self._get_setting("databricks_cluster_id") or os.environ.get("DATABRICKS_CLUSTER_ID", "").strip()
         warehouse_id = self._get_setting("databricks_warehouse_id") or os.environ.get("DATABRICKS_WAREHOUSE_ID", "").strip()
 
-        if not cluster_id and not warehouse_id:
-            # When running locally without cluster configuration:
+        # If user explicitly opted for local offline mode via STORAGE_MODE=local or STORAGE_MODE=csv
+        if storage_mode in {"local", "csv"} and not cluster_id and not warehouse_id:
             return "Local Storage", "LOCAL"
+
+        if not cluster_id and not warehouse_id:
+            raise RuntimeError("DATABRICKS_CLUSTER_ID or DATABRICKS_WAREHOUSE_ID is required for Databricks compute.")
 
         client = self.get_workspace_client()
 
@@ -259,6 +279,11 @@ class ClusterManager:
                 "can_read": "false",
                 "is_offline": "false",
             }
+            display_label = self._compute_name or "Databricks compute"
+            print(
+                f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [CLUSTER STATUS] '{display_label}' State: ERROR | {new_status['message']}",
+                flush=True,
+            )
             with self._status_lock:
                 self._cluster_status = new_status
                 self._last_status_check = time.time()
@@ -561,13 +586,213 @@ def cluster_error_modal(error_message: str) -> ui.Tag:
     )
 
 
+def session_inactive_modal() -> ui.Tag:
+    """Displays modal when compute is offline and no activity detected for 30 minutes."""
+    return ui.modal(
+        ui.div(
+            ui.div(
+                ui.div(
+                    ui.HTML('''
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    '''),
+                    class_="status-modal-icon-circle inactive",
+                ),
+                ui.div("Session Inactive", class_="status-modal-title"),
+                ui.div(
+                    "The Databricks cluster is offline and no activity was detected for 30 minutes. Background polling has been paused to conserve resources.",
+                    class_="status-modal-subtitle",
+                ),
+                ui.div(
+                    ui.input_action_button(
+                        "btn_resume_session",
+                        "Resume Session",
+                        class_="btn-primary",
+                        style="min-width: 170px; font-weight: 700; padding: 10px 24px;",
+                    ),
+                    style="display: flex; justify-content: center; margin-top: 10px;",
+                ),
+                class_="status-modal-content",
+            ),
+            class_="status-modal-wrapper",
+        ),
+        title=None,
+        footer=None,
+        easy_close=False,
+        size="m",
+    )
+
+
+def logout_confirmation_modal(user_email: str = "", databricks_host: str = "") -> ui.Tag:
+    """Displays modal giving user choice to pause active session or log out of Databricks."""
+    user_info = (
+        ui.div(
+            ui.div("LOGGED IN AS", class_="status-modal-id-label"),
+            ui.div(
+                user_email,
+                class_="status-modal-id-value",
+                style="color: #1a202c; font-size: 1.05rem; font-weight: 600;",
+            ),
+            class_="status-modal-badge-card",
+            style="padding: 10px 18px; margin-bottom: 18px;",
+        )
+        if user_email
+        else None
+    )
+
+    if databricks_host:
+        clean_host = databricks_host if databricks_host.startswith("http") else f"https://{databricks_host}"
+        databricks_logout_url = f"{clean_host.rstrip('/')}/login.html"
+    else:
+        databricks_logout_url = "/login.html"
+
+    return ui.modal(
+        ui.div(
+            ui.div(
+                ui.div(
+                    ui.HTML('''
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    '''),
+                    class_="status-modal-icon-circle logout-icon",
+                ),
+                ui.div("Log Out or End Your Session", class_="status-modal-title"),
+                ui.div(
+                    "You can end your active application session or sign out of your Databricks workspace completely.",
+                    class_="status-modal-subtitle",
+                ),
+                user_info,
+                ui.div(
+                    ui.div(
+                        ui.div(
+                            ui.HTML('''
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #005eb8; margin-bottom: 8px;">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="10" y1="15" x2="10" y2="9"></line>
+                                    <line x1="14" y1="15" x2="14" y2="9"></line>
+                                </svg>
+                            '''),
+                            ui.div("End App Session", style="font-weight: 700; color: #1e293b; margin-bottom: 4px; font-size: 0.95rem;"),
+                            ui.div("Pause background compute polling and lock your session without losing login credentials.", style="font-size: 0.8rem; color: #64748b; margin-bottom: 12px; line-height: 1.35; flex-grow: 1;"),
+                            ui.input_action_button(
+                                "btn_confirm_end_session",
+                                "End Session",
+                                class_="btn-primary compact-btn",
+                                style="width: 100%; font-weight: 700;",
+                            ),
+                            class_="session-option-box",
+                        ),
+                        ui.div(
+                            ui.HTML('''
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #dc2626; margin-bottom: 8px;">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                            '''),
+                            ui.div("Log Out of Databricks", style="font-weight: 700; color: #1e293b; margin-bottom: 4px; font-size: 0.95rem;"),
+                            ui.div("Sign out completely from your Databricks workspace and close this application.", style="font-size: 0.8rem; color: #64748b; margin-bottom: 12px; line-height: 1.35; flex-grow: 1;"),
+                            ui.tags.a(
+                                "Log Out",
+                                href=databricks_logout_url,
+                                target="_top",
+                                class_="btn btn-outline-danger compact-btn",
+                                style="width: 100%; font-weight: 700; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;",
+                            ),
+                            class_="session-option-box",
+                        ),
+                        class_="session-options-row",
+                    ),
+                    style="margin-bottom: 16px; width: 100%;",
+                ),
+                ui.div(
+                    ui.input_action_button(
+                        "btn_dismiss_logout_modal",
+                        "Cancel",
+                        class_="btn-outline-secondary",
+                        style="min-width: 100px; padding: 8px 22px;",
+                    ),
+                    style="display: flex; justify-content: center;",
+                ),
+                class_="status-modal-content",
+            ),
+            class_="status-modal-wrapper",
+        ),
+        title=None,
+        footer=None,
+        easy_close=True,
+        size="m",
+    )
+
+
+def session_ended_modal(databricks_host: str = "") -> ui.Tag:
+    """Displays modal when user manually ends session."""
+    if databricks_host:
+        clean_host = databricks_host if databricks_host.startswith("http") else f"https://{databricks_host}"
+        databricks_logout_url = f"{clean_host.rstrip('/')}/login.html"
+    else:
+        databricks_logout_url = "/login.html"
+
+    return ui.modal(
+        ui.div(
+            ui.div(
+                ui.div(
+                    ui.HTML('''
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    '''),
+                    class_="status-modal-icon-circle inactive",
+                ),
+                ui.div("Session Ended", class_="status-modal-title"),
+                ui.div(
+                    "Your session has been ended and compute polling is paused. You can resume your session at any time or sign out completely.",
+                    class_="status-modal-subtitle",
+                ),
+                ui.div(
+                    ui.input_action_button(
+                        "btn_resume_session",
+                        "Resume Session",
+                        class_="btn-primary",
+                        style="min-width: 160px; font-weight: 700; padding: 10px 22px;",
+                    ),
+                    ui.tags.a(
+                        "Log Out of Databricks",
+                        href=databricks_logout_url,
+                        target="_top",
+                        class_="btn btn-outline-danger",
+                        style="min-width: 160px; font-weight: 700; padding: 10px 22px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;",
+                    ),
+                    style="display: flex; justify-content: center; gap: 12px; margin-top: 10px;",
+                ),
+                ui.div(
+                    "You may also safely close this browser tab.",
+                    style="font-size: 0.78rem; color: #64748b; margin-top: 16px; text-align: center;",
+                ),
+                class_="status-modal-content",
+            ),
+            class_="status-modal-wrapper",
+        ),
+        title=None,
+        footer=None,
+        easy_close=False,
+        size="m",
+    )
+
+
 def render_cluster_banner(cluster_info: dict[str, str], storage_mode: str = "databricks") -> ui.Tag | None:
     """Renders the top status banner when compute is stopped, starting, or in an error state."""
     state = cluster_info.get("state", "LOCAL")
     cluster_name = cluster_info.get("cluster_name", "")
     message = cluster_info.get("message", "")
 
-    # Hide banner when local or cluster is already running
+    # Hide banner when local mode or compute is already running
     if storage_mode not in {"databricks", "spark"} or state == RUNNING_STATE or state == "LOCAL":
         return None
 
@@ -607,7 +832,7 @@ def render_cluster_banner(cluster_info: dict[str, str], storage_mode: str = "dat
 def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, engine: Any = None) -> dict[str, Any]:
     """
     Registers reactive lifecycle handlers, auto-polling effects, startup loops,
-    and UI renderers for Databricks compute management.
+    inactivity checks, session management, and UI renderers for Databricks compute management.
     """
     from config import EnvironmentConfig
 
@@ -615,8 +840,11 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
         from engine.data_engine import CapacityDataEngine
         engine = CapacityDataEngine()
 
+    # Initial status lookup executed immediately on server connection
     cluster_info = reactive.value(engine.cluster_health())
     previous_cluster_state = None
+    last_user_activity = time.time()
+    is_app_inactive = reactive.value(False)
     cluster_modal_state = reactive.value("none")
     offline_modal_dismissed = reactive.value(False)
     cluster_poll_trigger = reactive.value(0)
@@ -630,11 +858,46 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
         storage_mode = EnvironmentConfig.get_storage_mode()
         return render_cluster_banner(cluster_info(), storage_mode=storage_mode)
 
+    # Throttled user activity ping to track user presence
+    @reactive.effect
+    @reactive.event(input.user_activity_ping, ignore_none=True, ignore_init=True)
+    def on_user_activity_ping():
+        nonlocal last_user_activity
+        with reactive.isolate():
+            inactive = is_app_inactive()
+        if not inactive:
+            last_user_activity = time.time()
+
+    # Inactivity monitor: if compute is offline and 30m pass without activity, pause polling
+    @reactive.effect
+    def check_user_inactivity():
+        if is_app_inactive():
+            return
+        now = time.time()
+        idle_seconds = now - last_user_activity
+        with reactive.isolate():
+            info = cluster_info()
+        state = info.get("state", "UNKNOWN")
+        is_offline = info.get("is_offline") == "true" or state in OFFLINE_STATES
+        if is_offline and idle_seconds >= 1800:  # 30 minutes
+            print(
+                f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [SESSION INACTIVE] 30m of user inactivity detected while cluster is offline. Pausing background activity.",
+                flush=True,
+            )
+            is_app_inactive.set(True)
+            cluster_modal_state.set("inactive")
+            ui.modal_show(session_inactive_modal())
+            return
+        reactive.invalidate_later(60)
+
     @reactive.effect
     async def poll_cluster_health():
         cluster_poll_trigger()
         storage_mode = EnvironmentConfig.get_storage_mode()
-        if storage_mode != "databricks" and not engine.cluster_manager.is_cluster_configured():
+        if storage_mode not in {"databricks", "spark"}:
+            return
+
+        if is_app_inactive():
             return
 
         try:
@@ -669,7 +932,6 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
                     cluster_modal_state.set("none")
                     ui.modal_remove()
                     ui.notification_show("Databricks cluster is running! Loading data...", type="message", duration=5)
-                    # Notify React to update engine status and show toast
                     session.send_custom_message("update_env_status", engine.get_engine_status())
                 # While RUNNING, check every 15s to detect if compute terminates from idle timeout:
                 reactive.invalidate_later(15)
@@ -719,6 +981,8 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
     @reactive.effect
     @reactive.event(input.btn_start_cluster_confirm)
     async def on_start_cluster_confirmed():
+        nonlocal last_user_activity
+        last_user_activity = time.time()
         with reactive.isolate():
             cluster_name = cluster_info().get("cluster_name", "")
         print(
@@ -766,7 +1030,6 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
                         type="message",
                         duration=5,
                     )
-                    # Broadcast updated environment and status to React client
                     session.send_custom_message("update_env_status", engine.get_engine_status())
                     session.send_custom_message("show_toast", {
                         "message": f"Databricks cluster '{cluster_name or 'Cluster'}' is online and ready!",
@@ -793,6 +1056,8 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
     @reactive.effect
     @reactive.event(input.btn_offline_modal_dismiss)
     def on_offline_modal_dismissed():
+        nonlocal last_user_activity
+        last_user_activity = time.time()
         offline_modal_dismissed.set(True)
         cluster_modal_state.set("none")
         ui.modal_remove()
@@ -800,6 +1065,8 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
     @reactive.effect
     @reactive.event(input.btn_dismiss_starting_modal)
     def on_dismiss_starting_modal():
+        nonlocal last_user_activity
+        last_user_activity = time.time()
         cluster_modal_state.set("none")
         ui.modal_remove()
         trigger_cluster_poll()
@@ -807,6 +1074,8 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
     @reactive.effect
     @reactive.event(input.btn_banner_start_cluster)
     def on_banner_start_cluster():
+        nonlocal last_user_activity
+        last_user_activity = time.time()
         offline_modal_dismissed.set(False)
         with reactive.isolate():
             info = cluster_info()
@@ -815,6 +1084,70 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
         cluster_modal_state.set("offline_prompt")
         ui.modal_show(cluster_offline_modal(cluster_name=cluster_name, state=state))
         trigger_cluster_poll()
+
+    @reactive.effect
+    @reactive.event(input.btn_resume_session)
+    async def on_resume_session():
+        nonlocal last_user_activity
+        print(
+            f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [SESSION RESUME] User clicked Resume Session. Reactivating session.",
+            flush=True,
+        )
+        is_app_inactive.set(False)
+        last_user_activity = time.time()
+        offline_modal_dismissed.set(False)
+        cluster_modal_state.set("none")
+        ui.modal_remove()
+        storage_mode = EnvironmentConfig.get_storage_mode()
+        if storage_mode == "databricks":
+            try:
+                health = await asyncio.to_thread(engine.check_health_now)
+                cluster_info.set(health)
+                session.send_custom_message("update_cluster_status", health)
+                state = health.get("state", "UNKNOWN")
+                is_offline = health.get("is_offline") == "true" or state in OFFLINE_STATES
+                if is_offline:
+                    cluster_name = health.get("cluster_name", "")
+                    cluster_modal_state.set("offline_prompt")
+                    ui.modal_show(cluster_offline_modal(cluster_name=cluster_name, state=state))
+            except Exception:
+                pass
+        trigger_cluster_poll()
+
+    @reactive.effect
+    @reactive.event(input.btn_logout_session)
+    def on_click_logout_session():
+        user_email = get_current_user(session)
+        host = EnvironmentConfig.get_databricks_host()
+        cluster_modal_state.set("logout_prompt")
+        ui.modal_show(logout_confirmation_modal(user_email=user_email, databricks_host=host))
+
+    @reactive.effect
+    @reactive.event(input.btn_confirm_end_session)
+    def on_confirm_end_session():
+        nonlocal last_user_activity
+        print(
+            f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [SESSION ENDED] User manually ended their session. App is now idle.",
+            flush=True,
+        )
+        is_app_inactive.set(True)
+        last_user_activity = time.time()
+        cluster_modal_state.set("session_ended")
+        host = EnvironmentConfig.get_databricks_host()
+        ui.modal_show(session_ended_modal(databricks_host=host))
+
+    @reactive.effect
+    @reactive.event(input.btn_dismiss_logout_modal)
+    def on_dismiss_logout_modal():
+        cluster_modal_state.set("none")
+        ui.modal_remove()
+
+    @session.on_ended
+    def on_session_ended():
+        print(
+            f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [SESSION CLOSED] Client disconnected. App is now idle.",
+            flush=True,
+        )
 
     # React JS bridge listener to trigger health check
     @reactive.effect
@@ -829,6 +1162,8 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
     @reactive.effect
     @reactive.event(input.start_cluster_from_react_event)
     def on_react_start_cluster():
+        nonlocal last_user_activity
+        last_user_activity = time.time()
         offline_modal_dismissed.set(False)
         with reactive.isolate():
             info = cluster_info()
@@ -842,5 +1177,6 @@ def register_cluster_handlers(input: Inputs, output: Outputs, session: Session, 
         "cluster_info": cluster_info,
         "cluster_modal_state": cluster_modal_state,
         "offline_modal_dismissed": offline_modal_dismissed,
+        "is_app_inactive": is_app_inactive,
         "trigger_cluster_poll": trigger_cluster_poll,
     }

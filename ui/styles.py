@@ -345,6 +345,48 @@ body {
     color: #005eb8;
     letter-spacing: 0.04em;
 }
+
+.status-modal-icon-circle.inactive {
+    background-color: rgba(100, 116, 139, 0.16);
+    color: #475569;
+    border: 2px solid rgba(100, 116, 139, 0.35);
+}
+
+.status-modal-icon-circle.logout-icon {
+    background-color: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+    border: 2px solid rgba(239, 68, 68, 0.35);
+}
+
+.session-options-row {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+}
+
+.session-option-box {
+    flex: 1;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 14px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.15s ease;
+}
+
+.session-option-box:hover {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+}
+
+@media (max-width: 600px) {
+    .session-options-row {
+        flex-direction: column;
+    }
+}
 """
 
 def get_british_gas_logo_html() -> str:

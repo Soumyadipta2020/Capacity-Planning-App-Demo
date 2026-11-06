@@ -64,13 +64,49 @@ def create_classic_ui():
         create_about_tab(),
         ui.nav_spacer(),
         ui.nav_control(ui.HTML(get_env_badge_html(env_name, is_databricks))),
+        ui.nav_control(
+            ui.input_action_button(
+                "btn_logout_session",
+                "Log Out",
+                class_="btn-outline-secondary compact-btn",
+                style="font-size: 0.78rem; padding: 3px 10px; margin-left: 6px; font-weight: 700;",
+            )
+        ),
         ui.nav_control(ui.HTML(get_british_gas_logo_html())),
         title="Capacity Planning",
         id="main_navbar",
         header=ui.TagList(
             ui.tags.head(
                 ui.tags.style(CUSTOM_CSS),
-                ui.tags.meta(name="viewport", content="width=device-width, initial-scale=1")
+                ui.tags.meta(name="viewport", content="width=device-width, initial-scale=1"),
+                ui.tags.script("""
+                    $(document).on('hidden.bs.modal hide.bs.modal', function () {
+                        setTimeout(function() {
+                            $('.modal-backdrop').remove();
+                            $('#shiny-modal-wrapper').empty();
+                            $('body').removeClass('modal-open').css({'overflow': '', 'padding-right': ''});
+                        }, 50);
+                    });
+
+                    (function() {
+                        var lastPingTime = Date.now();
+                        var THROTTLE_MS = 30000;
+
+                        function pingActivity() {
+                            var now = Date.now();
+                            if (now - lastPingTime >= THROTTLE_MS) {
+                                lastPingTime = now;
+                                if (window.Shiny && window.Shiny.setInputValue) {
+                                    Shiny.setInputValue('user_activity_ping', now);
+                                }
+                            }
+                        }
+
+                        ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(function(evt) {
+                            window.addEventListener(evt, pingActivity, { passive: true });
+                        });
+                    })();
+                """)
             ),
             ui.output_ui("cluster_banner")
         ),

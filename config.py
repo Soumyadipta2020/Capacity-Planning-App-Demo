@@ -13,6 +13,10 @@ import sys
 import platform
 from pathlib import Path
 from typing import Dict, List, Any
+from dotenv import load_dotenv
+
+# Load local environment settings from .env if present
+load_dotenv()
 
 # Base workspace directory
 WORKSPACE_DIR = Path(__file__).resolve().parent
@@ -189,15 +193,16 @@ class EnvironmentConfig:
     def get_storage_mode(cls) -> str:
         """
         Determines active storage/execution mode:
-        'databricks' if in a Databricks container, STORAGE_MODE=databricks, or cluster ID is configured;
-        otherwise 'local' / 'csv'.
+        'databricks' if in a Databricks container, STORAGE_MODE=databricks, or cluster configured;
+        defaults to 'databricks' to actively monitor compute health like the reference app.
+        Use STORAGE_MODE=csv or STORAGE_MODE=local to run strictly offline.
         """
         mode = os.environ.get("STORAGE_MODE", "").strip().lower()
+        if mode in {"csv", "local"}:
+            return "local"
         if mode in {"databricks", "delta", "spark"}:
             return "databricks"
-        if cls.is_databricks() or bool(cls.get_databricks_cluster_id()) or bool(cls.get_databricks_warehouse_id()):
-            return "databricks"
-        return "local"
+        return "databricks"
 
     @classmethod
     def is_databricks(cls) -> bool:

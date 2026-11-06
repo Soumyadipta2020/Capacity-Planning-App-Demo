@@ -271,6 +271,48 @@ def create_modern_ui_page():
                     color: #005eb8;
                     letter-spacing: 0.04em;
                 }
+
+                .status-modal-icon-circle.inactive {
+                    background-color: rgba(100, 116, 139, 0.16);
+                    color: #475569;
+                    border: 2px solid rgba(100, 116, 139, 0.35);
+                }
+
+                .status-modal-icon-circle.logout-icon {
+                    background-color: rgba(239, 68, 68, 0.12);
+                    color: #dc2626;
+                    border: 2px solid rgba(239, 68, 68, 0.35);
+                }
+
+                .session-options-row {
+                    display: flex;
+                    gap: 14px;
+                    width: 100%;
+                }
+
+                .session-option-box {
+                    flex: 1;
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    padding: 16px 14px;
+                    text-align: center;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    transition: all 0.15s ease;
+                }
+
+                .session-option-box:hover {
+                    border-color: #cbd5e1;
+                    background: #f1f5f9;
+                }
+
+                @media (max-width: 600px) {
+                    .session-options-row {
+                        flex-direction: column;
+                    }
+                }
                 
                 /* MODERN GLOWING HOVER EFFECTS (BRITISH GAS BLUE THEME) */
                 .glow-card {
@@ -330,6 +372,36 @@ def create_modern_ui_page():
                 }
                 """
             ),
+            
+            # Modal backdrop cleanup and user activity ping script matching reference repo
+            ui.tags.script("""
+                $(document).on('hidden.bs.modal hide.bs.modal', function () {
+                    setTimeout(function() {
+                        $('.modal-backdrop').remove();
+                        $('#shiny-modal-wrapper').empty();
+                        $('body').removeClass('modal-open').css({'overflow': '', 'padding-right': ''});
+                    }, 50);
+                });
+
+                (function() {
+                    var lastPingTime = Date.now();
+                    var THROTTLE_MS = 30000;
+
+                    function pingActivity() {
+                        var now = Date.now();
+                        if (now - lastPingTime >= THROTTLE_MS) {
+                            lastPingTime = now;
+                            if (window.Shiny && window.Shiny.setInputValue) {
+                                Shiny.setInputValue('user_activity_ping', now);
+                            }
+                        }
+                    }
+
+                    ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(function(evt) {
+                        window.addEventListener(evt, pingActivity, { passive: true });
+                    });
+                })();
+            """),
             
             # Inject Initial Backend Data
             ui.tags.script(

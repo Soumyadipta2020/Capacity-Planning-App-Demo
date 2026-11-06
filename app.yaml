@@ -16,11 +16,11 @@ env:
   - name: "DATABRICKS_CLUSTER_ID"
     value: ""
   - name: "DATABRICKS_WAREHOUSE_ID"
-    value: ""
+    value: "42862832386f7061"
 
   # Databricks Unity Catalog: Remains constant across dev, uat, and prod
   - name: "DATABRICKS_CATALOG"
-    value: "capacity_planning"
+    value: "project_data"
 
   # Database / Schema configuration per stage (schema changes based on detected app name)
   # App name is injected automatically by Databricks Apps container deployment:
@@ -28,7 +28,7 @@ env:
   #   e.g. 'capacity-planning-app-uat'  -> detects 'uat' stage, uses schema 'uat'
   #   e.g. 'capacity-planning-app-dev'  -> detects 'dev' stage, uses schema 'dev'
   - name: "DATABRICKS_SCHEMA_DEV"
-    value: "dev"
+    value: "capacity_planning_demo"
   - name: "DATABRICKS_SCHEMA_UAT"
     value: "uat"
   - name: "DATABRICKS_SCHEMA_PROD"
