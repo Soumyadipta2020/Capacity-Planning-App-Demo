@@ -125,9 +125,9 @@ def server(input, output, session):
     # Register Databricks compute lifecycle & cluster management handlers
     register_cluster_handlers(input, output, session, engine=engine)
 
-    # Initiate background auto-creation of Unity Catalog Delta tables only when deployed on Databricks
-    if EnvironmentConfig.is_databricks() or (not EnvironmentConfig.is_vscode() and EnvironmentConfig.get_storage_mode() == "databricks"):
-        engine.ensure_all_tables(async_init=True)
+    # Ensure Databricks Unity Catalog Delta tables exist before serving data
+    if EnvironmentConfig.is_databricks() or EnvironmentConfig.get_storage_mode() == "databricks":
+        engine.ensure_all_tables(async_init=False)
 
     # --- REACT JAVASCRIPT EVENT BRIDGE ---
 
@@ -265,16 +265,38 @@ if __name__ == "__main__":
     port = EnvironmentConfig.get_server_port()
     is_db = EnvironmentConfig.is_databricks()
     engine = CapacityDataEngine.get_instance()
-    status = engine.get_engine_status()
     
+    # -----------------------------------------------------------------------
+    # STEP 1: Verify & create tables in Databricks first if not present
+    # -----------------------------------------------------------------------
     print("=" * 70)
-    print(" BRITISH GAS | FIELD CAPACITY PLANNING PLATFORM (REACT + PYSHINY)")
+    print(" BRITISH GAS | FIELD CAPACITY PLANNING PLATFORM")
+    print("=" * 70)
+    print(" [STEP 1/2] Verifying Databricks Unity Catalog tables...")
+    
+    table_init_res = engine.ensure_all_tables(async_init=False, auto_start_compute=True)
+    if table_init_res.get("status") == "success":
+        newly_created = table_init_res.get("created_tables", [])
+        if newly_created:
+            print(f" [Databricks Unity Catalog] Created {len(newly_created)} missing table(s):")
+            for tbl in newly_created:
+                print(f"   + {table_init_res.get('schema')}.{tbl}")
+        else:
+            print(f" [Databricks Unity Catalog] All {table_init_res.get('count', 22)} tables are present and verified in {table_init_res.get('schema')}.")
+    else:
+        print(f" [Databricks Unity Catalog] {table_init_res.get('reason', 'Local storage active')}")
+    
+    # -----------------------------------------------------------------------
+    # STEP 2: Next, load the app using them
+    # -----------------------------------------------------------------------
+    status = engine.get_engine_status()
+    print("\n [STEP 2/2] Loading application using verified data tables...")
     print(f" UI Framework       : Modern React 18 + Tailwind CSS")
     print(f" Execution Engine   : {status['engine_type']}")
     print(f" Storage Target     : {status['storage_target']}")
     print(f" Calculation Mode   : {status['calculation_mode']}")
     print(f" Server Binding     : http://{host}:{port}")
-    print("=" * 70)
+    print("=" * 70 + "\n")
     
     uvicorn.run(
         "app:app",

@@ -17,13 +17,15 @@ import os
 import re
 import json
 import threading
+import time
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Set
 import pandas as pd
 import numpy as np
 
 from config import EnvironmentConfig
-from cluster_manager import ClusterManager, ClusterStartingError, RUNNING_STATE
+from cluster_manager import ClusterManager, ClusterStartingError, RUNNING_STATE, OFFLINE_STATES
 
 class CapacityDataEngine:
     """Manages data access, schema/table lifecycle, and calculation execution across Unity Catalog and local storage."""
@@ -290,11 +292,18 @@ class CapacityDataEngine:
                 print(f"[Warning] Spark CREATE SCHEMA failed: {e}")
 
         # SQL Warehouse cursor
+        def _exec_create_schema(cur):
+            try:
+                cur.execute(f"CREATE CATALOG IF NOT EXISTS `{self.catalog}`")
+            except Exception:
+                pass
+            cur.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_ident}")
+
         if cursor is not None:
-            cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_ident}")
+            _exec_create_schema(cursor)
         else:
             with self.cluster_manager.get_cursor() as cur:
-                cur.execute(f"CREATE SCHEMA IF NOT EXISTS {schema_ident}")
+                _exec_create_schema(cur)
 
     def ensure_table_exists(self, input_key: str, cursor=None) -> bool:
         """
@@ -436,32 +445,131 @@ class CapacityDataEngine:
                 with self.cluster_manager.get_cursor() as cur:
                     return _execute_cur(cur)
 
-    def ensure_all_tables(self, async_init: bool = False) -> Dict[str, Any]:
+    def ensure_all_tables(
+        self,
+        async_init: bool = False,
+        auto_start_compute: bool = True,
+        compute_timeout_seconds: int = 180
+    ) -> Dict[str, Any]:
         """
         Ensures all 21 operational input Delta tables + scenarios table exist in Databricks.
-        Can run asynchronously in a background thread upon startup so it does not block the UI.
+        If tables are not present in Databricks, creates them in Databricks first and seeds them.
+        Can run synchronously before app load or asynchronously in a background thread.
         """
         def _run_init():
-            if not self.is_databricks_active():
-                return {"status": "skipped", "reason": "Compute offline or not in Databricks mode"}
+            is_mode_db = (
+                self.is_databricks
+                or EnvironmentConfig.get_storage_mode() == "databricks"
+                or self.cluster_manager._simulated_state is not None
+            )
+
+            # Auto-start compute if offline and configured
+            if auto_start_compute and is_mode_db and self.cluster_manager.is_cluster_configured():
+                if self.spark is None and self.cluster_manager._simulated_state is None:
+                    health = self.cluster_health()
+                    state = health.get("state", "UNKNOWN").upper()
+                    if state in OFFLINE_STATES:
+                        target_name = self.cluster_manager.compute_name or "compute"
+                        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [Databricks Unity Catalog] Compute '{target_name}' is {state}. Starting compute before verifying tables...")
+                        self.start_cluster()
+                        start_wait = time.time()
+                        while (time.time() - start_wait) < compute_timeout_seconds:
+                            time.sleep(3.0)
+                            curr_health = self.check_health_now()
+                            curr_state = curr_health.get("state", "").upper()
+                            if curr_state == RUNNING_STATE:
+                                print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [Databricks Unity Catalog] Compute is now RUNNING and ready for table queries.")
+                                break
+                            elif curr_state in ("ERROR", "UNKNOWN") and not self.cluster_manager._startup_in_progress:
+                                break
+
+            if not self.is_databricks_active() and self.spark is None:
+                return {
+                    "status": "skipped",
+                    "reason": "Compute offline or not in Databricks mode",
+                    "schema": self._schema_name(),
+                    "tables_verified": list(self._verified_tables),
+                    "count": len(self._verified_tables),
+                    "created_tables": [],
+                    "existing_tables": []
+                }
 
             created = []
+            already_existing = []
+
+            # Mode 1: Spark Session
+            if self.spark is not None:
+                try:
+                    self.ensure_schema_exists()
+                    spark_tables = set()
+                    try:
+                        spark_tables = {t.name.lower() for t in self.spark.catalog.listTables(f"{self.catalog}.{self.schema}")}
+                    except Exception:
+                        pass
+
+                    if "es_shiny_scenarios" not in spark_tables:
+                        print(f"[Databricks Unity Catalog] Table 'es_shiny_scenarios' not found in {self._schema_name()}. Creating Delta table...")
+                        self.ensure_scenarios_table()
+                        created.append("es_shiny_scenarios")
+                    else:
+                        self._verified_tables.add("es_shiny_scenarios")
+                        already_existing.append("es_shiny_scenarios")
+
+                    for key in EnvironmentConfig.OPERATIONAL_INPUT_LABELS.keys():
+                        tbl_name = self.get_table_name(key)
+                        if tbl_name.lower() not in spark_tables:
+                            print(f"[Databricks Unity Catalog] Table '{tbl_name}' not found in {self._schema_name()}. Creating Delta table...")
+                            self.ensure_table_exists(key)
+                            created.append(tbl_name)
+                        else:
+                            self._verified_tables.add(tbl_name)
+                            already_existing.append(tbl_name)
+
+                    return {
+                        "status": "success",
+                        "schema": self._schema_name(),
+                        "created_tables": created,
+                        "existing_tables": already_existing,
+                        "tables_verified": list(self._verified_tables),
+                        "count": len(self._verified_tables)
+                    }
+                except Exception as e:
+                    print(f"[Warning] Spark ensure_all_tables error: {e}. Trying SQL cursor.")
+
+            # Mode 2: Databricks SQL Warehouse Cursor
             try:
                 with self.cluster_manager.get_cursor() as cur:
                     self.ensure_schema_exists(cursor=cur)
+
+                    # Ensure scenarios table
+                    scen_table = "es_shiny_scenarios"
+                    was_verified = scen_table in self._verified_tables
                     self.ensure_scenarios_table(cursor=cur)
+                    if not was_verified:
+                        created.append(scen_table)
+                    else:
+                        already_existing.append(scen_table)
+
+                    # Ensure all 21 operational tables
                     for key in EnvironmentConfig.OPERATIONAL_INPUT_LABELS.keys():
+                        tbl_name = self.get_table_name(key)
+                        was_verified = tbl_name in self._verified_tables
                         try:
                             self.ensure_table_exists(key, cursor=cur)
-                            created.append(self.get_table_name(key))
+                            if not was_verified:
+                                created.append(tbl_name)
+                            else:
+                                already_existing.append(tbl_name)
                         except Exception as e:
                             print(f"[Warning] Failed ensuring table for '{key}': {e}")
             except Exception as e:
-                print(f"[Databricks Unity Catalog] Table initialization background check error: {e}")
+                print(f"[Databricks Unity Catalog] Table initialization check error: {e}")
 
             return {
                 "status": "success",
                 "schema": self._schema_name(),
+                "created_tables": created,
+                "existing_tables": already_existing,
                 "tables_verified": list(self._verified_tables),
                 "count": len(self._verified_tables)
             }
