@@ -327,6 +327,27 @@ try:
         assert "Imbalance" in js_content, "Imbalance trend card missing in react_app.js"
         print("Verified Operational Trajectory Trends: 5 Sparkline Cards (FTE Required, Gross Hours, Total Downtime, Productivity, Imbalance) placed in the marked area in between!")
 
+        # Verify Power BI Export to Private & Public Workspaces with Name of Choice (User Request)
+        assert "IconPowerBI" in js_content, "IconPowerBI missing in react_app.js"
+        assert "ExportPowerBIModal" in js_content, "ExportPowerBIModal missing in react_app.js"
+        assert "Export to Private Power BI" in js_content, "Export to Private Power BI option missing in react_app.js"
+        assert "Export to Public Power BI" in js_content, "Export to Public Power BI option missing in react_app.js"
+        assert "Export Name (Name of Your Choice)" in js_content or "Export Name" in js_content, "Custom export name input missing in react_app.js"
+        assert "downloadPbidsFile" in js_content, "downloadPbidsFile helper missing in react_app.js"
+        assert "export_powerbi_scenario" in js_content, "export_powerbi_scenario event missing in react_app.js"
+        assert "response_export_powerbi" in js_content, "response_export_powerbi message missing in react_app.js"
+        
+        # Test backend export_scenario_to_powerbi and get_powerbi_export_history
+        from data_manager import export_scenario_to_powerbi, get_powerbi_export_history
+        test_pbi_res = export_scenario_to_powerbi("LV OCT V.0 2026-10-29 16:00:00", "private", "Test_Custom_PowerBI_Export", "Automated test export")
+        assert test_pbi_res["success"] is True, f"export_scenario_to_powerbi failed: {test_pbi_res.get('error')}"
+        assert test_pbi_res["exportName"] == "Test_Custom_PowerBI_Export"
+        assert "Private" in test_pbi_res["targetWorkspace"]
+        assert test_pbi_res["totalRows"] > 0
+        test_history = get_powerbi_export_history()
+        assert len(test_history) > 0
+        print("Verified Power BI Export: Topbar button, Private/Public 2 options floating window, and custom name of choice!")
+
         print("ALL MODERN REACT + PYSHINY VERIFICATION CHECKS PASSED!")
 except Exception as e:
     print(f"Verification test failed: {e}")

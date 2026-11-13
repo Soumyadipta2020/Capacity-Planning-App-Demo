@@ -1,0 +1,11 @@
+{
+  "version": "0.1",
+  "connections": [
+    {
+      "details": {
+        "path": "C:\\\\Users\\\\soumy\\\\OneDrive\\\\Coding\\\\pyshiny\\\\Capacity-Planning-App-Demo\\\\data\\\\exports\\\\Field_Ops_Shared_V1.csv"
+      },
+      "connectionType": "File"
+    }
+  ]
+}

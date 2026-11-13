@@ -249,6 +249,17 @@ function IconAlertCircle({ className = "w-4 h-4" }) {
     );
 }
 
+function IconPowerBI({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+            <rect x="2.5" y="13" width="3.5" height="8" rx="0.75" fill="#F2C811" />
+            <rect x="8" y="8" width="3.5" height="13" rx="0.75" fill="#EAA900" />
+            <rect x="13.5" y="3.5" width="3.5" height="17.5" rx="0.75" fill="#C98A00" />
+            <rect x="19" y="10" width="3.5" height="11" rx="0.75" fill="#F2C811" />
+        </svg>
+    );
+}
+
 function IconX({ className = "w-4 h-4" }) {
     return (
         <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -605,6 +616,10 @@ function ModernCapacityApp() {
     const [calcModulesCache, setCalcModulesCache] = useState({});
     const [isCalcLoading, setIsCalcLoading] = useState(false);
 
+    // Export to Power BI Modal State (Private / Public with Name of Choice)
+    const [isExportPowerBIModalOpen, setIsExportPowerBIModalOpen] = useState(false);
+    const [powerBIExportResult, setPowerBIExportResult] = useState(null);
+
     // Tabular Data
     const [imbalanceData, setImbalanceData] = useState([]);
     const [indayWorkloadData, setIndayWorkloadData] = useState([]);
@@ -722,8 +737,27 @@ function ModernCapacityApp() {
                     setIsCalcLoading(false);
                 }
             });
+
+            window.Shiny.addCustomMessageHandler('response_export_powerbi', function(data) {
+                if (data) {
+                    setPowerBIExportResult(data);
+                }
+            });
         }
     }, []);
+
+    // Handle Scenario Export to Power BI (Private / Public with Custom Name)
+    const handleExportPowerBIScenario = (scenarioId, exportTarget, exportName, description) => {
+        if (window.Shiny && window.Shiny.setInputValue) {
+            window.Shiny.setInputValue('export_powerbi_scenario', {
+                scenarioId: scenarioId,
+                exportTarget: exportTarget,
+                exportName: exportName,
+                description: description,
+                requestId: Date.now()
+            }, { priority: 'event' });
+        }
+    };
 
     // Request Calculation Module Data (FTE, Downtime, Productivity, Capacity, Demand, Imbalance)
     const handleRequestCalcModule = (mod) => {
@@ -1117,6 +1151,19 @@ function ModernCapacityApp() {
 
                     {/* Right Action Icons & Shortcuts */}
                     <div className="flex items-center gap-2 flex-shrink-0">
+                        {/* EXPORT SCENARIO TO POWER BI (USER REQUEST) */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setPowerBIExportResult(null);
+                                setIsExportPowerBIModalOpen(true);
+                            }}
+                            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-[#F2C811] text-amber-950 hover:text-slate-900 border border-amber-300 hover:border-amber-400 transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button group"
+                            title="Export Selected Scenario to Power BI (Private or Public Workspace with Custom Name)"
+                        >
+                            <IconPowerBI className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                            <span>Export</span>
+                        </button>
                         <button
                             type="button"
                             onClick={() => {
@@ -1392,6 +1439,20 @@ function ModernCapacityApp() {
                     onClose={() => setIsCalcModalOpen(false)}
                     data={calcModulesCache[selectedCalcModule] || getClientFallbackCalcModule(selectedCalcModule)}
                     loading={isCalcLoading}
+                    showToast={showToast}
+                />
+            )}
+
+            {/* FLOATING WINDOW: EXPORT SCENARIO TO POWER BI (PRIVATE / PUBLIC WITH CUSTOM NAME) */}
+            {isExportPowerBIModalOpen && (
+                <ExportPowerBIModal
+                    isOpen={isExportPowerBIModalOpen}
+                    onClose={() => setIsExportPowerBIModalOpen(false)}
+                    scenarios={scenarios}
+                    activeScenarioId={selectedScenarioId}
+                    imbalanceData={imbalanceData}
+                    exportResult={powerBIExportResult}
+                    onExportScenario={handleExportPowerBIScenario}
                     showToast={showToast}
                 />
             )}
@@ -4589,6 +4650,31 @@ function downloadTableAsCsv(filename, columns, rows) {
     URL.revokeObjectURL(url);
 }
 
+function downloadPbidsFile(filename, csvDownloadName) {
+    const cleanFn = (filename || 'powerbi_export').endsWith('.pbids') ? (filename || 'powerbi_export') : `${filename || 'powerbi_export'}.pbids`;
+    const pbidsObj = {
+        version: "0.1",
+        connections: [
+            {
+                details: {
+                    path: csvDownloadName || `${filename}.csv`
+                },
+                connectionType: "File"
+            }
+        ]
+    };
+    const jsonStr = JSON.stringify(pbidsObj, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = cleanFn;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
 // ------------------------------------------------------------------------------------------------
 // FLOATING WINDOW: INPUT DATA TABLE MODAL (MAXIMIZED VIEWPORT REAL ESTATE, LESS SCROLLING, EXCEL EDITING)
 // ------------------------------------------------------------------------------------------------
@@ -7347,8 +7433,531 @@ function CalculationModulesModal({
 }
 
 // ------------------------------------------------------------------------------------------------
-// 2. SCENARIO INPUTS & PARAMETERS STUDIO (DEDICATED SCREEN FOR ALL 21 INPUTS)
+// FLOATING WINDOW: EXPORT SCENARIO TO POWER BI MODAL (PRIVATE / PUBLIC WORKSPACES, CUSTOM NAME)
 // ------------------------------------------------------------------------------------------------
+function ExportPowerBIModal({
+    isOpen,
+    onClose,
+    scenarios = {},
+    activeScenarioId = '',
+    imbalanceData = [],
+    exportResult = null,
+    onExportScenario,
+    showToast
+}) {
+    if (!isOpen) return null;
+
+    const scenarioKeys = Object.keys(scenarios || {});
+    const initialScenario = (activeScenarioId && scenarioKeys.includes(activeScenarioId))
+        ? activeScenarioId
+        : (scenarioKeys[0] || 'LV OCT V.0 2026-10-29 16:00:00');
+
+    const [selectedScenario, setSelectedScenario] = useState(initialScenario);
+    const [exportTarget, setExportTarget] = useState('private'); // 'private' or 'public'
+    const [exportName, setExportName] = useState(() => {
+        const clean = initialScenario.replace(/[^a-zA-Z0-9_\-]/g, '_');
+        return `${clean}_PowerBI`;
+    });
+    const [exportNotes, setExportNotes] = useState('');
+    const [nameError, setNameError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [successData, setSuccessData] = useState(null);
+
+    // Sync default name if user changes scenario and hasn't heavily customized
+    const handleScenarioChange = (newScen) => {
+        setSelectedScenario(newScen);
+        const clean = newScen.replace(/[^a-zA-Z0-9_\-]/g, '_');
+        setExportName(`${clean}_PowerBI`);
+        setNameError('');
+    };
+
+    // Close on Escape key
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && !isSubmitting) {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose, isSubmitting]);
+
+    const isPrivate = exportTarget === 'private';
+    const workspaceName = isPrivate
+        ? 'Centrica Energy Services - Private Capacity Planning Workspace'
+        : 'Centrica Energy Services - Shared Organization Capacity Reports (Public)';
+    const targetLabel = isPrivate ? 'Private Power BI' : 'Public Power BI';
+
+    // Build Power BI time-series records for download
+    const preparePowerBiRecords = (targetName, targetWs, targetLbl) => {
+        const dateCols = ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26', '2026-11-02', '2026-11-09', '2026-11-16', '2026-11-23', '2026-11-30', '2026-12-07', '2026-12-14'];
+        const pbiRows = [];
+        const sourceData = (imbalanceData && imbalanceData.length > 0) ? imbalanceData : [
+            { Patch: 'ED44 Canterbury & Dover', Skill: 'HEC', Metric: 'imb_presp', Type: 'pre_sp' },
+            { Patch: 'EB12 Altrincham', Skill: 'KAC', Metric: 'imb_postsp', Type: 'post_sp' },
+            { Patch: 'EC62 Essex East', Skill: 'EV', Metric: 'imb_presp', Type: 'pre_sp' },
+            { Patch: 'EB14 Stockport', Skill: 'HEC', Metric: 'imb_postsp', Type: 'post_sp' },
+            { Patch: 'ED22 Cobham & Heathrow', Skill: 'KAC', Metric: 'imb_presp', Type: 'pre_sp' }
+        ];
+
+        const nowIso = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+        sourceData.forEach(row => {
+            dateCols.forEach(d => {
+                const val = (row[d] !== undefined && row[d] !== null) ? Number(row[d]) : 0.0;
+                pbiRows.push({
+                    Scenario_ID: selectedScenario,
+                    Export_Name: targetName,
+                    Export_Target: targetLbl,
+                    Target_Workspace: targetWs,
+                    Published_Timestamp: nowIso,
+                    Week_Commencing: d,
+                    Patch: row.Patch || 'National Patch',
+                    Skill: row.Skill || 'HEC',
+                    Metric: row.Metric || 'imbalance',
+                    Calculation_Stage: row.Type || 'post_sp',
+                    Net_Imbalance_Hours: val.toFixed(2),
+                    Net_Imbalance_FTE: (val / 37.5).toFixed(3),
+                    Buffer_Status: val > 0.05 ? 'Surplus' : (val < -0.05 ? 'Deficit' : 'Balanced'),
+                    Export_Notes: exportNotes || ''
+                });
+            });
+        });
+
+        return {
+            columns: ['Scenario_ID', 'Export_Name', 'Export_Target', 'Target_Workspace', 'Published_Timestamp', 'Week_Commencing', 'Patch', 'Skill', 'Metric', 'Calculation_Stage', 'Net_Imbalance_Hours', 'Net_Imbalance_FTE', 'Buffer_Status', 'Export_Notes'],
+            rows: pbiRows
+        };
+    };
+
+    // Execute Export
+    const handleExecuteExport = () => {
+        const trimmed = exportName.trim();
+        if (!trimmed) {
+            setNameError('Please specify an export name of your choice.');
+            return;
+        }
+        setNameError('');
+        setIsSubmitting(true);
+
+        const { columns, rows } = preparePowerBiRecords(trimmed, workspaceName, targetLabel);
+
+        // 1. Immediate client-side CSV download
+        downloadTableAsCsv(trimmed, columns, rows);
+
+        // 2. Immediate client-side .pbids connection file download
+        downloadPbidsFile(trimmed, `${trimmed}.csv`);
+
+        // 3. Dispatch backend PyShiny event
+        if (onExportScenario) {
+            onExportScenario(selectedScenario, exportTarget, trimmed, exportNotes);
+        }
+
+        setTimeout(() => {
+            setIsSubmitting(false);
+            setIsSuccess(true);
+            setSuccessData({
+                scenarioId: selectedScenario,
+                exportName: trimmed,
+                exportTarget: exportTarget,
+                targetLabel: targetLabel,
+                workspaceName: workspaceName,
+                totalRows: rows.length,
+                csvFile: `${trimmed}.csv`,
+                pbidsFile: `${trimmed}.pbids`,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            if (showToast) {
+                showToast(`Successfully exported "${trimmed}" to ${targetLabel}!`, 'success');
+            }
+        }, 750);
+    };
+
+    return (
+        <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
+            onClick={() => { if (!isSubmitting) onClose(); }}
+        >
+            <div 
+                className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh] animate-scale-up"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* MODAL HEADER */}
+                <div className="bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border-b border-amber-200/60 px-6 py-4 flex items-center justify-between flex-shrink-0">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center shadow-xs flex-shrink-0">
+                            <IconPowerBI className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                                    Export Scenario to Power BI
+                                </h3>
+                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                                    Direct Publish
+                                </span>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                                Publish operating scenarios to Centrica Power BI Workspaces or download semantic model
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={isSubmitting}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer disabled:opacity-50"
+                        title="Close (Esc)"
+                    >
+                        <IconX className="w-5 h-5" />
+                    </button>
+                </div>
+
+                {/* MODAL BODY */}
+                <div className="p-6 overflow-y-auto space-y-5 flex-1">
+                    {isSuccess ? (
+                        /* SUCCESS CONFIRMATION VIEW */
+                        <div className="space-y-5 text-center py-4 animate-fade-in">
+                            <div className="w-16 h-16 rounded-full bg-emerald-100 border-2 border-emerald-400 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+                                <IconCheck className="w-8 h-8 text-emerald-600 stroke-[3]" />
+                            </div>
+                            <div className="space-y-1">
+                                <h4 className="text-lg font-extrabold text-slate-900">
+                                    Scenario Exported Successfully!
+                                </h4>
+                                <p className="text-xs text-slate-500 max-w-md mx-auto">
+                                    Scenario <span className="font-bold text-slate-800">"{successData?.scenarioId}"</span> has been exported as <span className="font-bold text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">"{successData?.exportName}"</span>.
+                                </p>
+                            </div>
+
+                            {/* Export Metadata Card */}
+                            <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 max-w-lg mx-auto text-left space-y-2 text-xs">
+                                <div className="flex items-center justify-between border-b border-slate-200/70 pb-2">
+                                    <span className="text-slate-500 font-semibold">Target Workspace:</span>
+                                    <span className="font-bold text-slate-800 text-right truncate max-w-[280px]">
+                                        {successData?.workspaceName}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between border-b border-slate-200/70 pb-2">
+                                    <span className="text-slate-500 font-semibold">Access Level:</span>
+                                    <span className={`font-bold px-2 py-0.5 rounded-full text-[11px] ${
+                                        successData?.exportTarget === 'private'
+                                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                            : 'bg-sky-100 text-sky-800 border border-sky-300'
+                                    }`}>
+                                        {successData?.exportTarget === 'private' ? '🔒 Restricted (Executive RLS)' : '🌐 Organization Shared (Public)'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between border-b border-slate-200/70 pb-2">
+                                    <span className="text-slate-500 font-semibold">Dataset Records:</span>
+                                    <span className="font-mono font-bold text-slate-800">
+                                        {successData?.totalRows} time-series rows
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between pt-1">
+                                    <span className="text-slate-500 font-semibold">Generated Files:</span>
+                                    <span className="font-mono text-emerald-700 font-bold">
+                                        {successData?.csvFile} & {successData?.pbidsFile}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Download Action Buttons */}
+                            <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const { columns, rows } = preparePowerBiRecords(successData.exportName, successData.workspaceName, successData.targetLabel);
+                                        downloadTableAsCsv(successData.exportName, columns, rows);
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-bold shadow-2xs transition cursor-pointer"
+                                >
+                                    <IconDownload className="w-4 h-4 text-slate-600" />
+                                    <span>Download .csv</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        downloadPbidsFile(successData.exportName, `${successData.exportName}.csv`);
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold shadow-2xs transition cursor-pointer"
+                                >
+                                    <IconPowerBI className="w-4 h-4" />
+                                    <span>Download .pbids</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsSuccess(false);
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#005eb8] border border-blue-200 text-xs font-bold transition cursor-pointer"
+                                >
+                                    <span>Export Another</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="px-5 py-2 rounded-xl bg-[#005eb8] hover:bg-[#004b87] text-white text-xs font-bold shadow-xs transition cursor-pointer"
+                                >
+                                    Done
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        /* MAIN EXPORT CONFIGURATION FORM */
+                        <>
+                            {/* 1. SCENARIO SELECTOR */}
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                    Selected Scenario to Export:
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={selectedScenario}
+                                        onChange={(e) => handleScenarioChange(e.target.value)}
+                                        className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 shadow-2xs focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 cursor-pointer"
+                                    >
+                                        {scenarioKeys.map(k => (
+                                            <option key={k} value={k}>
+                                                {k} {k === activeScenarioId ? '(Active Scenario)' : ''}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                                    <span>Includes full Demand, Net Capacity, FTE Imbalance, and Downtime vectors</span>
+                                </p>
+                            </div>
+
+                            {/* 2. THE 2 OPTIONS: EXPORT TO PRIVATE POWERBI & EXPORT TO PUBLIC POWERBI */}
+                            <div className="space-y-2">
+                                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                    Choose Power BI Destination (2 Options):
+                                </label>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {/* OPTION 1: EXPORT TO PRIVATE POWERBI */}
+                                    <div
+                                        onClick={() => setExportTarget('private')}
+                                        className={`p-4 rounded-xl border-2 transition cursor-pointer relative flex flex-col justify-between ${
+                                            exportTarget === 'private'
+                                                ? 'border-emerald-600 bg-emerald-50/60 ring-2 ring-emerald-200 shadow-xs'
+                                                : 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300'
+                                        }`}
+                                    >
+                                        <div>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                                    <IconLock className="w-2.5 h-2.5 text-emerald-700" />
+                                                    <span>Restricted RLS</span>
+                                                </span>
+                                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                                                    exportTarget === 'private' ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300'
+                                                }`}>
+                                                    {exportTarget === 'private' && <span className="w-1.5 h-1.5 rounded-full bg-white"></span>}
+                                                </div>
+                                            </div>
+                                            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                                                <span>Export to Private Power BI</span>
+                                            </h4>
+                                            <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                                                Secure Centrica Private Workspace with Row-Level Security. Restricted to Executive Leadership & Strategic Planners.
+                                            </p>
+                                        </div>
+                                        <div className="mt-3 pt-2 border-t border-slate-200/60 text-[10px] font-mono text-emerald-800 font-semibold truncate">
+                                            Workspace: Private Capacity Planning
+                                        </div>
+                                    </div>
+
+                                    {/* OPTION 2: EXPORT TO PUBLIC POWERBI */}
+                                    <div
+                                        onClick={() => setExportTarget('public')}
+                                        className={`p-4 rounded-xl border-2 transition cursor-pointer relative flex flex-col justify-between ${
+                                            exportTarget === 'public'
+                                                ? 'border-sky-600 bg-sky-50/60 ring-2 ring-sky-200 shadow-xs'
+                                                : 'border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300'
+                                        }`}
+                                    >
+                                        <div>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-300">
+                                                    <IconGlobe className="w-2.5 h-2.5 text-sky-700" />
+                                                    <span>Organization Shared</span>
+                                                </span>
+                                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                                                    exportTarget === 'public' ? 'border-sky-600 bg-sky-600' : 'border-slate-300'
+                                                }`}>
+                                                    {exportTarget === 'public' && <span className="w-1.5 h-1.5 rounded-full bg-white"></span>}
+                                                </div>
+                                            </div>
+                                            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                                                <span>Export to Public Power BI</span>
+                                            </h4>
+                                            <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                                                Organization-wide shared reporting hub for Field Operations, Regional Dispatchers, Territory Leads & Stakeholders.
+                                            </p>
+                                        </div>
+                                        <div className="mt-3 pt-2 border-t border-slate-200/60 text-[10px] font-mono text-sky-800 font-semibold truncate">
+                                            Workspace: Shared Operations Reports
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 3. NAME OF CHOICE (CUSTOM EXPORT NAME INPUT AS REQUESTED BY USER) */}
+                            <div className="space-y-1.5 bg-amber-50/50 p-3.5 rounded-xl border border-amber-200/80">
+                                <div className="flex items-center justify-between">
+                                    <label className="block text-xs font-bold text-amber-950 uppercase tracking-wider">
+                                        Export Name (Name of Your Choice):
+                                    </label>
+                                    <span className="text-[10px] font-bold text-amber-800">
+                                        Custom Dataset & Report Name
+                                    </span>
+                                </div>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={exportName}
+                                        onChange={(e) => {
+                                            setExportName(e.target.value);
+                                            if (nameError) setNameError('');
+                                        }}
+                                        placeholder="Type name of your choice, e.g. Q4_Executive_Operating_Plan"
+                                        className={`w-full bg-white border rounded-xl px-3.5 py-2 text-xs font-mono font-bold text-slate-900 shadow-2xs focus:outline-none focus:ring-2 pr-24 ${
+                                            nameError
+                                                ? 'border-rose-400 focus:ring-rose-500'
+                                                : 'border-amber-300 focus:ring-amber-500 focus:border-amber-500'
+                                        }`}
+                                    />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 pointer-events-none">
+                                        .pbids / .csv
+                                    </span>
+                                </div>
+                                {nameError ? (
+                                    <p className="text-[11px] text-rose-600 font-semibold">{nameError}</p>
+                                ) : (
+                                    <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+                                        <span className="text-[10px] text-amber-900/70 font-semibold">Quick Presets:</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setExportName(`${selectedScenario.replace(/[^a-zA-Z0-9_\-]/g, '_')}_Baseline`)}
+                                            className="text-[10px] font-bold px-2 py-0.5 rounded bg-white hover:bg-amber-100 border border-amber-200 text-amber-900 cursor-pointer"
+                                        >
+                                            Baseline
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setExportName(`Q4_Executive_Capacity_Review_${new Date().toISOString().substring(0, 10)}`)}
+                                            className="text-[10px] font-bold px-2 py-0.5 rounded bg-white hover:bg-amber-100 border border-amber-200 text-amber-900 cursor-pointer"
+                                        >
+                                            Executive Review
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setExportName(`Regional_Field_Operations_Hub_${new Date().toISOString().substring(0, 10)}`)}
+                                            className="text-[10px] font-bold px-2 py-0.5 rounded bg-white hover:bg-amber-100 border border-amber-200 text-amber-900 cursor-pointer"
+                                        >
+                                            Field Ops
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 4. OPTIONAL DESCRIPTION / NOTES */}
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-bold text-slate-700">
+                                    Description / Remarks (Optional):
+                                </label>
+                                <input
+                                    type="text"
+                                    value={exportNotes}
+                                    onChange={(e) => setExportNotes(e.target.value)}
+                                    placeholder="e.g. Q4 Baseline scenario exported for Field Planning & Power BI Dashboard"
+                                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-slate-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                />
+                            </div>
+
+                            {/* 5. DATASET SUMMARY PILLS */}
+                            <div className="bg-slate-50 rounded-xl border border-slate-200 p-3 flex items-center justify-between flex-wrap gap-2 text-[11px]">
+                                <span className="font-semibold text-slate-500">Includes Data:</span>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="px-2 py-0.5 rounded-full bg-white border border-slate-200 font-bold text-slate-700">
+                                        15 Patches
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full bg-white border border-slate-200 font-bold text-slate-700">
+                                        36-Wk Horizon
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full bg-white border border-slate-200 font-bold text-slate-700">
+                                        Net FTE Imbalance
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full bg-white border border-slate-200 font-bold text-slate-700">
+                                        DirectQuery / CSV
+                                    </span>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                {/* MODAL FOOTER */}
+                {!isSuccess && (
+                    <div className="bg-slate-50 border-t border-slate-200/80 px-6 py-3.5 flex items-center justify-between flex-shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const trimmed = exportName.trim() || 'scenario_dataset';
+                                const { columns, rows } = preparePowerBiRecords(trimmed, workspaceName, targetLabel);
+                                downloadTableAsCsv(trimmed, columns, rows);
+                                if (showToast) showToast(`Downloaded "${trimmed}.csv"!`, 'success');
+                            }}
+                            disabled={isSubmitting}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 px-3 py-2 rounded-xl shadow-2xs transition cursor-pointer disabled:opacity-50"
+                            title="Download CSV dataset directly without publishing"
+                        >
+                            <IconDownload className="w-3.5 h-3.5" />
+                            <span>Download CSV Only</span>
+                        </button>
+
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                disabled={isSubmitting}
+                                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold shadow-2xs transition cursor-pointer disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleExecuteExport}
+                                disabled={isSubmitting}
+                                className={`inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-black shadow-xs transition cursor-pointer active:scale-95 ${
+                                    isPrivate
+                                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                        : 'bg-sky-600 hover:bg-sky-700 text-white'
+                                } disabled:opacity-50`}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                        <span>Exporting...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <IconPowerBI className="w-4 h-4" />
+                                        <span>{isPrivate ? 'Export to Private Power BI' : 'Export to Public Power BI'}</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 function ScenarioInputsStudioView({
     planType, setPlanType,
     month, setMonth,

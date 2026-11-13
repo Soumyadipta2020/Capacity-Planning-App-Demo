@@ -6,6 +6,7 @@ Handles sample data generation, file version listings, and scenario management.
 import json
 import os
 import random
+import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -1423,4 +1424,162 @@ class SampleDataGenerator:
                 "Delta Imbalance": round(imb2 - imb1, 1)
             })
         return pd.DataFrame(rows)
+
+
+def export_scenario_to_powerbi(
+    scenario_id: str,
+    export_target: str = "private",
+    export_name: str = "",
+    description: str = ""
+) -> Dict[str, Any]:
+    """
+    Exports the selected scenario data for Microsoft Power BI.
+    Supports 2 targets:
+      - 'private': Centrica Energy Services - Private Capacity Planning Workspace (Restricted, Executive RLS)
+      - 'public': Centrica Energy Services - Shared Organization Capacity Reports (Public, Organization Shared)
+    Allows exporting with custom dataset/report name of user's choice.
+    Saves CSV and .pbids to data/exports/ and records in powerbi_export_history.json.
+    """
+    try:
+        # Sanitize export name or build default fallback
+        raw_name = (export_name or "").strip()
+        clean_name = re.sub(r'[^a-zA-Z0-9_\- ]', '_', raw_name)
+        if not clean_name:
+            clean_name = f"{scenario_id.replace(' ', '_').replace(':', '-')}_PowerBI"
+        clean_name = clean_name.replace(" ", "_")
+
+        is_private = (str(export_target).lower() == "private")
+        workspace_name = (
+            "Centrica Energy Services - Private Capacity Planning Workspace"
+            if is_private
+            else "Centrica Energy Services - Shared Organization Capacity Reports (Public)"
+        )
+        access_level = "Restricted (Executive RLS)" if is_private else "Organization-Wide (Public Shared)"
+        target_label = "Private Power BI" if is_private else "Public Power BI"
+
+        # Pull scenario dataset
+        df_imbalance = SampleDataGenerator.get_imbalance_data()
+        date_cols = [c for c in df_imbalance.columns if re.match(r'^\d{4}-\d{2}-\d{2}$', str(c))]
+
+        # Build enriched tabular dataset for Power BI DirectQuery / Import
+        records = []
+        now_dt = datetime.now()
+        now_str = now_dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        for _, row in df_imbalance.iterrows():
+            patch = row.get("Patch", "")
+            skill = row.get("Skill", "")
+            metric = row.get("Metric", "")
+            stage = row.get("Type", "")
+            for d in date_cols:
+                val = float(row[d]) if pd.notnull(row[d]) else 0.0
+                status = "Surplus" if val > 0.05 else ("Deficit" if val < -0.05 else "Balanced")
+                records.append({
+                    "Scenario_ID": scenario_id,
+                    "Export_Name": clean_name,
+                    "Export_Target": target_label,
+                    "Target_Workspace": workspace_name,
+                    "Access_Level": access_level,
+                    "Published_Timestamp": now_str,
+                    "Week_Commencing": d,
+                    "Patch": patch,
+                    "Skill": skill,
+                    "Metric": metric,
+                    "Calculation_Stage": stage,
+                    "Net_Imbalance_Hours": round(val, 2),
+                    "Net_Imbalance_FTE": round(val / 37.5, 3),
+                    "Buffer_Status": status,
+                    "Export_Notes": description or ""
+                })
+
+        export_df = pd.DataFrame(records)
+
+        # Ensure output directory exists
+        exports_dir = Path("data") / "exports"
+        exports_dir.mkdir(parents=True, exist_ok=True)
+
+        csv_path = exports_dir / f"{clean_name}.csv"
+        export_df.to_csv(csv_path, index=False)
+
+        # Create standard Power BI Data Source (.pbids) file
+        pbids_path = exports_dir / f"{clean_name}.pbids"
+        abs_csv_path = str(csv_path.resolve()).replace("\\", "\\\\")
+        pbids_content = {
+            "version": "0.1",
+            "connections": [
+                {
+                    "details": {
+                        "path": abs_csv_path
+                    },
+                    "connectionType": "File"
+                }
+            ]
+        }
+        with open(pbids_path, "w", encoding="utf-8") as f:
+            json.dump(pbids_content, f, indent=2)
+
+        # Write metadata JSON
+        meta = {
+            "export_name": clean_name,
+            "scenario_id": scenario_id,
+            "export_target": "private" if is_private else "public",
+            "target_label": target_label,
+            "workspace_name": workspace_name,
+            "access_level": access_level,
+            "description": description or "",
+            "timestamp": now_str,
+            "rows_count": len(export_df),
+            "csv_file": f"{clean_name}.csv",
+            "pbids_file": f"{clean_name}.pbids"
+        }
+        with open(exports_dir / f"{clean_name}_meta.json", "w", encoding="utf-8") as f:
+            json.dump(meta, f, indent=2)
+
+        # Append to export history
+        history_file = exports_dir / "powerbi_export_history.json"
+        history = []
+        if history_file.exists():
+            try:
+                history = json.loads(history_file.read_text(encoding="utf-8"))
+            except Exception:
+                history = []
+        history.insert(0, meta)
+        history = history[:30]
+        history_file.write_text(json.dumps(history, indent=2), encoding="utf-8")
+
+        return {
+            "success": True,
+            "exportName": clean_name,
+            "scenarioId": scenario_id,
+            "exportTarget": "private" if is_private else "public",
+            "targetLabel": target_label,
+            "targetWorkspace": workspace_name,
+            "accessLevel": access_level,
+            "timestamp": now_str,
+            "totalRows": len(export_df),
+            "csvFileName": f"{clean_name}.csv",
+            "pbidsFileName": f"{clean_name}.pbids",
+            "columns": list(export_df.columns),
+            "sampleRows": export_df.head(15).to_dict(orient="records"),
+            "history": history
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "scenarioId": scenario_id,
+            "exportName": export_name
+        }
+
+
+def get_powerbi_export_history() -> List[Dict[str, Any]]:
+    """Retrieves previous Power BI exports history."""
+    history_file = Path("data") / "exports" / "powerbi_export_history.json"
+    if history_file.exists():
+        try:
+            return json.loads(history_file.read_text(encoding="utf-8"))
+        except Exception:
+            return []
+    return []
+
 

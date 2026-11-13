@@ -19,7 +19,9 @@ from data_manager import (
     register_uploaded_file,
     load_input_table_data,
     save_input_table_data,
-    get_calculation_module_data
+    get_calculation_module_data,
+    export_scenario_to_powerbi,
+    get_powerbi_export_history
 )
 from engine.data_engine import CapacityDataEngine
 from cluster_manager import register_cluster_handlers
@@ -268,6 +270,37 @@ def server(input, output, session):
             result["requestId"] = request_id
             
         await session.send_custom_message("response_calc_module_data", result)
+
+    # Handle Scenario Export to Power BI (Private / Public with custom name of choice)
+    @reactive.effect
+    @reactive.event(input.export_powerbi_scenario)
+    async def _on_export_powerbi_scenario():
+        req = input.export_powerbi_scenario()
+        if not req or not isinstance(req, dict):
+            return
+        
+        scenario_id = req.get("scenarioId", "")
+        export_target = req.get("exportTarget", "private") # "private" or "public"
+        export_name = req.get("exportName", "")
+        description = req.get("description", "")
+        request_id = req.get("requestId", None)
+        
+        result = export_scenario_to_powerbi(scenario_id, export_target, export_name, description)
+        if request_id is not None:
+            result["requestId"] = request_id
+            
+        await session.send_custom_message("response_export_powerbi", result)
+        if result.get("success"):
+            target_label = "Private Power BI" if export_target == "private" else "Public Power BI"
+            await session.send_custom_message("show_toast", {
+                "message": f"Successfully exported scenario to {target_label} as '{result.get('exportName')}'!",
+                "type": "success"
+            })
+        else:
+            await session.send_custom_message("show_toast", {
+                "message": f"Failed exporting scenario to Power BI: {result.get('error')}",
+                "type": "warning"
+            })
 
     # Register standard PyShiny server handlers (calculators, downloads, classic views)
     register_server_handlers(input, output, session)

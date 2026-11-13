@@ -1,0 +1,11 @@
+{
+  "version": "0.1",
+  "connections": [
+    {
+      "details": {
+        "path": "C:\\\\Users\\\\soumy\\\\OneDrive\\\\Coding\\\\pyshiny\\\\Capacity-Planning-App-Demo\\\\data\\\\exports\\\\Test_Custom_PowerBI_Export.csv"
+      },
+      "connectionType": "File"
+    }
+  ]
+}
