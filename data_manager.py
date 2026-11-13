@@ -617,6 +617,104 @@ def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
         }
 
 
+def save_input_table_data(
+    input_key: str,
+    filename: str,
+    rows: List[Dict[str, Any]],
+    columns: Optional[List[str]] = None
+) -> Dict[str, Any]:
+    """
+    Saves edited tabular data for the specified input category and file version.
+    Saves to the local CSV/Excel file in data/<folder>/ and updates Databricks Delta table if active.
+    """
+    if not input_key:
+        return {"success": False, "error": "Input category must be specified."}
+    if not filename:
+        return {"success": False, "error": "File name must be specified."}
+    if rows is None:
+        return {"success": False, "error": "Table rows must be provided."}
+
+    try:
+        if columns and len(columns) > 0:
+            df = pd.DataFrame(rows, columns=columns)
+        else:
+            df = pd.DataFrame(rows)
+
+        # Strip any internal frontend tracking fields like __rowId, __id, etc.
+        keep_cols = [c for c in df.columns if not str(c).startswith("__")]
+        df = df[keep_cols]
+
+        folder = CATEGORY_FOLDER_MAP.get(input_key, "capacity")
+        data_dir = EnvironmentConfig.get_data_dir() / folder
+        data_dir.mkdir(parents=True, exist_ok=True)
+
+        candidates = [
+            data_dir / filename,
+            data_dir / f"{filename}.csv",
+            data_dir / filename.replace(":", "-"),
+            data_dir / f"{filename.replace(':', '-')}.csv",
+            data_dir / f"{filename}.xlsx",
+            data_dir / f"{filename.replace(':', '-')}.xlsx"
+        ]
+
+        target_path = None
+        for cand in candidates:
+            if cand.exists() and cand.is_file():
+                target_path = cand
+                break
+
+        if target_path is None and data_dir.exists():
+            clean_target = filename.replace(":", "-").lower()
+            for f in data_dir.iterdir():
+                if f.is_file() and (f.stem.lower() == clean_target or f.name.lower() == clean_target):
+                    target_path = f
+                    break
+
+        if target_path is None:
+            safe_name = filename.replace(":", "-")
+            if not safe_name.endswith((".csv", ".xlsx", ".xls")):
+                safe_name = f"{safe_name}.csv"
+            target_path = data_dir / safe_name
+
+        # Persist to disk (CSV or Excel)
+        if target_path.suffix.lower() in [".xlsx", ".xls"]:
+            df.to_excel(target_path, index=False)
+        else:
+            df.to_csv(target_path, index=False)
+
+        # Route to Databricks Unity Catalog if compute is active
+        try:
+            from engine.data_engine import CapacityDataEngine
+            engine = CapacityDataEngine.get_instance()
+            if engine.is_databricks_active():
+                engine.save_input_table_data(input_key, filename, df)
+        except Exception as db_err:
+            print(f"[Databricks] Unity Catalog save warning for '{input_key}': {db_err}")
+
+        # Clean null/NaN values for JSON serialization
+        df_clean = df.where(pd.notnull(df), None)
+        out_cols = [str(c) for c in df_clean.columns]
+        out_rows = df_clean.to_dict(orient="records")
+
+        return {
+            "success": True,
+            "inputKey": input_key,
+            "fileName": filename,
+            "filePath": target_path.name,
+            "columns": out_cols,
+            "rows": out_rows,
+            "totalRows": len(out_rows),
+            "error": None
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "inputKey": input_key,
+            "fileName": filename,
+            "error": f"Failed saving table data to '{filename}': {str(e)}"
+        }
+
+
 # ================================================================================================
 # CALCULATION MODULES ENGINE (FTE, DOWNTIME, PRODUCTIVITY -> CAPACITY; DEMAND -> IMBALANCE)
 # ================================================================================================

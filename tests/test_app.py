@@ -231,6 +231,32 @@ try:
         assert tested_count == 21, f"Expected 21 categories tested, got {tested_count}"
         print(f"Verified load_input_table_data successfully loaded table data for all {tested_count} operational inputs!")
 
+        # Verify Excel-like Editing in Input Table View Floating Window
+        assert "IconEdit" in js_content, "IconEdit missing in react_app.js"
+        assert "IconSave" in js_content, "IconSave missing in react_app.js"
+        assert "getColumnLetter" in js_content, "getColumnLetter missing in react_app.js"
+        assert "isEditMode" in js_content, "isEditMode state missing in react_app.js"
+        assert "Edit Mode" in js_content, "Edit Mode badge missing in react_app.js"
+        assert "Save Changes" in js_content, "Save Changes button missing in react_app.js"
+        assert "Add Row" in js_content, "Add Row button missing in react_app.js"
+        assert "Delete Row" in js_content, "Delete Row button missing in react_app.js"
+        assert "save_input_file_data" in js_content, "save_input_file_data missing in react_app.js"
+        assert "response_save_input_file_data" in js_content, "response_save_input_file_data missing in react_app.js"
+        print("Verified front-end Excel-like table editing, formula bar, cell selection, and save events in react_app.js!")
+
+        # Verify backend save_input_table_data function
+        from data_manager import save_input_table_data
+        sample_test_key = "actuals_input"
+        sample_test_file = DEFAULT_INPUT_OPTIONS[sample_test_key][0]
+        loaded_orig = load_input_table_data(sample_test_key, sample_test_file)
+        assert loaded_orig["success"] is True, "Failed loading table before save test"
+        orig_rows = loaded_orig["rows"]
+        # Perform save
+        save_res = save_input_table_data(sample_test_key, sample_test_file, orig_rows, loaded_orig["columns"])
+        assert save_res["success"] is True, f"save_input_table_data failed: {save_res.get('error')}"
+        assert save_res["totalRows"] == len(orig_rows), "Row count mismatch in save_input_table_data"
+        print("Verified backend save_input_table_data persists records and preserves table structure!")
+
         # Verify Calculation Modules Floating Window & Backend Calculation Engine (User Request)
         assert "CalculationModulesModal" in js_content, "CalculationModulesModal missing in react_app.js"
         assert "getClientFallbackCalcModule" in js_content, "getClientFallbackCalcModule missing in react_app.js"

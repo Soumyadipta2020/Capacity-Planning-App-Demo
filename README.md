@@ -19,7 +19,8 @@ Engineered for **Dual Environment Execution**:
 - **Scenario Studio (Home Redesign)**:
   - Bento Grid layout with 4 KPI summary cards (Total Demand, Available Capacity, Net Buffer, SLA Coverage).
   - Unified grid for all 21 inputs (Capacity Inputs, Capacity Config, Demand, Demand Config, Other Config, Actuals).
-  - Every input card contains the file dropdown, **Delete** button, **Undo** button, and dynamic operational remarks.
+  - Every input card contains the file dropdown, **View & Edit (Excel Mode)** button, **Delete** button, **Undo** button, and dynamic operational remarks.
+  - **Excel-Style Floating Window Editor**: Max-viewport modal featuring inline cell editing, Excel formula bar (`fx`), cell coordinate navigation, multi-cell TSV clipboard paste, Add/Delete row controls, and persistence back to disk / Unity Catalog Delta tables.
   - Drag-and-drop bulk upload dropzone with auto-assignment.
 - **Scenario Diff & Comparison**:
   - Side-by-side parameter diff highlighting what changed between Scenario A and Scenario B.

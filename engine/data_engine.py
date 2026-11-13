@@ -744,6 +744,29 @@ class CapacityDataEngine:
             "format": "Delta Lake" if self.is_databricks_active() else "CSV"
         }
 
+    def save_input_table_data(self, input_key: str, filename: str, df: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Persists updated records to Databricks Unity Catalog Delta table for this file_version.
+        """
+        if self.is_databricks_active():
+            table_name = self.get_table_name(input_key)
+            full_table_path = self._full_table_name(table_name)
+            self.ensure_table_exists(input_key)
+
+            with self.cluster_manager.get_cursor() as cur:
+                try:
+                    cur.execute(f"DELETE FROM {full_table_path} WHERE file_version = '{filename}'")
+                except Exception as del_err:
+                    print(f"[Databricks] Delete old version records notice: {del_err}")
+
+                upload_df = df.copy()
+                upload_df["file_version"] = filename
+                for stmt in self._build_batch_insert_sql(full_table_path, upload_df):
+                    cur.execute(stmt)
+            print(f"[Databricks Unity Catalog] Saved {len(upload_df)} records for '{filename}' into '{full_table_path}'.")
+            return {"status": "success", "source": "Databricks Unity Catalog"}
+        return {"status": "success", "source": "Local Filesystem"}
+
     # ---------------------------------------------------------------------------
     # Scenario Management in Unity Catalog
     # ---------------------------------------------------------------------------

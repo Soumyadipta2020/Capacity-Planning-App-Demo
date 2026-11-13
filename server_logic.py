@@ -319,7 +319,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
             })
 
     # Download Scenario Handler
-    @render.download(filename=lambda: f"scenario_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
+    @render.download_button(filename=lambda: f"scenario_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
     def btn_download_scenario():
         target_name = input.scenario_select()
         scen = sm.get_scenario(target_name) or {}
@@ -543,7 +543,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
         df = SampleDataGenerator.get_imbalance_data()
         return render.DataGrid(df, selection_mode="none")
 
-    @render.download(filename="imbalance_view_export.csv")
+    @render.download_button(filename="imbalance_view_export.csv")
     def btn_download_imbalances():
         df = SampleDataGenerator.get_imbalance_data()
         return df.to_csv(index=False)
@@ -569,7 +569,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
         df = SampleDataGenerator.get_inday_workload_data()
         return render.DataGrid(df, selection_mode="none")
 
-    @render.download(filename="inday_workload_export.csv")
+    @render.download_button(filename="inday_workload_export.csv")
     def btn_download_inday():
         df = SampleDataGenerator.get_inday_workload_data()
         return df.to_csv(index=False)
@@ -584,7 +584,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
         df = SampleDataGenerator.get_demand_jobs_data()
         return render.DataGrid(df, selection_mode="none")
 
-    @render.download(filename="demand_template.csv")
+    @render.download_button(filename="demand_template.csv")
     def btn_download_demand_tpl():
         df = SampleDataGenerator.get_demand_jobs_data().head(3)
         return df.to_csv(index=False)
@@ -595,7 +595,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
         df = SampleDataGenerator.get_demand_hours_data()
         return render.DataGrid(df, selection_mode="none")
 
-    @render.download(filename="demand_hours_export.csv")
+    @render.download_button(filename="demand_hours_export.csv")
     def btn_download_demand_hours():
         df = SampleDataGenerator.get_demand_hours_data()
         return df.to_csv(index=False)
@@ -615,7 +615,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
         df = SampleDataGenerator.get_capacity_fte_data()
         return render.DataGrid(df, selection_mode="none")
 
-    @render.download(filename="fte_template.csv")
+    @render.download_button(filename="fte_template.csv")
     def btn_download_fte_tpl():
         df = SampleDataGenerator.get_capacity_fte_data().head(3)
         return df.to_csv(index=False)
@@ -642,7 +642,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
         df = SampleDataGenerator.get_overlays_data(fmt)
         return render.DataGrid(df, selection_mode="none")
 
-    @render.download(filename="overlays_template.csv")
+    @render.download_button(filename="overlays_template.csv")
     def btn_download_overlay_tpl():
         fmt = input.overlay_format_type()
         df = SampleDataGenerator.get_overlays_data(fmt).head(3)
@@ -725,7 +725,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
         df = SampleDataGenerator.get_attrition_data()
         return render.DataGrid(df, selection_mode="none")
 
-    @render.download(filename="attrition_template.csv")
+    @render.download_button(filename="attrition_template.csv")
     def btn_download_attrition_tpl():
         df = SampleDataGenerator.get_attrition_data().head(3)
         return df.to_csv(index=False)
@@ -749,7 +749,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
         df = SampleDataGenerator.get_job_times_data()
         return render.DataGrid(df, selection_mode="none")
 
-    @render.download(filename="job_times_template.csv")
+    @render.download_button(filename="job_times_template.csv")
     def btn_download_job_time_tpl():
         df = SampleDataGenerator.get_job_times_data().head(3)
         return df.to_csv(index=False)
@@ -781,7 +781,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
         df = SampleDataGenerator.get_geog_mapping_data()
         return render.DataGrid(df, selection_mode="none")
 
-    @render.download(filename="geog_mapping_template.csv")
+    @render.download_button(filename="geog_mapping_template.csv")
     def btn_download_geog_tpl():
         df = SampleDataGenerator.get_geog_mapping_data().head(3)
         return df.to_csv(index=False)
@@ -808,12 +808,12 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
             df = df[mask]
         return render.DataGrid(df, selection_mode="none")
 
-    @render.download(filename="consolidated_scenario_data.csv")
+    @render.download_button(filename="consolidated_scenario_data.csv")
     def btn_export_all_csv():
         df = SampleDataGenerator.get_imbalance_data()
         return df.to_csv(index=False)
 
-    @render.download(filename="active_scenario_config.json")
+    @render.download_button(filename="active_scenario_config.json")
     def btn_export_all_json():
         scen = sm.get_scenario(input.scenario_select()) or {}
         return json.dumps(scen, indent=2)

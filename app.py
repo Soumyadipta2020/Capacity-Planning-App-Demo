@@ -18,6 +18,7 @@ from data_manager import (
     SampleDataGenerator,
     register_uploaded_file,
     load_input_table_data,
+    save_input_table_data,
     get_calculation_module_data
 )
 from engine.data_engine import CapacityDataEngine
@@ -220,6 +221,36 @@ def server(input, output, session):
             result["requestId"] = request_id
             
         await session.send_custom_message("response_input_file_data", result)
+
+    # Handle Input File Table Data Save from React UI
+    @reactive.effect
+    @reactive.event(input.save_input_file_data)
+    async def _on_save_input_file_data():
+        req = input.save_input_file_data()
+        if not req or not isinstance(req, dict):
+            return
+        
+        input_key = req.get("inputKey", "")
+        file_name = req.get("fileName", "")
+        rows = req.get("rows", [])
+        columns = req.get("columns", [])
+        request_id = req.get("requestId", None)
+        
+        result = save_input_table_data(input_key, file_name, rows, columns)
+        if request_id is not None:
+            result["requestId"] = request_id
+            
+        await session.send_custom_message("response_save_input_file_data", result)
+        if result.get("success"):
+            await session.send_custom_message("show_toast", {
+                "message": f"Saved changes to '{file_name}' ({len(rows)} rows)!",
+                "type": "success"
+            })
+        else:
+            await session.send_custom_message("show_toast", {
+                "message": f"Failed saving '{file_name}': {result.get('error')}",
+                "type": "warning"
+            })
 
     # Handle Calculation Module Data Request from React UI
     @reactive.effect

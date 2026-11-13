@@ -3,7 +3,7 @@
  * Re-skinned with modern SVG icons, glowing hover effects, and 100% full-bleed edge-to-edge layout.
  */
 
-const { useState, useEffect, useRef, useMemo } = React;
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
 // ================================================================================================
 // MODERN SVG ICON COMPONENTS WITH CRISP VECTOR STYLING
@@ -179,6 +179,66 @@ function IconTrash({ className = "w-4 h-4" }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
         </svg>
     );
+}
+
+function IconEdit({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+    );
+}
+
+function IconSave({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+        </svg>
+    );
+}
+
+function IconPlus({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+        </svg>
+    );
+}
+
+function IconRotateCcw({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a5 5 0 015 5v2m-15-7l4-4m-4 4l4 4" />
+        </svg>
+    );
+}
+
+function IconCopy({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+    );
+}
+
+function IconClipboard({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+    );
+}
+
+// Convert numeric column index (0-based) to Excel letters (A, B, C... Z, AA, AB...)
+function getColumnLetter(colIndex) {
+    if (colIndex === null || colIndex === undefined || colIndex < 0) return '';
+    let letter = '';
+    let temp = colIndex;
+    while (temp >= 0) {
+        letter = String.fromCharCode((temp % 26) + 65) + letter;
+        temp = Math.floor(temp / 26) - 1;
+    }
+    return letter;
 }
 
 function IconAlertCircle({ className = "w-4 h-4" }) {
@@ -637,6 +697,18 @@ function ModernCapacityApp() {
                     setTableDataCache(prev => ({
                         ...prev,
                         [data.fileName]: data
+                    }));
+                }
+            });
+
+            window.Shiny.addCustomMessageHandler('response_save_input_file_data', function(data) {
+                if (data && data.fileName && data.success) {
+                    setTableDataCache(prev => ({
+                        ...prev,
+                        [data.fileName]: {
+                            ...(prev[data.fileName] || {}),
+                            ...data
+                        }
                     }));
                 }
             });
@@ -4518,7 +4590,7 @@ function downloadTableAsCsv(filename, columns, rows) {
 }
 
 // ------------------------------------------------------------------------------------------------
-// FLOATING WINDOW: INPUT DATA TABLE MODAL (MAXIMIZED VIEWPORT REAL ESTATE, LESS SCROLLING)
+// FLOATING WINDOW: INPUT DATA TABLE MODAL (MAXIMIZED VIEWPORT REAL ESTATE, LESS SCROLLING, EXCEL EDITING)
 // ------------------------------------------------------------------------------------------------
 function InputTableViewModal({
     isOpen,
@@ -4531,7 +4603,8 @@ function InputTableViewModal({
     data,
     loading,
     error,
-    showToast
+    showToast,
+    onSaveTableData
 }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -4539,39 +4612,146 @@ function InputTableViewModal({
     const [pageSize, setPageSize] = useState(100); // Default 100 rows per page to minimize scrolling!
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    // Close on Escape key
+    // Excel Editing Mode, Grid State & Unified Selection Model
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [tableRows, setTableRows] = useState([]);
+    const [modifiedCells, setModifiedCells] = useState({}); // { [`${rowId}_${colKey}`]: originalValue }
+
+    // Excel Unified Selection System:
+    const [selectedCell, setSelectedCell] = useState(null); // Primary focused cell: { rowId: number, colKey: string }
+    const [selectedCellKeys, setSelectedCellKeys] = useState(new Set()); // Set of `${rowId}__${colKey}`
+    const [anchorCell, setAnchorCell] = useState(null); // { rIdx: number, cIdx: number, rowId: number, colKey: string }
+    const [anchorRowIdx, setAnchorRowIdx] = useState(null); // For Shift-click row selection
+    const [anchorColIdx, setAnchorColIdx] = useState(null); // For Shift-click column selection
+    const [isMouseDown, setIsMouseDown] = useState(false); // For mouse drag multi-cell/row/col selection
+    const [dragType, setDragType] = useState('cell'); // 'cell' | 'row' | 'col'
+
+    const [editingCell, setEditingCell] = useState(null); // { rowId: number, colKey: string }
+    const [cellDraftValue, setCellDraftValue] = useState('');
+    const [formulaBarValue, setFormulaBarValue] = useState('');
+    const [undoStack, setUndoStack] = useState([]);
+    const [isSaving, setIsSaving] = useState(false);
+    const [unsavedConfirm, setUnsavedConfirm] = useState(null); // { title, message, onConfirm }
+    const [showPasteModal, setShowPasteModal] = useState(false); // Quick paste popup fallback
+    const [pasteModalText, setPasteModalText] = useState('');
+
+    const cellInputRef = useRef(null);
+    const formulaInputRef = useRef(null);
+    const tableContainerRef = useRef(null);
+
+    // Stop drag selection on window mouseup
     useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                onClose();
-            }
+        const handleGlobalMouseUp = () => {
+            setIsMouseDown(false);
         };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [onClose]);
+        window.addEventListener('mouseup', handleGlobalMouseUp);
+        return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
+    }, []);
+
+    // Initial Data Sync when data or fileName changes
+    useEffect(() => {
+        const initial = (data?.rows || []).map((r, i) => ({
+            __rowId: i,
+            ...r
+        }));
+        setTableRows(initial);
+        setModifiedCells({});
+        setUndoStack([]);
+        setSelectedCell(null);
+        setSelectedCellKeys(new Set());
+        setAnchorCell(null);
+        setAnchorRowIdx(null);
+        setAnchorColIdx(null);
+        setIsMouseDown(false);
+        setEditingCell(null);
+        setFormulaBarValue('');
+    }, [data?.fileName, data?.rows]);
+
+    // Focus input when entering inline cell edit
+    useEffect(() => {
+        if (editingCell && cellInputRef.current) {
+            cellInputRef.current.focus();
+            cellInputRef.current.select();
+        }
+    }, [editingCell]);
 
     // Reset page index on file or search changes
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, fileName]);
 
-    if (!isOpen) return null;
+    const columns = useMemo(() => {
+        if (data?.columns && data.columns.length > 0) return data.columns;
+        if (tableRows.length > 0) {
+            return Object.keys(tableRows[0]).filter(k => !k.startsWith('__'));
+        }
+        return [];
+    }, [data?.columns, tableRows]);
 
-    const columns = data?.columns || [];
-    const rawRows = data?.rows || [];
+    const dirtyCount = Object.keys(modifiedCells).length;
+    const isDirty = dirtyCount > 0;
+
+    // Safe Close & Version Switch Request Handlers
+    const handleRequestClose = useCallback(() => {
+        if (isDirty) {
+            setUnsavedConfirm({
+                title: "Discard Unsaved Edits?",
+                message: `You have ${dirtyCount} unsaved edit(s) in "${fileName}". Discard changes and close?`,
+                onConfirm: () => {
+                    setUnsavedConfirm(null);
+                    onClose();
+                }
+            });
+        } else {
+            onClose();
+        }
+    }, [isDirty, dirtyCount, fileName, onClose]);
+
+    const handleRequestSelectChoice = (newFile) => {
+        if (!newFile || newFile === fileName) return;
+        if (isDirty) {
+            setUnsavedConfirm({
+                title: "Unsaved Changes in File",
+                message: `You have ${dirtyCount} unsaved edit(s) in "${fileName}". Discard changes and switch to "${newFile}"?`,
+                onConfirm: () => {
+                    setUnsavedConfirm(null);
+                    onSelectChoice && onSelectChoice(newFile);
+                }
+            });
+        } else {
+            onSelectChoice && onSelectChoice(newFile);
+        }
+    };
+
+    // Close on Escape key (or cancel cell edit)
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                if (editingCell) {
+                    setEditingCell(null);
+                } else if (isDirty) {
+                    handleRequestClose();
+                } else {
+                    onClose();
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [editingCell, isDirty, fileName, onClose, handleRequestClose]);
 
     // Filter rows across all table columns
     const filteredRows = useMemo(() => {
-        if (!searchQuery.trim()) return rawRows;
+        if (!searchQuery.trim()) return tableRows;
         const q = searchQuery.toLowerCase().trim();
-        return rawRows.filter(row => {
+        return tableRows.filter(row => {
             return columns.some(col => {
                 const val = row[col];
                 if (val === null || val === undefined) return false;
                 return String(val).toLowerCase().includes(q);
             });
         });
-    }, [rawRows, columns, searchQuery]);
+    }, [tableRows, columns, searchQuery]);
 
     // Sort rows
     const sortedRows = useMemo(() => {
@@ -4615,12 +4795,1041 @@ function InputTableViewModal({
         });
     };
 
+    // Cell Selection Coordinates
+    const selectedColIndex = selectedCell ? columns.indexOf(selectedCell.colKey) : -1;
+    const selectedRowIndex = selectedCell ? tableRows.findIndex(r => r.__rowId === selectedCell.rowId) : -1;
+
+    const cellCoordinateLabel = selectedCell && selectedColIndex >= 0 && selectedRowIndex >= 0
+        ? `${getColumnLetter(selectedColIndex)}${selectedRowIndex + 1}`
+        : null;
+
+    const handleSelectCell = useCallback((rowId, colKey) => {
+        setSelectedCell({ rowId, colKey });
+        setSelectedCellKeys(new Set([`${rowId}__${colKey}`]));
+        const rIdx = tableRows.findIndex(r => r.__rowId === rowId);
+        const cIdx = columns.indexOf(colKey);
+        if (rIdx >= 0 && cIdx >= 0) {
+            setAnchorCell({ rIdx, cIdx, rowId, colKey });
+            setAnchorRowIdx(rIdx);
+            setAnchorColIdx(cIdx);
+        }
+        const row = tableRows.find(r => r.__rowId === rowId);
+        const val = row ? row[colKey] : '';
+        setFormulaBarValue(val === null || val === undefined ? '' : String(val));
+    }, [tableRows, columns]);
+
+    const handleStartCellEdit = (rowId, colKey, initialText) => {
+        setIsEditMode(true);
+        handleSelectCell(rowId, colKey);
+        setEditingCell({ rowId, colKey });
+        const row = tableRows.find(r => r.__rowId === rowId);
+        const val = initialText !== undefined ? initialText : (row ? row[colKey] : '');
+        setCellDraftValue(val === null || val === undefined ? '' : String(val));
+        setFormulaBarValue(val === null || val === undefined ? '' : String(val));
+    };
+
+    const commitCellEdit = (rowId, colKey, newValue) => {
+        setTableRows(prevRows => {
+            const rowIndex = prevRows.findIndex(r => r.__rowId === rowId);
+            if (rowIndex === -1) return prevRows;
+            const oldRow = prevRows[rowIndex];
+            const oldValue = oldRow[colKey];
+            if (String(oldValue ?? '') === String(newValue ?? '')) {
+                return prevRows;
+            }
+
+            // Save snapshot to undo stack
+            setUndoStack(prev => [...prev.slice(-30), prevRows]);
+
+            // Track modified cell relative to original file data
+            const cellKey = `${rowId}_${colKey}`;
+            const origVal = (data?.rows || [])[rowId]?.[colKey];
+            setModifiedCells(prev => {
+                if (String(origVal ?? '') === String(newValue ?? '')) {
+                    const next = { ...prev };
+                    delete next[cellKey];
+                    return next;
+                }
+                return {
+                    ...prev,
+                    [cellKey]: origVal
+                };
+            });
+
+            const updated = [...prevRows];
+            updated[rowIndex] = {
+                ...oldRow,
+                [colKey]: newValue
+            };
+            return updated;
+        });
+        setEditingCell(null);
+    };
+
+    // --------------------------------------------------------------------------------------------
+    // EXCEL MULTI-SELECTION ENGINE (CELLS, ROWS, COLUMNS with Shift, Ctrl & Mouse Drag)
+    // --------------------------------------------------------------------------------------------
+
+    // 1. Data Cell Mouse Down (Click, Shift+Click, Ctrl+Click, Drag Start)
+    const handleCellMouseDown = (e, rowId, colKey) => {
+        if (editingCell) return;
+        if (e.button !== 0) return; // Left mouse only
+
+        const rIdx = tableRows.findIndex(r => r.__rowId === rowId);
+        const cIdx = columns.indexOf(colKey);
+        if (rIdx === -1 || cIdx === -1) return;
+
+        // Shift + Click: 2D rectangular bounding box from anchor
+        if (e.shiftKey && anchorCell) {
+            e.preventDefault();
+            const minR = Math.min(anchorCell.rIdx, rIdx);
+            const maxR = Math.max(anchorCell.rIdx, rIdx);
+            const minC = Math.min(anchorCell.cIdx, cIdx);
+            const maxC = Math.max(anchorCell.cIdx, cIdx);
+
+            const newSet = new Set();
+            for (let r = minR; r <= maxR; r++) {
+                const rId = tableRows[r].__rowId;
+                for (let c = minC; c <= maxC; c++) {
+                    newSet.add(`${rId}__${columns[c]}`);
+                }
+            }
+            setSelectedCellKeys(newSet);
+            setSelectedCell({ rowId, colKey });
+            setAnchorRowIdx(rIdx);
+            setAnchorColIdx(cIdx);
+            return;
+        }
+
+        // Ctrl + Click (or Cmd + Click): Toggle individual cell in selection
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            const key = `${rowId}__${colKey}`;
+            const newSet = new Set(selectedCellKeys);
+            if (newSet.has(key)) {
+                newSet.delete(key);
+            } else {
+                newSet.add(key);
+            }
+            setSelectedCellKeys(newSet);
+            setSelectedCell({ rowId, colKey });
+            setAnchorCell({ rIdx, cIdx, rowId, colKey });
+            setAnchorRowIdx(rIdx);
+            setAnchorColIdx(cIdx);
+            const row = tableRows[rIdx];
+            setFormulaBarValue(String(row[colKey] ?? ''));
+            return;
+        }
+
+        // Normal Click: Single cell selection & initiate drag
+        const key = `${rowId}__${colKey}`;
+        setSelectedCellKeys(new Set([key]));
+        setSelectedCell({ rowId, colKey });
+        setAnchorCell({ rIdx, cIdx, rowId, colKey });
+        setAnchorRowIdx(rIdx);
+        setAnchorColIdx(cIdx);
+        setIsMouseDown(true);
+        setDragType('cell');
+        const row = tableRows[rIdx];
+        setFormulaBarValue(String(row[colKey] ?? ''));
+    };
+
+    // 2. Data Cell Mouse Enter (Drag Selection)
+    const handleCellMouseEnter = (rowId, colKey) => {
+        if (!isMouseDown || dragType !== 'cell' || !anchorCell) return;
+
+        const rIdx = tableRows.findIndex(r => r.__rowId === rowId);
+        const cIdx = columns.indexOf(colKey);
+        if (rIdx === -1 || cIdx === -1) return;
+
+        const minR = Math.min(anchorCell.rIdx, rIdx);
+        const maxR = Math.max(anchorCell.rIdx, rIdx);
+        const minC = Math.min(anchorCell.cIdx, cIdx);
+        const maxC = Math.max(anchorCell.cIdx, cIdx);
+
+        const newSet = new Set();
+        for (let r = minR; r <= maxR; r++) {
+            const rId = tableRows[r].__rowId;
+            for (let c = minC; c <= maxC; c++) {
+                newSet.add(`${rId}__${columns[c]}`);
+            }
+        }
+        setSelectedCellKeys(newSet);
+        setSelectedCell({ rowId, colKey });
+    };
+
+    // 3. Column Header Mouse Down (Click, Shift+Click, Ctrl+Click, Drag)
+    const handleColumnHeaderMouseDown = (e, colKey) => {
+        if (e.button !== 0) return;
+        const cIdx = columns.indexOf(colKey);
+        if (cIdx === -1) return;
+
+        // Shift + Click: Select range of columns across all rows!
+        if (e.shiftKey && anchorColIdx !== null) {
+            e.preventDefault();
+            const minC = Math.min(anchorColIdx, cIdx);
+            const maxC = Math.max(anchorColIdx, cIdx);
+            const newSet = new Set();
+            tableRows.forEach(r => {
+                for (let c = minC; c <= maxC; c++) {
+                    newSet.add(`${r.__rowId}__${columns[c]}`);
+                }
+            });
+            setSelectedCellKeys(newSet);
+            if (tableRows.length > 0) {
+                setSelectedCell({ rowId: tableRows[0].__rowId, colKey: columns[minC] });
+            }
+            return;
+        }
+
+        // Ctrl + Click: Toggle column selection
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            const newSet = new Set(selectedCellKeys);
+            const isAllInCol = tableRows.length > 0 && tableRows.every(r => newSet.has(`${r.__rowId}__${colKey}`));
+            tableRows.forEach(r => {
+                const k = `${r.__rowId}__${colKey}`;
+                if (isAllInCol) {
+                    newSet.delete(k);
+                } else {
+                    newSet.add(k);
+                }
+            });
+            setSelectedCellKeys(newSet);
+            setAnchorColIdx(cIdx);
+            return;
+        }
+
+        // Normal Click: Select entire column across all rows
+        const newSet = new Set();
+        tableRows.forEach(r => {
+            newSet.add(`${r.__rowId}__${colKey}`);
+        });
+        setSelectedCellKeys(newSet);
+        setAnchorColIdx(cIdx);
+        setAnchorRowIdx(null);
+        setAnchorCell(null);
+        setIsMouseDown(true);
+        setDragType('col');
+        if (tableRows.length > 0) {
+            setSelectedCell({ rowId: tableRows[0].__rowId, colKey });
+            setFormulaBarValue(String(tableRows[0][colKey] ?? ''));
+        }
+    };
+
+    // 4. Column Header Mouse Enter (Drag across column headers)
+    const handleColumnHeaderMouseEnter = (colKey) => {
+        if (!isMouseDown || dragType !== 'col' || anchorColIdx === null) return;
+        const cIdx = columns.indexOf(colKey);
+        if (cIdx === -1) return;
+
+        const minC = Math.min(anchorColIdx, cIdx);
+        const maxC = Math.max(anchorColIdx, cIdx);
+        const newSet = new Set();
+        tableRows.forEach(r => {
+            for (let c = minC; c <= maxC; c++) {
+                newSet.add(`${r.__rowId}__${columns[c]}`);
+            }
+        });
+        setSelectedCellKeys(newSet);
+    };
+
+    // 5. Row Header Mouse Down (Click, Shift+Click, Ctrl+Click, Drag)
+    const handleRowHeaderMouseDown = (e, rowId) => {
+        if (e.button !== 0) return;
+        const rIdx = tableRows.findIndex(r => r.__rowId === rowId);
+        if (rIdx === -1) return;
+
+        // Shift + Click: Select range of rows across all columns!
+        if (e.shiftKey && anchorRowIdx !== null) {
+            e.preventDefault();
+            const minR = Math.min(anchorRowIdx, rIdx);
+            const maxR = Math.max(anchorRowIdx, rIdx);
+            const newSet = new Set();
+            for (let r = minR; r <= maxR; r++) {
+                const rId = tableRows[r].__rowId;
+                columns.forEach(col => {
+                    newSet.add(`${rId}__${col}`);
+                });
+            }
+            setSelectedCellKeys(newSet);
+            setSelectedCell({ rowId: tableRows[minR].__rowId, colKey: columns[0] });
+            return;
+        }
+
+        // Ctrl + Click: Toggle row selection
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            const newSet = new Set(selectedCellKeys);
+            const isAllInRow = columns.every(col => newSet.has(`${rowId}__${col}`));
+            columns.forEach(col => {
+                const k = `${rowId}__${col}`;
+                if (isAllInRow) {
+                    newSet.delete(k);
+                } else {
+                    newSet.add(k);
+                }
+            });
+            setSelectedCellKeys(newSet);
+            setAnchorRowIdx(rIdx);
+            return;
+        }
+
+        // Normal Click: Select entire row across all columns
+        const newSet = new Set();
+        columns.forEach(col => {
+            newSet.add(`${rowId}__${col}`);
+        });
+        setSelectedCellKeys(newSet);
+        setAnchorRowIdx(rIdx);
+        setAnchorColIdx(null);
+        setAnchorCell(null);
+        setIsMouseDown(true);
+        setDragType('row');
+        setSelectedCell({ rowId, colKey: columns[0] });
+        setFormulaBarValue(String(tableRows[rIdx][columns[0]] ?? ''));
+    };
+
+    // 6. Row Header Mouse Enter (Drag across row numbers)
+    const handleRowHeaderMouseEnter = (rowId) => {
+        if (!isMouseDown || dragType !== 'row' || anchorRowIdx === null) return;
+        const rIdx = tableRows.findIndex(r => r.__rowId === rowId);
+        if (rIdx === -1) return;
+
+        const minR = Math.min(anchorRowIdx, rIdx);
+        const maxR = Math.max(anchorRowIdx, rIdx);
+        const newSet = new Set();
+        for (let r = minR; r <= maxR; r++) {
+            const rId = tableRows[r].__rowId;
+            columns.forEach(col => {
+                newSet.add(`${rId}__${col}`);
+            });
+        }
+        setSelectedCellKeys(newSet);
+    };
+
+    // 7. Select All (# Top-Left Corner & Ctrl+A)
+    const totalPossibleCells = tableRows.length * columns.length;
+    const isAllSelected = totalPossibleCells > 0 && selectedCellKeys.size === totalPossibleCells;
+
+    const handleSelectAll = useCallback(() => {
+        if (isAllSelected) {
+            setSelectedCellKeys(new Set());
+            setSelectedCell(null);
+            setAnchorCell(null);
+            setAnchorRowIdx(null);
+            setAnchorColIdx(null);
+        } else {
+            const newSet = new Set();
+            tableRows.forEach(r => {
+                columns.forEach(c => {
+                    newSet.add(`${r.__rowId}__${c}`);
+                });
+            });
+            setSelectedCellKeys(newSet);
+            if (tableRows.length > 0 && columns.length > 0) {
+                setSelectedCell({ rowId: tableRows[0].__rowId, colKey: columns[0] });
+                setFormulaBarValue(String(tableRows[0][columns[0]] ?? ''));
+            }
+        }
+    }, [isAllSelected, tableRows, columns]);
+
+    // Derived Selection Sets & Metrics
+    const selectedRowIds = useMemo(() => {
+        const s = new Set();
+        selectedCellKeys.forEach(k => {
+            const [rId] = k.split('__');
+            s.add(Number(rId));
+        });
+        return s;
+    }, [selectedCellKeys]);
+
+    const selectedColKeys = useMemo(() => {
+        const s = new Set();
+        selectedCellKeys.forEach(k => {
+            const parts = k.split('__');
+            if (parts.length > 1) s.add(parts[1]);
+        });
+        return s;
+    }, [selectedCellKeys]);
+
+    const isWholeRowSelection = useMemo(() => {
+        return columns.length > 0 && selectedColKeys.size === columns.length && selectedRowIds.size > 0;
+    }, [columns.length, selectedColKeys.size, selectedRowIds.size]);
+
+    const isWholeColSelection = useMemo(() => {
+        return tableRows.length > 0 && selectedRowIds.size === tableRows.length && selectedColKeys.size > 0;
+    }, [tableRows.length, selectedRowIds.size, selectedColKeys.size]);
+
+    // Clipboard Helpers (Copy & Excel TSV Format)
+    const copyTextToClipboard = useCallback(async (text) => {
+        if (!text) return false;
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(text);
+                return true;
+            }
+        } catch (err) {
+            // fallback below
+        }
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            return successful;
+        } catch (err) {
+            return false;
+        }
+    }, []);
+
+    // Copy Selected 2D Cell Range or Full Rows/Cols to Clipboard in Excel TSV
+    const handleCopySelected = useCallback(async () => {
+        if (selectedCellKeys.size === 0 && !selectedCell) {
+            if (showToast) showToast('No cells or rows selected to copy.', 'warning');
+            return;
+        }
+
+        // Get sorted row indices that have selected cells
+        const selectedRIndices = [];
+        tableRows.forEach((r, idx) => {
+            if (columns.some(col => selectedCellKeys.has(`${r.__rowId}__${col}`))) {
+                selectedRIndices.push(idx);
+            }
+        });
+
+        // Get sorted column indices that have selected cells
+        const selectedCIndices = [];
+        columns.forEach((col, idx) => {
+            if (tableRows.some(r => selectedCellKeys.has(`${r.__rowId}__${col}`))) {
+                selectedCIndices.push(idx);
+            }
+        });
+
+        if (selectedRIndices.length === 0 || selectedCIndices.length === 0) {
+            if (selectedCell) {
+                const row = tableRows.find(r => r.__rowId === selectedCell.rowId);
+                const val = row ? row[selectedCell.colKey] ?? '' : '';
+                await copyTextToClipboard(String(val));
+                if (showToast) showToast(`Copied cell "${val}" to clipboard.`, 'info');
+            }
+            return;
+        }
+
+        const isFullRows = selectedCIndices.length === columns.length;
+        const outLines = [];
+
+        // If whole rows or columns or all were selected, include headers
+        if (isFullRows || isWholeColSelection || isAllSelected) {
+            const headerRow = selectedCIndices.map(ci => columns[ci]).join('\t');
+            outLines.push(headerRow);
+        }
+
+        // Data rows
+        selectedRIndices.forEach(ri => {
+            const row = tableRows[ri];
+            const line = selectedCIndices.map(ci => {
+                const v = row[columns[ci]];
+                return v === null || v === undefined ? '' : String(v);
+            }).join('\t');
+            outLines.push(line);
+        });
+
+        const tsv = outLines.join('\r\n');
+        const ok = await copyTextToClipboard(tsv);
+        if (ok && showToast) {
+            showToast(`Copied ${selectedRIndices.length} row(s) × ${selectedCIndices.length} col(s) (${selectedCellKeys.size} cells) to clipboard!`, 'success');
+        } else if (!ok && showToast) {
+            showToast('Unable to copy to clipboard.', 'error');
+        }
+    }, [selectedCellKeys, selectedCell, showToast, tableRows, columns, isWholeColSelection, isAllSelected, copyTextToClipboard]);
+
+    // Parse Excel TSV text into 2D array of cells
+    const parseExcelClipboard = useCallback((text) => {
+        if (!text || typeof text !== 'string') return [];
+        const cleanText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        const rawLines = cleanText.split('\n');
+        if (rawLines.length > 0 && rawLines[rawLines.length - 1] === '') {
+            rawLines.pop();
+        }
+        if (rawLines.length === 0) return [];
+
+        return rawLines.map(line => {
+            const rawCells = line.split('\t');
+            return rawCells.map(c => {
+                let s = c.trim();
+                if (s.startsWith('"') && s.endsWith('"') && s.length >= 2) {
+                    s = s.slice(1, -1).replace(/""/g, '"');
+                }
+                return s;
+            });
+        });
+    }, []);
+
+    // Execute Multi-Row / Multi-Column Excel Paste with Auto-Expansion & Header Detection
+    const executeExcelPaste = useCallback((text) => {
+        if (!text || !text.trim()) return;
+        const parsedRows = parseExcelClipboard(text);
+        if (parsedRows.length === 0) return;
+
+        // Check if row 0 has header matching table columns
+        const firstRow = parsedRows[0];
+        const lowerColumns = columns.map(c => c.toLowerCase().trim());
+        const matchedHeaders = [];
+        let headerMatchCount = 0;
+
+        firstRow.forEach((val, idx) => {
+            const vLower = val.toLowerCase().trim();
+            const colIdx = lowerColumns.indexOf(vLower);
+            if (colIdx >= 0) {
+                matchedHeaders.push({ clipIdx: idx, colName: columns[colIdx], colIdx });
+                headerMatchCount++;
+            }
+        });
+
+        const hasHeaderRow = headerMatchCount >= 2 || (headerMatchCount > 0 && headerMatchCount === firstRow.length);
+        const dataRows = hasHeaderRow ? parsedRows.slice(1) : parsedRows;
+
+        if (dataRows.length === 0) {
+            if (showToast) showToast('Clipboard contains headers but no data rows.', 'warning');
+            return;
+        }
+
+        setUndoStack(prev => [...prev.slice(-30), tableRows]);
+
+        let startRowIdx = 0;
+        let startColIdx = 0;
+
+        if (isAllSelected) {
+            startRowIdx = 0;
+            startColIdx = 0;
+        } else if (selectedCellKeys.size > 0) {
+            // Find minimum row index and minimum col index among selected cells
+            const selRIndices = [];
+            const selCIndices = [];
+            tableRows.forEach((r, ri) => {
+                columns.forEach((c, ci) => {
+                    if (selectedCellKeys.has(`${r.__rowId}__${c}`)) {
+                        selRIndices.push(ri);
+                        selCIndices.push(ci);
+                    }
+                });
+            });
+            startRowIdx = selRIndices.length > 0 ? Math.min(...selRIndices) : 0;
+            startColIdx = selCIndices.length > 0 ? Math.min(...selCIndices) : 0;
+        } else if (selectedCell) {
+            const foundRowIdx = tableRows.findIndex(r => r.__rowId === selectedCell.rowId);
+            startRowIdx = foundRowIdx >= 0 ? foundRowIdx : 0;
+            startColIdx = Math.max(0, columns.indexOf(selectedCell.colKey));
+        }
+
+        const updated = [...tableRows];
+        const nextModified = { ...modifiedCells };
+        const rowsNeeded = startRowIdx + dataRows.length;
+
+        // Auto-expand rows if pasted rows exceed existing row count!
+        let maxExistingId = updated.length > 0 ? Math.max(...updated.map(r => r.__rowId ?? 0)) : -1;
+        while (updated.length < rowsNeeded) {
+            maxExistingId++;
+            const blankRow = { __rowId: maxExistingId };
+            columns.forEach(c => { blankRow[c] = ''; });
+            updated.push(blankRow);
+        }
+
+        let cellsCount = 0;
+        const newSelectedKeys = new Set();
+
+        dataRows.forEach((rowVals, rOffset) => {
+            const targetRowIdx = startRowIdx + rOffset;
+            const targetRow = { ...updated[targetRowIdx] };
+            const rowId = targetRow.__rowId;
+
+            if (hasHeaderRow && matchedHeaders.length > 0) {
+                matchedHeaders.forEach(({ clipIdx, colName }) => {
+                    const newVal = rowVals[clipIdx] ?? '';
+                    targetRow[colName] = newVal;
+                    const cellKey = `${rowId}_${colName}`;
+                    const origVal = (data?.rows || [])[rowId]?.[colName];
+                    nextModified[cellKey] = origVal;
+                    newSelectedKeys.add(`${rowId}__${colName}`);
+                    cellsCount++;
+                });
+            } else {
+                rowVals.forEach((val, cOffset) => {
+                    const targetCIdx = startColIdx + cOffset;
+                    if (targetCIdx < columns.length) {
+                        const colName = columns[targetCIdx];
+                        targetRow[colName] = val;
+                        const cellKey = `${rowId}_${colName}`;
+                        const origVal = (data?.rows || [])[rowId]?.[colName];
+                        nextModified[cellKey] = origVal;
+                        newSelectedKeys.add(`${rowId}__${colName}`);
+                        cellsCount++;
+                    }
+                });
+            }
+            updated[targetRowIdx] = targetRow;
+        });
+
+        setTableRows(updated);
+        setModifiedCells(nextModified);
+        setIsEditMode(true);
+        setEditingCell(null);
+        setSelectedCellKeys(newSelectedKeys);
+
+        if (updated[startRowIdx]) {
+            const targetCol = hasHeaderRow && matchedHeaders.length > 0 ? matchedHeaders[0].colName : columns[startColIdx];
+            setSelectedCell({ rowId: updated[startRowIdx].__rowId, colKey: targetCol });
+        }
+
+        if (showToast) {
+            showToast(`Pasted ${dataRows.length} rows & ${cellsCount} cells!`, 'success');
+        }
+    }, [columns, data?.rows, isAllSelected, modifiedCells, parseExcelClipboard, selectedCell, selectedCellKeys, showToast, tableRows]);
+
+    const handlePasteButtonClick = async () => {
+        try {
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                const text = await navigator.clipboard.readText();
+                if (text && text.trim().length > 0) {
+                    executeExcelPaste(text);
+                    return;
+                }
+            }
+        } catch (err) {
+            // Clipboard read permission blocked or unavailable
+        }
+        setPasteModalText('');
+        setShowPasteModal(true);
+    };
+
+    // Global Window Paste Listener for Ctrl+V
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleGlobalPaste = (e) => {
+            const isSearchInput = document.activeElement && document.activeElement.getAttribute('placeholder') === 'Search table...';
+            if (isSearchInput) return;
+
+            if (document.activeElement && document.activeElement.classList.contains('excel-paste-textarea')) {
+                return;
+            }
+
+            const clipboardData = e.clipboardData || window.clipboardData;
+            if (!clipboardData) return;
+            const text = clipboardData.getData('text/plain') || clipboardData.getData('text');
+            if (!text) return;
+
+            const isMultiCell = text.includes('\t') || text.includes('\n') || text.includes('\r');
+            if (isMultiCell || selectedCell || selectedCellKeys.size > 0 || isAllSelected) {
+                e.preventDefault();
+                executeExcelPaste(text);
+            }
+        };
+
+        window.addEventListener('paste', handleGlobalPaste);
+        return () => window.removeEventListener('paste', handleGlobalPaste);
+    }, [isOpen, selectedCell, selectedCellKeys, isAllSelected, executeExcelPaste]);
+
+    // Keyboard navigation inside cell input editor
+    const handleCellKeyDown = (e, row, colKey, paginatedList, rowIdxInPage) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            commitCellEdit(row.__rowId, colKey, cellDraftValue);
+            if (e.shiftKey) {
+                if (rowIdxInPage > 0) {
+                    const prevRow = paginatedList[rowIdxInPage - 1];
+                    handleSelectCell(prevRow.__rowId, colKey);
+                }
+            } else {
+                if (rowIdxInPage < paginatedList.length - 1) {
+                    const nextRow = paginatedList[rowIdxInPage + 1];
+                    handleSelectCell(nextRow.__rowId, colKey);
+                }
+            }
+        } else if (e.key === 'Tab') {
+            e.preventDefault();
+            commitCellEdit(row.__rowId, colKey, cellDraftValue);
+            const colIdx = columns.indexOf(colKey);
+            if (e.shiftKey) {
+                if (colIdx > 0) {
+                    handleSelectCell(row.__rowId, columns[colIdx - 1]);
+                }
+            } else {
+                if (colIdx < columns.length - 1) {
+                    handleSelectCell(row.__rowId, columns[colIdx + 1]);
+                } else if (rowIdxInPage < paginatedList.length - 1) {
+                    const nextRow = paginatedList[rowIdxInPage + 1];
+                    handleSelectCell(nextRow.__rowId, columns[0]);
+                }
+            }
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            setEditingCell(null);
+        }
+    };
+
+    // Clear contents of all selected cells
+    const handleClearSelectedCells = useCallback(() => {
+        if (selectedCellKeys.size === 0 && !selectedCell) return;
+
+        setUndoStack(prev => [...prev.slice(-30), tableRows]);
+
+        const nextModified = { ...modifiedCells };
+        const updated = tableRows.map(row => {
+            let rowChanged = false;
+            const newRow = { ...row };
+            columns.forEach(col => {
+                const k = `${row.__rowId}__${col}`;
+                if (selectedCellKeys.has(k) || (selectedCell && selectedCell.rowId === row.__rowId && selectedCell.colKey === col)) {
+                    if (newRow[col] !== '') {
+                        newRow[col] = '';
+                        rowChanged = true;
+                        const cellKey = `${row.__rowId}_${col}`;
+                        const origVal = (data?.rows || [])[row.__rowId]?.[col];
+                        nextModified[cellKey] = origVal;
+                    }
+                }
+            });
+            return rowChanged ? newRow : row;
+        });
+
+        setTableRows(updated);
+        setModifiedCells(nextModified);
+        if (selectedCell) {
+            setFormulaBarValue('');
+        }
+        if (showToast) {
+            showToast(`Cleared ${selectedCellKeys.size || 1} cell(s).`, 'info');
+        }
+    }, [selectedCellKeys, selectedCell, tableRows, modifiedCells, columns, data?.rows, showToast]);
+
+    // Delete selected rows (or row containing selected cell)
+    const handleDeleteSelectedRows = useCallback(() => {
+        if (selectedRowIds.size === 0 && !selectedCell) return;
+        const idsToDelete = selectedRowIds.size > 0 ? Array.from(selectedRowIds) : [selectedCell.rowId];
+
+        setUndoStack(prev => [...prev.slice(-30), tableRows]);
+
+        const delSet = new Set(idsToDelete);
+        const newRows = tableRows.filter(r => !delSet.has(r.__rowId));
+        setTableRows(newRows);
+
+        setModifiedCells(prev => {
+            const next = {};
+            Object.keys(prev).forEach(k => {
+                const parts = k.split('_');
+                const rowId = Number(parts[0]);
+                if (!delSet.has(rowId)) {
+                    next[k] = prev[k];
+                }
+            });
+            idsToDelete.forEach(id => {
+                next[`deleted_row_${id}`] = true;
+            });
+            return next;
+        });
+
+        setSelectedCellKeys(new Set());
+        if (newRows.length > 0) {
+            handleSelectCell(newRows[0].__rowId, columns[0]);
+        } else {
+            setSelectedCell(null);
+        }
+        if (showToast) {
+            showToast(`Deleted ${idsToDelete.length} row(s).`, 'info');
+        }
+    }, [selectedRowIds, selectedCell, tableRows, handleSelectCell, columns, showToast]);
+
+    const handleDeleteSelectedRow = handleDeleteSelectedRows;
+
+    // Grid-level keyboard navigation (when cell selected, not editing text)
+    const handleGridKeyDown = (e) => {
+        if (editingCell) return;
+
+        // Select All (Ctrl+A / Cmd+A)
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
+            const isSearchInput = document.activeElement && document.activeElement.getAttribute('placeholder') === 'Search table...';
+            if (!isSearchInput) {
+                e.preventDefault();
+                handleSelectAll();
+                return;
+            }
+        }
+
+        // Copy Selected (Ctrl+C / Cmd+C)
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
+            const isSearchInput = document.activeElement && document.activeElement.getAttribute('placeholder') === 'Search table...';
+            if (!isSearchInput && (selectedCellKeys.size > 0 || isAllSelected || selectedCell)) {
+                e.preventDefault();
+                handleCopySelected();
+                return;
+            }
+        }
+
+        // Save shortcut (Ctrl+S / Cmd+S)
+        if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            handleSaveChanges();
+            return;
+        }
+
+        // Undo shortcut (Ctrl+Z / Cmd+Z)
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+            e.preventDefault();
+            handleUndo();
+            return;
+        }
+
+        // Delete / Backspace: Clear selected cells
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+            const isSearchInput = document.activeElement && document.activeElement.getAttribute('placeholder') === 'Search table...';
+            if (!isSearchInput) {
+                e.preventDefault();
+                if (isWholeRowSelection) {
+                    handleDeleteSelectedRows();
+                } else {
+                    handleClearSelectedCells();
+                }
+                return;
+            }
+        }
+
+        if (!selectedCell) return;
+
+        const curRIdx = tableRows.findIndex(r => r.__rowId === selectedCell.rowId);
+        const curCIdx = columns.indexOf(selectedCell.colKey);
+        if (curRIdx === -1 || curCIdx === -1) return;
+
+        // Shift + Arrow Keys: Expand selection rectangle from anchor
+        if (e.shiftKey) {
+            let nextR = curRIdx;
+            let nextC = curCIdx;
+            if (e.key === 'ArrowUp') nextR = Math.max(0, curRIdx - 1);
+            else if (e.key === 'ArrowDown') nextR = Math.min(tableRows.length - 1, curRIdx + 1);
+            else if (e.key === 'ArrowLeft') nextC = Math.max(0, curCIdx - 1);
+            else if (e.key === 'ArrowRight') nextC = Math.min(columns.length - 1, curCIdx + 1);
+            else return;
+
+            e.preventDefault();
+            const anchor = anchorCell || { rIdx: curRIdx, cIdx: curCIdx };
+            const minR = Math.min(anchor.rIdx, nextR);
+            const maxR = Math.max(anchor.rIdx, nextR);
+            const minC = Math.min(anchor.cIdx, nextC);
+            const maxC = Math.max(anchor.cIdx, nextC);
+
+            const newSet = new Set();
+            for (let r = minR; r <= maxR; r++) {
+                const rId = tableRows[r].__rowId;
+                for (let c = minC; c <= maxC; c++) {
+                    newSet.add(`${rId}__${columns[c]}`);
+                }
+            }
+            setSelectedCellKeys(newSet);
+            setSelectedCell({ rowId: tableRows[nextR].__rowId, colKey: columns[nextC] });
+            return;
+        }
+
+        // Normal Arrow Keys: Navigate single cell
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (curRIdx > 0) {
+                const prev = tableRows[curRIdx - 1];
+                handleSelectCell(prev.__rowId, selectedCell.colKey);
+            }
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (curRIdx < tableRows.length - 1) {
+                const next = tableRows[curRIdx + 1];
+                handleSelectCell(next.__rowId, selectedCell.colKey);
+            }
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            if (curCIdx > 0) {
+                handleSelectCell(selectedCell.rowId, columns[curCIdx - 1]);
+            }
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            if (curCIdx < columns.length - 1) {
+                handleSelectCell(selectedCell.rowId, columns[curCIdx + 1]);
+            }
+        } else if (e.key === 'Enter' || e.key === 'F2') {
+            e.preventDefault();
+            handleStartCellEdit(selectedCell.rowId, selectedCell.colKey);
+        } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            handleStartCellEdit(selectedCell.rowId, selectedCell.colKey, e.key);
+        }
+    };
+
+    // Formula Bar editing
+    const handleFormulaBarChange = (e) => {
+        const val = e.target.value;
+        setFormulaBarValue(val);
+        if (selectedCell) {
+            setTableRows(prevRows => {
+                const rowIndex = prevRows.findIndex(r => r.__rowId === selectedCell.rowId);
+                if (rowIndex === -1) return prevRows;
+                const oldRow = prevRows[rowIndex];
+                const updated = [...prevRows];
+                updated[rowIndex] = {
+                    ...oldRow,
+                    [selectedCell.colKey]: val
+                };
+                return updated;
+            });
+            const cellKey = `${selectedCell.rowId}_${selectedCell.colKey}`;
+            const origVal = (data?.rows || [])[selectedCell.rowId]?.[selectedCell.colKey];
+            setModifiedCells(prev => ({
+                ...prev,
+                [cellKey]: origVal
+            }));
+        }
+    };
+
+    // Batch fill or move down on Enter
+    const handleFormulaBarKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (e.ctrlKey || e.metaKey || selectedCellKeys.size > 1) {
+                // Batch fill all selected cells with formulaBarValue
+                if (selectedCellKeys.size > 0) {
+                    setUndoStack(prev => [...prev.slice(-30), tableRows]);
+                    const nextModified = { ...modifiedCells };
+                    const updated = tableRows.map(row => {
+                        let changed = false;
+                        const newRow = { ...row };
+                        columns.forEach(col => {
+                            if (selectedCellKeys.has(`${row.__rowId}__${col}`)) {
+                                newRow[col] = formulaBarValue;
+                                changed = true;
+                                const cellKey = `${row.__rowId}_${col}`;
+                                const origVal = (data?.rows || [])[row.__rowId]?.[col];
+                                nextModified[cellKey] = origVal;
+                            }
+                        });
+                        return changed ? newRow : row;
+                    });
+                    setTableRows(updated);
+                    setModifiedCells(nextModified);
+                    if (showToast) showToast(`Filled ${selectedCellKeys.size} cells with "${formulaBarValue}".`, 'info');
+                    return;
+                }
+            }
+
+            // Normal Enter: move down
+            const rowIdxInPage = paginatedRows.findIndex(r => r.__rowId === selectedCell.rowId);
+            if (selectedCell && rowIdxInPage >= 0 && rowIdxInPage < paginatedRows.length - 1) {
+                const nextRow = paginatedRows[rowIdxInPage + 1];
+                handleSelectCell(nextRow.__rowId, selectedCell.colKey);
+            }
+        }
+    };
+
+    // Add Row
+    const handleAddRow = () => {
+        const newRowId = tableRows.length > 0 ? Math.max(...tableRows.map(r => r.__rowId ?? 0)) + 1 : 0;
+        const newRow = { __rowId: newRowId };
+        columns.forEach(c => newRow[c] = '');
+
+        setUndoStack(prev => [...prev.slice(-30), tableRows]);
+        setTableRows(prev => [...prev, newRow]);
+        setModifiedCells(prev => {
+            const next = { ...prev };
+            columns.forEach(c => {
+                next[`${newRowId}_${c}`] = '';
+            });
+            return next;
+        });
+
+        if (pageSize !== 'all') {
+            const newTotal = tableRows.length + 1;
+            const targetPage = Math.ceil(newTotal / Number(pageSize));
+            setCurrentPage(targetPage);
+        }
+        handleSelectCell(newRowId, columns[0]);
+        setIsEditMode(true);
+        if (showToast) showToast('New row added. Click or type to edit.', 'info');
+    };
+
+    // Undo
+    const handleUndo = () => {
+        if (undoStack.length === 0) return;
+        const prevSnapshot = undoStack[undoStack.length - 1];
+        setUndoStack(prev => prev.slice(0, -1));
+        setTableRows(prevSnapshot);
+        if (showToast) showToast('Undo edit.', 'info');
+    };
+
+    // Discard All
+    const handleDiscardChanges = () => {
+        const initial = (data?.rows || []).map((r, i) => ({
+            __rowId: i,
+            ...r
+        }));
+        setTableRows(initial);
+        setModifiedCells({});
+        setUndoStack([]);
+        setSelectedCellKeys(new Set());
+        setEditingCell(null);
+        if (selectedCell) {
+            const row = initial.find(r => r.__rowId === selectedCell.rowId);
+            setFormulaBarValue(row ? String(row[selectedCell.colKey] ?? '') : '');
+        }
+        if (showToast) showToast('Discarded all unsaved edits.', 'info');
+    };
+
+    // Save Changes
+    const handleSaveChanges = async () => {
+        if (tableRows.length === 0 && (data?.rows || []).length === 0) return;
+        setIsSaving(true);
+        try {
+            const cleanRows = tableRows.map(row => {
+                const cleaned = {};
+                columns.forEach(c => {
+                    cleaned[c] = row[c] === undefined ? null : row[c];
+                });
+                return cleaned;
+            });
+
+            if (onSaveTableData) {
+                onSaveTableData(inputKey, fileName, cleanRows, columns);
+            } else if (window.Shiny && window.Shiny.setInputValue) {
+                window.Shiny.setInputValue('save_input_file_data', {
+                    inputKey: inputKey,
+                    fileName: fileName,
+                    rows: cleanRows,
+                    columns: columns,
+                    requestId: Date.now()
+                }, { priority: 'event' });
+            }
+
+            setModifiedCells({});
+            setUndoStack([]);
+            if (showToast) {
+                showToast(`Saved changes to "${fileName}" (${cleanRows.length} rows) successfully!`, 'success');
+            }
+        } catch (err) {
+            if (showToast) showToast(`Save error: ${err.message}`, 'error');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    if (!isOpen) return null;
+
     const isML = fileName && (fileName.toLowerCase().includes('ml_forecast') || fileName.toLowerCase().includes('ml_'));
 
     return (
         <div 
             className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-3 md:p-4 animate-fade-in"
-            onClick={onClose}
+            onClick={handleRequestClose}
         >
             <div 
                 className={`bg-white shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden transition-all duration-200 ${
@@ -4629,6 +5838,8 @@ function InputTableViewModal({
                         : 'w-[98vw] max-w-[98vw] h-[94vh] max-h-[94vh] rounded-2xl'
                 }`}
                 onClick={(e) => e.stopPropagation()}
+                onKeyDown={handleGridKeyDown}
+                tabIndex={0}
             >
                 {/* FLOATING WINDOW HEADER */}
                 <div className="bg-slate-50/95 px-4 py-2.5 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
@@ -4645,6 +5856,12 @@ function InputTableViewModal({
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#005eb8] border border-blue-200">
                                     Table View
                                 </span>
+                                {isEditMode && (
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs animate-pulse">
+                                        <IconEdit className="w-2.5 h-2.5 text-emerald-700" />
+                                        <span>Edit Mode</span>
+                                    </span>
+                                )}
                                 {isML && (
                                     <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
                                         <IconBolt className="w-2.5 h-2.5 text-amber-700" />
@@ -4659,7 +5876,7 @@ function InputTableViewModal({
                                 {availableChoices && availableChoices.length > 0 ? (
                                     <select
                                         value={fileName}
-                                        onChange={(e) => onSelectChoice && onSelectChoice(e.target.value)}
+                                        onChange={(e) => handleRequestSelectChoice(e.target.value)}
                                         className="text-xs font-mono font-bold text-[#005eb8] bg-white border border-blue-200 rounded-md px-2 py-0.5 shadow-2xs max-w-[280px] sm:max-w-[420px] truncate cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                         title={`Switch version: currently viewing ${fileName}`}
                                     >
@@ -4676,13 +5893,13 @@ function InputTableViewModal({
                         </div>
                     </div>
 
-                    {/* Right: Search Filter, Rows-Per-Page, Export & Sizing Controls */}
+                    {/* Right: Edit Mode Button, Search, Rows-Per-Page, Export & Sizing Controls */}
                     <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                         {/* Stats Badges */}
                         <div className="hidden md:flex items-center gap-1.5 text-xs">
                             <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
                                 {totalFiltered} {totalFiltered === 1 ? 'Row' : 'Rows'}
-                                {searchQuery && ` (of ${rawRows.length})`}
+                                {searchQuery && ` (of ${tableRows.length})`}
                             </span>
                             <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
                                 {columns.length} Cols
@@ -4690,7 +5907,7 @@ function InputTableViewModal({
                         </div>
 
                         {/* Search Input */}
-                        <div className="relative min-w-[160px] sm:min-w-[220px]">
+                        <div className="relative min-w-[140px] sm:min-w-[190px]">
                             <IconSearch className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                             <input
                                 type="text"
@@ -4709,6 +5926,32 @@ function InputTableViewModal({
                                 </button>
                             )}
                         </div>
+
+                        {/* EDIT MODE TOGGLE BUTTON */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsEditMode(prev => {
+                                    const next = !prev;
+                                    if (next && !selectedCell && tableRows.length > 0 && columns.length > 0) {
+                                        handleSelectCell(tableRows[0].__rowId, columns[0]);
+                                    }
+                                    return next;
+                                });
+                            }}
+                            className={`inline-flex items-center gap-1.5 font-bold text-xs px-3 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
+                                isEditMode
+                                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 ring-2 ring-emerald-300'
+                                    : 'bg-white hover:bg-emerald-50 text-emerald-800 border-emerald-300 hover:border-emerald-400'
+                            }`}
+                            title={isEditMode ? "Exit Edit Mode" : "Switch to Edit Mode"}
+                        >
+                            <IconEdit className="w-3.5 h-3.5" />
+                            <span>{isEditMode ? 'Editing' : 'Edit'}</span>
+                            {isDirty && (
+                                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                            )}
+                        </button>
 
                         {/* Page Size Selector */}
                         <div className="flex items-center gap-1">
@@ -4730,8 +5973,17 @@ function InputTableViewModal({
                         {/* Download CSV */}
                         <button
                             type="button"
-                            onClick={() => downloadTableAsCsv(fileName || inputKey, columns, rawRows)}
-                            disabled={rawRows.length === 0}
+                            onClick={() => {
+                                const exportRows = tableRows.map(row => {
+                                    const cleaned = {};
+                                    columns.forEach(c => {
+                                        cleaned[c] = row[c];
+                                    });
+                                    return cleaned;
+                                });
+                                downloadTableAsCsv(fileName || inputKey, columns, exportRows);
+                            }}
+                            disabled={tableRows.length === 0}
                             className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
                             title="Export data as CSV file"
                         >
@@ -4752,7 +6004,7 @@ function InputTableViewModal({
                         {/* Close Button */}
                         <button
                             type="button"
-                            onClick={onClose}
+                            onClick={handleRequestClose}
                             className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-lg border border-rose-200 shadow-2xs transition cursor-pointer"
                             title="Close modal (Esc)"
                         >
@@ -4761,8 +6013,194 @@ function InputTableViewModal({
                     </div>
                 </div>
 
-                {/* FLOATING WINDOW BODY (HIGH DENSITY TABLE) */}
-                <div className="flex-1 overflow-auto bg-slate-50/40 relative min-h-0">
+                {/* EXCEL FORMULA & EDITING TOOLBAR (VISIBLE IN EDIT MODE OR WHEN CELL SELECTED) */}
+                {isEditMode && (
+                    <div className="bg-emerald-50/70 border-b border-emerald-200/90 px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs select-none shadow-2xs flex-shrink-0 animate-fade-in">
+                        {/* Left: Name Box (Cell Coordinate) + fx Formula Bar */}
+                        <div className="flex items-center gap-2 flex-1 min-w-[320px]">
+                            {/* Excel Name Box */}
+                            <div 
+                                className="flex items-center bg-white border border-emerald-300 rounded-md px-2.5 py-1 text-slate-700 font-mono text-xs font-black shadow-2xs min-w-[130px] max-w-[280px] truncate"
+                                title="Selected Cell Reference"
+                            >
+                                <span className="text-emerald-700 mr-1.5 font-sans text-[10px] font-extrabold uppercase">CELL:</span>
+                                <span className="text-emerald-900 truncate">
+                                    {cellCoordinateLabel ? `${cellCoordinateLabel} (${selectedCell.colKey})` : '--'}
+                                </span>
+                                {selectedCellKeys.size > 1 && (
+                                    <span className="ml-1.5 text-[9px] font-sans font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded border border-emerald-200 flex-shrink-0">
+                                        {selectedRowIds.size}R × {selectedColKeys.size}C
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* fx Label */}
+                            <div className="font-serif italic font-extrabold text-emerald-800 text-base px-1 select-none">
+                                fx
+                            </div>
+
+                            {/* Formula Input */}
+                            <div className="flex-1 relative">
+                                <input
+                                    ref={formulaInputRef}
+                                    type="text"
+                                    value={formulaBarValue}
+                                    onChange={handleFormulaBarChange}
+                                    onKeyDown={handleFormulaBarKeyDown}
+                                    placeholder={
+                                        selectedCellKeys.size > 1 
+                                            ? `Type here & press Enter (or Ctrl+Enter) to fill all ${selectedCellKeys.size} selected cells...` 
+                                            : selectedCell 
+                                            ? "Type cell value... (Press Enter to move down)" 
+                                            : "Click, Shift+Click, or drag to select cells"
+                                    }
+                                    disabled={!selectedCell}
+                                    className="w-full bg-white border border-emerald-300 rounded-md px-3 py-1 text-xs text-slate-900 font-mono shadow-2xs focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-slate-100 disabled:text-slate-400 placeholder-slate-400"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Right: Excel Action Buttons */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                            {/* Select All Button */}
+                            <button
+                                type="button"
+                                onClick={handleSelectAll}
+                                className={`inline-flex items-center gap-1 font-bold text-xs px-2.5 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
+                                    isAllSelected 
+                                        ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' 
+                                        : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-300'
+                                }`}
+                                title="Select all rows & columns in table (Ctrl+A)"
+                            >
+                                <span className="text-sm">⬚</span>
+                                <span>Select All</span>
+                                {isAllSelected && <span className="text-[10px] bg-white/30 px-1 rounded font-black">All</span>}
+                            </button>
+
+                            {/* Copy Selected Button */}
+                            <button
+                                type="button"
+                                onClick={handleCopySelected}
+                                className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 shadow-2xs transition cursor-pointer"
+                                title="Copy selected cells, rows, or columns to clipboard (Ctrl+C)"
+                            >
+                                <IconCopy className="w-3.5 h-3.5 text-slate-600" />
+                                <span>Copy Selected</span>
+                                {selectedCellKeys.size > 0 && (
+                                    <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded-full font-bold">
+                                        {isAllSelected ? 'All' : `${selectedCellKeys.size}`}
+                                    </span>
+                                )}
+                            </button>
+
+                            {/* Paste Button */}
+                            <button
+                                type="button"
+                                onClick={handlePasteButtonClick}
+                                className="inline-flex items-center gap-1 bg-white hover:bg-emerald-50 text-emerald-800 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-emerald-300 shadow-2xs transition cursor-pointer"
+                                title="Paste multi-row data copied to clipboard (Ctrl+V)"
+                            >
+                                <IconClipboard className="w-3.5 h-3.5 text-emerald-700" />
+                                <span>Paste</span>
+                            </button>
+
+                            {/* Add Row Button */}
+                            <button
+                                type="button"
+                                onClick={handleAddRow}
+                                className="inline-flex items-center gap-1 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-900 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 shadow-2xs transition cursor-pointer"
+                                title="Add a new blank row at the bottom"
+                            >
+                                <IconPlus className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Add Row</span>
+                            </button>
+
+                            {/* Delete Row / Clear Selected Button */}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (isWholeRowSelection) {
+                                        handleDeleteSelectedRows();
+                                    } else {
+                                        handleClearSelectedCells();
+                                    }
+                                }}
+                                disabled={(selectedCellKeys.size === 0 && !selectedCell) || tableRows.length === 0}
+                                className="inline-flex items-center gap-1 bg-white hover:bg-rose-50 text-rose-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-rose-200 shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                title={isWholeRowSelection ? "Delete selected rows" : "Clear contents of selected cells (Delete)"}
+                            >
+                                <IconTrash className="w-3.5 h-3.5 text-rose-600" />
+                                <span>
+                                    {isWholeRowSelection 
+                                        ? `Delete Row${selectedRowIds.size > 1 ? `s (${selectedRowIds.size})` : ''}` 
+                                        : `Clear / Delete Row Cells (${selectedCellKeys.size || 1})`}
+                                </span>
+                            </button>
+
+                            {/* Undo Button */}
+                            <button
+                                type="button"
+                                onClick={handleUndo}
+                                disabled={undoStack.length === 0}
+                                className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                title="Undo last edit (Ctrl+Z)"
+                            >
+                                <IconRotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                                <span>Undo</span>
+                            </button>
+
+                            {/* Discard Changes Button */}
+                            <button
+                                type="button"
+                                onClick={handleDiscardChanges}
+                                disabled={!isDirty}
+                                className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                title="Discard all unsaved edits and revert"
+                            >
+                                <span>Discard</span>
+                            </button>
+
+                            {/* Save Changes Button */}
+                            <button
+                                type="button"
+                                onClick={handleSaveChanges}
+                                disabled={!isDirty || isSaving}
+                                className={`inline-flex items-center gap-1.5 font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-xs transition cursor-pointer ${
+                                    isDirty
+                                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-300 animate-pulse'
+                                        : 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed'
+                                }`}
+                                title="Save changes to file on disk and persist (Ctrl+S)"
+                            >
+                                {isSaving ? (
+                                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                    <IconSave className="w-3.5 h-3.5 text-white" />
+                                )}
+                                <span>Save Changes</span>
+                                {dirtyCount > 0 && (
+                                    <span className="bg-white/30 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                                        {dirtyCount}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* FLOATING WINDOW BODY (HIGH DENSITY EXCEL GRID) */}
+                <div 
+                    ref={tableContainerRef}
+                    className="flex-1 overflow-auto bg-slate-50/40 relative min-h-0 focus:outline-none"
+                    onPaste={(e) => {
+                        const text = (e.clipboardData || window.clipboardData)?.getData('text/plain') || (e.clipboardData || window.clipboardData)?.getData('text');
+                        if (text) {
+                            e.preventDefault();
+                            executeExcelPaste(text);
+                        }
+                    }}
+                >
                     {loading ? (
                         <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-3">
                             <div className="w-10 h-10 border-4 border-blue-200 border-t-[#005eb8] rounded-full animate-spin"></div>
@@ -4777,35 +6215,78 @@ function InputTableViewModal({
                             <h4 className="text-sm font-bold text-slate-800">Unable to load table data</h4>
                             <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg border border-rose-200 font-mono">{error}</p>
                         </div>
-                    ) : columns.length === 0 || rawRows.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-2">
+                    ) : columns.length === 0 || tableRows.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-3">
                             <IconFileText className="w-10 h-10 text-slate-300" />
                             <p className="text-sm font-bold text-slate-600">No records found in this file</p>
                             <p className="text-xs text-slate-400">The selected file contains 0 rows or is empty.</p>
+                            <button
+                                type="button"
+                                onClick={handleAddRow}
+                                className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow-xs transition cursor-pointer"
+                            >
+                                <IconPlus className="w-3.5 h-3.5 text-white" />
+                                <span>Add First Row</span>
+                            </button>
                         </div>
                     ) : (
-                        <table className="min-w-full border-separate border-spacing-0 text-left text-xs">
-                            {/* STICKY TABLE HEADER */}
+                        <table className="min-w-full border-separate border-spacing-0 text-left text-xs select-none">
+                            {/* STICKY EXCEL TABLE HEADER */}
                             <thead className="sticky top-0 z-20 bg-slate-100 border-b border-slate-300 shadow-2xs">
                                 <tr>
-                                    {/* Sticky Row Index Column */}
-                                    <th className="sticky left-0 z-30 bg-slate-100 px-3 py-2 text-center text-[10px] font-extrabold text-slate-500 uppercase tracking-wider border-b border-r border-slate-300 w-12 select-none">
-                                        #
+                                    {/* Sticky Row Index Column / Select All Button */}
+                                    <th 
+                                        onClick={handleSelectAll}
+                                        className={`sticky left-0 z-30 px-3 py-2 text-center text-[10px] font-extrabold uppercase tracking-wider border-b border-r border-slate-300 w-12 select-none cursor-pointer transition-colors ${
+                                            isAllSelected 
+                                                ? 'bg-emerald-600 text-white hover:bg-emerald-700' 
+                                                : selectedCellKeys.size > 0 
+                                                ? 'bg-emerald-100 text-emerald-900 hover:bg-emerald-200' 
+                                                : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                        }`}
+                                        title="Click to Select All rows & columns (Ctrl+A)"
+                                    >
+                                        <div className="flex items-center justify-center gap-0.5">
+                                            <span>{isAllSelected ? '✓' : '#'}</span>
+                                            <span className="text-[8px] opacity-70">▾</span>
+                                        </div>
                                     </th>
-                                    {columns.map(col => {
+                                    {columns.map((col, cIdx) => {
                                         const isSorted = sortConfig.key === col;
+                                        const isColFullySelected = tableRows.length > 0 && tableRows.every(r => selectedCellKeys.has(`${r.__rowId}__${col}`));
+                                        const isColPartiallySelected = !isColFullySelected && tableRows.some(r => selectedCellKeys.has(`${r.__rowId}__${col}`));
+                                        const colLetter = getColumnLetter(cIdx);
                                         return (
                                             <th
                                                 key={col}
-                                                onClick={() => handleSort(col)}
-                                                className="px-3.5 py-2 text-[11px] font-extrabold text-slate-700 uppercase tracking-wider border-b border-r border-slate-200 last:border-r-0 cursor-pointer select-none hover:bg-slate-200/80 transition-colors whitespace-nowrap"
-                                                title={`Sort by ${col}`}
+                                                onMouseDown={(e) => handleColumnHeaderMouseDown(e, col)}
+                                                onMouseEnter={() => handleColumnHeaderMouseEnter(col)}
+                                                className={`px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wider border-b border-r border-slate-300 last:border-r-0 cursor-pointer select-none transition-colors whitespace-nowrap ${
+                                                    isColFullySelected 
+                                                        ? 'bg-emerald-600 text-white border-b-2 border-b-emerald-800' 
+                                                        : isColPartiallySelected
+                                                        ? 'bg-emerald-100 text-emerald-900 border-b-2 border-b-emerald-600'
+                                                        : 'text-slate-700 bg-slate-100 hover:bg-slate-200'
+                                                }`}
+                                                title={`Column ${colLetter}: ${col} • Click to select column • Shift+Click for range • Ctrl+Click to toggle • Click ↕ to sort`}
                                             >
-                                                <div className="flex items-center justify-between gap-1.5">
-                                                    <span>{col}</span>
-                                                    <span className="text-slate-400 font-mono text-[10px]">
-                                                        {isSorted ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                                                <div className="flex flex-col">
+                                                    <span className={`text-[9px] font-mono font-bold ${isColFullySelected ? 'text-emerald-200' : 'text-slate-400'}`}>
+                                                        {colLetter}
                                                     </span>
+                                                    <div className="flex items-center justify-between gap-1.5">
+                                                        <span>{col}</span>
+                                                        <span
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleSort(col);
+                                                            }}
+                                                            className="text-slate-400 hover:text-slate-800 font-mono text-[10px] p-0.5 rounded hover:bg-slate-300/50 cursor-pointer"
+                                                            title={`Sort by ${col}`}
+                                                        >
+                                                            {isSorted ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </th>
                                         );
@@ -4823,23 +6304,49 @@ function InputTableViewModal({
                                     paginatedRows.map((row, idx) => {
                                         const actualIndex = startIndex + idx + 1;
                                         const isEven = idx % 2 === 0;
+                                        const isRowFullySelected = columns.length > 0 && columns.every(c => selectedCellKeys.has(`${row.__rowId}__${c}`));
+                                        const isRowPartiallySelected = !isRowFullySelected && columns.some(c => selectedCellKeys.has(`${row.__rowId}__${c}`));
+
                                         return (
                                             <tr
-                                                key={idx}
-                                                className={`transition-colors duration-75 hover:bg-blue-50/80 ${
-                                                    isEven ? 'bg-white' : 'bg-slate-50/60'
+                                                key={row.__rowId ?? idx}
+                                                className={`transition-colors duration-75 ${
+                                                    isRowFullySelected
+                                                        ? 'bg-emerald-100/70'
+                                                        : isRowPartiallySelected
+                                                        ? 'bg-emerald-50/40' 
+                                                        : isEven ? 'bg-white' : 'bg-slate-50/60 hover:bg-blue-50/50'
                                                 }`}
                                             >
-                                                {/* Sticky Row Index */}
-                                                <td className="sticky left-0 z-10 px-3 py-1.5 text-center font-mono text-[10px] text-slate-400 bg-inherit border-b border-r border-slate-200 select-none">
+                                                {/* Sticky Row Index / Row Header */}
+                                                <td 
+                                                    onMouseDown={(e) => handleRowHeaderMouseDown(e, row.__rowId)}
+                                                    onMouseEnter={() => handleRowHeaderMouseEnter(row.__rowId)}
+                                                    className={`sticky left-0 z-10 px-3 py-1.5 text-center font-mono text-[10px] select-none border-b border-r border-slate-200 cursor-pointer transition-colors ${
+                                                        isRowFullySelected
+                                                            ? 'bg-emerald-600 text-white font-black border-r-2 border-r-emerald-700'
+                                                            : isRowPartiallySelected 
+                                                            ? 'bg-emerald-100 text-emerald-900 font-black border-r-2 border-r-emerald-600' 
+                                                            : 'text-slate-400 bg-inherit hover:bg-slate-200 hover:text-slate-700'
+                                                    }`}
+                                                    title={`Row ${actualIndex} • Click to select row • Shift+Click for range • Ctrl+Click to toggle • Drag to multi-select`}
+                                                >
                                                     {actualIndex}
                                                 </td>
+
+                                                {/* Data Cells */}
                                                 {columns.map(col => {
                                                     const val = row[col];
                                                     const strVal = val === null || val === undefined ? '' : String(val);
                                                     const isNum = !isNaN(Number(val)) && val !== '' && val !== null;
                                                     
-                                                    // Render subtle badges for skill / status
+                                                    const isCellSelected = selectedCellKeys.has(`${row.__rowId}__${col}`);
+                                                    const isAnchor = selectedCell && selectedCell.rowId === row.__rowId && selectedCell.colKey === col;
+                                                    const isCellEditing = editingCell && editingCell.rowId === row.__rowId && editingCell.colKey === col;
+                                                    const cellKey = `${row.__rowId}_${col}`;
+                                                    const isCellModified = cellKey in modifiedCells;
+                                                    const originalVal = modifiedCells[cellKey];
+
                                                     const isSkill = ['HEC', 'KAC', 'EV'].includes(strVal.toUpperCase());
                                                     const isActive = strVal.toLowerCase() === 'active';
                                                     const isLeaver = strVal.toLowerCase() === 'leaver';
@@ -4847,11 +6354,54 @@ function InputTableViewModal({
                                                     return (
                                                         <td
                                                             key={col}
-                                                            className={`px-3.5 py-1.5 border-b border-r border-slate-200/70 last:border-r-0 text-slate-800 whitespace-nowrap ${
-                                                                isNum ? 'text-right font-mono text-[11px]' : 'text-left font-medium text-xs'
-                                                            }`}
+                                                            onMouseDown={(e) => handleCellMouseDown(e, row.__rowId, col)}
+                                                            onMouseEnter={() => handleCellMouseEnter(row.__rowId, col)}
+                                                            onDoubleClick={() => handleStartCellEdit(row.__rowId, col)}
+                                                            className={`relative px-3.5 py-1.5 border-b border-r border-slate-200/70 last:border-r-0 whitespace-nowrap cursor-cell select-none transition-all ${
+                                                                isCellEditing
+                                                                    ? 'p-0 bg-white ring-2 ring-emerald-600 z-30'
+                                                                    : isAnchor
+                                                                    ? 'ring-2 ring-emerald-600 bg-white text-slate-900 font-bold z-20 shadow-xs'
+                                                                    : isCellSelected
+                                                                    ? 'bg-emerald-100/70 text-emerald-950 font-medium'
+                                                                    : isCellModified
+                                                                    ? 'bg-amber-50/90 text-amber-950 font-semibold'
+                                                                    : 'text-slate-800'
+                                                            } ${isNum ? 'text-right font-mono text-[11px]' : 'text-left font-medium text-xs'}`}
+                                                            title={
+                                                                isCellModified 
+                                                                    ? `Edited (Original: "${originalVal}") • Double click to edit` 
+                                                                    : `Click, Shift+Click or drag to select cells • Double click to edit`
+                                                            }
                                                         >
-                                                            {isSkill ? (
+                                                            {/* Excel Modified Triangle Indicator */}
+                                                            {isCellModified && !isCellEditing && (
+                                                                <div 
+                                                                    className="absolute top-0 left-0 w-0 h-0 border-t-[6px] border-t-amber-500 border-r-[6px] border-r-transparent pointer-events-none"
+                                                                    title={`Original: "${originalVal}"`}
+                                                                ></div>
+                                                            )}
+
+                                                            {/* Excel Fill Handle Square on Selected Anchor */}
+                                                            {isAnchor && !isCellEditing && (
+                                                                <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-emerald-700 border border-white pointer-events-none z-20"></div>
+                                                            )}
+
+                                                            {/* Inline Input Editor or Formatted Display */}
+                                                            {isCellEditing ? (
+                                                                <input
+                                                                    ref={cellInputRef}
+                                                                    type="text"
+                                                                    value={cellDraftValue}
+                                                                    onChange={(e) => {
+                                                                        setCellDraftValue(e.target.value);
+                                                                        setFormulaBarValue(e.target.value);
+                                                                    }}
+                                                                    onKeyDown={(e) => handleCellKeyDown(e, row, col, paginatedRows, idx)}
+                                                                    onBlur={() => commitCellEdit(row.__rowId, col, cellDraftValue)}
+                                                                    className="w-full h-full min-h-[30px] px-2 py-1 text-xs font-mono font-bold text-slate-900 bg-white outline-none border-none ring-2 ring-emerald-600"
+                                                                />
+                                                            ) : isSkill ? (
                                                                 <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${
                                                                     strVal.toUpperCase() === 'HEC' ? 'bg-blue-100 text-blue-800' :
                                                                     strVal.toUpperCase() === 'KAC' ? 'bg-emerald-100 text-emerald-800' :
@@ -4868,7 +6418,7 @@ function InputTableViewModal({
                                                                     Leaver
                                                                 </span>
                                                             ) : (
-                                                                <span title={strVal}>{strVal}</span>
+                                                                <span>{strVal}</span>
                                                             )}
                                                         </td>
                                                     );
@@ -4884,7 +6434,7 @@ function InputTableViewModal({
 
                 {/* FLOATING WINDOW FOOTER */}
                 <div className="bg-slate-50 px-4 py-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs flex-shrink-0">
-                    <div className="text-slate-500 font-medium">
+                    <div className="flex items-center gap-3 text-slate-500 font-medium">
                         {totalFiltered > 0 ? (
                             <span>
                                 Showing <strong className="text-slate-800">{startIndex + 1}</strong> to <strong className="text-slate-800">{Math.min(startIndex + effectivePageSize, totalFiltered)}</strong> of <strong className="text-slate-800">{totalFiltered}</strong> records
@@ -4892,6 +6442,12 @@ function InputTableViewModal({
                             </span>
                         ) : (
                             <span>0 records found</span>
+                        )}
+
+                        {dirtyCount > 0 && (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300">
+                                ✏️ {dirtyCount} unsaved change{dirtyCount > 1 ? 's' : ''}
+                            </span>
                         )}
                     </div>
 
@@ -4936,16 +6492,145 @@ function InputTableViewModal({
                         </div>
                     )}
 
-                    <div>
+                    <div className="flex items-center gap-2">
+                        {isDirty && (
+                            <button
+                                type="button"
+                                onClick={handleSaveChanges}
+                                disabled={isSaving}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow-xs transition cursor-pointer"
+                            >
+                                {isSaving ? "Saving..." : "Save Changes"}
+                            </button>
+                        )}
                         <button
                             type="button"
-                            onClick={onClose}
+                            onClick={handleRequestClose}
                             className="bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs px-4 py-1.5 rounded-lg shadow-xs transition cursor-pointer"
                         >
                             Close
                         </button>
                     </div>
                 </div>
+
+                {/* QUICK PASTE EXCEL DATA MODAL FALLBACK */}
+                {showPasteModal && (
+                    <div 
+                        className="fixed inset-0 z-60 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in"
+                        onClick={() => setShowPasteModal(false)}
+                    >
+                        <div 
+                            className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 max-w-xl w-full space-y-4 animate-scale-up"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center">
+                                        <IconClipboard className="w-5 h-5 text-emerald-700" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-bold text-slate-900">Paste Multiple Rows</h4>
+                                        <p className="text-xs text-slate-500">Copy rows or cells from a spreadsheet, then paste below</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setShowPasteModal(false)}
+                                    className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                                >
+                                    <IconX className="w-4 h-4" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-2">
+                                <p className="text-xs text-slate-600">
+                                    Press <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono font-bold">Ctrl+V</kbd> (or <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-[11px] font-mono font-bold">Cmd+V</kbd>) inside this box:
+                                </p>
+                                <textarea
+                                    autoFocus
+                                    rows={8}
+                                    value={pasteModalText}
+                                    onChange={(e) => setPasteModalText(e.target.value)}
+                                    placeholder={"Paste copied data here...\ne.g.\nRegion\tSkill\tFTE\nEast\tHEC\t14.5\nWest\tKAC\t12.0"}
+                                    className="excel-paste-textarea w-full font-mono text-xs p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50"
+                                />
+                                <div className="flex items-center justify-between text-[11px] text-slate-500">
+                                    <span>Supports multi-row, multi-column data with or without headers</span>
+                                    <span>{pasteModalText ? `${pasteModalText.split(/\r\n|\n|\r/).filter(l => l.trim()).length} line(s) detected` : ''}</span>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPasteModal(false)}
+                                    className="px-3.5 py-1.5 rounded-lg border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={!pasteModalText.trim()}
+                                    onClick={() => {
+                                        executeExcelPaste(pasteModalText);
+                                        setShowPasteModal(false);
+                                    }}
+                                    className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition disabled:opacity-40 cursor-pointer"
+                                >
+                                    Import & Paste into Table
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* UNSAVED CHANGES CONFIRMATION MODAL */}
+                {unsavedConfirm && (
+                    <div 
+                        className="fixed inset-0 z-60 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in"
+                        onClick={() => setUnsavedConfirm(null)}
+                    >
+                        <div 
+                            className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 max-w-md w-full space-y-4 animate-scale-up"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center flex-shrink-0">
+                                    <IconAlertCircle className="w-5 h-5 text-amber-600" />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-bold text-slate-900">{unsavedConfirm.title}</h4>
+                                    <p className="text-xs text-slate-500 mt-0.5">{unsavedConfirm.message}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                                <button
+                                    type="button"
+                                    onClick={() => setUnsavedConfirm(null)}
+                                    className="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 cursor-pointer"
+                                >
+                                    Keep Editing
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={unsavedConfirm.onConfirm}
+                                    className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs cursor-pointer"
+                                >
+                                    Discard & Proceed
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={async () => {
+                                        await handleSaveChanges();
+                                        unsavedConfirm.onConfirm();
+                                    }}
+                                    className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer"
+                                >
+                                    Save & Proceed
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -5782,6 +7467,36 @@ function ScenarioInputsStudioView({
         }, 1200);
     };
 
+    // Persist edited table data back to cache and PyShiny backend
+    const handleSaveInputFileData = (inputKey, fileName, rows, columns) => {
+        const updatedTable = {
+            success: true,
+            inputKey: inputKey,
+            fileName: fileName,
+            columns: columns,
+            rows: rows,
+            totalRows: rows.length,
+            filePath: (tableDataCache[fileName] && tableDataCache[fileName].filePath) || `${fileName}.csv`
+        };
+
+        if (setTableDataCache) {
+            setTableDataCache(prev => ({
+                ...prev,
+                [fileName]: updatedTable
+            }));
+        }
+
+        if (window.Shiny && window.Shiny.setInputValue) {
+            window.Shiny.setInputValue('save_input_file_data', {
+                inputKey: inputKey,
+                fileName: fileName,
+                rows: rows,
+                columns: columns,
+                requestId: Date.now()
+            }, { priority: 'event' });
+        }
+    };
+
     // Switch file version directly inside the floating modal
     const handleModalSwitchChoice = (newFile) => {
         if (!newFile || newFile === viewModalState.fileName) return;
@@ -6216,6 +7931,7 @@ function ScenarioInputsStudioView({
                     loading={viewModalState.loading && !tableDataCache[viewModalState.fileName]}
                     error={viewModalState.error}
                     showToast={showToast}
+                    onSaveTableData={handleSaveInputFileData}
                 />
             )}
         </div>
