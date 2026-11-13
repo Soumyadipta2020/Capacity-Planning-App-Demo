@@ -29,10 +29,6 @@ Engineered for **Dual Environment Execution**:
   - Inday workload profile matrix across all 32 UK engineering patches.
 - **New Feature Modules**:
   1. 🤖 **Capacity Copilot**: Slide-over AI assistant drawer for root-cause analysis, deficit explanation, and automated scenario suggestions.
-  2. 🗺️ **UK Geospatial Imbalance Map**: Visual regional overview highlighting surplus and deficit territories.
-  3. 📅 **Shift & Roster Planning**: Modeling 4-day compressed hours vs standard 37.5-hour shifts.
-  4. 💰 **Financial Impact**: Cost waterfall analyzing direct labor vs overtime vs CTR contractor spend.
-  5. ⚙️ **Unity Catalog Architecture Console**: Live inspection of Databricks Unity Catalog schemas and PySpark execution state.
 
 ---
 

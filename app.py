@@ -203,20 +203,6 @@ def server(input, output, session):
             "type": "success"
         })
 
-    # Handle Stage Switching (dev / uat / prod simulation) from React UI
-    @reactive.effect
-    @reactive.event(input.switch_stage_event)
-    async def _on_switch_stage():
-        stage = input.switch_stage_event()
-        if stage in ["dev", "uat", "prod", ""]:
-            EnvironmentConfig.set_stage_override(stage)
-            updated_status = engine.get_engine_status()
-            await session.send_custom_message("update_env_status", updated_status)
-            await session.send_custom_message("show_toast", {
-                "message": f"Switched Databricks stage to '{EnvironmentConfig.get_stage().upper()}' (Schema: {EnvironmentConfig.get_schema()})",
-                "type": "info"
-            })
-
     # Handle Input File Table Data Request from React UI
     @reactive.effect
     @reactive.event(input.request_input_file_data)

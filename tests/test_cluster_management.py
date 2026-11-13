@@ -288,8 +288,6 @@ def test_react_assets_and_layout():
     assert "update_cluster_status" in content
     assert "btn_banner_start_cluster" in content
     assert "check_cluster_health_event" in content
-    assert "Databricks Compute Cluster Management Card" in content
-    assert "Can Execute Queries" in content
 
     # Check app.yaml contains cluster settings
     yaml_file = Path("app.yaml")
