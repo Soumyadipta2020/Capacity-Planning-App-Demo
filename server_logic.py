@@ -265,6 +265,31 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
         })
         ui.notification_show(f"Loaded scenario: {target_name}", type="message")
 
+    # React Client Load Scenario Event Bridge
+    @reactive.effect
+    @reactive.event(input.load_scenario_event)
+    def _on_react_load_scenario():
+        target_name = input.load_scenario_event()
+        if not target_name:
+            return
+        scen = sm.get_scenario(target_name)
+        if not scen:
+            return
+        active_scenario_id.set(target_name)
+        try:
+            all_names = sm.get_scenario_names()
+            ui.update_select("scenario_select", choices=all_names, selected=target_name)
+            ui.update_select("scenario_plan_type", selected=scen.get("plan_type", "LV"))
+            ui.update_select("scenario_month", selected=scen.get("month", "OCT"))
+            ui.update_numeric("scenario_version", value=int(scen.get("version", 0)))
+            ui.update_text("scenario_remarks", value=scen.get("remarks", ""))
+        except Exception:
+            pass
+        scenario_feedback_msg.set({
+            "type": "info",
+            "text": f"Loaded configuration for scenario: {target_name}"
+        })
+
     # Delete Scenario Handler
     @reactive.effect
     @reactive.event(input.btn_delete_scenario)

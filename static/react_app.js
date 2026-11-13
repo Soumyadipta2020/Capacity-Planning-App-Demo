@@ -2484,50 +2484,328 @@ function MonteCarloSimulationModal({
     );
 }
 
-function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, showToast }) {
-    // Comprehensive Planning Horizon Weeks (Full Q3 2026 through Q1 2027)
-    const TRAJECTORY_HORIZON_WEEKS = [
-        "2026-09-14", "2026-09-21",
-        "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
-        "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16",
-        "2026-11-23", "2026-11-30", "2026-12-07", "2026-12-14",
-        "2026-12-21", "2026-12-28",
-        "2027-01-04", "2027-01-11", "2027-01-18", "2027-01-25",
-        "2027-02-01", "2027-02-08", "2027-02-15", "2027-02-22",
-        "2027-03-01", "2027-03-08", "2027-03-15", "2027-03-22", "2027-03-29"
-    ];
+// Comprehensive Planning Horizon Weeks (Full Q3 2026 through Q1 2027)
+const TRAJECTORY_HORIZON_WEEKS = [
+    "2026-09-14", "2026-09-21",
+    "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
+    "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16",
+    "2026-11-23", "2026-11-30", "2026-12-07", "2026-12-14",
+    "2026-12-21", "2026-12-28",
+    "2027-01-04", "2027-01-11", "2027-01-18", "2027-01-25",
+    "2027-02-01", "2027-02-08", "2027-02-15", "2027-02-22",
+    "2027-03-01", "2027-03-08", "2027-03-15", "2027-03-22", "2027-03-29"
+];
 
-    const TRAJECTORY_WEEK_META = {
-        "2026-09-14": { demand: 4580, capacity: 4920, weekNum: 38, label: "Sep 14" },
-        "2026-09-21": { demand: 4610, capacity: 4950, weekNum: 39, label: "Sep 21" },
-        "2026-09-28": { demand: 4650, capacity: 4980, weekNum: 40, label: "Sep 28" },
-        "2026-10-05": { demand: 4710, capacity: 5020, weekNum: 41, label: "Oct 05" },
-        "2026-10-12": { demand: 4780, capacity: 5050, weekNum: 42, label: "Oct 12" },
-        "2026-10-19": { demand: 4820, capacity: 5010, weekNum: 43, label: "Oct 19" },
-        "2026-10-26": { demand: 4890, capacity: 4810, weekNum: 44, label: "Oct 26" },
-        "2026-11-02": { demand: 4850, capacity: 5080, weekNum: 45, label: "Nov 02" },
-        "2026-11-09": { demand: 4810, capacity: 5120, weekNum: 46, label: "Nov 09" },
-        "2026-11-16": { demand: 4770, capacity: 5160, weekNum: 47, label: "Nov 16" },
-        "2026-11-23": { demand: 4720, capacity: 5100, weekNum: 48, label: "Nov 23" },
-        "2026-11-30": { demand: 4680, capacity: 5050, weekNum: 49, label: "Nov 30" },
-        "2026-12-07": { demand: 4630, capacity: 4990, weekNum: 50, label: "Dec 07" },
-        "2026-12-14": { demand: 4590, capacity: 4940, weekNum: 51, label: "Dec 14" },
-        "2026-12-21": { demand: 4520, capacity: 4880, weekNum: 52, label: "Dec 21" },
-        "2026-12-28": { demand: 4450, capacity: 4750, weekNum: 53, label: "Dec 28" },
-        "2027-01-04": { demand: 4920, capacity: 5180, weekNum: 1, label: "Jan 04" },
-        "2027-01-11": { demand: 4980, capacity: 5220, weekNum: 2, label: "Jan 11" },
-        "2027-01-18": { demand: 4950, capacity: 5200, weekNum: 3, label: "Jan 18" },
-        "2027-01-25": { demand: 4910, capacity: 5150, weekNum: 4, label: "Jan 25" },
-        "2027-02-01": { demand: 4860, capacity: 5100, weekNum: 5, label: "Feb 01" },
-        "2027-02-08": { demand: 4820, capacity: 5080, weekNum: 6, label: "Feb 08" },
-        "2027-02-15": { demand: 4790, capacity: 5050, weekNum: 7, label: "Feb 15" },
-        "2027-02-22": { demand: 4750, capacity: 5020, weekNum: 8, label: "Feb 22" },
-        "2027-03-01": { demand: 4680, capacity: 4980, weekNum: 9, label: "Mar 01" },
-        "2027-03-08": { demand: 4620, capacity: 4950, weekNum: 10, label: "Mar 08" },
-        "2027-03-15": { demand: 4580, capacity: 4910, weekNum: 11, label: "Mar 15" },
-        "2027-03-22": { demand: 4540, capacity: 4880, weekNum: 12, label: "Mar 22" },
-        "2027-03-29": { demand: 4510, capacity: 4850, weekNum: 13, label: "Mar 29" }
-    };
+const BASE_TRAJECTORY_WEEK_META = {
+    "2026-09-14": { demand: 4580, capacity: 4920, weekNum: 38, label: "Sep 14" },
+    "2026-09-21": { demand: 4610, capacity: 4950, weekNum: 39, label: "Sep 21" },
+    "2026-09-28": { demand: 4650, capacity: 4980, weekNum: 40, label: "Sep 28" },
+    "2026-10-05": { demand: 4710, capacity: 5020, weekNum: 41, label: "Oct 05" },
+    "2026-10-12": { demand: 4780, capacity: 5050, weekNum: 42, label: "Oct 12" },
+    "2026-10-19": { demand: 4820, capacity: 5010, weekNum: 43, label: "Oct 19" },
+    "2026-10-26": { demand: 4890, capacity: 4810, weekNum: 44, label: "Oct 26" },
+    "2026-11-02": { demand: 4850, capacity: 5080, weekNum: 45, label: "Nov 02" },
+    "2026-11-09": { demand: 4810, capacity: 5120, weekNum: 46, label: "Nov 09" },
+    "2026-11-16": { demand: 4770, capacity: 5160, weekNum: 47, label: "Nov 16" },
+    "2026-11-23": { demand: 4720, capacity: 5100, weekNum: 48, label: "Nov 23" },
+    "2026-11-30": { demand: 4680, capacity: 5050, weekNum: 49, label: "Nov 30" },
+    "2026-12-07": { demand: 4630, capacity: 4990, weekNum: 50, label: "Dec 07" },
+    "2026-12-14": { demand: 4590, capacity: 4940, weekNum: 51, label: "Dec 14" },
+    "2026-12-21": { demand: 4520, capacity: 4880, weekNum: 52, label: "Dec 21" },
+    "2026-12-28": { demand: 4450, capacity: 4750, weekNum: 53, label: "Dec 28" },
+    "2027-01-04": { demand: 4920, capacity: 5180, weekNum: 1, label: "Jan 04" },
+    "2027-01-11": { demand: 4980, capacity: 5220, weekNum: 2, label: "Jan 11" },
+    "2027-01-18": { demand: 4950, capacity: 5200, weekNum: 3, label: "Jan 18" },
+    "2027-01-25": { demand: 4910, capacity: 5150, weekNum: 4, label: "Jan 25" },
+    "2027-02-01": { demand: 4860, capacity: 5100, weekNum: 5, label: "Feb 01" },
+    "2027-02-08": { demand: 4820, capacity: 5080, weekNum: 6, label: "Feb 08" },
+    "2027-02-15": { demand: 4790, capacity: 5050, weekNum: 7, label: "Feb 15" },
+    "2027-02-22": { demand: 4750, capacity: 5020, weekNum: 8, label: "Feb 22" },
+    "2027-03-01": { demand: 4680, capacity: 4980, weekNum: 9, label: "Mar 01" },
+    "2027-03-08": { demand: 4620, capacity: 4950, weekNum: 10, label: "Mar 08" },
+    "2027-03-15": { demand: 4580, capacity: 4910, weekNum: 11, label: "Mar 15" },
+    "2027-03-22": { demand: 4540, capacity: 4880, weekNum: 12, label: "Mar 22" },
+    "2027-03-29": { demand: 4510, capacity: 4850, weekNum: 13, label: "Mar 29" }
+};
+
+// Dynamic Scenario Analytics Engine: Computes tailored KPIs, trajectory profiles,
+// territory health breakdowns, sparklines, and risk distributions for every scenario.
+function computeScenarioAnalytics(scen) {
+    const sId = (scen?.id || '').toUpperCase();
+    const pType = (scen?.plan_type || (sId.includes('HV') ? 'HV' : sId.includes('SP') ? 'SP' : 'LV')).toUpperCase();
+    const sMonth = (scen?.month || (sId.includes('JUL') ? 'JUL' : sId.includes('NOV') ? 'NOV' : sId.includes('DEC') ? 'DEC' : sId.includes('JAN') ? 'JAN' : 'OCT')).toUpperCase();
+    const sVer = scen?.version !== undefined ? String(scen.version) : '0';
+
+    let res = null;
+
+    if (pType === 'HV' && (sMonth === 'OCT' || sId.includes('HV OCT'))) {
+        res = {
+            totalDemand: 44850,
+            demandTrend: "↑ +16.6% vs Q3 baseline",
+            isDemandTrendUp: true,
+            netCapacity: 42320,
+            efficiencyRate: "85.2%",
+            netBufferFte: -67.5,
+            isSlaMet: false,
+            slaStatusText: "Deficit Alert",
+            slaSubtext: "National Deficit Risk",
+            coverageRatio: 94.4,
+            targetRatio: 105,
+            deficitPatchesCount: 4,
+            deficitPatchesText: "4 Deficit Patches",
+            deficitPatchDetail: "Leicester (-14.2), Dartford (-8.5)",
+            simData: {
+                runs: 10000,
+                riskPct: 21.4,
+                slaConfidence: 78.6,
+                p95VarFte: -18.6,
+                meanBufferFte: -54.2,
+                targetCompliancePct: 74.8,
+                lastRunTime: '16:15:00'
+            },
+            demandScale: 1.166,
+            capacityScale: 1.027,
+            territoryDivisions: [
+                { name: "Region B (North)", buffer: "+12.4 FTE", status: "Surplus", pct: 65, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region A (Scotland)", buffer: "+4.2 FTE", status: "Surplus", pct: 50, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region E (South West)", buffer: "-2.5 FTE", status: "Deficit", pct: 40, color: "bg-rose-500", text: "text-rose-600" },
+                { name: "Region D (South East)", buffer: "-8.5 FTE", status: "Deficit", pct: 35, color: "bg-rose-500", text: "text-rose-600" },
+                { name: "Region C (Midlands)", buffer: "-14.2 FTE", status: "Deficit", pct: 25, color: "bg-rose-500", text: "text-rose-600" }
+            ],
+            trendKPIs: {
+                fteRequired: { val: "1,196", trend: "↑ 5.2% WoW", isPos: true },
+                grossHours: { val: "42,320", trend: "↑ 2.1% WoW", isPos: true },
+                totalDowntime: { val: "6,260", trend: "↑ 4.5% WoW", isPos: false },
+                productivity: { val: "85.2%", trend: "↓ 2.1% WoW", isPos: false },
+                imbalance: { val: "-67.5", unit: "Deficit Buffer", trend: "↓ 8.4% WoW", isPos: false }
+            }
+        };
+    } else if (pType === 'LV' && (sMonth === 'JUL' || sId.includes('JUL'))) {
+        res = {
+            totalDemand: 33650,
+            demandTrend: "↓ -12.5% vs Q3 baseline",
+            isDemandTrendUp: false,
+            netCapacity: 36800,
+            efficiencyRate: "89.4%",
+            netBufferFte: 84.0,
+            isSlaMet: true,
+            slaStatusText: "SLA Met",
+            slaSubtext: "High Surplus Capacity",
+            coverageRatio: 109.4,
+            targetRatio: 105,
+            deficitPatchesCount: 0,
+            deficitPatchesText: "0 Deficit Patches",
+            deficitPatchDetail: "All Patches Healthy",
+            simData: {
+                runs: 10000,
+                riskPct: 2.6,
+                slaConfidence: 97.4,
+                p95VarFte: -1.2,
+                meanBufferFte: 82.5,
+                targetCompliancePct: 96.2,
+                lastRunTime: '12:46:46'
+            },
+            demandScale: 0.875,
+            capacityScale: 0.893,
+            territoryDivisions: [
+                { name: "Region B (North)", buffer: "+32.4 FTE", status: "Surplus", pct: 100, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region D (South East)", buffer: "+26.8 FTE", status: "Surplus", pct: 95, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region A (Scotland)", buffer: "+18.5 FTE", status: "Surplus", pct: 92, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region E (South West)", buffer: "+14.6 FTE", status: "Surplus", pct: 88, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region C (Midlands)", buffer: "+3.8 FTE", status: "Surplus", pct: 75, color: "bg-emerald-500", text: "text-emerald-700" }
+            ],
+            trendKPIs: {
+                fteRequired: { val: "898", trend: "↓ 3.1% WoW", isPos: true },
+                grossHours: { val: "36,800", trend: "↓ 1.4% WoW", isPos: true },
+                totalDowntime: { val: "4,210", trend: "↓ 5.0% WoW", isPos: true },
+                productivity: { val: "89.4%", trend: "↑ 2.3% WoW", isPos: true },
+                imbalance: { val: "+84.0", unit: "FTE Buffer", trend: "↑ 6.2% WoW", isPos: true }
+            }
+        };
+    } else if (sMonth === 'NOV' || sId.includes('NOV')) {
+        res = {
+            totalDemand: 40920,
+            demandTrend: "↑ +6.4% vs Q3 baseline",
+            isDemandTrendUp: true,
+            netCapacity: 42450,
+            efficiencyRate: "87.8%",
+            netBufferFte: 40.8,
+            isSlaMet: true,
+            slaStatusText: "SLA Met",
+            slaSubtext: "Moderate Buffer",
+            coverageRatio: 103.7,
+            targetRatio: 105,
+            deficitPatchesCount: 2,
+            deficitPatchesText: "2 Deficit Patches",
+            deficitPatchDetail: "Leicester (-6.2), Dartford (-3.1)",
+            simData: {
+                runs: 10000,
+                riskPct: 6.8,
+                slaConfidence: 93.2,
+                p95VarFte: -4.5,
+                meanBufferFte: 39.2,
+                targetCompliancePct: 88.6,
+                lastRunTime: '18:02:55'
+            },
+            demandScale: 1.064,
+            capacityScale: 1.030,
+            territoryDivisions: [
+                { name: "Region B (North)", buffer: "+24.1 FTE", status: "Surplus", pct: 95, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region D (South East)", buffer: "+18.3 FTE", status: "Surplus", pct: 85, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region A (Scotland)", buffer: "+11.8 FTE", status: "Surplus", pct: 80, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region E (South West)", buffer: "+8.2 FTE", status: "Surplus", pct: 75, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region C (Midlands)", buffer: "-6.2 FTE", status: "Deficit", pct: 60, color: "bg-rose-500", text: "text-rose-600" }
+            ],
+            trendKPIs: {
+                fteRequired: { val: "1,091", trend: "↑ 3.2% WoW", isPos: true },
+                grossHours: { val: "42,450", trend: "↑ 1.9% WoW", isPos: true },
+                totalDowntime: { val: "5,810", trend: "↑ 2.1% WoW", isPos: false },
+                productivity: { val: "87.8%", trend: "↑ 0.8% WoW", isPos: true },
+                imbalance: { val: "+40.8", unit: "FTE Buffer", trend: "↓ 2.1% WoW", isPos: true }
+            }
+        };
+    } else if (pType === 'LV' && (sMonth === 'OCT' || sId.includes('OCT V.0'))) {
+        // Standard October Baseline (LV OCT V.0)
+        res = {
+            totalDemand: 38450,
+            demandTrend: "↑ +2.4% vs Q3 baseline",
+            isDemandTrendUp: true,
+            netCapacity: 41200,
+            efficiencyRate: "88.5%",
+            netBufferFte: 73.3,
+            isSlaMet: true,
+            slaStatusText: "SLA Met",
+            slaSubtext: "National Buffer Healthy",
+            coverageRatio: 107.2,
+            targetRatio: 105,
+            deficitPatchesCount: 1,
+            deficitPatchesText: "1 Deficit Patch",
+            deficitPatchDetail: "Leicester (-4.1)",
+            simData: {
+                runs: 10000,
+                riskPct: 4.8,
+                slaConfidence: 95.2,
+                p95VarFte: -2.8,
+                meanBufferFte: 71.4,
+                targetCompliancePct: 91.4,
+                lastRunTime: '16:00:00'
+            },
+            demandScale: 1.000,
+            capacityScale: 1.000,
+            territoryDivisions: [
+                { name: "Region B (North)", buffer: "+28.5 FTE", status: "Surplus", pct: 100, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region D (South East)", buffer: "+22.8 FTE", status: "Surplus", pct: 95, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region A (Scotland)", buffer: "+14.2 FTE", status: "Surplus", pct: 90, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region E (South West)", buffer: "+11.9 FTE", status: "Surplus", pct: 85, color: "bg-emerald-500", text: "text-emerald-700" },
+                { name: "Region C (Midlands)", buffer: "-4.1 FTE", status: "Deficit", pct: 70, color: "bg-rose-500", text: "text-rose-600" }
+            ],
+            trendKPIs: {
+                fteRequired: { val: "1,024", trend: "↑ 2.4% WoW", isPos: true },
+                grossHours: { val: "41,200", trend: "↑ 1.8% WoW", isPos: true },
+                totalDowntime: { val: "5,420", trend: "↓ 3.2% WoW", isPos: true },
+                productivity: { val: "88.5%", trend: "↑ 1.6% WoW", isPos: true },
+                imbalance: { val: "+73.3", unit: "FTE Buffer", trend: "↑ 4.8% WoW", isPos: true }
+            }
+        };
+    } else {
+        // Dynamic formula for arbitrary custom scenarios
+        const monthFactors = {
+            'JAN': 1.14, 'FEB': 1.08, 'MAR': 1.02, 'APR': 0.94, 'MAY': 0.92, 'JUN': 0.90,
+            'JUL': 0.875, 'AUG': 0.89, 'SEP': 0.96, 'OCT': 1.00, 'NOV': 1.064, 'DEC': 1.12
+        };
+        const mFactor = monthFactors[sMonth] || 1.00;
+        let dScale = mFactor;
+        let cScale = 1.0 + (mFactor - 1.0) * 0.45;
+        if (pType === 'HV') {
+            dScale *= 1.16;
+            cScale *= 1.025;
+        } else if (pType === 'SP') {
+            dScale *= 1.08;
+            cScale *= 1.04;
+        }
+        const vNum = parseInt(sVer, 10) || 0;
+        if (vNum > 0) {
+            dScale *= (1.0 + (vNum * 0.015));
+            cScale *= (1.0 + (vNum * 0.008));
+        }
+
+        const totDem = Math.round(38450 * dScale);
+        const netCap = Math.round(41200 * cScale);
+        const netHrs = netCap - totDem;
+        const netBufFte = Number((netHrs / 37.5).toFixed(1));
+        const covRatio = Number(((netCap / totDem) * 100).toFixed(1));
+        const isMet = netBufFte >= 0;
+        const risk = Number(Math.max(1.5, Math.min(35.0, (108 - covRatio) * 1.8 + 3.0)).toFixed(1));
+        const conf = Number((100 - risk).toFixed(1));
+        const p95 = Number((netBufFte > 0 ? -(risk * 0.5) : netBufFte * 0.35).toFixed(1));
+
+        res = {
+            totalDemand: totDem,
+            demandTrend: `${dScale >= 1.0 ? '↑ +' : '↓ -'}${Math.abs(((dScale - 1) * 100)).toFixed(1)}% vs baseline`,
+            isDemandTrendUp: dScale >= 1.0,
+            netCapacity: netCap,
+            efficiencyRate: `${(88.5 * (cScale / dScale)).toFixed(1)}%`,
+            netBufferFte: netBufFte,
+            isSlaMet: isMet,
+            slaStatusText: isMet ? "SLA Met" : "Deficit Alert",
+            slaSubtext: isMet ? "SLA Target Maintained" : "Buffer Deficit",
+            coverageRatio: covRatio,
+            targetRatio: 105,
+            deficitPatchesCount: isMet ? (netBufFte < 30 ? 1 : 0) : 3,
+            deficitPatchesText: isMet ? (netBufFte < 30 ? "1 Deficit Patch" : "0 Deficit Patches") : "3 Deficit Patches",
+            deficitPatchDetail: isMet ? (netBufFte < 30 ? "Leicester (-3.2)" : "All Patches Healthy") : "Leicester (-10.4), Dartford (-5.8)",
+            simData: {
+                runs: 10000,
+                riskPct: risk,
+                slaConfidence: conf,
+                p95VarFte: p95,
+                meanBufferFte: Number((netBufFte * 0.96).toFixed(1)),
+                targetCompliancePct: Number((conf - 3.5).toFixed(1)),
+                lastRunTime: new Date().toTimeString().split(' ')[0]
+            },
+            demandScale: dScale,
+            capacityScale: cScale,
+            territoryDivisions: [
+                { name: "Region B (North)", buffer: `${(netBufFte * 0.39).toFixed(1)} FTE`, status: (netBufFte * 0.39) >= 0 ? "Surplus" : "Deficit", pct: Math.min(100, Math.max(20, Math.round(covRatio * 0.9))), color: (netBufFte * 0.39) >= 0 ? "bg-emerald-500" : "bg-rose-500", text: (netBufFte * 0.39) >= 0 ? "text-emerald-700" : "text-rose-600" },
+                { name: "Region D (South East)", buffer: `${(netBufFte * 0.31).toFixed(1)} FTE`, status: (netBufFte * 0.31) >= 0 ? "Surplus" : "Deficit", pct: Math.min(100, Math.max(20, Math.round(covRatio * 0.85))), color: (netBufFte * 0.31) >= 0 ? "bg-emerald-500" : "bg-rose-500", text: (netBufFte * 0.31) >= 0 ? "text-emerald-700" : "text-rose-600" },
+                { name: "Region A (Scotland)", buffer: `${(netBufFte * 0.19).toFixed(1)} FTE`, status: (netBufFte * 0.19) >= 0 ? "Surplus" : "Deficit", pct: Math.min(100, Math.max(20, Math.round(covRatio * 0.80))), color: (netBufFte * 0.19) >= 0 ? "bg-emerald-500" : "bg-rose-500", text: (netBufFte * 0.19) >= 0 ? "text-emerald-700" : "text-rose-600" },
+                { name: "Region E (South West)", buffer: `${(netBufFte * 0.16).toFixed(1)} FTE`, status: (netBufFte * 0.16) >= 0 ? "Surplus" : "Deficit", pct: Math.min(100, Math.max(20, Math.round(covRatio * 0.75))), color: (netBufFte * 0.16) >= 0 ? "bg-emerald-500" : "bg-rose-500", text: (netBufFte * 0.16) >= 0 ? "text-emerald-700" : "text-rose-600" },
+                { name: "Region C (Midlands)", buffer: `${(netBufFte * -0.06).toFixed(1)} FTE`, status: (netBufFte * -0.06) >= 0 ? "Surplus" : "Deficit", pct: Math.min(100, Math.max(20, Math.round(covRatio * 0.65))), color: (netBufFte * -0.06) >= 0 ? "bg-emerald-500" : "bg-rose-500", text: (netBufFte * -0.06) >= 0 ? "text-emerald-700" : "text-rose-600" }
+            ],
+            trendKPIs: {
+                fteRequired: { val: Math.round(totDem / 37.5).toLocaleString(), trend: `${dScale >= 1 ? '↑' : '↓'} ${(Math.abs(dScale - 1) * 10).toFixed(1)}% WoW`, isPos: dScale <= 1 },
+                grossHours: { val: netCap.toLocaleString(), trend: `${cScale >= 1 ? '↑' : '↓'} ${(Math.abs(cScale - 1) * 8).toFixed(1)}% WoW`, isPos: true },
+                totalDowntime: { val: Math.round(netCap * 0.13).toLocaleString(), trend: "↓ 2.4% WoW", isPos: true },
+                productivity: { val: `${(88.5 * (cScale / dScale)).toFixed(1)}%`, trend: "↑ 1.2% WoW", isPos: true },
+                imbalance: { val: (netBufFte >= 0 ? '+' : '') + netBufFte.toFixed(1), unit: isMet ? "FTE Buffer" : "Deficit Buffer", trend: `${isMet ? '↑' : '↓'} 3.4% WoW`, isPos: isMet }
+            }
+        };
+    }
+
+    // Build weeklyTrajectoryMeta for all 29 weeks
+    const weeklyTrajectoryMeta = {};
+    TRAJECTORY_HORIZON_WEEKS.forEach(w => {
+        const base = BASE_TRAJECTORY_WEEK_META[w] || { demand: 4700, capacity: 5000, weekNum: 40, label: w.slice(5) };
+        weeklyTrajectoryMeta[w] = {
+            demand: Math.round(base.demand * res.demandScale),
+            capacity: Math.round(base.capacity * res.capacityScale),
+            weekNum: base.weekNum,
+            label: base.label
+        };
+    });
+
+    res.weeklyTrajectoryMeta = weeklyTrajectoryMeta;
+    res.totalDemandFormatted = res.totalDemand.toLocaleString();
+    res.netCapacityFormatted = res.netCapacity.toLocaleString();
+    res.netBufferFormatted = (res.netBufferFte >= 0 ? '+' : '') + res.netBufferFte.toFixed(1);
+    res.coverageRatioFormatted = `${res.coverageRatio.toFixed(1)}%`;
+
+    return res;
+}
+
+function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, showToast }) {
+    const analytics = useMemo(() => computeScenarioAnalytics(scenario), [scenario]);
+    const TRAJECTORY_WEEK_META = analytics.weeklyTrajectoryMeta;
 
     // Date range filter state for Weekly Trajectory Envelope card (Default: Sep 28 to Dec 14)
     const [trajectoryStartDate, setTrajectoryStartDate] = useState("2026-09-28");
@@ -2594,7 +2872,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
     // Monte Carlo Shortfall Risk Simulation State
     const [showMonteCarloModal, setShowMonteCarloModal] = useState(false);
     const [isSimulating, setIsSimulating] = useState(false);
-    const [simData, setSimData] = useState({
+    const [simData, setSimData] = useState(() => analytics.simData || {
         runs: 10000,
         riskPct: 4.8,
         slaConfidence: 95.2,
@@ -2603,6 +2881,12 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
         targetCompliancePct: 91.4,
         lastRunTime: '13:00:00'
     });
+
+    useEffect(() => {
+        if (analytics && analytics.simData) {
+            setSimData(analytics.simData);
+        }
+    }, [analytics]);
 
     const handleRerunSimulation = () => {
         setIsSimulating(true);
@@ -2694,14 +2978,16 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                     </div>
                     <div>
                         <div className="flex items-baseline gap-1.5">
-                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">38,450</span>
+                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">{analytics.totalDemandFormatted}</span>
                             <span className="text-xs font-semibold text-slate-400">hrs</span>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                                ↑ +2.4%
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                                analytics.isDemandTrendUp ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-blue-50 text-blue-700 border border-blue-200/60'
+                            }`}>
+                                {analytics.demandTrend}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">vs Q3 baseline</span>
+                            <span className="text-[10px] text-slate-400 font-medium">vs baseline</span>
                         </div>
                     </div>
                 </div>
@@ -2716,12 +3002,12 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                     </div>
                     <div>
                         <div className="flex items-baseline gap-1.5">
-                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">41,200</span>
+                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">{analytics.netCapacityFormatted}</span>
                             <span className="text-xs font-semibold text-slate-400">hrs</span>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200/60">
-                                88.5%
+                                {analytics.efficiencyRate}
                             </span>
                             <span className="text-[10px] text-slate-400 font-medium">Direct Labor Efficiency</span>
                         </div>
@@ -2738,15 +3024,19 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                     </div>
                     <div>
                         <div className="flex items-baseline gap-1.5">
-                            <span className="text-xl font-black text-emerald-600 tracking-tight leading-none">+73.3</span>
+                            <span className={`text-xl font-black tracking-tight leading-none ${analytics.isSlaMet ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                {analytics.netBufferFormatted}
+                            </span>
                             <span className="text-xs font-semibold text-slate-400">FTE</span>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                                <IconCheck className="w-3 h-3 text-emerald-700" />
-                                SLA Met
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                                analytics.isSlaMet ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-rose-50 text-rose-700 border border-rose-200/60'
+                            }`}>
+                                {analytics.isSlaMet ? <IconCheck className="w-3 h-3 text-emerald-700" /> : <IconAlertCircle className="w-3 h-3 text-rose-700" />}
+                                {analytics.slaStatusText}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">National Buffer Healthy</span>
+                            <span className="text-[10px] text-slate-400 font-medium">{analytics.slaSubtext}</span>
                         </div>
                     </div>
                 </div>
@@ -2761,14 +3051,16 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                     </div>
                     <div>
                         <div className="flex items-baseline gap-2">
-                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">107.2%</span>
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700">Target: 105%</span>
+                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">{analytics.coverageRatioFormatted}</span>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700">Target: {analytics.targetRatio}%</span>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-200/60">
-                                1 Deficit Patch
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                                analytics.deficitPatchesCount > 0 ? 'bg-rose-50 text-rose-600 border border-rose-200/60' : 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                            }`}>
+                                {analytics.deficitPatchesText}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">Leicester (-4.1)</span>
+                            <span className="text-[10px] text-slate-400 font-medium">{analytics.deficitPatchDetail}</span>
                         </div>
                     </div>
                 </div>
@@ -2792,14 +3084,16 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                     </div>
                     <div>
                         <div className="flex items-baseline gap-2">
-                            <span className="text-xl font-black text-rose-600 tracking-tight leading-none">{simData.riskPct}%</span>
+                            <span className={`text-xl font-black tracking-tight leading-none ${simData.riskPct > 10 ? 'text-rose-600' : simData.riskPct > 5 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                                {simData.riskPct}%
+                            </span>
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60">
                                 {simData.slaConfidence}% SLA Conf.
                             </span>
                         </div>
                         <div className="flex items-center justify-between mt-1">
                             <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                                <span className={`w-1.5 h-1.5 rounded-full inline-block ${simData.p95VarFte < -5 ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
                                 <span>P95 VaR: {simData.p95VarFte} FTE</span>
                             </span>
                             <span className="text-[10px] text-purple-600 font-bold group-hover:underline flex items-center gap-0.5">
@@ -3176,13 +3470,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                     </div>
 
                     <div className="space-y-1">
-                        {[
-                            { name: "Region B (North)", buffer: "+28.5 FTE", status: "Surplus", pct: 100, color: "bg-emerald-500", text: "text-emerald-700" },
-                            { name: "Region D (South East)", buffer: "+22.8 FTE", status: "Surplus", pct: 95, color: "bg-emerald-500", text: "text-emerald-700" },
-                            { name: "Region A (Scotland)", buffer: "+14.2 FTE", status: "Surplus", pct: 90, color: "bg-emerald-500", text: "text-emerald-700" },
-                            { name: "Region E (South West)", buffer: "+11.9 FTE", status: "Surplus", pct: 85, color: "bg-emerald-500", text: "text-emerald-700" },
-                            { name: "Region C (Midlands)", buffer: "-4.1 FTE", status: "Deficit", pct: 70, color: "bg-rose-500", text: "text-rose-600" },
-                        ].map(t => (
+                        {analytics.territoryDivisions.map(t => (
                             <div key={t.name} className="space-y-0.5 p-1 rounded-lg hover:bg-slate-50 transition">
                                 <div className="flex items-center justify-between text-[11px] font-semibold">
                                     <span className="text-slate-800">{t.name}</span>
@@ -3279,10 +3567,10 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         {
                             id: "fte_required",
                             name: "FTE Required",
-                            currentVal: "1,024",
+                            currentVal: analytics.trendKPIs.fteRequired.val,
                             unit: "FTE",
-                            trend: "↑ 2.4% WoW",
-                            isPositive: true,
+                            trend: analytics.trendKPIs.fteRequired.trend,
+                            isPositive: analytics.trendKPIs.fteRequired.isPos,
                             color: "#0284c7",
                             gradientId: "sparkBlueFte",
                             spark: generateSparkline(fteVals)
@@ -3290,10 +3578,10 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         {
                             id: "gross_hours",
                             name: "Gross Hours",
-                            currentVal: "41,200",
+                            currentVal: analytics.trendKPIs.grossHours.val,
                             unit: "hrs",
-                            trend: "↑ 1.8% WoW",
-                            isPositive: true,
+                            trend: analytics.trendKPIs.grossHours.trend,
+                            isPositive: analytics.trendKPIs.grossHours.isPos,
                             color: "#2563eb",
                             gradientId: "sparkIndigoGross",
                             spark: generateSparkline(grossVals)
@@ -3301,10 +3589,10 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         {
                             id: "total_downtime",
                             name: "Total Downtime",
-                            currentVal: "5,420",
+                            currentVal: analytics.trendKPIs.totalDowntime.val,
                             unit: "hrs",
-                            trend: "↓ 3.2% WoW",
-                            isPositive: true,
+                            trend: analytics.trendKPIs.totalDowntime.trend,
+                            isPositive: analytics.trendKPIs.totalDowntime.isPos,
                             color: "#f59e0b",
                             gradientId: "sparkAmberDown",
                             spark: generateSparkline(downtimeVals)
@@ -3312,10 +3600,10 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         {
                             id: "productivity",
                             name: "Productivity",
-                            currentVal: "88.5%",
+                            currentVal: analytics.trendKPIs.productivity.val,
                             unit: "Efficiency",
-                            trend: "↑ 1.6% WoW",
-                            isPositive: true,
+                            trend: analytics.trendKPIs.productivity.trend,
+                            isPositive: analytics.trendKPIs.productivity.isPos,
                             color: "#10b981",
                             gradientId: "sparkEmeraldProd",
                             spark: generateSparkline(prodVals)
@@ -3323,11 +3611,11 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         {
                             id: "imbalance",
                             name: "Imbalance",
-                            currentVal: "+73.3",
-                            unit: "FTE Buffer",
-                            trend: "↑ 4.8% WoW",
-                            isPositive: true,
-                            color: "#0d9488",
+                            currentVal: analytics.trendKPIs.imbalance.val,
+                            unit: analytics.trendKPIs.imbalance.unit || "FTE Buffer",
+                            trend: analytics.trendKPIs.imbalance.trend,
+                            isPositive: analytics.trendKPIs.imbalance.isPos,
+                            color: analytics.trendKPIs.imbalance.isPos ? "#0d9488" : "#e11d48",
                             gradientId: "sparkTealImb",
                             spark: generateSparkline(imbVals)
                         }
@@ -11543,6 +11831,9 @@ function DemVsCapView({
     setFilterText,
     showToast
 }) {
+    // Dynamic scenario analytics for Dem vs Cap Matrix
+    const analytics = useMemo(() => computeScenarioAnalytics(scenario), [scenario]);
+
     // 12 Weekly Planning Horizon Dates (All data is strictly at weekly level)
     const WEEKLY_DATES = [
         "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
@@ -11730,12 +12021,14 @@ function DemVsCapView({
 
     // Weekly Demand vs Capacity Profile (12-Week Horizon)
     const weeklyProfileData = useMemo(() => {
-        const baseDemand = [4650, 4710, 4780, 4820, 4890, 4850, 4810, 4770, 4720, 4680, 4630, 4590];
-        const baseCapacity = [4980, 5020, 5050, 5010, 4810, 5080, 5120, 5160, 5100, 5050, 4990, 4940];
+        const rawDemand = [4650, 4710, 4780, 4820, 4890, 4850, 4810, 4770, 4720, 4680, 4630, 4590];
+        const rawCapacity = [4980, 5020, 5050, 5010, 4810, 5080, 5120, 5160, 5100, 5050, 4990, 4940];
+        const dScale = analytics?.demandScale || 1.0;
+        const cScale = analytics?.capacityScale || 1.0;
         
         return dates.map((d, idx) => {
-            const dem = baseDemand[idx % baseDemand.length];
-            const cap = baseCapacity[idx % baseCapacity.length];
+            const dem = Math.round(rawDemand[idx % rawDemand.length] * dScale);
+            const cap = Math.round(rawCapacity[idx % rawCapacity.length] * cScale);
             const netHrs = cap - dem;
             const netFte = Number((netHrs / 37.5).toFixed(2));
             const covRatio = Number(((cap / dem) * 100).toFixed(1));
@@ -11754,10 +12047,11 @@ function DemVsCapView({
                 status: isDeficit ? 'Deficit' : covRatio < 103 ? 'Tight Buffer' : 'Healthy Buffer'
             };
         });
-    }, [dates]);
+    }, [dates, analytics]);
 
     // Regional Weekly Rollup Matrix (5 Regions x 12 Weeks)
     const regionalWeeklyRollup = useMemo(() => {
+        const regScale = (analytics?.netBufferFte !== undefined) ? (analytics.netBufferFte / 73.3) : 1.0;
         const regions = [
             { code: 'A', name: 'Region A (Scotland & NE)', base: [14.2, 14.8, 15.1, 14.5, 13.9, 14.2, 14.9, 15.3, 14.7, 14.4, 14.1, 13.8] },
             { code: 'B', name: 'Region B (North / NW)', base: [28.5, 29.1, 28.2, 27.8, 26.5, 28.4, 29.5, 30.1, 29.2, 28.8, 28.1, 27.9] },
@@ -11769,7 +12063,11 @@ function DemVsCapView({
         return regions.map(reg => {
             const weeklyValues = {};
             dates.forEach((d, i) => {
-                weeklyValues[d] = reg.base[i % reg.base.length];
+                const rawVal = reg.base[i % reg.base.length];
+                const scaled = (rawVal >= 0)
+                    ? Number((rawVal * Math.max(0.2, (regScale > 0 ? regScale : 0.4))).toFixed(1))
+                    : Number((rawVal * (regScale < 0 ? Math.abs(regScale) * 1.5 : 1.0)).toFixed(1));
+                weeklyValues[d] = scaled;
             });
             const vals = Object.values(weeklyValues);
             const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
@@ -11782,7 +12080,7 @@ function DemVsCapView({
                 hasDeficit: minVal < 0
             };
         });
-    }, [dates]);
+    }, [dates, analytics]);
 
     // Weekly Inday Workload Rows
     const indayRows = useMemo(() => {
