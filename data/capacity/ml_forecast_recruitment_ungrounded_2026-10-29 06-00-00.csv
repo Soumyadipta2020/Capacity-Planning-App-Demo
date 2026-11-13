@@ -1,5 +1,146 @@
-Cohort,Headcount
-Pipeline_Upside_HEC,15
-Pipeline_Upside_KAC,10
-Pipeline_Buffer_EV,8
-Pipeline_Buffer_HeatPump,6
+Cohort,Skill,Region,Weekcomm,Headcount,Probability
+Ungrounded Upside Pipeline A,HEC,Region A,2026-09-14,35,75%
+Contingent Direct Entry B,KAC,Region B,2026-09-14,18,60%
+Smart Meter Upside C,EV,Region C,2026-09-14,15,80%
+Apprentice Fast-Track D,HEC,Region D,2026-09-14,38,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-09-14,23,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-09-21,22,75%
+Contingent Direct Entry B,KAC,Region B,2026-09-21,22,60%
+Smart Meter Upside C,EV,Region C,2026-09-21,19,80%
+Apprentice Fast-Track D,HEC,Region D,2026-09-21,38,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-09-21,18,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-09-28,36,75%
+Contingent Direct Entry B,KAC,Region B,2026-09-28,38,60%
+Smart Meter Upside C,EV,Region C,2026-09-28,43,80%
+Apprentice Fast-Track D,HEC,Region D,2026-09-28,32,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-09-28,17,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-10-05,33,75%
+Contingent Direct Entry B,KAC,Region B,2026-10-05,28,60%
+Smart Meter Upside C,EV,Region C,2026-10-05,16,80%
+Apprentice Fast-Track D,HEC,Region D,2026-10-05,15,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-10-05,17,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-10-12,21,75%
+Contingent Direct Entry B,KAC,Region B,2026-10-12,22,60%
+Smart Meter Upside C,EV,Region C,2026-10-12,31,80%
+Apprentice Fast-Track D,HEC,Region D,2026-10-12,34,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-10-12,15,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-10-19,32,75%
+Contingent Direct Entry B,KAC,Region B,2026-10-19,21,60%
+Smart Meter Upside C,EV,Region C,2026-10-19,37,80%
+Apprentice Fast-Track D,HEC,Region D,2026-10-19,35,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-10-19,37,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-10-26,32,75%
+Contingent Direct Entry B,KAC,Region B,2026-10-26,28,60%
+Smart Meter Upside C,EV,Region C,2026-10-26,22,80%
+Apprentice Fast-Track D,HEC,Region D,2026-10-26,29,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-10-26,33,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-11-02,23,75%
+Contingent Direct Entry B,KAC,Region B,2026-11-02,40,60%
+Smart Meter Upside C,EV,Region C,2026-11-02,42,80%
+Apprentice Fast-Track D,HEC,Region D,2026-11-02,15,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-11-02,39,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-11-09,40,75%
+Contingent Direct Entry B,KAC,Region B,2026-11-09,20,60%
+Smart Meter Upside C,EV,Region C,2026-11-09,37,80%
+Apprentice Fast-Track D,HEC,Region D,2026-11-09,28,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-11-09,25,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-11-16,23,75%
+Contingent Direct Entry B,KAC,Region B,2026-11-16,19,60%
+Smart Meter Upside C,EV,Region C,2026-11-16,21,80%
+Apprentice Fast-Track D,HEC,Region D,2026-11-16,45,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-11-16,39,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-11-23,25,75%
+Contingent Direct Entry B,KAC,Region B,2026-11-23,18,60%
+Smart Meter Upside C,EV,Region C,2026-11-23,17,80%
+Apprentice Fast-Track D,HEC,Region D,2026-11-23,27,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-11-23,18,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-11-30,26,75%
+Contingent Direct Entry B,KAC,Region B,2026-11-30,42,60%
+Smart Meter Upside C,EV,Region C,2026-11-30,26,80%
+Apprentice Fast-Track D,HEC,Region D,2026-11-30,34,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-11-30,23,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-12-07,40,75%
+Contingent Direct Entry B,KAC,Region B,2026-12-07,16,60%
+Smart Meter Upside C,EV,Region C,2026-12-07,38,80%
+Apprentice Fast-Track D,HEC,Region D,2026-12-07,29,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-12-07,32,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-12-14,18,75%
+Contingent Direct Entry B,KAC,Region B,2026-12-14,44,60%
+Smart Meter Upside C,EV,Region C,2026-12-14,27,80%
+Apprentice Fast-Track D,HEC,Region D,2026-12-14,17,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-12-14,32,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-12-21,24,75%
+Contingent Direct Entry B,KAC,Region B,2026-12-21,41,60%
+Smart Meter Upside C,EV,Region C,2026-12-21,35,80%
+Apprentice Fast-Track D,HEC,Region D,2026-12-21,34,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-12-21,43,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2026-12-28,42,75%
+Contingent Direct Entry B,KAC,Region B,2026-12-28,26,60%
+Smart Meter Upside C,EV,Region C,2026-12-28,33,80%
+Apprentice Fast-Track D,HEC,Region D,2026-12-28,21,70%
+Regional Mobile Pipeline E,KAC,Region E,2026-12-28,37,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-01-04,17,75%
+Contingent Direct Entry B,KAC,Region B,2027-01-04,16,60%
+Smart Meter Upside C,EV,Region C,2027-01-04,36,80%
+Apprentice Fast-Track D,HEC,Region D,2027-01-04,22,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-01-04,39,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-01-11,24,75%
+Contingent Direct Entry B,KAC,Region B,2027-01-11,17,60%
+Smart Meter Upside C,EV,Region C,2027-01-11,42,80%
+Apprentice Fast-Track D,HEC,Region D,2027-01-11,22,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-01-11,42,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-01-18,18,75%
+Contingent Direct Entry B,KAC,Region B,2027-01-18,27,60%
+Smart Meter Upside C,EV,Region C,2027-01-18,23,80%
+Apprentice Fast-Track D,HEC,Region D,2027-01-18,29,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-01-18,35,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-01-25,41,75%
+Contingent Direct Entry B,KAC,Region B,2027-01-25,26,60%
+Smart Meter Upside C,EV,Region C,2027-01-25,20,80%
+Apprentice Fast-Track D,HEC,Region D,2027-01-25,26,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-01-25,26,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-02-01,21,75%
+Contingent Direct Entry B,KAC,Region B,2027-02-01,36,60%
+Smart Meter Upside C,EV,Region C,2027-02-01,23,80%
+Apprentice Fast-Track D,HEC,Region D,2027-02-01,37,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-02-01,44,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-02-08,36,75%
+Contingent Direct Entry B,KAC,Region B,2027-02-08,35,60%
+Smart Meter Upside C,EV,Region C,2027-02-08,17,80%
+Apprentice Fast-Track D,HEC,Region D,2027-02-08,34,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-02-08,35,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-02-15,20,75%
+Contingent Direct Entry B,KAC,Region B,2027-02-15,32,60%
+Smart Meter Upside C,EV,Region C,2027-02-15,38,80%
+Apprentice Fast-Track D,HEC,Region D,2027-02-15,22,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-02-15,20,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-02-22,29,75%
+Contingent Direct Entry B,KAC,Region B,2027-02-22,27,60%
+Smart Meter Upside C,EV,Region C,2027-02-22,23,80%
+Apprentice Fast-Track D,HEC,Region D,2027-02-22,44,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-02-22,35,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-03-01,37,75%
+Contingent Direct Entry B,KAC,Region B,2027-03-01,32,60%
+Smart Meter Upside C,EV,Region C,2027-03-01,22,80%
+Apprentice Fast-Track D,HEC,Region D,2027-03-01,36,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-03-01,25,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-03-08,41,75%
+Contingent Direct Entry B,KAC,Region B,2027-03-08,39,60%
+Smart Meter Upside C,EV,Region C,2027-03-08,39,80%
+Apprentice Fast-Track D,HEC,Region D,2027-03-08,16,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-03-08,22,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-03-15,41,75%
+Contingent Direct Entry B,KAC,Region B,2027-03-15,16,60%
+Smart Meter Upside C,EV,Region C,2027-03-15,40,80%
+Apprentice Fast-Track D,HEC,Region D,2027-03-15,25,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-03-15,27,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-03-22,23,75%
+Contingent Direct Entry B,KAC,Region B,2027-03-22,17,60%
+Smart Meter Upside C,EV,Region C,2027-03-22,21,80%
+Apprentice Fast-Track D,HEC,Region D,2027-03-22,44,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-03-22,45,65%
+Ungrounded Upside Pipeline A,HEC,Region A,2027-03-29,33,75%
+Contingent Direct Entry B,KAC,Region B,2027-03-29,43,60%
+Smart Meter Upside C,EV,Region C,2027-03-29,37,80%
+Apprentice Fast-Track D,HEC,Region D,2027-03-29,25,70%
+Regional Mobile Pipeline E,KAC,Region E,2027-03-29,21,65%

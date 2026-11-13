@@ -1,4 +1,871 @@
 Patch,Work Code,Skill,Weekcomm,Values
-EB12 Altrincham,W00,HEC,2026-10-05,1.80
-EC91 Leicester,W17,KAC,2026-10-05,2.35
-ED44 Canterbury & Dover,W31,EV,2026-10-05,3.00
+ED44 Canterbury & Dover,W01,HEC,2026-09-14,1.24
+ED44 Canterbury & Dover,W23,KAC,2026-09-14,1.58
+ED44 Canterbury & Dover,W17,EV,2026-09-14,2.34
+EB12 Altrincham,W01,HEC,2026-09-14,2.12
+EB12 Altrincham,W01,KAC,2026-09-14,1.25
+EB12 Altrincham,W17,EV,2026-09-14,1.56
+EC62 Essex East,W01,HEC,2026-09-14,2.07
+EC62 Essex East,W26,KAC,2026-09-14,1.54
+EC62 Essex East,W23,EV,2026-09-14,2.45
+EB14 Stockport,W01,HEC,2026-09-14,2.38
+EB14 Stockport,W17,KAC,2026-09-14,2.28
+EB14 Stockport,W23,EV,2026-09-14,1.63
+ED22 Cobham & Heathrow,W17,HEC,2026-09-14,2.68
+ED22 Cobham & Heathrow,W23,KAC,2026-09-14,1.36
+ED22 Cobham & Heathrow,W26,EV,2026-09-14,1.35
+EC91 Leicester,W23,HEC,2026-09-14,2.14
+EC91 Leicester,W01,KAC,2026-09-14,2.33
+EC91 Leicester,W01,EV,2026-09-14,2.71
+ED41 Bromley & Dartford,W26,HEC,2026-09-14,1.32
+ED41 Bromley & Dartford,W23,KAC,2026-09-14,2.49
+ED41 Bromley & Dartford,W23,EV,2026-09-14,2.09
+EB13 Manchester Centre,W01,HEC,2026-09-14,1.27
+EB13 Manchester Centre,W17,KAC,2026-09-14,2.4
+EB13 Manchester Centre,W01,EV,2026-09-14,2.53
+EA11 Inverness & Aviemore,W01,HEC,2026-09-14,1.79
+EA11 Inverness & Aviemore,W26,KAC,2026-09-14,2.19
+EA11 Inverness & Aviemore,W23,EV,2026-09-14,1.45
+EA12 Aberdeen North,W23,HEC,2026-09-14,1.52
+EA12 Aberdeen North,W23,KAC,2026-09-14,2.29
+EA12 Aberdeen North,W01,EV,2026-09-14,2.14
+ED44 Canterbury & Dover,W17,HEC,2026-09-21,2.03
+ED44 Canterbury & Dover,W17,KAC,2026-09-21,1.45
+ED44 Canterbury & Dover,W26,EV,2026-09-21,1.62
+EB12 Altrincham,W17,HEC,2026-09-21,2.26
+EB12 Altrincham,W01,KAC,2026-09-21,1.56
+EB12 Altrincham,W01,EV,2026-09-21,2.45
+EC62 Essex East,W26,HEC,2026-09-21,1.61
+EC62 Essex East,W17,KAC,2026-09-21,2.62
+EC62 Essex East,W23,EV,2026-09-21,1.53
+EB14 Stockport,W26,HEC,2026-09-21,1.81
+EB14 Stockport,W26,KAC,2026-09-21,1.42
+EB14 Stockport,W17,EV,2026-09-21,1.58
+ED22 Cobham & Heathrow,W23,HEC,2026-09-21,2.36
+ED22 Cobham & Heathrow,W26,KAC,2026-09-21,2.59
+ED22 Cobham & Heathrow,W26,EV,2026-09-21,1.76
+EC91 Leicester,W17,HEC,2026-09-21,1.99
+EC91 Leicester,W01,KAC,2026-09-21,2.37
+EC91 Leicester,W01,EV,2026-09-21,1.44
+ED41 Bromley & Dartford,W17,HEC,2026-09-21,2.43
+ED41 Bromley & Dartford,W26,KAC,2026-09-21,2.12
+ED41 Bromley & Dartford,W26,EV,2026-09-21,1.79
+EB13 Manchester Centre,W26,HEC,2026-09-21,2.02
+EB13 Manchester Centre,W01,KAC,2026-09-21,2.25
+EB13 Manchester Centre,W01,EV,2026-09-21,2.26
+EA11 Inverness & Aviemore,W23,HEC,2026-09-21,2.39
+EA11 Inverness & Aviemore,W23,KAC,2026-09-21,1.37
+EA11 Inverness & Aviemore,W26,EV,2026-09-21,1.45
+EA12 Aberdeen North,W01,HEC,2026-09-21,2.68
+EA12 Aberdeen North,W23,KAC,2026-09-21,2.71
+EA12 Aberdeen North,W17,EV,2026-09-21,1.99
+ED44 Canterbury & Dover,W01,HEC,2026-09-28,2.55
+ED44 Canterbury & Dover,W23,KAC,2026-09-28,2.5
+ED44 Canterbury & Dover,W17,EV,2026-09-28,1.44
+EB12 Altrincham,W17,HEC,2026-09-28,2.04
+EB12 Altrincham,W01,KAC,2026-09-28,2.13
+EB12 Altrincham,W26,EV,2026-09-28,1.23
+EC62 Essex East,W23,HEC,2026-09-28,2.56
+EC62 Essex East,W23,KAC,2026-09-28,1.57
+EC62 Essex East,W17,EV,2026-09-28,2.56
+EB14 Stockport,W01,HEC,2026-09-28,1.33
+EB14 Stockport,W26,KAC,2026-09-28,2.46
+EB14 Stockport,W17,EV,2026-09-28,1.4
+ED22 Cobham & Heathrow,W26,HEC,2026-09-28,2.67
+ED22 Cobham & Heathrow,W17,KAC,2026-09-28,1.61
+ED22 Cobham & Heathrow,W26,EV,2026-09-28,2.69
+EC91 Leicester,W17,HEC,2026-09-28,2.31
+EC91 Leicester,W26,KAC,2026-09-28,2.74
+EC91 Leicester,W23,EV,2026-09-28,1.88
+ED41 Bromley & Dartford,W26,HEC,2026-09-28,1.39
+ED41 Bromley & Dartford,W17,KAC,2026-09-28,1.3
+ED41 Bromley & Dartford,W01,EV,2026-09-28,2.11
+EB13 Manchester Centre,W17,HEC,2026-09-28,2.11
+EB13 Manchester Centre,W01,KAC,2026-09-28,1.31
+EB13 Manchester Centre,W01,EV,2026-09-28,1.55
+EA11 Inverness & Aviemore,W01,HEC,2026-09-28,2.53
+EA11 Inverness & Aviemore,W01,KAC,2026-09-28,2.0
+EA11 Inverness & Aviemore,W23,EV,2026-09-28,2.24
+EA12 Aberdeen North,W17,HEC,2026-09-28,2.04
+EA12 Aberdeen North,W26,KAC,2026-09-28,1.58
+EA12 Aberdeen North,W26,EV,2026-09-28,2.45
+ED44 Canterbury & Dover,W17,HEC,2026-10-05,1.35
+ED44 Canterbury & Dover,W26,KAC,2026-10-05,1.75
+ED44 Canterbury & Dover,W26,EV,2026-10-05,1.92
+EB12 Altrincham,W01,HEC,2026-10-05,2.24
+EB12 Altrincham,W01,KAC,2026-10-05,1.29
+EB12 Altrincham,W23,EV,2026-10-05,2.44
+EC62 Essex East,W01,HEC,2026-10-05,1.59
+EC62 Essex East,W17,KAC,2026-10-05,2.03
+EC62 Essex East,W17,EV,2026-10-05,1.85
+EB14 Stockport,W23,HEC,2026-10-05,1.92
+EB14 Stockport,W01,KAC,2026-10-05,1.89
+EB14 Stockport,W01,EV,2026-10-05,1.28
+ED22 Cobham & Heathrow,W01,HEC,2026-10-05,2.7
+ED22 Cobham & Heathrow,W17,KAC,2026-10-05,1.46
+ED22 Cobham & Heathrow,W26,EV,2026-10-05,1.95
+EC91 Leicester,W26,HEC,2026-10-05,2.6
+EC91 Leicester,W17,KAC,2026-10-05,1.79
+EC91 Leicester,W26,EV,2026-10-05,1.61
+ED41 Bromley & Dartford,W26,HEC,2026-10-05,1.64
+ED41 Bromley & Dartford,W26,KAC,2026-10-05,1.44
+ED41 Bromley & Dartford,W23,EV,2026-10-05,1.54
+EB13 Manchester Centre,W01,HEC,2026-10-05,2.1
+EB13 Manchester Centre,W01,KAC,2026-10-05,2.36
+EB13 Manchester Centre,W01,EV,2026-10-05,1.28
+EA11 Inverness & Aviemore,W26,HEC,2026-10-05,1.98
+EA11 Inverness & Aviemore,W17,KAC,2026-10-05,1.29
+EA11 Inverness & Aviemore,W01,EV,2026-10-05,2.52
+EA12 Aberdeen North,W01,HEC,2026-10-05,2.12
+EA12 Aberdeen North,W17,KAC,2026-10-05,1.83
+EA12 Aberdeen North,W17,EV,2026-10-05,2.1
+ED44 Canterbury & Dover,W01,HEC,2026-10-12,2.16
+ED44 Canterbury & Dover,W26,KAC,2026-10-12,2.22
+ED44 Canterbury & Dover,W23,EV,2026-10-12,2.65
+EB12 Altrincham,W17,HEC,2026-10-12,2.24
+EB12 Altrincham,W23,KAC,2026-10-12,1.57
+EB12 Altrincham,W26,EV,2026-10-12,1.4
+EC62 Essex East,W23,HEC,2026-10-12,1.91
+EC62 Essex East,W01,KAC,2026-10-12,1.21
+EC62 Essex East,W01,EV,2026-10-12,1.31
+EB14 Stockport,W17,HEC,2026-10-12,1.98
+EB14 Stockport,W17,KAC,2026-10-12,2.65
+EB14 Stockport,W01,EV,2026-10-12,2.56
+ED22 Cobham & Heathrow,W23,HEC,2026-10-12,1.64
+ED22 Cobham & Heathrow,W26,KAC,2026-10-12,2.49
+ED22 Cobham & Heathrow,W23,EV,2026-10-12,2.15
+EC91 Leicester,W01,HEC,2026-10-12,2.24
+EC91 Leicester,W23,KAC,2026-10-12,2.64
+EC91 Leicester,W01,EV,2026-10-12,2.66
+ED41 Bromley & Dartford,W17,HEC,2026-10-12,1.61
+ED41 Bromley & Dartford,W01,KAC,2026-10-12,2.35
+ED41 Bromley & Dartford,W17,EV,2026-10-12,1.62
+EB13 Manchester Centre,W17,HEC,2026-10-12,2.31
+EB13 Manchester Centre,W17,KAC,2026-10-12,2.27
+EB13 Manchester Centre,W23,EV,2026-10-12,1.98
+EA11 Inverness & Aviemore,W23,HEC,2026-10-12,2.6
+EA11 Inverness & Aviemore,W01,KAC,2026-10-12,1.34
+EA11 Inverness & Aviemore,W26,EV,2026-10-12,2.49
+EA12 Aberdeen North,W01,HEC,2026-10-12,1.21
+EA12 Aberdeen North,W17,KAC,2026-10-12,2.19
+EA12 Aberdeen North,W23,EV,2026-10-12,1.45
+ED44 Canterbury & Dover,W26,HEC,2026-10-19,2.06
+ED44 Canterbury & Dover,W26,KAC,2026-10-19,2.07
+ED44 Canterbury & Dover,W01,EV,2026-10-19,1.32
+EB12 Altrincham,W17,HEC,2026-10-19,2.05
+EB12 Altrincham,W23,KAC,2026-10-19,2.1
+EB12 Altrincham,W17,EV,2026-10-19,1.87
+EC62 Essex East,W01,HEC,2026-10-19,1.68
+EC62 Essex East,W01,KAC,2026-10-19,2.59
+EC62 Essex East,W17,EV,2026-10-19,2.26
+EB14 Stockport,W01,HEC,2026-10-19,1.75
+EB14 Stockport,W26,KAC,2026-10-19,2.71
+EB14 Stockport,W17,EV,2026-10-19,2.63
+ED22 Cobham & Heathrow,W17,HEC,2026-10-19,2.54
+ED22 Cobham & Heathrow,W17,KAC,2026-10-19,2.57
+ED22 Cobham & Heathrow,W01,EV,2026-10-19,1.48
+EC91 Leicester,W23,HEC,2026-10-19,2.41
+EC91 Leicester,W26,KAC,2026-10-19,2.44
+EC91 Leicester,W17,EV,2026-10-19,1.61
+ED41 Bromley & Dartford,W01,HEC,2026-10-19,1.79
+ED41 Bromley & Dartford,W01,KAC,2026-10-19,2.53
+ED41 Bromley & Dartford,W17,EV,2026-10-19,1.51
+EB13 Manchester Centre,W26,HEC,2026-10-19,1.74
+EB13 Manchester Centre,W17,KAC,2026-10-19,1.55
+EB13 Manchester Centre,W17,EV,2026-10-19,1.82
+EA11 Inverness & Aviemore,W23,HEC,2026-10-19,2.54
+EA11 Inverness & Aviemore,W23,KAC,2026-10-19,1.74
+EA11 Inverness & Aviemore,W26,EV,2026-10-19,2.25
+EA12 Aberdeen North,W23,HEC,2026-10-19,2.66
+EA12 Aberdeen North,W01,KAC,2026-10-19,2.56
+EA12 Aberdeen North,W23,EV,2026-10-19,1.48
+ED44 Canterbury & Dover,W23,HEC,2026-10-26,1.26
+ED44 Canterbury & Dover,W26,KAC,2026-10-26,1.74
+ED44 Canterbury & Dover,W23,EV,2026-10-26,1.88
+EB12 Altrincham,W01,HEC,2026-10-26,1.8
+EB12 Altrincham,W17,KAC,2026-10-26,1.59
+EB12 Altrincham,W26,EV,2026-10-26,1.2
+EC62 Essex East,W17,HEC,2026-10-26,1.76
+EC62 Essex East,W01,KAC,2026-10-26,2.67
+EC62 Essex East,W23,EV,2026-10-26,2.17
+EB14 Stockport,W01,HEC,2026-10-26,2.32
+EB14 Stockport,W23,KAC,2026-10-26,1.99
+EB14 Stockport,W26,EV,2026-10-26,1.71
+ED22 Cobham & Heathrow,W23,HEC,2026-10-26,2.06
+ED22 Cobham & Heathrow,W17,KAC,2026-10-26,1.85
+ED22 Cobham & Heathrow,W26,EV,2026-10-26,2.25
+EC91 Leicester,W17,HEC,2026-10-26,2.15
+EC91 Leicester,W23,KAC,2026-10-26,1.83
+EC91 Leicester,W01,EV,2026-10-26,1.67
+ED41 Bromley & Dartford,W17,HEC,2026-10-26,1.87
+ED41 Bromley & Dartford,W23,KAC,2026-10-26,1.92
+ED41 Bromley & Dartford,W26,EV,2026-10-26,2.25
+EB13 Manchester Centre,W26,HEC,2026-10-26,2.43
+EB13 Manchester Centre,W17,KAC,2026-10-26,2.22
+EB13 Manchester Centre,W23,EV,2026-10-26,2.0
+EA11 Inverness & Aviemore,W23,HEC,2026-10-26,1.34
+EA11 Inverness & Aviemore,W17,KAC,2026-10-26,2.24
+EA11 Inverness & Aviemore,W17,EV,2026-10-26,2.45
+EA12 Aberdeen North,W17,HEC,2026-10-26,1.24
+EA12 Aberdeen North,W17,KAC,2026-10-26,2.73
+EA12 Aberdeen North,W01,EV,2026-10-26,1.91
+ED44 Canterbury & Dover,W17,HEC,2026-11-02,2.31
+ED44 Canterbury & Dover,W26,KAC,2026-11-02,1.97
+ED44 Canterbury & Dover,W17,EV,2026-11-02,1.43
+EB12 Altrincham,W01,HEC,2026-11-02,2.58
+EB12 Altrincham,W01,KAC,2026-11-02,2.41
+EB12 Altrincham,W17,EV,2026-11-02,1.47
+EC62 Essex East,W26,HEC,2026-11-02,1.28
+EC62 Essex East,W17,KAC,2026-11-02,2.62
+EC62 Essex East,W01,EV,2026-11-02,1.91
+EB14 Stockport,W26,HEC,2026-11-02,2.23
+EB14 Stockport,W23,KAC,2026-11-02,2.67
+EB14 Stockport,W26,EV,2026-11-02,2.15
+ED22 Cobham & Heathrow,W26,HEC,2026-11-02,2.49
+ED22 Cobham & Heathrow,W26,KAC,2026-11-02,2.59
+ED22 Cobham & Heathrow,W26,EV,2026-11-02,1.9
+EC91 Leicester,W17,HEC,2026-11-02,2.5
+EC91 Leicester,W23,KAC,2026-11-02,2.39
+EC91 Leicester,W26,EV,2026-11-02,2.17
+ED41 Bromley & Dartford,W23,HEC,2026-11-02,1.88
+ED41 Bromley & Dartford,W23,KAC,2026-11-02,1.56
+ED41 Bromley & Dartford,W23,EV,2026-11-02,1.7
+EB13 Manchester Centre,W01,HEC,2026-11-02,1.41
+EB13 Manchester Centre,W17,KAC,2026-11-02,1.79
+EB13 Manchester Centre,W17,EV,2026-11-02,2.29
+EA11 Inverness & Aviemore,W01,HEC,2026-11-02,1.84
+EA11 Inverness & Aviemore,W23,KAC,2026-11-02,2.04
+EA11 Inverness & Aviemore,W26,EV,2026-11-02,1.3
+EA12 Aberdeen North,W26,HEC,2026-11-02,1.8
+EA12 Aberdeen North,W01,KAC,2026-11-02,2.53
+EA12 Aberdeen North,W26,EV,2026-11-02,1.94
+ED44 Canterbury & Dover,W23,HEC,2026-11-09,1.66
+ED44 Canterbury & Dover,W26,KAC,2026-11-09,2.52
+ED44 Canterbury & Dover,W26,EV,2026-11-09,2.03
+EB12 Altrincham,W17,HEC,2026-11-09,1.96
+EB12 Altrincham,W23,KAC,2026-11-09,1.88
+EB12 Altrincham,W01,EV,2026-11-09,1.8
+EC62 Essex East,W26,HEC,2026-11-09,2.32
+EC62 Essex East,W26,KAC,2026-11-09,2.63
+EC62 Essex East,W01,EV,2026-11-09,2.61
+EB14 Stockport,W01,HEC,2026-11-09,1.33
+EB14 Stockport,W26,KAC,2026-11-09,1.41
+EB14 Stockport,W26,EV,2026-11-09,1.48
+ED22 Cobham & Heathrow,W23,HEC,2026-11-09,1.79
+ED22 Cobham & Heathrow,W17,KAC,2026-11-09,1.9
+ED22 Cobham & Heathrow,W23,EV,2026-11-09,2.38
+EC91 Leicester,W26,HEC,2026-11-09,1.63
+EC91 Leicester,W26,KAC,2026-11-09,1.59
+EC91 Leicester,W01,EV,2026-11-09,1.93
+ED41 Bromley & Dartford,W01,HEC,2026-11-09,2.75
+ED41 Bromley & Dartford,W23,KAC,2026-11-09,1.55
+ED41 Bromley & Dartford,W01,EV,2026-11-09,2.41
+EB13 Manchester Centre,W01,HEC,2026-11-09,2.37
+EB13 Manchester Centre,W17,KAC,2026-11-09,1.51
+EB13 Manchester Centre,W01,EV,2026-11-09,2.16
+EA11 Inverness & Aviemore,W17,HEC,2026-11-09,1.4
+EA11 Inverness & Aviemore,W01,KAC,2026-11-09,2.07
+EA11 Inverness & Aviemore,W17,EV,2026-11-09,1.92
+EA12 Aberdeen North,W23,HEC,2026-11-09,2.39
+EA12 Aberdeen North,W17,KAC,2026-11-09,2.14
+EA12 Aberdeen North,W01,EV,2026-11-09,2.41
+ED44 Canterbury & Dover,W17,HEC,2026-11-16,2.7
+ED44 Canterbury & Dover,W01,KAC,2026-11-16,2.1
+ED44 Canterbury & Dover,W23,EV,2026-11-16,2.09
+EB12 Altrincham,W26,HEC,2026-11-16,1.81
+EB12 Altrincham,W17,KAC,2026-11-16,1.32
+EB12 Altrincham,W17,EV,2026-11-16,1.36
+EC62 Essex East,W23,HEC,2026-11-16,2.52
+EC62 Essex East,W01,KAC,2026-11-16,2.43
+EC62 Essex East,W01,EV,2026-11-16,1.74
+EB14 Stockport,W26,HEC,2026-11-16,2.23
+EB14 Stockport,W01,KAC,2026-11-16,1.98
+EB14 Stockport,W23,EV,2026-11-16,1.22
+ED22 Cobham & Heathrow,W26,HEC,2026-11-16,2.47
+ED22 Cobham & Heathrow,W01,KAC,2026-11-16,1.87
+ED22 Cobham & Heathrow,W23,EV,2026-11-16,2.19
+EC91 Leicester,W26,HEC,2026-11-16,2.3
+EC91 Leicester,W26,KAC,2026-11-16,1.47
+EC91 Leicester,W23,EV,2026-11-16,2.15
+ED41 Bromley & Dartford,W26,HEC,2026-11-16,1.92
+ED41 Bromley & Dartford,W23,KAC,2026-11-16,1.7
+ED41 Bromley & Dartford,W17,EV,2026-11-16,2.49
+EB13 Manchester Centre,W01,HEC,2026-11-16,1.63
+EB13 Manchester Centre,W26,KAC,2026-11-16,1.58
+EB13 Manchester Centre,W26,EV,2026-11-16,2.08
+EA11 Inverness & Aviemore,W26,HEC,2026-11-16,1.72
+EA11 Inverness & Aviemore,W26,KAC,2026-11-16,2.52
+EA11 Inverness & Aviemore,W17,EV,2026-11-16,1.96
+EA12 Aberdeen North,W23,HEC,2026-11-16,2.44
+EA12 Aberdeen North,W23,KAC,2026-11-16,1.63
+EA12 Aberdeen North,W23,EV,2026-11-16,2.06
+ED44 Canterbury & Dover,W17,HEC,2026-11-23,1.33
+ED44 Canterbury & Dover,W26,KAC,2026-11-23,1.96
+ED44 Canterbury & Dover,W17,EV,2026-11-23,2.27
+EB12 Altrincham,W26,HEC,2026-11-23,1.89
+EB12 Altrincham,W01,KAC,2026-11-23,1.34
+EB12 Altrincham,W17,EV,2026-11-23,1.83
+EC62 Essex East,W17,HEC,2026-11-23,1.67
+EC62 Essex East,W23,KAC,2026-11-23,1.93
+EC62 Essex East,W23,EV,2026-11-23,1.86
+EB14 Stockport,W23,HEC,2026-11-23,1.75
+EB14 Stockport,W26,KAC,2026-11-23,1.62
+EB14 Stockport,W23,EV,2026-11-23,1.56
+ED22 Cobham & Heathrow,W17,HEC,2026-11-23,1.69
+ED22 Cobham & Heathrow,W17,KAC,2026-11-23,1.5
+ED22 Cobham & Heathrow,W26,EV,2026-11-23,1.63
+EC91 Leicester,W23,HEC,2026-11-23,2.72
+EC91 Leicester,W17,KAC,2026-11-23,1.66
+EC91 Leicester,W23,EV,2026-11-23,1.48
+ED41 Bromley & Dartford,W01,HEC,2026-11-23,2.3
+ED41 Bromley & Dartford,W17,KAC,2026-11-23,1.63
+ED41 Bromley & Dartford,W01,EV,2026-11-23,2.06
+EB13 Manchester Centre,W17,HEC,2026-11-23,2.19
+EB13 Manchester Centre,W26,KAC,2026-11-23,1.36
+EB13 Manchester Centre,W01,EV,2026-11-23,2.09
+EA11 Inverness & Aviemore,W26,HEC,2026-11-23,1.94
+EA11 Inverness & Aviemore,W23,KAC,2026-11-23,1.49
+EA11 Inverness & Aviemore,W01,EV,2026-11-23,1.59
+EA12 Aberdeen North,W26,HEC,2026-11-23,1.38
+EA12 Aberdeen North,W01,KAC,2026-11-23,1.82
+EA12 Aberdeen North,W01,EV,2026-11-23,2.09
+ED44 Canterbury & Dover,W01,HEC,2026-11-30,1.44
+ED44 Canterbury & Dover,W23,KAC,2026-11-30,1.33
+ED44 Canterbury & Dover,W17,EV,2026-11-30,1.38
+EB12 Altrincham,W26,HEC,2026-11-30,2.14
+EB12 Altrincham,W17,KAC,2026-11-30,2.4
+EB12 Altrincham,W26,EV,2026-11-30,1.9
+EC62 Essex East,W26,HEC,2026-11-30,1.66
+EC62 Essex East,W26,KAC,2026-11-30,1.67
+EC62 Essex East,W01,EV,2026-11-30,2.14
+EB14 Stockport,W01,HEC,2026-11-30,2.67
+EB14 Stockport,W17,KAC,2026-11-30,2.17
+EB14 Stockport,W23,EV,2026-11-30,2.22
+ED22 Cobham & Heathrow,W17,HEC,2026-11-30,1.57
+ED22 Cobham & Heathrow,W01,KAC,2026-11-30,1.44
+ED22 Cobham & Heathrow,W26,EV,2026-11-30,1.9
+EC91 Leicester,W26,HEC,2026-11-30,1.65
+EC91 Leicester,W17,KAC,2026-11-30,1.65
+EC91 Leicester,W23,EV,2026-11-30,2.29
+ED41 Bromley & Dartford,W26,HEC,2026-11-30,1.31
+ED41 Bromley & Dartford,W17,KAC,2026-11-30,2.63
+ED41 Bromley & Dartford,W17,EV,2026-11-30,1.86
+EB13 Manchester Centre,W17,HEC,2026-11-30,2.2
+EB13 Manchester Centre,W23,KAC,2026-11-30,2.48
+EB13 Manchester Centre,W01,EV,2026-11-30,1.29
+EA11 Inverness & Aviemore,W23,HEC,2026-11-30,2.12
+EA11 Inverness & Aviemore,W23,KAC,2026-11-30,1.88
+EA11 Inverness & Aviemore,W26,EV,2026-11-30,2.27
+EA12 Aberdeen North,W26,HEC,2026-11-30,2.66
+EA12 Aberdeen North,W26,KAC,2026-11-30,1.88
+EA12 Aberdeen North,W01,EV,2026-11-30,2.58
+ED44 Canterbury & Dover,W23,HEC,2026-12-07,2.14
+ED44 Canterbury & Dover,W01,KAC,2026-12-07,1.34
+ED44 Canterbury & Dover,W01,EV,2026-12-07,2.75
+EB12 Altrincham,W23,HEC,2026-12-07,2.09
+EB12 Altrincham,W17,KAC,2026-12-07,1.93
+EB12 Altrincham,W26,EV,2026-12-07,2.62
+EC62 Essex East,W17,HEC,2026-12-07,2.75
+EC62 Essex East,W26,KAC,2026-12-07,2.18
+EC62 Essex East,W26,EV,2026-12-07,2.7
+EB14 Stockport,W26,HEC,2026-12-07,1.74
+EB14 Stockport,W23,KAC,2026-12-07,1.7
+EB14 Stockport,W01,EV,2026-12-07,2.53
+ED22 Cobham & Heathrow,W23,HEC,2026-12-07,1.84
+ED22 Cobham & Heathrow,W26,KAC,2026-12-07,1.65
+ED22 Cobham & Heathrow,W26,EV,2026-12-07,2.46
+EC91 Leicester,W01,HEC,2026-12-07,1.9
+EC91 Leicester,W23,KAC,2026-12-07,1.59
+EC91 Leicester,W01,EV,2026-12-07,2.7
+ED41 Bromley & Dartford,W26,HEC,2026-12-07,2.54
+ED41 Bromley & Dartford,W01,KAC,2026-12-07,2.22
+ED41 Bromley & Dartford,W26,EV,2026-12-07,1.84
+EB13 Manchester Centre,W17,HEC,2026-12-07,2.0
+EB13 Manchester Centre,W26,KAC,2026-12-07,2.17
+EB13 Manchester Centre,W01,EV,2026-12-07,1.52
+EA11 Inverness & Aviemore,W17,HEC,2026-12-07,2.64
+EA11 Inverness & Aviemore,W26,KAC,2026-12-07,2.57
+EA11 Inverness & Aviemore,W26,EV,2026-12-07,1.39
+EA12 Aberdeen North,W17,HEC,2026-12-07,2.3
+EA12 Aberdeen North,W23,KAC,2026-12-07,2.05
+EA12 Aberdeen North,W26,EV,2026-12-07,1.34
+ED44 Canterbury & Dover,W01,HEC,2026-12-14,1.92
+ED44 Canterbury & Dover,W01,KAC,2026-12-14,2.2
+ED44 Canterbury & Dover,W17,EV,2026-12-14,1.97
+EB12 Altrincham,W23,HEC,2026-12-14,1.99
+EB12 Altrincham,W23,KAC,2026-12-14,1.84
+EB12 Altrincham,W26,EV,2026-12-14,2.72
+EC62 Essex East,W17,HEC,2026-12-14,1.91
+EC62 Essex East,W17,KAC,2026-12-14,1.79
+EC62 Essex East,W17,EV,2026-12-14,2.54
+EB14 Stockport,W23,HEC,2026-12-14,2.4
+EB14 Stockport,W26,KAC,2026-12-14,1.73
+EB14 Stockport,W23,EV,2026-12-14,2.47
+ED22 Cobham & Heathrow,W23,HEC,2026-12-14,2.33
+ED22 Cobham & Heathrow,W26,KAC,2026-12-14,2.54
+ED22 Cobham & Heathrow,W26,EV,2026-12-14,2.03
+EC91 Leicester,W23,HEC,2026-12-14,1.72
+EC91 Leicester,W26,KAC,2026-12-14,1.91
+EC91 Leicester,W23,EV,2026-12-14,2.55
+ED41 Bromley & Dartford,W17,HEC,2026-12-14,2.09
+ED41 Bromley & Dartford,W17,KAC,2026-12-14,2.53
+ED41 Bromley & Dartford,W26,EV,2026-12-14,1.27
+EB13 Manchester Centre,W26,HEC,2026-12-14,2.29
+EB13 Manchester Centre,W26,KAC,2026-12-14,1.8
+EB13 Manchester Centre,W17,EV,2026-12-14,1.97
+EA11 Inverness & Aviemore,W01,HEC,2026-12-14,1.4
+EA11 Inverness & Aviemore,W23,KAC,2026-12-14,2.55
+EA11 Inverness & Aviemore,W26,EV,2026-12-14,1.35
+EA12 Aberdeen North,W26,HEC,2026-12-14,1.22
+EA12 Aberdeen North,W17,KAC,2026-12-14,1.84
+EA12 Aberdeen North,W17,EV,2026-12-14,1.32
+ED44 Canterbury & Dover,W23,HEC,2026-12-21,1.72
+ED44 Canterbury & Dover,W26,KAC,2026-12-21,2.21
+ED44 Canterbury & Dover,W23,EV,2026-12-21,2.52
+EB12 Altrincham,W26,HEC,2026-12-21,2.68
+EB12 Altrincham,W26,KAC,2026-12-21,2.55
+EB12 Altrincham,W01,EV,2026-12-21,2.16
+EC62 Essex East,W17,HEC,2026-12-21,2.18
+EC62 Essex East,W23,KAC,2026-12-21,2.75
+EC62 Essex East,W01,EV,2026-12-21,1.87
+EB14 Stockport,W01,HEC,2026-12-21,2.38
+EB14 Stockport,W01,KAC,2026-12-21,1.89
+EB14 Stockport,W23,EV,2026-12-21,2.6
+ED22 Cobham & Heathrow,W01,HEC,2026-12-21,1.7
+ED22 Cobham & Heathrow,W01,KAC,2026-12-21,1.65
+ED22 Cobham & Heathrow,W23,EV,2026-12-21,1.87
+EC91 Leicester,W17,HEC,2026-12-21,2.02
+EC91 Leicester,W17,KAC,2026-12-21,1.46
+EC91 Leicester,W01,EV,2026-12-21,2.14
+ED41 Bromley & Dartford,W26,HEC,2026-12-21,2.16
+ED41 Bromley & Dartford,W17,KAC,2026-12-21,1.97
+ED41 Bromley & Dartford,W17,EV,2026-12-21,1.56
+EB13 Manchester Centre,W23,HEC,2026-12-21,1.91
+EB13 Manchester Centre,W01,KAC,2026-12-21,2.59
+EB13 Manchester Centre,W26,EV,2026-12-21,2.6
+EA11 Inverness & Aviemore,W17,HEC,2026-12-21,1.31
+EA11 Inverness & Aviemore,W23,KAC,2026-12-21,2.73
+EA11 Inverness & Aviemore,W23,EV,2026-12-21,2.19
+EA12 Aberdeen North,W26,HEC,2026-12-21,2.27
+EA12 Aberdeen North,W26,KAC,2026-12-21,2.51
+EA12 Aberdeen North,W17,EV,2026-12-21,2.75
+ED44 Canterbury & Dover,W26,HEC,2026-12-28,1.37
+ED44 Canterbury & Dover,W26,KAC,2026-12-28,2.09
+ED44 Canterbury & Dover,W23,EV,2026-12-28,2.74
+EB12 Altrincham,W23,HEC,2026-12-28,1.23
+EB12 Altrincham,W26,KAC,2026-12-28,1.63
+EB12 Altrincham,W01,EV,2026-12-28,2.61
+EC62 Essex East,W26,HEC,2026-12-28,2.49
+EC62 Essex East,W23,KAC,2026-12-28,2.4
+EC62 Essex East,W17,EV,2026-12-28,2.14
+EB14 Stockport,W23,HEC,2026-12-28,1.54
+EB14 Stockport,W17,KAC,2026-12-28,2.16
+EB14 Stockport,W17,EV,2026-12-28,2.17
+ED22 Cobham & Heathrow,W01,HEC,2026-12-28,1.68
+ED22 Cobham & Heathrow,W26,KAC,2026-12-28,1.25
+ED22 Cobham & Heathrow,W23,EV,2026-12-28,2.34
+EC91 Leicester,W01,HEC,2026-12-28,2.61
+EC91 Leicester,W23,KAC,2026-12-28,2.36
+EC91 Leicester,W17,EV,2026-12-28,1.51
+ED41 Bromley & Dartford,W23,HEC,2026-12-28,2.02
+ED41 Bromley & Dartford,W23,KAC,2026-12-28,2.49
+ED41 Bromley & Dartford,W23,EV,2026-12-28,2.62
+EB13 Manchester Centre,W26,HEC,2026-12-28,2.7
+EB13 Manchester Centre,W23,KAC,2026-12-28,2.36
+EB13 Manchester Centre,W23,EV,2026-12-28,2.45
+EA11 Inverness & Aviemore,W26,HEC,2026-12-28,2.69
+EA11 Inverness & Aviemore,W17,KAC,2026-12-28,2.37
+EA11 Inverness & Aviemore,W17,EV,2026-12-28,2.53
+EA12 Aberdeen North,W26,HEC,2026-12-28,2.7
+EA12 Aberdeen North,W23,KAC,2026-12-28,1.34
+EA12 Aberdeen North,W26,EV,2026-12-28,1.22
+ED44 Canterbury & Dover,W01,HEC,2027-01-04,1.9
+ED44 Canterbury & Dover,W23,KAC,2027-01-04,2.11
+ED44 Canterbury & Dover,W23,EV,2027-01-04,1.37
+EB12 Altrincham,W17,HEC,2027-01-04,1.93
+EB12 Altrincham,W23,KAC,2027-01-04,2.62
+EB12 Altrincham,W17,EV,2027-01-04,2.2
+EC62 Essex East,W26,HEC,2027-01-04,2.61
+EC62 Essex East,W23,KAC,2027-01-04,2.21
+EC62 Essex East,W01,EV,2027-01-04,1.42
+EB14 Stockport,W01,HEC,2027-01-04,1.67
+EB14 Stockport,W26,KAC,2027-01-04,1.38
+EB14 Stockport,W17,EV,2027-01-04,2.58
+ED22 Cobham & Heathrow,W17,HEC,2027-01-04,1.8
+ED22 Cobham & Heathrow,W23,KAC,2027-01-04,2.24
+ED22 Cobham & Heathrow,W26,EV,2027-01-04,2.11
+EC91 Leicester,W17,HEC,2027-01-04,2.57
+EC91 Leicester,W01,KAC,2027-01-04,2.49
+EC91 Leicester,W26,EV,2027-01-04,2.66
+ED41 Bromley & Dartford,W23,HEC,2027-01-04,1.25
+ED41 Bromley & Dartford,W23,KAC,2027-01-04,1.54
+ED41 Bromley & Dartford,W26,EV,2027-01-04,2.67
+EB13 Manchester Centre,W23,HEC,2027-01-04,1.35
+EB13 Manchester Centre,W23,KAC,2027-01-04,2.04
+EB13 Manchester Centre,W23,EV,2027-01-04,1.29
+EA11 Inverness & Aviemore,W23,HEC,2027-01-04,1.49
+EA11 Inverness & Aviemore,W01,KAC,2027-01-04,2.67
+EA11 Inverness & Aviemore,W26,EV,2027-01-04,1.34
+EA12 Aberdeen North,W17,HEC,2027-01-04,2.19
+EA12 Aberdeen North,W01,KAC,2027-01-04,1.28
+EA12 Aberdeen North,W23,EV,2027-01-04,1.58
+ED44 Canterbury & Dover,W17,HEC,2027-01-11,2.42
+ED44 Canterbury & Dover,W17,KAC,2027-01-11,1.31
+ED44 Canterbury & Dover,W17,EV,2027-01-11,2.11
+EB12 Altrincham,W17,HEC,2027-01-11,1.71
+EB12 Altrincham,W17,KAC,2027-01-11,2.42
+EB12 Altrincham,W01,EV,2027-01-11,1.63
+EC62 Essex East,W17,HEC,2027-01-11,2.73
+EC62 Essex East,W23,KAC,2027-01-11,2.44
+EC62 Essex East,W01,EV,2027-01-11,2.22
+EB14 Stockport,W01,HEC,2027-01-11,1.4
+EB14 Stockport,W23,KAC,2027-01-11,2.42
+EB14 Stockport,W17,EV,2027-01-11,2.11
+ED22 Cobham & Heathrow,W01,HEC,2027-01-11,1.47
+ED22 Cobham & Heathrow,W01,KAC,2027-01-11,1.4
+ED22 Cobham & Heathrow,W26,EV,2027-01-11,2.02
+EC91 Leicester,W01,HEC,2027-01-11,1.94
+EC91 Leicester,W23,KAC,2027-01-11,2.0
+EC91 Leicester,W01,EV,2027-01-11,1.9
+ED41 Bromley & Dartford,W17,HEC,2027-01-11,2.67
+ED41 Bromley & Dartford,W01,KAC,2027-01-11,2.33
+ED41 Bromley & Dartford,W23,EV,2027-01-11,1.91
+EB13 Manchester Centre,W01,HEC,2027-01-11,1.29
+EB13 Manchester Centre,W26,KAC,2027-01-11,2.51
+EB13 Manchester Centre,W26,EV,2027-01-11,2.26
+EA11 Inverness & Aviemore,W26,HEC,2027-01-11,2.3
+EA11 Inverness & Aviemore,W26,KAC,2027-01-11,1.31
+EA11 Inverness & Aviemore,W01,EV,2027-01-11,1.7
+EA12 Aberdeen North,W17,HEC,2027-01-11,1.3
+EA12 Aberdeen North,W23,KAC,2027-01-11,2.17
+EA12 Aberdeen North,W23,EV,2027-01-11,1.79
+ED44 Canterbury & Dover,W23,HEC,2027-01-18,1.9
+ED44 Canterbury & Dover,W26,KAC,2027-01-18,1.35
+ED44 Canterbury & Dover,W01,EV,2027-01-18,2.52
+EB12 Altrincham,W17,HEC,2027-01-18,1.87
+EB12 Altrincham,W17,KAC,2027-01-18,1.84
+EB12 Altrincham,W26,EV,2027-01-18,1.82
+EC62 Essex East,W01,HEC,2027-01-18,1.68
+EC62 Essex East,W23,KAC,2027-01-18,2.23
+EC62 Essex East,W23,EV,2027-01-18,2.68
+EB14 Stockport,W26,HEC,2027-01-18,1.3
+EB14 Stockport,W01,KAC,2027-01-18,1.34
+EB14 Stockport,W01,EV,2027-01-18,2.35
+ED22 Cobham & Heathrow,W23,HEC,2027-01-18,2.46
+ED22 Cobham & Heathrow,W01,KAC,2027-01-18,2.11
+ED22 Cobham & Heathrow,W23,EV,2027-01-18,2.24
+EC91 Leicester,W26,HEC,2027-01-18,1.75
+EC91 Leicester,W26,KAC,2027-01-18,2.55
+EC91 Leicester,W01,EV,2027-01-18,2.7
+ED41 Bromley & Dartford,W23,HEC,2027-01-18,1.75
+ED41 Bromley & Dartford,W17,KAC,2027-01-18,1.44
+ED41 Bromley & Dartford,W26,EV,2027-01-18,1.55
+EB13 Manchester Centre,W01,HEC,2027-01-18,1.74
+EB13 Manchester Centre,W23,KAC,2027-01-18,1.38
+EB13 Manchester Centre,W23,EV,2027-01-18,2.09
+EA11 Inverness & Aviemore,W26,HEC,2027-01-18,2.51
+EA11 Inverness & Aviemore,W01,KAC,2027-01-18,2.14
+EA11 Inverness & Aviemore,W23,EV,2027-01-18,1.24
+EA12 Aberdeen North,W23,HEC,2027-01-18,2.29
+EA12 Aberdeen North,W23,KAC,2027-01-18,2.63
+EA12 Aberdeen North,W23,EV,2027-01-18,1.21
+ED44 Canterbury & Dover,W17,HEC,2027-01-25,2.08
+ED44 Canterbury & Dover,W26,KAC,2027-01-25,1.31
+ED44 Canterbury & Dover,W01,EV,2027-01-25,1.34
+EB12 Altrincham,W17,HEC,2027-01-25,1.78
+EB12 Altrincham,W26,KAC,2027-01-25,1.73
+EB12 Altrincham,W23,EV,2027-01-25,1.68
+EC62 Essex East,W23,HEC,2027-01-25,2.4
+EC62 Essex East,W01,KAC,2027-01-25,2.57
+EC62 Essex East,W17,EV,2027-01-25,1.44
+EB14 Stockport,W01,HEC,2027-01-25,2.24
+EB14 Stockport,W23,KAC,2027-01-25,1.89
+EB14 Stockport,W26,EV,2027-01-25,1.95
+ED22 Cobham & Heathrow,W26,HEC,2027-01-25,1.84
+ED22 Cobham & Heathrow,W17,KAC,2027-01-25,2.37
+ED22 Cobham & Heathrow,W01,EV,2027-01-25,1.74
+EC91 Leicester,W01,HEC,2027-01-25,1.64
+EC91 Leicester,W26,KAC,2027-01-25,2.02
+EC91 Leicester,W23,EV,2027-01-25,1.27
+ED41 Bromley & Dartford,W26,HEC,2027-01-25,2.73
+ED41 Bromley & Dartford,W01,KAC,2027-01-25,1.21
+ED41 Bromley & Dartford,W23,EV,2027-01-25,2.67
+EB13 Manchester Centre,W17,HEC,2027-01-25,2.38
+EB13 Manchester Centre,W23,KAC,2027-01-25,1.71
+EB13 Manchester Centre,W01,EV,2027-01-25,1.97
+EA11 Inverness & Aviemore,W26,HEC,2027-01-25,1.47
+EA11 Inverness & Aviemore,W26,KAC,2027-01-25,2.03
+EA11 Inverness & Aviemore,W17,EV,2027-01-25,1.98
+EA12 Aberdeen North,W23,HEC,2027-01-25,1.31
+EA12 Aberdeen North,W01,KAC,2027-01-25,1.88
+EA12 Aberdeen North,W26,EV,2027-01-25,2.63
+ED44 Canterbury & Dover,W23,HEC,2027-02-01,2.09
+ED44 Canterbury & Dover,W26,KAC,2027-02-01,2.3
+ED44 Canterbury & Dover,W26,EV,2027-02-01,1.65
+EB12 Altrincham,W26,HEC,2027-02-01,1.23
+EB12 Altrincham,W23,KAC,2027-02-01,1.47
+EB12 Altrincham,W26,EV,2027-02-01,2.49
+EC62 Essex East,W23,HEC,2027-02-01,1.34
+EC62 Essex East,W01,KAC,2027-02-01,1.58
+EC62 Essex East,W26,EV,2027-02-01,2.01
+EB14 Stockport,W26,HEC,2027-02-01,2.55
+EB14 Stockport,W23,KAC,2027-02-01,1.54
+EB14 Stockport,W17,EV,2027-02-01,1.32
+ED22 Cobham & Heathrow,W01,HEC,2027-02-01,2.02
+ED22 Cobham & Heathrow,W17,KAC,2027-02-01,2.6
+ED22 Cobham & Heathrow,W23,EV,2027-02-01,1.74
+EC91 Leicester,W17,HEC,2027-02-01,1.57
+EC91 Leicester,W17,KAC,2027-02-01,1.6
+EC91 Leicester,W17,EV,2027-02-01,2.13
+ED41 Bromley & Dartford,W01,HEC,2027-02-01,1.47
+ED41 Bromley & Dartford,W26,KAC,2027-02-01,1.92
+ED41 Bromley & Dartford,W26,EV,2027-02-01,2.26
+EB13 Manchester Centre,W23,HEC,2027-02-01,2.54
+EB13 Manchester Centre,W23,KAC,2027-02-01,1.43
+EB13 Manchester Centre,W01,EV,2027-02-01,1.93
+EA11 Inverness & Aviemore,W23,HEC,2027-02-01,2.43
+EA11 Inverness & Aviemore,W01,KAC,2027-02-01,1.75
+EA11 Inverness & Aviemore,W01,EV,2027-02-01,1.68
+EA12 Aberdeen North,W26,HEC,2027-02-01,1.26
+EA12 Aberdeen North,W23,KAC,2027-02-01,2.49
+EA12 Aberdeen North,W01,EV,2027-02-01,2.2
+ED44 Canterbury & Dover,W01,HEC,2027-02-08,2.15
+ED44 Canterbury & Dover,W26,KAC,2027-02-08,1.92
+ED44 Canterbury & Dover,W01,EV,2027-02-08,1.9
+EB12 Altrincham,W17,HEC,2027-02-08,1.7
+EB12 Altrincham,W26,KAC,2027-02-08,1.98
+EB12 Altrincham,W01,EV,2027-02-08,1.9
+EC62 Essex East,W23,HEC,2027-02-08,2.72
+EC62 Essex East,W01,KAC,2027-02-08,1.98
+EC62 Essex East,W17,EV,2027-02-08,1.26
+EB14 Stockport,W26,HEC,2027-02-08,2.74
+EB14 Stockport,W17,KAC,2027-02-08,1.76
+EB14 Stockport,W23,EV,2027-02-08,1.8
+ED22 Cobham & Heathrow,W23,HEC,2027-02-08,2.25
+ED22 Cobham & Heathrow,W01,KAC,2027-02-08,2.42
+ED22 Cobham & Heathrow,W23,EV,2027-02-08,1.3
+EC91 Leicester,W01,HEC,2027-02-08,2.06
+EC91 Leicester,W26,KAC,2027-02-08,1.64
+EC91 Leicester,W17,EV,2027-02-08,1.72
+ED41 Bromley & Dartford,W17,HEC,2027-02-08,2.62
+ED41 Bromley & Dartford,W23,KAC,2027-02-08,2.7
+ED41 Bromley & Dartford,W26,EV,2027-02-08,1.4
+EB13 Manchester Centre,W01,HEC,2027-02-08,1.68
+EB13 Manchester Centre,W26,KAC,2027-02-08,2.2
+EB13 Manchester Centre,W23,EV,2027-02-08,2.46
+EA11 Inverness & Aviemore,W01,HEC,2027-02-08,2.2
+EA11 Inverness & Aviemore,W26,KAC,2027-02-08,1.99
+EA11 Inverness & Aviemore,W01,EV,2027-02-08,1.76
+EA12 Aberdeen North,W17,HEC,2027-02-08,2.67
+EA12 Aberdeen North,W23,KAC,2027-02-08,2.67
+EA12 Aberdeen North,W26,EV,2027-02-08,1.5
+ED44 Canterbury & Dover,W17,HEC,2027-02-15,1.44
+ED44 Canterbury & Dover,W23,KAC,2027-02-15,2.51
+ED44 Canterbury & Dover,W01,EV,2027-02-15,1.99
+EB12 Altrincham,W01,HEC,2027-02-15,2.23
+EB12 Altrincham,W17,KAC,2027-02-15,2.13
+EB12 Altrincham,W17,EV,2027-02-15,1.45
+EC62 Essex East,W17,HEC,2027-02-15,2.32
+EC62 Essex East,W01,KAC,2027-02-15,1.84
+EC62 Essex East,W17,EV,2027-02-15,2.7
+EB14 Stockport,W23,HEC,2027-02-15,2.37
+EB14 Stockport,W26,KAC,2027-02-15,1.56
+EB14 Stockport,W17,EV,2027-02-15,1.68
+ED22 Cobham & Heathrow,W26,HEC,2027-02-15,2.6
+ED22 Cobham & Heathrow,W17,KAC,2027-02-15,1.77
+ED22 Cobham & Heathrow,W26,EV,2027-02-15,1.92
+EC91 Leicester,W23,HEC,2027-02-15,2.41
+EC91 Leicester,W26,KAC,2027-02-15,2.7
+EC91 Leicester,W17,EV,2027-02-15,2.44
+ED41 Bromley & Dartford,W17,HEC,2027-02-15,2.55
+ED41 Bromley & Dartford,W01,KAC,2027-02-15,2.19
+ED41 Bromley & Dartford,W23,EV,2027-02-15,2.06
+EB13 Manchester Centre,W01,HEC,2027-02-15,2.3
+EB13 Manchester Centre,W01,KAC,2027-02-15,1.64
+EB13 Manchester Centre,W17,EV,2027-02-15,1.62
+EA11 Inverness & Aviemore,W17,HEC,2027-02-15,2.49
+EA11 Inverness & Aviemore,W01,KAC,2027-02-15,2.67
+EA11 Inverness & Aviemore,W17,EV,2027-02-15,2.47
+EA12 Aberdeen North,W23,HEC,2027-02-15,2.64
+EA12 Aberdeen North,W26,KAC,2027-02-15,1.28
+EA12 Aberdeen North,W23,EV,2027-02-15,1.57
+ED44 Canterbury & Dover,W01,HEC,2027-02-22,1.78
+ED44 Canterbury & Dover,W01,KAC,2027-02-22,1.69
+ED44 Canterbury & Dover,W01,EV,2027-02-22,2.5
+EB12 Altrincham,W23,HEC,2027-02-22,2.43
+EB12 Altrincham,W17,KAC,2027-02-22,1.26
+EB12 Altrincham,W26,EV,2027-02-22,2.28
+EC62 Essex East,W17,HEC,2027-02-22,2.38
+EC62 Essex East,W26,KAC,2027-02-22,1.9
+EC62 Essex East,W01,EV,2027-02-22,2.6
+EB14 Stockport,W01,HEC,2027-02-22,1.6
+EB14 Stockport,W17,KAC,2027-02-22,2.05
+EB14 Stockport,W26,EV,2027-02-22,1.37
+ED22 Cobham & Heathrow,W23,HEC,2027-02-22,1.57
+ED22 Cobham & Heathrow,W01,KAC,2027-02-22,1.27
+ED22 Cobham & Heathrow,W26,EV,2027-02-22,2.19
+EC91 Leicester,W26,HEC,2027-02-22,1.3
+EC91 Leicester,W26,KAC,2027-02-22,2.12
+EC91 Leicester,W01,EV,2027-02-22,2.18
+ED41 Bromley & Dartford,W17,HEC,2027-02-22,2.31
+ED41 Bromley & Dartford,W23,KAC,2027-02-22,1.87
+ED41 Bromley & Dartford,W23,EV,2027-02-22,1.57
+EB13 Manchester Centre,W26,HEC,2027-02-22,1.49
+EB13 Manchester Centre,W01,KAC,2027-02-22,2.01
+EB13 Manchester Centre,W23,EV,2027-02-22,1.3
+EA11 Inverness & Aviemore,W01,HEC,2027-02-22,1.81
+EA11 Inverness & Aviemore,W26,KAC,2027-02-22,1.27
+EA11 Inverness & Aviemore,W26,EV,2027-02-22,2.72
+EA12 Aberdeen North,W23,HEC,2027-02-22,2.36
+EA12 Aberdeen North,W23,KAC,2027-02-22,2.42
+EA12 Aberdeen North,W23,EV,2027-02-22,1.57
+ED44 Canterbury & Dover,W01,HEC,2027-03-01,2.4
+ED44 Canterbury & Dover,W23,KAC,2027-03-01,1.41
+ED44 Canterbury & Dover,W23,EV,2027-03-01,2.05
+EB12 Altrincham,W17,HEC,2027-03-01,2.49
+EB12 Altrincham,W26,KAC,2027-03-01,2.72
+EB12 Altrincham,W26,EV,2027-03-01,2.18
+EC62 Essex East,W17,HEC,2027-03-01,1.3
+EC62 Essex East,W26,KAC,2027-03-01,1.26
+EC62 Essex East,W17,EV,2027-03-01,1.27
+EB14 Stockport,W17,HEC,2027-03-01,2.57
+EB14 Stockport,W23,KAC,2027-03-01,2.65
+EB14 Stockport,W26,EV,2027-03-01,2.73
+ED22 Cobham & Heathrow,W26,HEC,2027-03-01,1.59
+ED22 Cobham & Heathrow,W17,KAC,2027-03-01,1.64
+ED22 Cobham & Heathrow,W01,EV,2027-03-01,2.54
+EC91 Leicester,W23,HEC,2027-03-01,1.62
+EC91 Leicester,W23,KAC,2027-03-01,1.88
+EC91 Leicester,W26,EV,2027-03-01,2.35
+ED41 Bromley & Dartford,W26,HEC,2027-03-01,1.73
+ED41 Bromley & Dartford,W17,KAC,2027-03-01,1.97
+ED41 Bromley & Dartford,W26,EV,2027-03-01,1.77
+EB13 Manchester Centre,W23,HEC,2027-03-01,2.44
+EB13 Manchester Centre,W26,KAC,2027-03-01,1.32
+EB13 Manchester Centre,W17,EV,2027-03-01,2.05
+EA11 Inverness & Aviemore,W23,HEC,2027-03-01,1.36
+EA11 Inverness & Aviemore,W23,KAC,2027-03-01,2.22
+EA11 Inverness & Aviemore,W23,EV,2027-03-01,1.89
+EA12 Aberdeen North,W26,HEC,2027-03-01,1.46
+EA12 Aberdeen North,W26,KAC,2027-03-01,1.74
+EA12 Aberdeen North,W01,EV,2027-03-01,2.33
+ED44 Canterbury & Dover,W23,HEC,2027-03-08,2.15
+ED44 Canterbury & Dover,W26,KAC,2027-03-08,1.63
+ED44 Canterbury & Dover,W01,EV,2027-03-08,1.32
+EB12 Altrincham,W26,HEC,2027-03-08,1.76
+EB12 Altrincham,W17,KAC,2027-03-08,2.68
+EB12 Altrincham,W17,EV,2027-03-08,2.52
+EC62 Essex East,W26,HEC,2027-03-08,1.25
+EC62 Essex East,W01,KAC,2027-03-08,1.57
+EC62 Essex East,W23,EV,2027-03-08,1.76
+EB14 Stockport,W01,HEC,2027-03-08,2.14
+EB14 Stockport,W26,KAC,2027-03-08,2.67
+EB14 Stockport,W23,EV,2027-03-08,1.89
+ED22 Cobham & Heathrow,W01,HEC,2027-03-08,2.09
+ED22 Cobham & Heathrow,W23,KAC,2027-03-08,1.82
+ED22 Cobham & Heathrow,W23,EV,2027-03-08,1.59
+EC91 Leicester,W01,HEC,2027-03-08,1.24
+EC91 Leicester,W17,KAC,2027-03-08,1.97
+EC91 Leicester,W26,EV,2027-03-08,2.62
+ED41 Bromley & Dartford,W01,HEC,2027-03-08,1.61
+ED41 Bromley & Dartford,W23,KAC,2027-03-08,2.29
+ED41 Bromley & Dartford,W17,EV,2027-03-08,2.74
+EB13 Manchester Centre,W23,HEC,2027-03-08,2.28
+EB13 Manchester Centre,W26,KAC,2027-03-08,1.51
+EB13 Manchester Centre,W17,EV,2027-03-08,2.52
+EA11 Inverness & Aviemore,W26,HEC,2027-03-08,1.47
+EA11 Inverness & Aviemore,W26,KAC,2027-03-08,2.75
+EA11 Inverness & Aviemore,W23,EV,2027-03-08,2.24
+EA12 Aberdeen North,W01,HEC,2027-03-08,2.05
+EA12 Aberdeen North,W23,KAC,2027-03-08,2.58
+EA12 Aberdeen North,W17,EV,2027-03-08,2.3
+ED44 Canterbury & Dover,W17,HEC,2027-03-15,2.43
+ED44 Canterbury & Dover,W17,KAC,2027-03-15,1.39
+ED44 Canterbury & Dover,W17,EV,2027-03-15,2.43
+EB12 Altrincham,W17,HEC,2027-03-15,2.43
+EB12 Altrincham,W01,KAC,2027-03-15,1.76
+EB12 Altrincham,W23,EV,2027-03-15,1.92
+EC62 Essex East,W17,HEC,2027-03-15,2.15
+EC62 Essex East,W01,KAC,2027-03-15,1.3
+EC62 Essex East,W26,EV,2027-03-15,2.75
+EB14 Stockport,W26,HEC,2027-03-15,2.01
+EB14 Stockport,W26,KAC,2027-03-15,2.48
+EB14 Stockport,W01,EV,2027-03-15,1.39
+ED22 Cobham & Heathrow,W23,HEC,2027-03-15,2.2
+ED22 Cobham & Heathrow,W26,KAC,2027-03-15,1.92
+ED22 Cobham & Heathrow,W23,EV,2027-03-15,1.4
+EC91 Leicester,W17,HEC,2027-03-15,2.39
+EC91 Leicester,W17,KAC,2027-03-15,1.87
+EC91 Leicester,W01,EV,2027-03-15,2.49
+ED41 Bromley & Dartford,W17,HEC,2027-03-15,1.67
+ED41 Bromley & Dartford,W17,KAC,2027-03-15,1.7
+ED41 Bromley & Dartford,W17,EV,2027-03-15,1.74
+EB13 Manchester Centre,W23,HEC,2027-03-15,2.51
+EB13 Manchester Centre,W23,KAC,2027-03-15,1.5
+EB13 Manchester Centre,W23,EV,2027-03-15,1.39
+EA11 Inverness & Aviemore,W23,HEC,2027-03-15,2.15
+EA11 Inverness & Aviemore,W01,KAC,2027-03-15,1.98
+EA11 Inverness & Aviemore,W17,EV,2027-03-15,2.12
+EA12 Aberdeen North,W17,HEC,2027-03-15,1.47
+EA12 Aberdeen North,W23,KAC,2027-03-15,2.51
+EA12 Aberdeen North,W01,EV,2027-03-15,2.48
+ED44 Canterbury & Dover,W01,HEC,2027-03-22,1.33
+ED44 Canterbury & Dover,W23,KAC,2027-03-22,2.21
+ED44 Canterbury & Dover,W26,EV,2027-03-22,2.16
+EB12 Altrincham,W01,HEC,2027-03-22,1.97
+EB12 Altrincham,W23,KAC,2027-03-22,2.19
+EB12 Altrincham,W23,EV,2027-03-22,1.95
+EC62 Essex East,W26,HEC,2027-03-22,1.66
+EC62 Essex East,W01,KAC,2027-03-22,2.27
+EC62 Essex East,W17,EV,2027-03-22,1.88
+EB14 Stockport,W26,HEC,2027-03-22,1.92
+EB14 Stockport,W23,KAC,2027-03-22,2.14
+EB14 Stockport,W23,EV,2027-03-22,2.54
+ED22 Cobham & Heathrow,W23,HEC,2027-03-22,2.34
+ED22 Cobham & Heathrow,W23,KAC,2027-03-22,2.71
+ED22 Cobham & Heathrow,W17,EV,2027-03-22,2.38
+EC91 Leicester,W01,HEC,2027-03-22,1.69
+EC91 Leicester,W26,KAC,2027-03-22,1.39
+EC91 Leicester,W26,EV,2027-03-22,1.58
+ED41 Bromley & Dartford,W01,HEC,2027-03-22,1.28
+ED41 Bromley & Dartford,W26,KAC,2027-03-22,2.54
+ED41 Bromley & Dartford,W26,EV,2027-03-22,1.58
+EB13 Manchester Centre,W17,HEC,2027-03-22,2.46
+EB13 Manchester Centre,W23,KAC,2027-03-22,1.49
+EB13 Manchester Centre,W17,EV,2027-03-22,1.97
+EA11 Inverness & Aviemore,W26,HEC,2027-03-22,1.97
+EA11 Inverness & Aviemore,W23,KAC,2027-03-22,1.97
+EA11 Inverness & Aviemore,W01,EV,2027-03-22,2.67
+EA12 Aberdeen North,W26,HEC,2027-03-22,2.7
+EA12 Aberdeen North,W17,KAC,2027-03-22,2.1
+EA12 Aberdeen North,W01,EV,2027-03-22,1.28
+ED44 Canterbury & Dover,W26,HEC,2027-03-29,2.13
+ED44 Canterbury & Dover,W26,KAC,2027-03-29,1.64
+ED44 Canterbury & Dover,W01,EV,2027-03-29,2.51
+EB12 Altrincham,W26,HEC,2027-03-29,1.41
+EB12 Altrincham,W23,KAC,2027-03-29,2.33
+EB12 Altrincham,W26,EV,2027-03-29,1.77
+EC62 Essex East,W26,HEC,2027-03-29,1.28
+EC62 Essex East,W17,KAC,2027-03-29,1.76
+EC62 Essex East,W23,EV,2027-03-29,1.31
+EB14 Stockport,W26,HEC,2027-03-29,2.38
+EB14 Stockport,W23,KAC,2027-03-29,2.48
+EB14 Stockport,W01,EV,2027-03-29,1.4
+ED22 Cobham & Heathrow,W01,HEC,2027-03-29,1.81
+ED22 Cobham & Heathrow,W23,KAC,2027-03-29,2.06
+ED22 Cobham & Heathrow,W23,EV,2027-03-29,2.37
+EC91 Leicester,W17,HEC,2027-03-29,2.13
+EC91 Leicester,W26,KAC,2027-03-29,1.98
+EC91 Leicester,W01,EV,2027-03-29,1.26
+ED41 Bromley & Dartford,W23,HEC,2027-03-29,2.45
+ED41 Bromley & Dartford,W26,KAC,2027-03-29,1.43
+ED41 Bromley & Dartford,W17,EV,2027-03-29,1.71
+EB13 Manchester Centre,W23,HEC,2027-03-29,1.45
+EB13 Manchester Centre,W23,KAC,2027-03-29,2.12
+EB13 Manchester Centre,W26,EV,2027-03-29,2.3
+EA11 Inverness & Aviemore,W23,HEC,2027-03-29,1.94
+EA11 Inverness & Aviemore,W01,KAC,2027-03-29,1.77
+EA11 Inverness & Aviemore,W01,EV,2027-03-29,2.72
+EA12 Aberdeen North,W23,HEC,2027-03-29,2.43
+EA12 Aberdeen North,W01,KAC,2027-03-29,2.13
+EA12 Aberdeen North,W23,EV,2027-03-29,2.7

@@ -62,6 +62,18 @@ DATE_COLS = [
     "2026-11-23", "2026-11-30", "2026-12-07", "2026-12-14"
 ]
 
+# Weekly Trajectory Envelope Planning Horizon (29 weeks: Q3 2026 - Q1 2027)
+TRAJECTORY_HORIZON_WEEKS = [
+    "2026-09-14", "2026-09-21",
+    "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
+    "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16",
+    "2026-11-23", "2026-11-30", "2026-12-07", "2026-12-14",
+    "2026-12-21", "2026-12-28",
+    "2027-01-04", "2027-01-11", "2027-01-18", "2027-01-25",
+    "2027-02-01", "2027-02-08", "2027-02-15", "2027-02-22",
+    "2027-03-01", "2027-03-08", "2027-03-15", "2027-03-22", "2027-03-29"
+]
+
 # Complete options catalog for every single user input
 DEFAULT_INPUT_OPTIONS = {
     "actuals_input": [
@@ -416,30 +428,349 @@ def get_file_remark(filename: str, fallback_label: str = "") -> str:
     return f"Active configuration for {fallback_label or filename} (Updated)"
 
 
+def get_weekly_synthetic_data(input_key: str) -> pd.DataFrame:
+    """
+    Generates rich synthetic data at the weekly level covering the 29-week
+    planning horizon defined in TRAJECTORY_HORIZON_WEEKS (Sep 14, 2026 to Mar 29, 2027)
+    with geography, skill, and numeric metrics for bulk modification and scenario modeling.
+    """
+    random.seed(42)  # Deterministic seed for reproducible baseline
+    
+    # 1. FTE Transfer
+    if input_key == "fte_transfer":
+        pairs = [
+            ("EA1", "EA2", "HEC", "Peak Winter Demand"),
+            ("EB1", "EB2", "HEC", "Storm Response Deficit"),
+            ("EC1", "EC2", "KAC", "Apprentice Upskilling"),
+            ("ED4", "ED2", "HEC", "London South Rebalancing"),
+            ("EB12 Altrincham", "EB14 Stockport", "EV", "EV Charger Install Surge")
+        ]
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for frm, to, sk, reason in pairs:
+                fte_val = round(random.choice([0.5, 1.0, 1.5, 2.0, 2.5]), 1)
+                rows.append({
+                    "From": frm,
+                    "To": to,
+                    "Skill": sk,
+                    "Weekcomm": w,
+                    "FTE": fte_val,
+                    "Reason": reason
+                })
+        return pd.DataFrame(rows)
+
+    # 2. Recruitment Grounded
+    elif input_key == "recruitment_grounded":
+        cohorts = [
+            ("Grounded Q3 Cohort 1", "HEC", "Region A", "Leeds Academy"),
+            ("Grounded Q3 Cohort 2", "KAC", "Region B", "Leicester Academy"),
+            ("Grounded Q4 Cohort 1", "EV", "Region C", "Dartford Academy"),
+            ("Grounded Q4 Cohort 2", "HEC", "Region D", "Oxford Academy"),
+            ("Grounded Q1 Cohort 1", "HEC", "Region E", "Bristol Academy")
+        ]
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for c_name, sk, reg, loc in cohorts:
+                hc = random.randint(12, 30)
+                rows.append({
+                    "Cohort": c_name,
+                    "Skill": sk,
+                    "Region": reg,
+                    "Weekcomm": w,
+                    "Headcount": hc,
+                    "Academy_Location": loc
+                })
+        return pd.DataFrame(rows)
+
+    # 3. Recruitment Ungrounded
+    elif input_key == "recruitment_ungrounded":
+        pipelines = [
+            ("Ungrounded Upside Pipeline A", "HEC", "Region A", "75%"),
+            ("Contingent Direct Entry B", "KAC", "Region B", "60%"),
+            ("Smart Meter Upside C", "EV", "Region C", "80%"),
+            ("Apprentice Fast-Track D", "HEC", "Region D", "70%"),
+            ("Regional Mobile Pipeline E", "KAC", "Region E", "65%")
+        ]
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for c_name, sk, reg, prob in pipelines:
+                hc = random.randint(15, 45)
+                rows.append({
+                    "Cohort": c_name,
+                    "Skill": sk,
+                    "Region": reg,
+                    "Weekcomm": w,
+                    "Headcount": hc,
+                    "Probability": prob
+                })
+        return pd.DataFrame(rows)
+
+    # 4. Downtime Overlays Percentage
+    elif input_key in ["downtime_overlays_percentage", "overlays_percentage"]:
+        metrics = [
+            ("Training", "GFF3 HEC SIPD Training %", 2.0, 4.5),
+            ("Sickness", "Short Term Absence %", 3.0, 5.5),
+            ("Annual Leave", "Holiday Overlay %", 8.0, 14.0),
+            ("Meeting", "Team Briefing & Safety %", 1.5, 3.0)
+        ]
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for p in PATCHES[:10]:
+                for sk in SKILLS:
+                    for m_name, lvl2, low, high in metrics:
+                        val = round(random.uniform(low, high), 2)
+                        rows.append({
+                            "patch": p,
+                            "skill": sk,
+                            "metric": m_name,
+                            "level2": lvl2,
+                            "weekcomm": w,
+                            "values": val
+                        })
+        return pd.DataFrame(rows)
+
+    # 5. Downtime Overlays Hours
+    elif input_key in ["downtime_overlays_hours", "overlays_hours"]:
+        metrics = [
+            ("Training", "GFF3 HEC SIPD Training Hrs", 15.0, 35.0),
+            ("Sickness", "Short Term Absence Hrs", 22.0, 48.0),
+            ("Annual Leave", "Holiday Overlay Hrs", 60.0, 110.0),
+            ("Meeting", "Team Briefing & Safety Hrs", 10.0, 25.0)
+        ]
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for p in PATCHES[:10]:
+                for sk in SKILLS:
+                    for m_name, lvl2, low, high in metrics:
+                        val = round(random.uniform(low, high), 1)
+                        rows.append({
+                            "patch": p,
+                            "skill": sk,
+                            "metric": m_name,
+                            "level2": lvl2,
+                            "weekcomm": w,
+                            "values": val
+                        })
+        return pd.DataFrame(rows)
+
+    # 6. Downtime Overlays Hours/FTE
+    elif input_key in ["downtime_overlays_hours_fte", "overlays_hours_fte", "overlays_hrs_fte"]:
+        metrics = [
+            ("Training", "GFF3 HEC Training Hrs/FTE", 0.8, 1.8),
+            ("Sickness", "Short Term Absence Hrs/FTE", 1.2, 2.5),
+            ("Annual Leave", "Holiday Overlay Hrs/FTE", 3.0, 5.5),
+            ("Meeting", "Team Briefing Hrs/FTE", 0.5, 1.2)
+        ]
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for p in PATCHES[:10]:
+                for sk in SKILLS:
+                    for m_name, lvl2, low, high in metrics:
+                        val = round(random.uniform(low, high), 2)
+                        rows.append({
+                            "patch": p,
+                            "skill": sk,
+                            "metric": m_name,
+                            "level2": lvl2,
+                            "weekcomm": w,
+                            "values": val
+                        })
+        return pd.DataFrame(rows)
+
+    # 7. Overtime
+    elif input_key == "overtime":
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for reg in REGIONS:
+                for sk in SKILLS:
+                    hrs = round(random.uniform(15.0, 45.0), 1)
+                    rows.append({
+                        "Region": reg,
+                        "Skill": sk,
+                        "Weekcomm": w,
+                        "Rate": "1.5x Standard" if sk != "EV" else "2.0x Weekend",
+                        "Cap": "10 hrs/week",
+                        "Overtime_Hours": hrs,
+                        "Authorized": "Yes"
+                    })
+        return pd.DataFrame(rows)
+
+    # 8. Training SNM
+    elif input_key == "training_snm":
+        courses = [
+            ("SNM Tier 2 Academy", "Leeds Technical Academy"),
+            ("EV Level 3 Fast-Track", "Dartford Green Hub"),
+            ("Heat Pump Certification", "Leicester Energy Hub"),
+            ("Gas Safety Refresher", "Edinburgh Academy")
+        ]
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for c_title, loc in courses:
+                for sk in SKILLS:
+                    att = random.randint(10, 30)
+                    hrs = round(att * 3.75, 1)
+                    rows.append({
+                        "Course": c_title,
+                        "Skill": sk,
+                        "Region": random.choice(REGIONS),
+                        "Weekcomm": w,
+                        "Attendees": att,
+                        "Hours": hrs,
+                        "Location": loc
+                    })
+        return pd.DataFrame(rows)
+
+    # 9. CTR Capacity
+    elif input_key == "ctr_capacity":
+        agencies = [
+            ("Centrica Flex Contractors", "Active"),
+            ("UK Field Solutions Ltd", "Active"),
+            ("GreenEnergy Tech Partners", "Standby")
+        ]
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for ag, st in agencies:
+                for reg in REGIONS:
+                    for sk in SKILLS:
+                        ctrs = random.randint(15, 55)
+                        fte_equiv = round(ctrs * 0.92, 1)
+                        rows.append({
+                            "Agency": ag,
+                            "Skill": sk,
+                            "Region": reg,
+                            "Weekcomm": w,
+                            "Contractors": ctrs,
+                            "Contractor_Hours": round(ctrs * 37.5, 1),
+                            "FTE": fte_equiv,
+                            "Status": st
+                        })
+        return pd.DataFrame(rows)
+
+    # 10. Attrition
+    elif input_key == "attrition":
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for reg in REGIONS:
+                for sk in SKILLS:
+                    base = 0.20 if sk == "HEC" else (0.08 if sk == "KAC" else 0.05)
+                    val = round(base + random.uniform(-0.04, 0.06), 3)
+                    rows.append({
+                        "Region Code": reg,
+                        "Skill": sk,
+                        "Weekcomm": w,
+                        "Values": max(0.01, val)
+                    })
+        return pd.DataFrame(rows)
+
+    # 11. Recruitment Config
+    elif input_key == "recruitment_config":
+        rows = []
+        for i, w in enumerate(TRAJECTORY_HORIZON_WEEKS, 1):
+            for sk in SKILLS:
+                ramp_pct = "20%" if (i % 4 == 1) else ("50%" if (i % 4 == 2) else ("80%" if (i % 4 == 3) else "100%"))
+                factor = 0.20 if ramp_pct == "20%" else (0.50 if ramp_pct == "50%" else (0.80 if ramp_pct == "80%" else 1.00))
+                rows.append({
+                    "Week": i,
+                    "Weekcomm": w,
+                    "Cohort": f"Cohort {(i % 4) + 1}",
+                    "Skill": sk,
+                    "Ramp": ramp_pct,
+                    "Productivity_Factor": factor,
+                    "Headcount": random.randint(15, 35)
+                })
+        return pd.DataFrame(rows)
+
+    # 12. Demand Input
+    elif input_key == "demand_input":
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for p in PATCHES[:10]:
+                for sk in SKILLS:
+                    wcode = random.choice(["W00", "W01", "W17", "W23", "W26"])
+                    jobs = random.randint(12, 65)
+                    rows.append({
+                        "Region Code": p[:1],
+                        "Area Code": p[:3],
+                        "Patch": p,
+                        "Skill": sk,
+                        "Type": "Patch",
+                        "Work Code": wcode,
+                        "Product": f"Product {wcode}",
+                        "Weekcomm": w,
+                        "Values": jobs
+                    })
+        return pd.DataFrame(rows)
+
+    # 13. Job Time Assumptions
+    elif input_key == "job_time_assumptions":
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for p in PATCHES[:10]:
+                for sk in SKILLS:
+                    wcode = random.choice(["W01", "W17", "W23", "W26"])
+                    dur = round(random.uniform(1.20, 2.75), 2)
+                    rows.append({
+                        "Patch": p,
+                        "Work Code": wcode,
+                        "Skill": sk,
+                        "Weekcomm": w,
+                        "Values": dur
+                    })
+        return pd.DataFrame(rows)
+
+    # 14. HEC on KAC Demand
+    elif input_key == "hec_on_kac_demand":
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for reg in REGIONS:
+                ratio = round(random.uniform(0.75, 0.90), 2)
+                hrs = round(random.uniform(60.0, 160.0), 1)
+                rows.append({
+                    "Skill": "HEC",
+                    "Support": "KAC",
+                    "Region": reg,
+                    "Weekcomm": w,
+                    "Ratio": ratio,
+                    "Support_Hours": hrs,
+                    "Max_Weekly_Hours": 180.0
+                })
+        return pd.DataFrame(rows)
+
+    # 15. HEC on EV Demand
+    elif input_key == "hec_on_ev_demand":
+        rows = []
+        for w in TRAJECTORY_HORIZON_WEEKS:
+            for reg in REGIONS:
+                ratio = round(random.uniform(0.70, 0.88), 2)
+                hrs = round(random.uniform(40.0, 120.0), 1)
+                rows.append({
+                    "Skill": "HEC",
+                    "Support": "EV",
+                    "Region": reg,
+                    "Weekcomm": w,
+                    "Ratio": ratio,
+                    "Support_Hours": hrs,
+                    "Max_Weekly_Hours": 140.0
+                })
+        return pd.DataFrame(rows)
+
+    return pd.DataFrame([{"ID": 1, "Name": input_key, "Status": "Active"}])
+
+
 def _generate_sample_df_for_category(input_key: str) -> pd.DataFrame:
     """Helper to generate sample DataFrame for an input category."""
-    if input_key == "actuals_input":
+    WEEKLY_INPUT_KEYS = [
+        "fte_transfer", "recruitment_grounded", "recruitment_ungrounded",
+        "downtime_overlays_percentage", "downtime_overlays_hours", "downtime_overlays_hours_fte",
+        "overtime", "training_snm", "ctr_capacity", "attrition", "recruitment_config",
+        "demand_input", "job_time_assumptions", "hec_on_kac_demand", "hec_on_ev_demand"
+    ]
+    if input_key in WEEKLY_INPUT_KEYS:
+        return get_weekly_synthetic_data(input_key)
+    elif input_key == "actuals_input":
         return SampleDataGenerator.get_imbalance_data()
     elif input_key == "resource_plan":
         return SampleDataGenerator.get_capacity_fte_data()
-    elif input_key == "fte_transfer":
-        return pd.DataFrame([
-            {"From": "EA1", "To": "EA2", "FTE": 1.5, "Reason": "Peak Winter Demand"},
-            {"From": "EB1", "To": "EB2", "FTE": 2.0, "Reason": "Storm Response"},
-            {"From": "EC1", "To": "EC2", "FTE": 1.0, "Reason": "Apprentice Support"}
-        ])
-    elif input_key == "recruitment_grounded":
-        return pd.DataFrame([
-            {"Cohort": "Grounded Q3 Cohort 1", "Headcount": 25, "Skill": "HEC", "Start Date": "2026-10-01"},
-            {"Cohort": "Grounded Q3 Cohort 2", "Headcount": 20, "Skill": "KAC", "Start Date": "2026-11-01"},
-            {"Cohort": "Grounded Q4 Cohort 1", "Headcount": 15, "Skill": "EV", "Start Date": "2026-12-01"}
-        ])
-    elif input_key == "recruitment_ungrounded":
-        return pd.DataFrame([
-            {"Cohort": "Ungrounded Upside A", "Headcount": 40, "Skill": "HEC", "Probability": "75%"},
-            {"Cohort": "Ungrounded Upside B", "Headcount": 30, "Skill": "EV", "Probability": "60%"},
-            {"Cohort": "Contingent Academy C", "Headcount": 20, "Skill": "KAC", "Probability": "80%"}
-        ])
     elif input_key == "baseline_assumptions":
         return pd.DataFrame([
             {"Metric": "Contractual Standard Hours", "Value": 37.5, "Unit": "hrs/week"},
@@ -447,57 +778,11 @@ def _generate_sample_df_for_category(input_key: str) -> pd.DataFrame:
             {"Metric": "Working Days per Week", "Value": 5, "Unit": "days"},
             {"Metric": "Annual Leave Factor", "Value": 11.2, "Unit": "%"}
         ])
-    elif input_key == "downtime_overlays_percentage":
-        return SampleDataGenerator.get_overlays_data("Percentage")
-    elif input_key == "downtime_overlays_hours":
-        return SampleDataGenerator.get_overlays_data("Hours")
-    elif input_key == "downtime_overlays_hours_fte":
-        return SampleDataGenerator.get_overlays_data("Hrs/FTE")
-    elif input_key == "overtime":
-        return pd.DataFrame([
-            {"Rate": "1.5x Standard", "Cap": "10 hrs/week", "Voluntary": "Yes", "Authorized": "Yes"},
-            {"Rate": "2.0x Weekend", "Cap": "8 hrs/week", "Voluntary": "Yes", "Authorized": "Pre-Approved"}
-        ])
     elif input_key == "baseline_productivity":
         return pd.DataFrame([
             {"Skill": "HEC", "Rate": 3.8, "Target": 4.0, "Benchmark Year": 2025},
             {"Skill": "KAC", "Rate": 3.5, "Target": 3.8, "Benchmark Year": 2025},
             {"Skill": "EV", "Rate": 2.2, "Target": 2.5, "Benchmark Year": 2026}
-        ])
-    elif input_key == "training_snm":
-        return pd.DataFrame([
-            {"Course": "SNM Tier 2 Academy", "Attendees": 30, "Duration": "2 weeks", "Location": "Leeds Academy"},
-            {"Course": "EV Installer Level 3", "Attendees": 18, "Duration": "3 weeks", "Location": "Dartford Academy"},
-            {"Course": "Heat Pump Fundamentals", "Attendees": 24, "Duration": "4 weeks", "Location": "Leicester Academy"}
-        ])
-    elif input_key == "ctr_capacity":
-        return pd.DataFrame([
-            {"Agency": "Centrica Flex Contractors", "Contractors": 50, "Skill": "HEC", "Status": "Active"},
-            {"Agency": "UK Field Solutions", "Contractors": 30, "Skill": "KAC", "Status": "Standby"},
-            {"Agency": "GreenEnergy Tech Partners", "Contractors": 20, "Skill": "EV", "Status": "Mobilizing"}
-        ])
-    elif input_key == "attrition":
-        return SampleDataGenerator.get_attrition_data()
-    elif input_key == "recruitment_config":
-        return pd.DataFrame([
-            {"Week": 1, "Ramp": "20%", "Productivity Factor": 0.20},
-            {"Week": 4, "Ramp": "50%", "Productivity Factor": 0.50},
-            {"Week": 8, "Ramp": "80%", "Productivity Factor": 0.80},
-            {"Week": 12, "Ramp": "100%", "Productivity Factor": 1.00}
-        ])
-    elif input_key == "demand_input":
-        return SampleDataGenerator.get_demand_jobs_data()
-    elif input_key == "job_time_assumptions":
-        return SampleDataGenerator.get_job_times_data()
-    elif input_key == "hec_on_kac_demand":
-        return pd.DataFrame([
-            {"Skill": "HEC", "Support": "KAC", "Ratio": 0.85, "Max Weekly Hours": 120},
-            {"Skill": "HEC", "Support": "KAC Tier 2", "Ratio": 0.60, "Max Weekly Hours": 60}
-        ])
-    elif input_key == "hec_on_ev_demand":
-        return pd.DataFrame([
-            {"Skill": "HEC", "Support": "EV", "Ratio": 0.90, "Max Weekly Hours": 80},
-            {"Skill": "HEC", "Support": "EV Commercial", "Ratio": 0.70, "Max Weekly Hours": 40}
         ])
     elif input_key == "geography_mapping":
         return SampleDataGenerator.get_geog_mapping_data()
@@ -524,6 +809,10 @@ def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
             "totalRows": 0,
             "error": "Input category must be provided."
         }
+
+    if not filename:
+        opts = DEFAULT_INPUT_OPTIONS.get(input_key, [])
+        filename = opts[0] if opts else f"{input_key}_default"
 
     # Route to Databricks Unity Catalog when compute is active
     try:
@@ -1192,25 +1481,10 @@ class SampleDataGenerator:
     @staticmethod
     def get_demand_jobs_data() -> pd.DataFrame:
         """
-        Generates National Demand Jobs table matching Image 6.
+        Generates National Demand Jobs table at weekly level.
         Columns: Region Code, Area Code, Patch, Skill, Type, Work Code, Product, Weekcomm, Values.
         """
-        data = [
-            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA11 Inverness & Aviemore", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
-            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA12 Aberdeen North", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
-            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA12 Aberdeen South", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
-            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA13 Dundee & Perth", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
-            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA13 Fife", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
-            {"Region Code": "A", "Area Code": "EA2", "Patch": "EA21 Dunbartonshire & Glasgow North", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
-            {"Region Code": "A", "Area Code": "EA2", "Patch": "EA21 Stirling & Falkirk", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
-            {"Region Code": "A", "Area Code": "EA3", "Patch": "EA31 Clyde Coast", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
-            {"Region Code": "A", "Area Code": "EA3", "Patch": "EA31 Glasgow South & Renfrewshire", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
-            {"Region Code": "B", "Area Code": "EB1", "Patch": "EB12 Altrincham", "Skill": "KAC", "Type": "Patch", "Work Code": "W01", "Product": "W01", "Weekcomm": "2025-01-06", "Values": 14},
-            {"Region Code": "B", "Area Code": "EB1", "Patch": "EB14 Stockport", "Skill": "HEC", "Type": "Patch", "Work Code": "W17", "Product": "W17", "Weekcomm": "2025-01-06", "Values": 28},
-            {"Region Code": "C", "Area Code": "EC6", "Patch": "EC62 Essex East", "Skill": "EV", "Type": "Patch", "Work Code": "W23", "Product": "W23", "Weekcomm": "2025-01-06", "Values": 19},
-            {"Region Code": "D", "Area Code": "ED4", "Patch": "ED44 Canterbury & Dover", "Skill": "HEC", "Type": "Patch", "Work Code": "W26", "Product": "W26", "Weekcomm": "2025-01-06", "Values": 35}
-        ]
-        return pd.DataFrame(data)
+        return get_weekly_synthetic_data("demand_input")
 
     @staticmethod
     def get_demand_hours_data() -> pd.DataFrame:
@@ -1260,67 +1534,27 @@ class SampleDataGenerator:
     @staticmethod
     def get_overlays_data(format_type: str = "Percentage") -> pd.DataFrame:
         """
-        Generates Downtime Overlays table matching Image 9.
+        Generates Downtime Overlays table at weekly level.
         Columns: patch, skill, metric, level2, weekcomm, values.
         """
-        suffix = " %" if format_type == "Percentage" else " Hrs"
-        mult = 1.0 if format_type == "Percentage" else 7.5
-        
-        data = [
-            {"patch": "EA11 Aberdeen North", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
-            {"patch": "EA11 Inverness & Aviemore", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
-            {"patch": "EA12 Aberdeen South", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
-            {"patch": "EA12 Dundee & Perth", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
-            {"patch": "EA12 Fife", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
-            {"patch": "EA21 Dunbartonshire & Glasgow North", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
-            {"patch": "EB12 Altrincham", "skill": "HEC", "metric": "Sickness", "level2": f"Short Term Absence{suffix}", "weekcomm": "2025-01-06", "values": round(3.5 * mult, 2)},
-            {"patch": "EC62 Essex East", "skill": "EV", "metric": "Annual Leave", "level2": f"Bank Holiday Overlay{suffix}", "weekcomm": "2025-01-06", "values": round(5.0 * mult, 2)}
-        ]
-        return pd.DataFrame(data)
+        fmt_key = "downtime_overlays_hours" if "hour" in format_type.lower() else "downtime_overlays_percentage"
+        return get_weekly_synthetic_data(fmt_key)
 
     @staticmethod
     def get_attrition_data() -> pd.DataFrame:
         """
-        Generates Attrition table matching Image 10.
+        Generates Attrition table at weekly level covering full trajectory horizon.
         Columns: Region Code, Skill, Weekcomm, Values.
         """
-        data = [
-            {"Region Code": "A", "Skill": "HEC", "Weekcomm": "2025-01-06", "Values": 0.20000000298023224},
-            {"Region Code": "B", "Skill": "HEC", "Weekcomm": "2025-01-06", "Values": 0.20000000298023224},
-            {"Region Code": "C", "Skill": "HEC", "Weekcomm": "2025-01-06", "Values": 0.20000000298023224},
-            {"Region Code": "D", "Skill": "HEC", "Weekcomm": "2025-01-06", "Values": 0.20000000298023224},
-            {"Region Code": "A", "Skill": "KAC", "Weekcomm": "2025-01-06", "Values": 0.08500000089406967},
-            {"Region Code": "B", "Skill": "KAC", "Weekcomm": "2025-01-06", "Values": 0.045000000178813934},
-            {"Region Code": "C", "Skill": "KAC", "Weekcomm": "2025-01-06", "Values": 0.045000000178813934},
-            {"Region Code": "D", "Skill": "KAC", "Weekcomm": "2025-01-06", "Values": 0.13500000536441803},
-            {"Region Code": "A", "Skill": "EV", "Weekcomm": "2025-01-06", "Values": 0.0},
-            {"Region Code": "B", "Skill": "EV", "Weekcomm": "2025-01-06", "Values": 0.0},
-            {"Region Code": "C", "Skill": "EV", "Weekcomm": "2025-01-06", "Values": 0.0}
-        ]
-        return pd.DataFrame(data)
+        return get_weekly_synthetic_data("attrition")
 
     @staticmethod
     def get_job_times_data() -> pd.DataFrame:
         """
-        Generates Job Times Assumptions table matching Image 11.
+        Generates Job Times Assumptions table at weekly level.
         Columns: Patch, Work Code, Skill, Weekcomm, Values.
         """
-        patches_subset = [
-            "EA74 Hull & York", "EB11 Liverpool & Formby", "EB12 Altrincham",
-            "EB12 Lancashire South", "EB13 Manchester Centre", "EB13 Oldham & Glossop",
-            "EB14 Cheshire East", "EB14 Stockport", "EB21 Cheshire West",
-            "EB22 Wales North West", "EB23 Wales North East"
-        ]
-        data = []
-        for p in patches_subset:
-            data.append({
-                "Patch": p,
-                "Work Code": "W01",
-                "Skill": "KAC",
-                "Weekcomm": "2025-07-21",
-                "Values": 1.27
-            })
-        return pd.DataFrame(data)
+        return get_weekly_synthetic_data("job_time_assumptions")
 
     @staticmethod
     def get_geog_mapping_data() -> pd.DataFrame:

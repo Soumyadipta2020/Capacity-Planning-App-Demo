@@ -1,5 +1,44 @@
 [
   {
+    "export_name": "Test_Custom_PowerBI_Export",
+    "scenario_id": "LV OCT V.0 2026-10-29 16:00:00",
+    "export_target": "private",
+    "target_label": "Private Power BI",
+    "workspace_name": "Centrica Energy Services - Private Capacity Planning Workspace",
+    "access_level": "Restricted (Executive RLS)",
+    "description": "Automated test export",
+    "timestamp": "2026-11-13 21:17:27",
+    "rows_count": 180,
+    "csv_file": "Test_Custom_PowerBI_Export.csv",
+    "pbids_file": "Test_Custom_PowerBI_Export.pbids"
+  },
+  {
+    "export_name": "Test_Custom_PowerBI_Export",
+    "scenario_id": "LV OCT V.0 2026-10-29 16:00:00",
+    "export_target": "private",
+    "target_label": "Private Power BI",
+    "workspace_name": "Centrica Energy Services - Private Capacity Planning Workspace",
+    "access_level": "Restricted (Executive RLS)",
+    "description": "Automated test export",
+    "timestamp": "2026-11-13 21:10:04",
+    "rows_count": 180,
+    "csv_file": "Test_Custom_PowerBI_Export.csv",
+    "pbids_file": "Test_Custom_PowerBI_Export.pbids"
+  },
+  {
+    "export_name": "Test_Custom_PowerBI_Export",
+    "scenario_id": "LV OCT V.0 2026-10-29 16:00:00",
+    "export_target": "private",
+    "target_label": "Private Power BI",
+    "workspace_name": "Centrica Energy Services - Private Capacity Planning Workspace",
+    "access_level": "Restricted (Executive RLS)",
+    "description": "Automated test export",
+    "timestamp": "2026-11-13 21:03:05",
+    "rows_count": 180,
+    "csv_file": "Test_Custom_PowerBI_Export.csv",
+    "pbids_file": "Test_Custom_PowerBI_Export.pbids"
+  },
+  {
     "export_name": "LV_OCT_V_0_2026-10-29_16_00_00_PowerBI",
     "scenario_id": "LV OCT V.0 2026-10-29 16:00:00",
     "export_target": "public",

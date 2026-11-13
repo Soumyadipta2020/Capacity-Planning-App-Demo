@@ -4721,6 +4721,19 @@ function InputTableViewModal({
     const [showPasteModal, setShowPasteModal] = useState(false); // Quick paste popup fallback
     const [pasteModalText, setPasteModalText] = useState('');
 
+    // Bulk Data Modification State & Drawer
+    const [showBulkEditDrawer, setShowBulkEditDrawer] = useState(false);
+    const [bulkGeoCol, setBulkGeoCol] = useState('');
+    const [bulkGeoVal, setBulkGeoVal] = useState('ALL');
+    const [bulkSkillCol, setBulkSkillCol] = useState('');
+    const [bulkSkillVal, setBulkSkillVal] = useState('ALL');
+    const [bulkDateCol, setBulkDateCol] = useState('');
+    const [bulkDateFrom, setBulkDateFrom] = useState('ALL');
+    const [bulkDateTo, setBulkDateTo] = useState('ALL');
+    const [bulkTargetCol, setBulkTargetCol] = useState('');
+    const [bulkOperation, setBulkOperation] = useState('increase_pct'); // 'increase_pct' | 'decrease_pct' | 'increase_num' | 'decrease_num' | 'set_val' | 'multiply'
+    const [bulkValue, setBulkValue] = useState('10');
+
     const cellInputRef = useRef(null);
     const formulaInputRef = useRef(null);
     const tableContainerRef = useRef(null);
@@ -4751,6 +4764,7 @@ function InputTableViewModal({
         setIsMouseDown(false);
         setEditingCell(null);
         setFormulaBarValue('');
+        setShowBulkEditDrawer(false);
     }, [data?.fileName, data?.rows]);
 
     // Focus input when entering inline cell edit
@@ -4773,6 +4787,198 @@ function InputTableViewModal({
         }
         return [];
     }, [data?.columns, tableRows]);
+
+    // Auto-detect and set default bulk columns when columns or fileName change
+    useEffect(() => {
+        if (columns.length === 0) return;
+
+        // Auto-detect Geo col: region, patch, area, from, to, territory, location, division, zone
+        const detectedGeo = columns.find(c => /region|patch|area|from|to|territory|location|division|zone|wmis/i.test(c)) || '';
+        setBulkGeoCol(detectedGeo);
+        setBulkGeoVal('ALL');
+
+        // Auto-detect Skill col: skill, support, trade, role, type
+        const detectedSkill = columns.find(c => /skill|support|trade|role/i.test(c)) || '';
+        setBulkSkillCol(detectedSkill);
+        setBulkSkillVal('ALL');
+
+        // Auto-detect Date col: weekcomm, date, week, month
+        const detectedDate = columns.find(c => /weekcomm|date|week/i.test(c)) || '';
+        setBulkDateCol(detectedDate);
+        setBulkDateFrom('ALL');
+        setBulkDateTo('ALL');
+
+        // Auto-detect Target Numeric col: values, val, fte, headcount, overtime_hours, hours, attendees, ratio, etc.
+        const detectedTarget = columns.find(c => /values|val|fte|headcount|overtime_hours|hours|attendees|ratio|target|number|count/i.test(c)) 
+            || columns[columns.length - 1] 
+            || columns[0];
+        setBulkTargetCol(detectedTarget);
+        setBulkOperation('increase_pct');
+        setBulkValue('10');
+    }, [fileName, columns]);
+
+    // Distinct Geography Values for Bulk Filter
+    const geoOptions = useMemo(() => {
+        if (!bulkGeoCol) return [];
+        const set = new Set();
+        tableRows.forEach(r => {
+            const val = r[bulkGeoCol];
+            if (val !== null && val !== undefined && String(val).trim() !== '') {
+                set.add(String(val).trim());
+            }
+        });
+        return Array.from(set).sort();
+    }, [tableRows, bulkGeoCol]);
+
+    // Distinct Skill Values for Bulk Filter
+    const skillOptions = useMemo(() => {
+        if (!bulkSkillCol) return [];
+        const set = new Set();
+        tableRows.forEach(r => {
+            const val = r[bulkSkillCol];
+            if (val !== null && val !== undefined && String(val).trim() !== '') {
+                set.add(String(val).trim());
+            }
+        });
+        return Array.from(set).sort();
+    }, [tableRows, bulkSkillCol]);
+
+    // Distinct Date Values for Bulk Filter
+    const dateOptions = useMemo(() => {
+        if (!bulkDateCol) return [];
+        const set = new Set();
+        tableRows.forEach(r => {
+            const val = r[bulkDateCol];
+            if (val !== null && val !== undefined && String(val).trim() !== '') {
+                set.add(String(val).trim());
+            }
+        });
+        return Array.from(set).sort();
+    }, [tableRows, bulkDateCol]);
+
+    // Matching Rows for Bulk Modification
+    const bulkMatchingRows = useMemo(() => {
+        if (!bulkTargetCol || tableRows.length === 0) return [];
+        return tableRows.filter(row => {
+            // Geo Filter
+            if (bulkGeoCol && bulkGeoVal !== 'ALL') {
+                const cellVal = String(row[bulkGeoCol] ?? '').trim().toLowerCase();
+                if (cellVal !== String(bulkGeoVal).trim().toLowerCase()) return false;
+            }
+            // Skill Filter
+            if (bulkSkillCol && bulkSkillVal !== 'ALL') {
+                const cellVal = String(row[bulkSkillCol] ?? '').trim().toLowerCase();
+                if (cellVal !== String(bulkSkillVal).trim().toLowerCase()) return false;
+            }
+            // Date Filter
+            if (bulkDateCol) {
+                const rowDate = String(row[bulkDateCol] ?? '').trim();
+                if (bulkDateFrom && bulkDateFrom !== 'ALL' && rowDate < bulkDateFrom) return false;
+                if (bulkDateTo && bulkDateTo !== 'ALL' && rowDate > bulkDateTo) return false;
+            }
+            return true;
+        });
+    }, [tableRows, bulkGeoCol, bulkGeoVal, bulkSkillCol, bulkSkillVal, bulkDateCol, bulkDateFrom, bulkDateTo, bulkTargetCol]);
+
+    // Sample preview for first matching row
+    const bulkSamplePreview = useMemo(() => {
+        if (bulkMatchingRows.length === 0 || !bulkTargetCol) return null;
+        const firstRow = bulkMatchingRows[0];
+        const rawVal = firstRow[bulkTargetCol];
+        const num = parseFloat(rawVal);
+        const opVal = parseFloat(bulkValue);
+        if (isNaN(num) || isNaN(opVal)) return null;
+
+        let res = num;
+        if (bulkOperation === 'increase_pct') res = num * (1 + opVal / 100);
+        else if (bulkOperation === 'decrease_pct') res = num * (1 - opVal / 100);
+        else if (bulkOperation === 'increase_num') res = num + opVal;
+        else if (bulkOperation === 'decrease_num') res = num - opVal;
+        else if (bulkOperation === 'set_val') res = opVal;
+        else if (bulkOperation === 'multiply') res = num * opVal;
+
+        const formatted = Number.isInteger(num) && Number.isInteger(res)
+            ? res
+            : Math.round(res * 100) / 100;
+
+        return {
+            rowId: firstRow.__rowId,
+            original: rawVal,
+            updated: formatted
+        };
+    }, [bulkMatchingRows, bulkTargetCol, bulkOperation, bulkValue]);
+
+    // Execute Bulk Change
+    const handleApplyBulkChange = () => {
+        if (bulkMatchingRows.length === 0) {
+            if (showToast) showToast('No rows match the selected bulk filter criteria.', 'warning');
+            return;
+        }
+        const delta = parseFloat(bulkValue);
+        if (isNaN(delta)) {
+            if (showToast) showToast('Please enter a valid numeric value for bulk adjustment.', 'warning');
+            return;
+        }
+
+        // Snapshot to undo stack
+        setUndoStack(prev => [...prev.slice(-30), tableRows]);
+
+        const matchingIds = new Set(bulkMatchingRows.map(r => r.__rowId));
+        const nextModified = { ...modifiedCells };
+        let modifiedCount = 0;
+
+        const updated = tableRows.map(row => {
+            if (!matchingIds.has(row.__rowId)) return row;
+
+            const raw = row[bulkTargetCol];
+            const num = parseFloat(raw);
+            let computed = delta;
+
+            if (!isNaN(num)) {
+                if (bulkOperation === 'increase_pct') computed = num * (1 + delta / 100);
+                else if (bulkOperation === 'decrease_pct') computed = num * (1 - delta / 100);
+                else if (bulkOperation === 'increase_num') computed = num + delta;
+                else if (bulkOperation === 'decrease_num') computed = num - delta;
+                else if (bulkOperation === 'set_val') computed = delta;
+                else if (bulkOperation === 'multiply') computed = num * delta;
+
+                computed = Number.isInteger(num) && Number.isInteger(computed)
+                    ? computed
+                    : Math.round(computed * 100) / 100;
+            }
+
+            const formatted = String(computed);
+            const cellKey = `${row.__rowId}_${bulkTargetCol}`;
+            const origVal = (data?.rows || [])[row.__rowId]?.[bulkTargetCol];
+            nextModified[cellKey] = origVal;
+            modifiedCount++;
+
+            return {
+                ...row,
+                [bulkTargetCol]: formatted
+            };
+        });
+
+        setTableRows(updated);
+        setModifiedCells(nextModified);
+        setIsEditMode(true);
+        setShowBulkEditDrawer(false);
+
+        if (showToast) {
+            const opLabels = {
+                increase_pct: `increased by +${delta}%`,
+                decrease_pct: `decreased by -${delta}%`,
+                increase_num: `increased by +${delta}`,
+                decrease_num: `decreased by -${delta}`,
+                set_val: `set to ${delta}`,
+                multiply: `multiplied by ${delta}x`
+            };
+            showToast(
+                `Bulk modified ${modifiedCount} rows in "${bulkTargetCol}" (${opLabels[bulkOperation] || 'updated'}). Review changes, then click "Save Changes" or "Discard".`,
+                'success'
+            );
+        }
+    };
 
     const dirtyCount = Object.keys(modifiedCells).length;
     const isDirty = dirtyCount > 0;
@@ -6039,6 +6245,29 @@ function InputTableViewModal({
                             )}
                         </button>
 
+                        {/* BULK CHANGE BUTTON */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsEditMode(true);
+                                setShowBulkEditDrawer(prev => !prev);
+                            }}
+                            className={`inline-flex items-center gap-1.5 font-bold text-xs px-3 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
+                                showBulkEditDrawer
+                                    ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 ring-2 ring-blue-300'
+                                    : 'bg-white hover:bg-blue-50 text-blue-800 border-blue-300 hover:border-blue-400'
+                            }`}
+                            title={showBulkEditDrawer ? "Close Bulk Change Drawer" : "Bulk modify data by Geography, Skill, or Date Range"}
+                        >
+                            <IconSliders className="w-3.5 h-3.5" />
+                            <span>Bulk Change</span>
+                            {bulkMatchingRows.length > 0 && showBulkEditDrawer && (
+                                <span className="text-[10px] bg-white/30 px-1.5 py-0.2 rounded-full font-bold">
+                                    {bulkMatchingRows.length}
+                                </span>
+                            )}
+                        </button>
+
                         {/* Page Size Selector */}
                         <div className="flex items-center gap-1">
                             <span className="text-[10px] font-bold text-slate-400 uppercase hidden lg:inline">Rows:</span>
@@ -6191,6 +6420,21 @@ function InputTableViewModal({
                                 <span>Paste</span>
                             </button>
 
+                            {/* Bulk Change Button in Formula Bar */}
+                            <button
+                                type="button"
+                                onClick={() => setShowBulkEditDrawer(prev => !prev)}
+                                className={`inline-flex items-center gap-1 font-bold text-xs px-2.5 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
+                                    showBulkEditDrawer
+                                        ? 'bg-blue-600 text-white border-blue-600 ring-2 ring-blue-300'
+                                        : 'bg-white hover:bg-blue-50 text-blue-800 border-blue-300'
+                                }`}
+                                title="Open bulk data modification drawer"
+                            >
+                                <IconSliders className="w-3.5 h-3.5" />
+                                <span>Bulk Change</span>
+                            </button>
+
                             {/* Add Row Button */}
                             <button
                                 type="button"
@@ -6271,6 +6515,229 @@ function InputTableViewModal({
                                     </span>
                                 )}
                             </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* BULK DATA MODIFICATION DRAWER */}
+                {showBulkEditDrawer && (
+                    <div className="bg-gradient-to-r from-blue-50/95 via-indigo-50/90 to-blue-50/95 border-b border-blue-200/90 p-3 sm:p-4 text-xs shadow-md animate-fade-in flex-shrink-0">
+                        <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-blue-200/70">
+                            <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                                    <IconSliders className="w-3.5 h-3.5" />
+                                </div>
+                                <div>
+                                    <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
+                                        <span>Bulk Data Modification</span>
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                                            Excel Batch Tool
+                                        </span>
+                                    </h4>
+                                    <p className="text-[11px] text-slate-500">
+                                        Filter by Geography, Skill, or Date Range and apply an increase, decrease, or value set across matching rows.
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowBulkEditDrawer(false)}
+                                className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-white/80 transition cursor-pointer"
+                                title="Close bulk editor"
+                            >
+                                <IconX className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {/* Filter & Operation Controls Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
+                            {/* 1. Geography Filter */}
+                            <div>
+                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                    Geography {bulkGeoCol && <span className="font-mono text-[10px] text-blue-600">({bulkGeoCol})</span>}
+                                </label>
+                                {bulkGeoCol ? (
+                                    <select
+                                        value={bulkGeoVal}
+                                        onChange={(e) => setBulkGeoVal(e.target.value)}
+                                        className="w-full bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer"
+                                    >
+                                        <option value="ALL">All Geographies ({geoOptions.length})</option>
+                                        {geoOptions.map(g => (
+                                            <option key={g} value={g}>{g}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <div className="text-[11px] text-slate-400 italic py-1.5">No geography column</div>
+                                )}
+                            </div>
+
+                            {/* 2. Skill Filter */}
+                            <div>
+                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                    Skill {bulkSkillCol && <span className="font-mono text-[10px] text-blue-600">({bulkSkillCol})</span>}
+                                </label>
+                                {bulkSkillCol ? (
+                                    <select
+                                        value={bulkSkillVal}
+                                        onChange={(e) => setBulkSkillVal(e.target.value)}
+                                        className="w-full bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer"
+                                    >
+                                        <option value="ALL">All Skills ({skillOptions.length})</option>
+                                        {skillOptions.map(s => (
+                                            <option key={s} value={s}>{s}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <div className="text-[11px] text-slate-400 italic py-1.5">No skill column</div>
+                                )}
+                            </div>
+
+                            {/* 3. Date From */}
+                            <div>
+                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                    Date From {bulkDateCol && <span className="font-mono text-[10px] text-blue-600">({bulkDateCol})</span>}
+                                </label>
+                                {bulkDateCol ? (
+                                    <select
+                                        value={bulkDateFrom}
+                                        onChange={(e) => setBulkDateFrom(e.target.value)}
+                                        className="w-full bg-white border border-blue-300 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer font-mono"
+                                    >
+                                        <option value="ALL">Start of Horizon</option>
+                                        {dateOptions.map(d => (
+                                            <option key={d} value={d}>{d}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <div className="text-[11px] text-slate-400 italic py-1.5">No date column</div>
+                                )}
+                            </div>
+
+                            {/* 4. Date To */}
+                            <div>
+                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                    Date To
+                                </label>
+                                {bulkDateCol ? (
+                                    <select
+                                        value={bulkDateTo}
+                                        onChange={(e) => setBulkDateTo(e.target.value)}
+                                        className="w-full bg-white border border-blue-300 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer font-mono"
+                                    >
+                                        <option value="ALL">End of Horizon</option>
+                                        {dateOptions.map(d => (
+                                            <option key={d} value={d}>{d}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <div className="text-[11px] text-slate-400 italic py-1.5">No date column</div>
+                                )}
+                            </div>
+
+                            {/* 5. Target Column & Operation */}
+                            <div>
+                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                    Target Col & Action
+                                </label>
+                                <div className="flex gap-1">
+                                    <select
+                                        value={bulkTargetCol}
+                                        onChange={(e) => setBulkTargetCol(e.target.value)}
+                                        className="w-1/2 bg-white border border-blue-300 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer truncate"
+                                        title="Column to modify"
+                                    >
+                                        {columns.map(c => (
+                                            <option key={c} value={c}>{c}</option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        value={bulkOperation}
+                                        onChange={(e) => setBulkOperation(e.target.value)}
+                                        className="w-1/2 bg-white border border-blue-300 rounded-lg px-1.5 py-1.5 text-xs font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer truncate"
+                                        title="Bulk modification operation"
+                                    >
+                                        <option value="increase_pct">+% Increase</option>
+                                        <option value="decrease_pct">-% Decrease</option>
+                                        <option value="increase_num">+ Fixed Number</option>
+                                        <option value="decrease_num">- Fixed Number</option>
+                                        <option value="set_val">= Set Exact Value</option>
+                                        <option value="multiply">× Multiply Factor</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* 6. Adjustment Value & Apply Button */}
+                            <div>
+                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                    Adjustment Value
+                                </label>
+                                <div className="flex gap-1.5">
+                                    <input
+                                        type="number"
+                                        step="any"
+                                        value={bulkValue}
+                                        onChange={(e) => setBulkValue(e.target.value)}
+                                        className="w-20 bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs"
+                                        placeholder="e.g. 10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleApplyBulkChange}
+                                        disabled={bulkMatchingRows.length === 0}
+                                        className="flex-1 inline-flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg shadow-xs transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                        title="Apply bulk changes to matching rows"
+                                    >
+                                        <IconCheck className="w-3.5 h-3.5 text-white" />
+                                        <span>Apply</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Live Matching Summary & Preview Bar */}
+                        <div className="mt-2.5 pt-2 border-t border-blue-200/60 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-slate-600">
+                                    Matches:
+                                </span>
+                                <span className={`font-mono font-bold px-2 py-0.5 rounded-md text-xs ${
+                                    bulkMatchingRows.length > 0 
+                                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
+                                        : 'bg-rose-100 text-rose-700 border border-rose-300'
+                                }`}>
+                                    {bulkMatchingRows.length} of {tableRows.length} rows ({bulkMatchingRows.length > 0 ? Math.round((bulkMatchingRows.length / tableRows.length) * 100) : 0}%)
+                                </span>
+
+                                {bulkSamplePreview && (
+                                    <span className="text-slate-600 bg-white/90 border border-blue-200 px-2 py-0.5 rounded-md font-mono text-[11px]">
+                                        Preview (Row 1): <span className="line-through text-slate-400">{bulkSamplePreview.original}</span> → <span className="font-extrabold text-emerald-700">{bulkSamplePreview.updated}</span>
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setBulkGeoVal('ALL');
+                                        setBulkSkillVal('ALL');
+                                        setBulkDateFrom('ALL');
+                                        setBulkDateTo('ALL');
+                                        setBulkValue('10');
+                                    }}
+                                    className="text-slate-500 hover:text-slate-700 hover:underline cursor-pointer"
+                                >
+                                    Reset Filters
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowBulkEditDrawer(false)}
+                                    className="text-blue-600 hover:text-blue-800 font-bold hover:underline cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}

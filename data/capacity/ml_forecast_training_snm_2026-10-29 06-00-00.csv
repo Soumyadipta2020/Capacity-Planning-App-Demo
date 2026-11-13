@@ -1,5 +1,349 @@
-Course,Attendees
-SNM_Core_Safety_P07,28
-Heat_Pump_Diagnostic_Cert,22
-Smart_Meter_V3_Ramp,16
-Dual_Fuel_Transition,12
+Course,Skill,Region,Weekcomm,Attendees,Hours,Location
+SNM Tier 2 Academy,HEC,A,2026-09-14,30,112.5,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,C,2026-09-14,10,37.5,Leeds Technical Academy
+SNM Tier 2 Academy,EV,B,2026-09-14,17,63.8,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,A,2026-09-14,14,52.5,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,A,2026-09-14,27,101.2,Dartford Green Hub
+EV Level 3 Fast-Track,EV,D,2026-09-14,28,105.0,Dartford Green Hub
+Heat Pump Certification,HEC,A,2026-09-14,11,41.2,Leicester Energy Hub
+Heat Pump Certification,KAC,B,2026-09-14,12,45.0,Leicester Energy Hub
+Heat Pump Certification,EV,E,2026-09-14,17,63.8,Leicester Energy Hub
+Gas Safety Refresher,HEC,A,2026-09-14,29,108.8,Edinburgh Academy
+Gas Safety Refresher,KAC,B,2026-09-14,27,101.2,Edinburgh Academy
+Gas Safety Refresher,EV,E,2026-09-14,30,112.5,Edinburgh Academy
+SNM Tier 2 Academy,HEC,B,2026-09-21,23,86.2,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,E,2026-09-21,24,90.0,Leeds Technical Academy
+SNM Tier 2 Academy,EV,A,2026-09-21,18,67.5,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,D,2026-09-21,15,56.2,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,C,2026-09-21,20,75.0,Dartford Green Hub
+EV Level 3 Fast-Track,EV,B,2026-09-21,14,52.5,Dartford Green Hub
+Heat Pump Certification,HEC,A,2026-09-21,20,75.0,Leicester Energy Hub
+Heat Pump Certification,KAC,D,2026-09-21,12,45.0,Leicester Energy Hub
+Heat Pump Certification,EV,C,2026-09-21,13,48.8,Leicester Energy Hub
+Gas Safety Refresher,HEC,E,2026-09-21,21,78.8,Edinburgh Academy
+Gas Safety Refresher,KAC,A,2026-09-21,18,67.5,Edinburgh Academy
+Gas Safety Refresher,EV,E,2026-09-21,24,90.0,Edinburgh Academy
+SNM Tier 2 Academy,HEC,D,2026-09-28,13,48.8,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,E,2026-09-28,12,45.0,Leeds Technical Academy
+SNM Tier 2 Academy,EV,E,2026-09-28,19,71.2,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,E,2026-09-28,21,78.8,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,A,2026-09-28,16,60.0,Dartford Green Hub
+EV Level 3 Fast-Track,EV,B,2026-09-28,11,41.2,Dartford Green Hub
+Heat Pump Certification,HEC,A,2026-09-28,19,71.2,Leicester Energy Hub
+Heat Pump Certification,KAC,A,2026-09-28,17,63.8,Leicester Energy Hub
+Heat Pump Certification,EV,C,2026-09-28,22,82.5,Leicester Energy Hub
+Gas Safety Refresher,HEC,C,2026-09-28,24,90.0,Edinburgh Academy
+Gas Safety Refresher,KAC,C,2026-09-28,15,56.2,Edinburgh Academy
+Gas Safety Refresher,EV,B,2026-09-28,21,78.8,Edinburgh Academy
+SNM Tier 2 Academy,HEC,A,2026-10-05,18,67.5,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,B,2026-10-05,29,108.8,Leeds Technical Academy
+SNM Tier 2 Academy,EV,B,2026-10-05,27,101.2,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,D,2026-10-05,15,56.2,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,C,2026-10-05,22,82.5,Dartford Green Hub
+EV Level 3 Fast-Track,EV,E,2026-10-05,30,112.5,Dartford Green Hub
+Heat Pump Certification,HEC,C,2026-10-05,17,63.8,Leicester Energy Hub
+Heat Pump Certification,KAC,B,2026-10-05,11,41.2,Leicester Energy Hub
+Heat Pump Certification,EV,C,2026-10-05,11,41.2,Leicester Energy Hub
+Gas Safety Refresher,HEC,C,2026-10-05,22,82.5,Edinburgh Academy
+Gas Safety Refresher,KAC,B,2026-10-05,12,45.0,Edinburgh Academy
+Gas Safety Refresher,EV,C,2026-10-05,28,105.0,Edinburgh Academy
+SNM Tier 2 Academy,HEC,D,2026-10-12,16,60.0,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,D,2026-10-12,22,82.5,Leeds Technical Academy
+SNM Tier 2 Academy,EV,C,2026-10-12,14,52.5,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,B,2026-10-12,14,52.5,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,E,2026-10-12,27,101.2,Dartford Green Hub
+EV Level 3 Fast-Track,EV,E,2026-10-12,18,67.5,Dartford Green Hub
+Heat Pump Certification,HEC,E,2026-10-12,23,86.2,Leicester Energy Hub
+Heat Pump Certification,KAC,C,2026-10-12,22,82.5,Leicester Energy Hub
+Heat Pump Certification,EV,B,2026-10-12,17,63.8,Leicester Energy Hub
+Gas Safety Refresher,HEC,D,2026-10-12,26,97.5,Edinburgh Academy
+Gas Safety Refresher,KAC,A,2026-10-12,12,45.0,Edinburgh Academy
+Gas Safety Refresher,EV,B,2026-10-12,13,48.8,Edinburgh Academy
+SNM Tier 2 Academy,HEC,B,2026-10-19,30,112.5,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,E,2026-10-19,23,86.2,Leeds Technical Academy
+SNM Tier 2 Academy,EV,D,2026-10-19,12,45.0,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,E,2026-10-19,22,82.5,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,E,2026-10-19,24,90.0,Dartford Green Hub
+EV Level 3 Fast-Track,EV,E,2026-10-19,18,67.5,Dartford Green Hub
+Heat Pump Certification,HEC,A,2026-10-19,10,37.5,Leicester Energy Hub
+Heat Pump Certification,KAC,C,2026-10-19,27,101.2,Leicester Energy Hub
+Heat Pump Certification,EV,C,2026-10-19,30,112.5,Leicester Energy Hub
+Gas Safety Refresher,HEC,C,2026-10-19,13,48.8,Edinburgh Academy
+Gas Safety Refresher,KAC,B,2026-10-19,23,86.2,Edinburgh Academy
+Gas Safety Refresher,EV,A,2026-10-19,24,90.0,Edinburgh Academy
+SNM Tier 2 Academy,HEC,E,2026-10-26,18,67.5,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,E,2026-10-26,15,56.2,Leeds Technical Academy
+SNM Tier 2 Academy,EV,C,2026-10-26,13,48.8,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,E,2026-10-26,30,112.5,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,B,2026-10-26,29,108.8,Dartford Green Hub
+EV Level 3 Fast-Track,EV,C,2026-10-26,14,52.5,Dartford Green Hub
+Heat Pump Certification,HEC,E,2026-10-26,15,56.2,Leicester Energy Hub
+Heat Pump Certification,KAC,A,2026-10-26,26,97.5,Leicester Energy Hub
+Heat Pump Certification,EV,C,2026-10-26,29,108.8,Leicester Energy Hub
+Gas Safety Refresher,HEC,A,2026-10-26,25,93.8,Edinburgh Academy
+Gas Safety Refresher,KAC,C,2026-10-26,13,48.8,Edinburgh Academy
+Gas Safety Refresher,EV,B,2026-10-26,19,71.2,Edinburgh Academy
+SNM Tier 2 Academy,HEC,B,2026-11-02,11,41.2,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,A,2026-11-02,28,105.0,Leeds Technical Academy
+SNM Tier 2 Academy,EV,D,2026-11-02,12,45.0,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,E,2026-11-02,12,45.0,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,B,2026-11-02,14,52.5,Dartford Green Hub
+EV Level 3 Fast-Track,EV,E,2026-11-02,25,93.8,Dartford Green Hub
+Heat Pump Certification,HEC,C,2026-11-02,15,56.2,Leicester Energy Hub
+Heat Pump Certification,KAC,E,2026-11-02,26,97.5,Leicester Energy Hub
+Heat Pump Certification,EV,B,2026-11-02,23,86.2,Leicester Energy Hub
+Gas Safety Refresher,HEC,B,2026-11-02,27,101.2,Edinburgh Academy
+Gas Safety Refresher,KAC,D,2026-11-02,19,71.2,Edinburgh Academy
+Gas Safety Refresher,EV,C,2026-11-02,30,112.5,Edinburgh Academy
+SNM Tier 2 Academy,HEC,E,2026-11-09,24,90.0,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,A,2026-11-09,24,90.0,Leeds Technical Academy
+SNM Tier 2 Academy,EV,B,2026-11-09,17,63.8,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,C,2026-11-09,12,45.0,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,E,2026-11-09,10,37.5,Dartford Green Hub
+EV Level 3 Fast-Track,EV,B,2026-11-09,27,101.2,Dartford Green Hub
+Heat Pump Certification,HEC,B,2026-11-09,28,105.0,Leicester Energy Hub
+Heat Pump Certification,KAC,A,2026-11-09,10,37.5,Leicester Energy Hub
+Heat Pump Certification,EV,A,2026-11-09,30,112.5,Leicester Energy Hub
+Gas Safety Refresher,HEC,A,2026-11-09,17,63.8,Edinburgh Academy
+Gas Safety Refresher,KAC,C,2026-11-09,11,41.2,Edinburgh Academy
+Gas Safety Refresher,EV,E,2026-11-09,12,45.0,Edinburgh Academy
+SNM Tier 2 Academy,HEC,C,2026-11-16,17,63.8,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,B,2026-11-16,25,93.8,Leeds Technical Academy
+SNM Tier 2 Academy,EV,B,2026-11-16,27,101.2,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,E,2026-11-16,28,105.0,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,B,2026-11-16,25,93.8,Dartford Green Hub
+EV Level 3 Fast-Track,EV,D,2026-11-16,25,93.8,Dartford Green Hub
+Heat Pump Certification,HEC,A,2026-11-16,16,60.0,Leicester Energy Hub
+Heat Pump Certification,KAC,D,2026-11-16,13,48.8,Leicester Energy Hub
+Heat Pump Certification,EV,D,2026-11-16,21,78.8,Leicester Energy Hub
+Gas Safety Refresher,HEC,D,2026-11-16,23,86.2,Edinburgh Academy
+Gas Safety Refresher,KAC,A,2026-11-16,11,41.2,Edinburgh Academy
+Gas Safety Refresher,EV,D,2026-11-16,11,41.2,Edinburgh Academy
+SNM Tier 2 Academy,HEC,A,2026-11-23,20,75.0,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,B,2026-11-23,17,63.8,Leeds Technical Academy
+SNM Tier 2 Academy,EV,E,2026-11-23,16,60.0,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,B,2026-11-23,24,90.0,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,B,2026-11-23,23,86.2,Dartford Green Hub
+EV Level 3 Fast-Track,EV,D,2026-11-23,18,67.5,Dartford Green Hub
+Heat Pump Certification,HEC,A,2026-11-23,17,63.8,Leicester Energy Hub
+Heat Pump Certification,KAC,E,2026-11-23,24,90.0,Leicester Energy Hub
+Heat Pump Certification,EV,A,2026-11-23,13,48.8,Leicester Energy Hub
+Gas Safety Refresher,HEC,E,2026-11-23,30,112.5,Edinburgh Academy
+Gas Safety Refresher,KAC,A,2026-11-23,10,37.5,Edinburgh Academy
+Gas Safety Refresher,EV,B,2026-11-23,17,63.8,Edinburgh Academy
+SNM Tier 2 Academy,HEC,D,2026-11-30,23,86.2,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,B,2026-11-30,25,93.8,Leeds Technical Academy
+SNM Tier 2 Academy,EV,A,2026-11-30,22,82.5,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,D,2026-11-30,15,56.2,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,D,2026-11-30,10,37.5,Dartford Green Hub
+EV Level 3 Fast-Track,EV,D,2026-11-30,18,67.5,Dartford Green Hub
+Heat Pump Certification,HEC,D,2026-11-30,19,71.2,Leicester Energy Hub
+Heat Pump Certification,KAC,D,2026-11-30,27,101.2,Leicester Energy Hub
+Heat Pump Certification,EV,B,2026-11-30,14,52.5,Leicester Energy Hub
+Gas Safety Refresher,HEC,B,2026-11-30,19,71.2,Edinburgh Academy
+Gas Safety Refresher,KAC,E,2026-11-30,11,41.2,Edinburgh Academy
+Gas Safety Refresher,EV,A,2026-11-30,27,101.2,Edinburgh Academy
+SNM Tier 2 Academy,HEC,A,2026-12-07,20,75.0,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,E,2026-12-07,11,41.2,Leeds Technical Academy
+SNM Tier 2 Academy,EV,E,2026-12-07,25,93.8,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,B,2026-12-07,26,97.5,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,E,2026-12-07,11,41.2,Dartford Green Hub
+EV Level 3 Fast-Track,EV,B,2026-12-07,12,45.0,Dartford Green Hub
+Heat Pump Certification,HEC,E,2026-12-07,12,45.0,Leicester Energy Hub
+Heat Pump Certification,KAC,B,2026-12-07,12,45.0,Leicester Energy Hub
+Heat Pump Certification,EV,A,2026-12-07,22,82.5,Leicester Energy Hub
+Gas Safety Refresher,HEC,B,2026-12-07,28,105.0,Edinburgh Academy
+Gas Safety Refresher,KAC,E,2026-12-07,28,105.0,Edinburgh Academy
+Gas Safety Refresher,EV,E,2026-12-07,11,41.2,Edinburgh Academy
+SNM Tier 2 Academy,HEC,D,2026-12-14,12,45.0,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,E,2026-12-14,28,105.0,Leeds Technical Academy
+SNM Tier 2 Academy,EV,C,2026-12-14,26,97.5,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,B,2026-12-14,18,67.5,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,B,2026-12-14,20,75.0,Dartford Green Hub
+EV Level 3 Fast-Track,EV,D,2026-12-14,18,67.5,Dartford Green Hub
+Heat Pump Certification,HEC,C,2026-12-14,14,52.5,Leicester Energy Hub
+Heat Pump Certification,KAC,C,2026-12-14,24,90.0,Leicester Energy Hub
+Heat Pump Certification,EV,A,2026-12-14,12,45.0,Leicester Energy Hub
+Gas Safety Refresher,HEC,E,2026-12-14,24,90.0,Edinburgh Academy
+Gas Safety Refresher,KAC,A,2026-12-14,28,105.0,Edinburgh Academy
+Gas Safety Refresher,EV,E,2026-12-14,12,45.0,Edinburgh Academy
+SNM Tier 2 Academy,HEC,E,2026-12-21,16,60.0,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,B,2026-12-21,18,67.5,Leeds Technical Academy
+SNM Tier 2 Academy,EV,A,2026-12-21,21,78.8,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,C,2026-12-21,17,63.8,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,B,2026-12-21,19,71.2,Dartford Green Hub
+EV Level 3 Fast-Track,EV,E,2026-12-21,24,90.0,Dartford Green Hub
+Heat Pump Certification,HEC,E,2026-12-21,19,71.2,Leicester Energy Hub
+Heat Pump Certification,KAC,E,2026-12-21,30,112.5,Leicester Energy Hub
+Heat Pump Certification,EV,E,2026-12-21,10,37.5,Leicester Energy Hub
+Gas Safety Refresher,HEC,A,2026-12-21,19,71.2,Edinburgh Academy
+Gas Safety Refresher,KAC,C,2026-12-21,14,52.5,Edinburgh Academy
+Gas Safety Refresher,EV,A,2026-12-21,13,48.8,Edinburgh Academy
+SNM Tier 2 Academy,HEC,B,2026-12-28,27,101.2,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,C,2026-12-28,18,67.5,Leeds Technical Academy
+SNM Tier 2 Academy,EV,B,2026-12-28,29,108.8,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,B,2026-12-28,20,75.0,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,C,2026-12-28,30,112.5,Dartford Green Hub
+EV Level 3 Fast-Track,EV,D,2026-12-28,26,97.5,Dartford Green Hub
+Heat Pump Certification,HEC,A,2026-12-28,18,67.5,Leicester Energy Hub
+Heat Pump Certification,KAC,D,2026-12-28,12,45.0,Leicester Energy Hub
+Heat Pump Certification,EV,A,2026-12-28,18,67.5,Leicester Energy Hub
+Gas Safety Refresher,HEC,C,2026-12-28,10,37.5,Edinburgh Academy
+Gas Safety Refresher,KAC,C,2026-12-28,14,52.5,Edinburgh Academy
+Gas Safety Refresher,EV,D,2026-12-28,15,56.2,Edinburgh Academy
+SNM Tier 2 Academy,HEC,D,2027-01-04,27,101.2,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,A,2027-01-04,27,101.2,Leeds Technical Academy
+SNM Tier 2 Academy,EV,A,2027-01-04,13,48.8,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,E,2027-01-04,14,52.5,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,C,2027-01-04,11,41.2,Dartford Green Hub
+EV Level 3 Fast-Track,EV,E,2027-01-04,28,105.0,Dartford Green Hub
+Heat Pump Certification,HEC,D,2027-01-04,14,52.5,Leicester Energy Hub
+Heat Pump Certification,KAC,A,2027-01-04,14,52.5,Leicester Energy Hub
+Heat Pump Certification,EV,C,2027-01-04,19,71.2,Leicester Energy Hub
+Gas Safety Refresher,HEC,C,2027-01-04,11,41.2,Edinburgh Academy
+Gas Safety Refresher,KAC,B,2027-01-04,16,60.0,Edinburgh Academy
+Gas Safety Refresher,EV,C,2027-01-04,13,48.8,Edinburgh Academy
+SNM Tier 2 Academy,HEC,D,2027-01-11,27,101.2,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,B,2027-01-11,29,108.8,Leeds Technical Academy
+SNM Tier 2 Academy,EV,B,2027-01-11,17,63.8,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,D,2027-01-11,15,56.2,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,B,2027-01-11,10,37.5,Dartford Green Hub
+EV Level 3 Fast-Track,EV,D,2027-01-11,20,75.0,Dartford Green Hub
+Heat Pump Certification,HEC,C,2027-01-11,17,63.8,Leicester Energy Hub
+Heat Pump Certification,KAC,A,2027-01-11,15,56.2,Leicester Energy Hub
+Heat Pump Certification,EV,A,2027-01-11,22,82.5,Leicester Energy Hub
+Gas Safety Refresher,HEC,B,2027-01-11,25,93.8,Edinburgh Academy
+Gas Safety Refresher,KAC,D,2027-01-11,16,60.0,Edinburgh Academy
+Gas Safety Refresher,EV,C,2027-01-11,21,78.8,Edinburgh Academy
+SNM Tier 2 Academy,HEC,B,2027-01-18,17,63.8,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,B,2027-01-18,10,37.5,Leeds Technical Academy
+SNM Tier 2 Academy,EV,C,2027-01-18,22,82.5,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,A,2027-01-18,18,67.5,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,C,2027-01-18,18,67.5,Dartford Green Hub
+EV Level 3 Fast-Track,EV,E,2027-01-18,30,112.5,Dartford Green Hub
+Heat Pump Certification,HEC,E,2027-01-18,22,82.5,Leicester Energy Hub
+Heat Pump Certification,KAC,A,2027-01-18,20,75.0,Leicester Energy Hub
+Heat Pump Certification,EV,C,2027-01-18,13,48.8,Leicester Energy Hub
+Gas Safety Refresher,HEC,E,2027-01-18,15,56.2,Edinburgh Academy
+Gas Safety Refresher,KAC,A,2027-01-18,18,67.5,Edinburgh Academy
+Gas Safety Refresher,EV,E,2027-01-18,13,48.8,Edinburgh Academy
+SNM Tier 2 Academy,HEC,C,2027-01-25,23,86.2,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,D,2027-01-25,20,75.0,Leeds Technical Academy
+SNM Tier 2 Academy,EV,E,2027-01-25,29,108.8,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,D,2027-01-25,13,48.8,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,B,2027-01-25,28,105.0,Dartford Green Hub
+EV Level 3 Fast-Track,EV,A,2027-01-25,18,67.5,Dartford Green Hub
+Heat Pump Certification,HEC,A,2027-01-25,23,86.2,Leicester Energy Hub
+Heat Pump Certification,KAC,E,2027-01-25,26,97.5,Leicester Energy Hub
+Heat Pump Certification,EV,C,2027-01-25,16,60.0,Leicester Energy Hub
+Gas Safety Refresher,HEC,A,2027-01-25,23,86.2,Edinburgh Academy
+Gas Safety Refresher,KAC,E,2027-01-25,20,75.0,Edinburgh Academy
+Gas Safety Refresher,EV,A,2027-01-25,20,75.0,Edinburgh Academy
+SNM Tier 2 Academy,HEC,E,2027-02-01,19,71.2,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,D,2027-02-01,19,71.2,Leeds Technical Academy
+SNM Tier 2 Academy,EV,D,2027-02-01,20,75.0,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,E,2027-02-01,19,71.2,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,B,2027-02-01,14,52.5,Dartford Green Hub
+EV Level 3 Fast-Track,EV,D,2027-02-01,23,86.2,Dartford Green Hub
+Heat Pump Certification,HEC,E,2027-02-01,15,56.2,Leicester Energy Hub
+Heat Pump Certification,KAC,C,2027-02-01,28,105.0,Leicester Energy Hub
+Heat Pump Certification,EV,E,2027-02-01,22,82.5,Leicester Energy Hub
+Gas Safety Refresher,HEC,C,2027-02-01,10,37.5,Edinburgh Academy
+Gas Safety Refresher,KAC,B,2027-02-01,19,71.2,Edinburgh Academy
+Gas Safety Refresher,EV,E,2027-02-01,23,86.2,Edinburgh Academy
+SNM Tier 2 Academy,HEC,C,2027-02-08,29,108.8,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,D,2027-02-08,24,90.0,Leeds Technical Academy
+SNM Tier 2 Academy,EV,B,2027-02-08,24,90.0,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,D,2027-02-08,26,97.5,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,A,2027-02-08,15,56.2,Dartford Green Hub
+EV Level 3 Fast-Track,EV,E,2027-02-08,19,71.2,Dartford Green Hub
+Heat Pump Certification,HEC,E,2027-02-08,30,112.5,Leicester Energy Hub
+Heat Pump Certification,KAC,A,2027-02-08,20,75.0,Leicester Energy Hub
+Heat Pump Certification,EV,C,2027-02-08,17,63.8,Leicester Energy Hub
+Gas Safety Refresher,HEC,B,2027-02-08,17,63.8,Edinburgh Academy
+Gas Safety Refresher,KAC,A,2027-02-08,14,52.5,Edinburgh Academy
+Gas Safety Refresher,EV,B,2027-02-08,11,41.2,Edinburgh Academy
+SNM Tier 2 Academy,HEC,E,2027-02-15,25,93.8,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,D,2027-02-15,12,45.0,Leeds Technical Academy
+SNM Tier 2 Academy,EV,E,2027-02-15,23,86.2,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,D,2027-02-15,16,60.0,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,D,2027-02-15,25,93.8,Dartford Green Hub
+EV Level 3 Fast-Track,EV,B,2027-02-15,17,63.8,Dartford Green Hub
+Heat Pump Certification,HEC,A,2027-02-15,30,112.5,Leicester Energy Hub
+Heat Pump Certification,KAC,D,2027-02-15,13,48.8,Leicester Energy Hub
+Heat Pump Certification,EV,B,2027-02-15,17,63.8,Leicester Energy Hub
+Gas Safety Refresher,HEC,D,2027-02-15,26,97.5,Edinburgh Academy
+Gas Safety Refresher,KAC,E,2027-02-15,11,41.2,Edinburgh Academy
+Gas Safety Refresher,EV,A,2027-02-15,17,63.8,Edinburgh Academy
+SNM Tier 2 Academy,HEC,B,2027-02-22,24,90.0,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,E,2027-02-22,24,90.0,Leeds Technical Academy
+SNM Tier 2 Academy,EV,E,2027-02-22,27,101.2,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,D,2027-02-22,20,75.0,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,E,2027-02-22,29,108.8,Dartford Green Hub
+EV Level 3 Fast-Track,EV,E,2027-02-22,23,86.2,Dartford Green Hub
+Heat Pump Certification,HEC,B,2027-02-22,24,90.0,Leicester Energy Hub
+Heat Pump Certification,KAC,D,2027-02-22,25,93.8,Leicester Energy Hub
+Heat Pump Certification,EV,B,2027-02-22,18,67.5,Leicester Energy Hub
+Gas Safety Refresher,HEC,C,2027-02-22,30,112.5,Edinburgh Academy
+Gas Safety Refresher,KAC,D,2027-02-22,26,97.5,Edinburgh Academy
+Gas Safety Refresher,EV,B,2027-02-22,30,112.5,Edinburgh Academy
+SNM Tier 2 Academy,HEC,D,2027-03-01,18,67.5,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,C,2027-03-01,12,45.0,Leeds Technical Academy
+SNM Tier 2 Academy,EV,C,2027-03-01,17,63.8,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,C,2027-03-01,20,75.0,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,A,2027-03-01,27,101.2,Dartford Green Hub
+EV Level 3 Fast-Track,EV,B,2027-03-01,14,52.5,Dartford Green Hub
+Heat Pump Certification,HEC,D,2027-03-01,17,63.8,Leicester Energy Hub
+Heat Pump Certification,KAC,B,2027-03-01,14,52.5,Leicester Energy Hub
+Heat Pump Certification,EV,D,2027-03-01,12,45.0,Leicester Energy Hub
+Gas Safety Refresher,HEC,C,2027-03-01,23,86.2,Edinburgh Academy
+Gas Safety Refresher,KAC,D,2027-03-01,27,101.2,Edinburgh Academy
+Gas Safety Refresher,EV,A,2027-03-01,23,86.2,Edinburgh Academy
+SNM Tier 2 Academy,HEC,D,2027-03-08,16,60.0,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,E,2027-03-08,22,82.5,Leeds Technical Academy
+SNM Tier 2 Academy,EV,E,2027-03-08,10,37.5,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,D,2027-03-08,22,82.5,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,C,2027-03-08,10,37.5,Dartford Green Hub
+EV Level 3 Fast-Track,EV,D,2027-03-08,19,71.2,Dartford Green Hub
+Heat Pump Certification,HEC,E,2027-03-08,23,86.2,Leicester Energy Hub
+Heat Pump Certification,KAC,E,2027-03-08,27,101.2,Leicester Energy Hub
+Heat Pump Certification,EV,D,2027-03-08,17,63.8,Leicester Energy Hub
+Gas Safety Refresher,HEC,C,2027-03-08,17,63.8,Edinburgh Academy
+Gas Safety Refresher,KAC,D,2027-03-08,23,86.2,Edinburgh Academy
+Gas Safety Refresher,EV,D,2027-03-08,10,37.5,Edinburgh Academy
+SNM Tier 2 Academy,HEC,D,2027-03-15,20,75.0,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,D,2027-03-15,15,56.2,Leeds Technical Academy
+SNM Tier 2 Academy,EV,E,2027-03-15,14,52.5,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,A,2027-03-15,27,101.2,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,E,2027-03-15,22,82.5,Dartford Green Hub
+EV Level 3 Fast-Track,EV,A,2027-03-15,28,105.0,Dartford Green Hub
+Heat Pump Certification,HEC,D,2027-03-15,12,45.0,Leicester Energy Hub
+Heat Pump Certification,KAC,D,2027-03-15,14,52.5,Leicester Energy Hub
+Heat Pump Certification,EV,A,2027-03-15,15,56.2,Leicester Energy Hub
+Gas Safety Refresher,HEC,D,2027-03-15,18,67.5,Edinburgh Academy
+Gas Safety Refresher,KAC,B,2027-03-15,20,75.0,Edinburgh Academy
+Gas Safety Refresher,EV,C,2027-03-15,24,90.0,Edinburgh Academy
+SNM Tier 2 Academy,HEC,D,2027-03-22,20,75.0,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,D,2027-03-22,18,67.5,Leeds Technical Academy
+SNM Tier 2 Academy,EV,A,2027-03-22,18,67.5,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,A,2027-03-22,25,93.8,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,A,2027-03-22,27,101.2,Dartford Green Hub
+EV Level 3 Fast-Track,EV,B,2027-03-22,21,78.8,Dartford Green Hub
+Heat Pump Certification,HEC,A,2027-03-22,30,112.5,Leicester Energy Hub
+Heat Pump Certification,KAC,A,2027-03-22,30,112.5,Leicester Energy Hub
+Heat Pump Certification,EV,B,2027-03-22,10,37.5,Leicester Energy Hub
+Gas Safety Refresher,HEC,A,2027-03-22,16,60.0,Edinburgh Academy
+Gas Safety Refresher,KAC,B,2027-03-22,29,108.8,Edinburgh Academy
+Gas Safety Refresher,EV,B,2027-03-22,17,63.8,Edinburgh Academy
+SNM Tier 2 Academy,HEC,A,2027-03-29,25,93.8,Leeds Technical Academy
+SNM Tier 2 Academy,KAC,B,2027-03-29,28,105.0,Leeds Technical Academy
+SNM Tier 2 Academy,EV,C,2027-03-29,24,90.0,Leeds Technical Academy
+EV Level 3 Fast-Track,HEC,B,2027-03-29,21,78.8,Dartford Green Hub
+EV Level 3 Fast-Track,KAC,E,2027-03-29,29,108.8,Dartford Green Hub
+EV Level 3 Fast-Track,EV,B,2027-03-29,13,48.8,Dartford Green Hub
+Heat Pump Certification,HEC,A,2027-03-29,19,71.2,Leicester Energy Hub
+Heat Pump Certification,KAC,A,2027-03-29,28,105.0,Leicester Energy Hub
+Heat Pump Certification,EV,E,2027-03-29,19,71.2,Leicester Energy Hub
+Gas Safety Refresher,HEC,D,2027-03-29,22,82.5,Edinburgh Academy
+Gas Safety Refresher,KAC,A,2027-03-29,16,60.0,Edinburgh Academy
+Gas Safety Refresher,EV,B,2027-03-29,28,105.0,Edinburgh Academy
