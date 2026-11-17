@@ -14,6 +14,7 @@ import platform
 from pathlib import Path
 from typing import Dict, List, Any
 from dotenv import load_dotenv
+from terminology import INPUT_LABELS
 
 # Load local environment settings from .env if present
 load_dotenv()
@@ -30,29 +31,7 @@ class EnvironmentConfig:
     _override_stage: str = ""
 
     # Canonical mapping of all 21 operational inputs
-    OPERATIONAL_INPUT_LABELS: Dict[str, str] = {
-        "actuals_input": "Actuals input",
-        "resource_plan": "Resource Plan",
-        "fte_transfer": "FTE transfer",
-        "recruitment_grounded": "Recruitment grounded",
-        "recruitment_ungrounded": "Recruitment ungrounded",
-        "baseline_assumptions": "Baseline assumptions",
-        "downtime_overlays_percentage": "Downtime Overlays Percentage",
-        "downtime_overlays_hours": "Downtime Overlays Hours",
-        "downtime_overlays_hours_fte": "Downtime Overlays Hours/FTE",
-        "overtime": "Overtime",
-        "baseline_productivity": "Baseline productivity",
-        "training_snm": "Training SNM",
-        "ctr_capacity": "CTR Capacity",
-        "attrition": "Attrition",
-        "recruitment_config": "Recruitment config",
-        "demand_input": "Demand input",
-        "job_time_assumptions": "Job time assumptions",
-        "hec_on_kac_demand": "HEC on KAC Demand",
-        "hec_on_ev_demand": "HEC on EV Demand",
-        "geography_mapping": "Geography mapping",
-        "week_to_month": "Week to month"
-    }
+    OPERATIONAL_INPUT_LABELS: Dict[str, str] = dict(INPUT_LABELS)
 
     @classmethod
     def set_environment_override(cls, env: str):

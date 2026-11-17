@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local planning history and upload index
+/data/planner_workspace.json
+/data/uploaded_catalog.json
+.runtime/
+.env.*
+!.env.example

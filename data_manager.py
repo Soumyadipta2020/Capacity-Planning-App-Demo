@@ -6,7 +6,6 @@ Handles sample data generation, file version listings, and scenario management.
 import json
 import os
 import random
-import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -60,18 +59,6 @@ DATE_COLS = [
     "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
     "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16",
     "2026-11-23", "2026-11-30", "2026-12-07", "2026-12-14"
-]
-
-# Weekly Trajectory Envelope Planning Horizon (29 weeks: Q3 2026 - Q1 2027)
-TRAJECTORY_HORIZON_WEEKS = [
-    "2026-09-14", "2026-09-21",
-    "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
-    "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16",
-    "2026-11-23", "2026-11-30", "2026-12-07", "2026-12-14",
-    "2026-12-21", "2026-12-28",
-    "2027-01-04", "2027-01-11", "2027-01-18", "2027-01-25",
-    "2027-02-01", "2027-02-08", "2027-02-15", "2027-02-22",
-    "2027-03-01", "2027-03-08", "2027-03-15", "2027-03-22", "2027-03-29"
 ]
 
 # Complete options catalog for every single user input
@@ -376,6 +363,17 @@ def parse_date_from_option(val: str) -> float:
 def register_uploaded_file(file_type: str, filename: str, remarks: str = "", content: str = None) -> bool:
     """Registers an uploaded file in DEFAULT_INPUT_OPTIONS and DEFAULT_REMARKS, saving content to disk if provided."""
     import re
+    if file_type not in DEFAULT_INPUT_OPTIONS or not filename or Path(filename).name != filename or any(c in filename for c in ("/", "\\", "..")):
+        return False
+    if content is not None and (not isinstance(content, str) or not content.strip()):
+        return False
+    # Reject malformed CSV before advertising a file version as saved.
+    try:
+        import io
+        if content is not None:
+            pd.read_csv(io.StringIO(content))
+    except Exception:
+        return False
     if file_type not in DEFAULT_INPUT_OPTIONS:
         DEFAULT_INPUT_OPTIONS[file_type] = []
     
@@ -405,6 +403,10 @@ def register_uploaded_file(file_type: str, filename: str, remarks: str = "", con
                 f.write(content)
         except Exception as e:
             print(f"Warning: could not write uploaded file to disk: {e}")
+            if clean_name in DEFAULT_INPUT_OPTIONS[file_type]:
+                DEFAULT_INPUT_OPTIONS[file_type].remove(clean_name)
+            DEFAULT_REMARKS.pop(clean_name, None)
+            return False
 
         # Ingest into Databricks Unity Catalog Delta table if compute is active
         try:
@@ -416,8 +418,46 @@ def register_uploaded_file(file_type: str, filename: str, remarks: str = "", con
                 engine.append_uploaded_file_to_databricks(file_type, clean_name, df_up)
         except Exception as e:
             print(f"[Databricks] Upload Delta ingestion warning: {e}")
+            return False
             
+    if content is not None:
+        # Persist category membership: a saved source version must survive restart.
+        try:
+            registry_path = EnvironmentConfig.get_data_dir() / "uploaded_catalog.json"
+            registry = json.loads(registry_path.read_text(encoding="utf-8")) if registry_path.exists() else {}
+            registry.setdefault(file_type, {})[clean_name] = DEFAULT_REMARKS[clean_name]
+            import tempfile
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=registry_path.parent, delete=False, suffix=".tmp") as temp:
+                json.dump(registry, temp, indent=2)
+                temporary = temp.name
+            os.replace(temporary, registry_path)
+        except Exception as e:
+            print(f"Could not persist uploaded version catalog: {e}")
+            return False
     return True
+
+
+def _restore_uploaded_catalog():
+    path = EnvironmentConfig.get_data_dir() / "uploaded_catalog.json"
+    if not path.exists():
+        return
+    try:
+        registry = json.loads(path.read_text(encoding="utf-8"))
+        for category, versions in registry.items():
+            if category not in DEFAULT_INPUT_OPTIONS or not isinstance(versions, dict):
+                continue
+            for name, remark in versions.items():
+                if not isinstance(name, str) or Path(name).name != name or any(c in name for c in ("/", "\\", "..")):
+                    continue
+                if name not in DEFAULT_INPUT_OPTIONS[category]:
+                    DEFAULT_INPUT_OPTIONS[category].append(name)
+                DEFAULT_REMARKS[name] = str(remark)
+            DEFAULT_INPUT_OPTIONS[category].sort(key=parse_date_from_option, reverse=True)
+    except (ValueError, OSError) as e:
+        print(f"Could not restore uploaded version catalog: {e}")
+
+
+_restore_uploaded_catalog()
 
 def get_file_remark(filename: str, fallback_label: str = "") -> str:
     """Returns the operational remark associated with a selected file version."""
@@ -428,349 +468,30 @@ def get_file_remark(filename: str, fallback_label: str = "") -> str:
     return f"Active configuration for {fallback_label or filename} (Updated)"
 
 
-def get_weekly_synthetic_data(input_key: str) -> pd.DataFrame:
-    """
-    Generates rich synthetic data at the weekly level covering the 29-week
-    planning horizon defined in TRAJECTORY_HORIZON_WEEKS (Sep 14, 2026 to Mar 29, 2027)
-    with geography, skill, and numeric metrics for bulk modification and scenario modeling.
-    """
-    random.seed(42)  # Deterministic seed for reproducible baseline
-    
-    # 1. FTE Transfer
-    if input_key == "fte_transfer":
-        pairs = [
-            ("EA1", "EA2", "HEC", "Peak Winter Demand"),
-            ("EB1", "EB2", "HEC", "Storm Response Deficit"),
-            ("EC1", "EC2", "KAC", "Apprentice Upskilling"),
-            ("ED4", "ED2", "HEC", "London South Rebalancing"),
-            ("EB12 Altrincham", "EB14 Stockport", "EV", "EV Charger Install Surge")
-        ]
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for frm, to, sk, reason in pairs:
-                fte_val = round(random.choice([0.5, 1.0, 1.5, 2.0, 2.5]), 1)
-                rows.append({
-                    "From": frm,
-                    "To": to,
-                    "Skill": sk,
-                    "Weekcomm": w,
-                    "FTE": fte_val,
-                    "Reason": reason
-                })
-        return pd.DataFrame(rows)
-
-    # 2. Recruitment Grounded
-    elif input_key == "recruitment_grounded":
-        cohorts = [
-            ("Grounded Q3 Cohort 1", "HEC", "Region A", "Leeds Academy"),
-            ("Grounded Q3 Cohort 2", "KAC", "Region B", "Leicester Academy"),
-            ("Grounded Q4 Cohort 1", "EV", "Region C", "Dartford Academy"),
-            ("Grounded Q4 Cohort 2", "HEC", "Region D", "Oxford Academy"),
-            ("Grounded Q1 Cohort 1", "HEC", "Region E", "Bristol Academy")
-        ]
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for c_name, sk, reg, loc in cohorts:
-                hc = random.randint(12, 30)
-                rows.append({
-                    "Cohort": c_name,
-                    "Skill": sk,
-                    "Region": reg,
-                    "Weekcomm": w,
-                    "Headcount": hc,
-                    "Academy_Location": loc
-                })
-        return pd.DataFrame(rows)
-
-    # 3. Recruitment Ungrounded
-    elif input_key == "recruitment_ungrounded":
-        pipelines = [
-            ("Ungrounded Upside Pipeline A", "HEC", "Region A", "75%"),
-            ("Contingent Direct Entry B", "KAC", "Region B", "60%"),
-            ("Smart Meter Upside C", "EV", "Region C", "80%"),
-            ("Apprentice Fast-Track D", "HEC", "Region D", "70%"),
-            ("Regional Mobile Pipeline E", "KAC", "Region E", "65%")
-        ]
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for c_name, sk, reg, prob in pipelines:
-                hc = random.randint(15, 45)
-                rows.append({
-                    "Cohort": c_name,
-                    "Skill": sk,
-                    "Region": reg,
-                    "Weekcomm": w,
-                    "Headcount": hc,
-                    "Probability": prob
-                })
-        return pd.DataFrame(rows)
-
-    # 4. Downtime Overlays Percentage
-    elif input_key in ["downtime_overlays_percentage", "overlays_percentage"]:
-        metrics = [
-            ("Training", "GFF3 HEC SIPD Training %", 2.0, 4.5),
-            ("Sickness", "Short Term Absence %", 3.0, 5.5),
-            ("Annual Leave", "Holiday Overlay %", 8.0, 14.0),
-            ("Meeting", "Team Briefing & Safety %", 1.5, 3.0)
-        ]
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for p in PATCHES[:10]:
-                for sk in SKILLS:
-                    for m_name, lvl2, low, high in metrics:
-                        val = round(random.uniform(low, high), 2)
-                        rows.append({
-                            "patch": p,
-                            "skill": sk,
-                            "metric": m_name,
-                            "level2": lvl2,
-                            "weekcomm": w,
-                            "values": val
-                        })
-        return pd.DataFrame(rows)
-
-    # 5. Downtime Overlays Hours
-    elif input_key in ["downtime_overlays_hours", "overlays_hours"]:
-        metrics = [
-            ("Training", "GFF3 HEC SIPD Training Hrs", 15.0, 35.0),
-            ("Sickness", "Short Term Absence Hrs", 22.0, 48.0),
-            ("Annual Leave", "Holiday Overlay Hrs", 60.0, 110.0),
-            ("Meeting", "Team Briefing & Safety Hrs", 10.0, 25.0)
-        ]
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for p in PATCHES[:10]:
-                for sk in SKILLS:
-                    for m_name, lvl2, low, high in metrics:
-                        val = round(random.uniform(low, high), 1)
-                        rows.append({
-                            "patch": p,
-                            "skill": sk,
-                            "metric": m_name,
-                            "level2": lvl2,
-                            "weekcomm": w,
-                            "values": val
-                        })
-        return pd.DataFrame(rows)
-
-    # 6. Downtime Overlays Hours/FTE
-    elif input_key in ["downtime_overlays_hours_fte", "overlays_hours_fte", "overlays_hrs_fte"]:
-        metrics = [
-            ("Training", "GFF3 HEC Training Hrs/FTE", 0.8, 1.8),
-            ("Sickness", "Short Term Absence Hrs/FTE", 1.2, 2.5),
-            ("Annual Leave", "Holiday Overlay Hrs/FTE", 3.0, 5.5),
-            ("Meeting", "Team Briefing Hrs/FTE", 0.5, 1.2)
-        ]
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for p in PATCHES[:10]:
-                for sk in SKILLS:
-                    for m_name, lvl2, low, high in metrics:
-                        val = round(random.uniform(low, high), 2)
-                        rows.append({
-                            "patch": p,
-                            "skill": sk,
-                            "metric": m_name,
-                            "level2": lvl2,
-                            "weekcomm": w,
-                            "values": val
-                        })
-        return pd.DataFrame(rows)
-
-    # 7. Overtime
-    elif input_key == "overtime":
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for reg in REGIONS:
-                for sk in SKILLS:
-                    hrs = round(random.uniform(15.0, 45.0), 1)
-                    rows.append({
-                        "Region": reg,
-                        "Skill": sk,
-                        "Weekcomm": w,
-                        "Rate": "1.5x Standard" if sk != "EV" else "2.0x Weekend",
-                        "Cap": "10 hrs/week",
-                        "Overtime_Hours": hrs,
-                        "Authorized": "Yes"
-                    })
-        return pd.DataFrame(rows)
-
-    # 8. Training SNM
-    elif input_key == "training_snm":
-        courses = [
-            ("SNM Tier 2 Academy", "Leeds Technical Academy"),
-            ("EV Level 3 Fast-Track", "Dartford Green Hub"),
-            ("Heat Pump Certification", "Leicester Energy Hub"),
-            ("Gas Safety Refresher", "Edinburgh Academy")
-        ]
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for c_title, loc in courses:
-                for sk in SKILLS:
-                    att = random.randint(10, 30)
-                    hrs = round(att * 3.75, 1)
-                    rows.append({
-                        "Course": c_title,
-                        "Skill": sk,
-                        "Region": random.choice(REGIONS),
-                        "Weekcomm": w,
-                        "Attendees": att,
-                        "Hours": hrs,
-                        "Location": loc
-                    })
-        return pd.DataFrame(rows)
-
-    # 9. CTR Capacity
-    elif input_key == "ctr_capacity":
-        agencies = [
-            ("Centrica Flex Contractors", "Active"),
-            ("UK Field Solutions Ltd", "Active"),
-            ("GreenEnergy Tech Partners", "Standby")
-        ]
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for ag, st in agencies:
-                for reg in REGIONS:
-                    for sk in SKILLS:
-                        ctrs = random.randint(15, 55)
-                        fte_equiv = round(ctrs * 0.92, 1)
-                        rows.append({
-                            "Agency": ag,
-                            "Skill": sk,
-                            "Region": reg,
-                            "Weekcomm": w,
-                            "Contractors": ctrs,
-                            "Contractor_Hours": round(ctrs * 37.5, 1),
-                            "FTE": fte_equiv,
-                            "Status": st
-                        })
-        return pd.DataFrame(rows)
-
-    # 10. Attrition
-    elif input_key == "attrition":
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for reg in REGIONS:
-                for sk in SKILLS:
-                    base = 0.20 if sk == "HEC" else (0.08 if sk == "KAC" else 0.05)
-                    val = round(base + random.uniform(-0.04, 0.06), 3)
-                    rows.append({
-                        "Region Code": reg,
-                        "Skill": sk,
-                        "Weekcomm": w,
-                        "Values": max(0.01, val)
-                    })
-        return pd.DataFrame(rows)
-
-    # 11. Recruitment Config
-    elif input_key == "recruitment_config":
-        rows = []
-        for i, w in enumerate(TRAJECTORY_HORIZON_WEEKS, 1):
-            for sk in SKILLS:
-                ramp_pct = "20%" if (i % 4 == 1) else ("50%" if (i % 4 == 2) else ("80%" if (i % 4 == 3) else "100%"))
-                factor = 0.20 if ramp_pct == "20%" else (0.50 if ramp_pct == "50%" else (0.80 if ramp_pct == "80%" else 1.00))
-                rows.append({
-                    "Week": i,
-                    "Weekcomm": w,
-                    "Cohort": f"Cohort {(i % 4) + 1}",
-                    "Skill": sk,
-                    "Ramp": ramp_pct,
-                    "Productivity_Factor": factor,
-                    "Headcount": random.randint(15, 35)
-                })
-        return pd.DataFrame(rows)
-
-    # 12. Demand Input
-    elif input_key == "demand_input":
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for p in PATCHES[:10]:
-                for sk in SKILLS:
-                    wcode = random.choice(["W00", "W01", "W17", "W23", "W26"])
-                    jobs = random.randint(12, 65)
-                    rows.append({
-                        "Region Code": p[:1],
-                        "Area Code": p[:3],
-                        "Patch": p,
-                        "Skill": sk,
-                        "Type": "Patch",
-                        "Work Code": wcode,
-                        "Product": f"Product {wcode}",
-                        "Weekcomm": w,
-                        "Values": jobs
-                    })
-        return pd.DataFrame(rows)
-
-    # 13. Job Time Assumptions
-    elif input_key == "job_time_assumptions":
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for p in PATCHES[:10]:
-                for sk in SKILLS:
-                    wcode = random.choice(["W01", "W17", "W23", "W26"])
-                    dur = round(random.uniform(1.20, 2.75), 2)
-                    rows.append({
-                        "Patch": p,
-                        "Work Code": wcode,
-                        "Skill": sk,
-                        "Weekcomm": w,
-                        "Values": dur
-                    })
-        return pd.DataFrame(rows)
-
-    # 14. HEC on KAC Demand
-    elif input_key == "hec_on_kac_demand":
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for reg in REGIONS:
-                ratio = round(random.uniform(0.75, 0.90), 2)
-                hrs = round(random.uniform(60.0, 160.0), 1)
-                rows.append({
-                    "Skill": "HEC",
-                    "Support": "KAC",
-                    "Region": reg,
-                    "Weekcomm": w,
-                    "Ratio": ratio,
-                    "Support_Hours": hrs,
-                    "Max_Weekly_Hours": 180.0
-                })
-        return pd.DataFrame(rows)
-
-    # 15. HEC on EV Demand
-    elif input_key == "hec_on_ev_demand":
-        rows = []
-        for w in TRAJECTORY_HORIZON_WEEKS:
-            for reg in REGIONS:
-                ratio = round(random.uniform(0.70, 0.88), 2)
-                hrs = round(random.uniform(40.0, 120.0), 1)
-                rows.append({
-                    "Skill": "HEC",
-                    "Support": "EV",
-                    "Region": reg,
-                    "Weekcomm": w,
-                    "Ratio": ratio,
-                    "Support_Hours": hrs,
-                    "Max_Weekly_Hours": 140.0
-                })
-        return pd.DataFrame(rows)
-
-    return pd.DataFrame([{"ID": 1, "Name": input_key, "Status": "Active"}])
-
-
 def _generate_sample_df_for_category(input_key: str) -> pd.DataFrame:
     """Helper to generate sample DataFrame for an input category."""
-    WEEKLY_INPUT_KEYS = [
-        "fte_transfer", "recruitment_grounded", "recruitment_ungrounded",
-        "downtime_overlays_percentage", "downtime_overlays_hours", "downtime_overlays_hours_fte",
-        "overtime", "training_snm", "ctr_capacity", "attrition", "recruitment_config",
-        "demand_input", "job_time_assumptions", "hec_on_kac_demand", "hec_on_ev_demand"
-    ]
-    if input_key in WEEKLY_INPUT_KEYS:
-        return get_weekly_synthetic_data(input_key)
-    elif input_key == "actuals_input":
+    if input_key == "actuals_input":
         return SampleDataGenerator.get_imbalance_data()
     elif input_key == "resource_plan":
         return SampleDataGenerator.get_capacity_fte_data()
+    elif input_key == "fte_transfer":
+        return pd.DataFrame([
+            {"From": "EA1", "To": "EA2", "FTE": 1.5, "Reason": "Peak Winter Demand"},
+            {"From": "EB1", "To": "EB2", "FTE": 2.0, "Reason": "Storm Response"},
+            {"From": "EC1", "To": "EC2", "FTE": 1.0, "Reason": "Apprentice Support"}
+        ])
+    elif input_key == "recruitment_grounded":
+        return pd.DataFrame([
+            {"Cohort": "Grounded Q3 Cohort 1", "Headcount": 25, "Skill": "HEC", "Start Date": "2026-10-01"},
+            {"Cohort": "Grounded Q3 Cohort 2", "Headcount": 20, "Skill": "KAC", "Start Date": "2026-11-01"},
+            {"Cohort": "Grounded Q4 Cohort 1", "Headcount": 15, "Skill": "EV", "Start Date": "2026-12-01"}
+        ])
+    elif input_key == "recruitment_ungrounded":
+        return pd.DataFrame([
+            {"Cohort": "Ungrounded Upside A", "Headcount": 40, "Skill": "HEC", "Probability": "75%"},
+            {"Cohort": "Ungrounded Upside B", "Headcount": 30, "Skill": "EV", "Probability": "60%"},
+            {"Cohort": "Contingent Academy C", "Headcount": 20, "Skill": "KAC", "Probability": "80%"}
+        ])
     elif input_key == "baseline_assumptions":
         return pd.DataFrame([
             {"Metric": "Contractual Standard Hours", "Value": 37.5, "Unit": "hrs/week"},
@@ -778,11 +499,57 @@ def _generate_sample_df_for_category(input_key: str) -> pd.DataFrame:
             {"Metric": "Working Days per Week", "Value": 5, "Unit": "days"},
             {"Metric": "Annual Leave Factor", "Value": 11.2, "Unit": "%"}
         ])
+    elif input_key == "downtime_overlays_percentage":
+        return SampleDataGenerator.get_overlays_data("Percentage")
+    elif input_key == "downtime_overlays_hours":
+        return SampleDataGenerator.get_overlays_data("Hours")
+    elif input_key == "downtime_overlays_hours_fte":
+        return SampleDataGenerator.get_overlays_data("Hrs/FTE")
+    elif input_key == "overtime":
+        return pd.DataFrame([
+            {"Rate": "1.5x Standard", "Cap": "10 hrs/week", "Voluntary": "Yes", "Authorized": "Yes"},
+            {"Rate": "2.0x Weekend", "Cap": "8 hrs/week", "Voluntary": "Yes", "Authorized": "Pre-Approved"}
+        ])
     elif input_key == "baseline_productivity":
         return pd.DataFrame([
             {"Skill": "HEC", "Rate": 3.8, "Target": 4.0, "Benchmark Year": 2025},
             {"Skill": "KAC", "Rate": 3.5, "Target": 3.8, "Benchmark Year": 2025},
             {"Skill": "EV", "Rate": 2.2, "Target": 2.5, "Benchmark Year": 2026}
+        ])
+    elif input_key == "training_snm":
+        return pd.DataFrame([
+            {"Course": "SNM Tier 2 Academy", "Attendees": 30, "Duration": "2 weeks", "Location": "Leeds Academy"},
+            {"Course": "EV Installer Level 3", "Attendees": 18, "Duration": "3 weeks", "Location": "Dartford Academy"},
+            {"Course": "Heat Pump Fundamentals", "Attendees": 24, "Duration": "4 weeks", "Location": "Leicester Academy"}
+        ])
+    elif input_key == "ctr_capacity":
+        return pd.DataFrame([
+            {"Agency": "Centrica Flex Contractors", "Contractors": 50, "Skill": "HEC", "Status": "Active"},
+            {"Agency": "UK Field Solutions", "Contractors": 30, "Skill": "KAC", "Status": "Standby"},
+            {"Agency": "GreenEnergy Tech Partners", "Contractors": 20, "Skill": "EV", "Status": "Mobilizing"}
+        ])
+    elif input_key == "attrition":
+        return SampleDataGenerator.get_attrition_data()
+    elif input_key == "recruitment_config":
+        return pd.DataFrame([
+            {"Week": 1, "Ramp": "20%", "Productivity Factor": 0.20},
+            {"Week": 4, "Ramp": "50%", "Productivity Factor": 0.50},
+            {"Week": 8, "Ramp": "80%", "Productivity Factor": 0.80},
+            {"Week": 12, "Ramp": "100%", "Productivity Factor": 1.00}
+        ])
+    elif input_key == "demand_input":
+        return SampleDataGenerator.get_demand_jobs_data()
+    elif input_key == "job_time_assumptions":
+        return SampleDataGenerator.get_job_times_data()
+    elif input_key == "hec_on_kac_demand":
+        return pd.DataFrame([
+            {"Skill": "HEC", "Support": "KAC", "Ratio": 0.85, "Max Weekly Hours": 120},
+            {"Skill": "HEC", "Support": "KAC Tier 2", "Ratio": 0.60, "Max Weekly Hours": 60}
+        ])
+    elif input_key == "hec_on_ev_demand":
+        return pd.DataFrame([
+            {"Skill": "HEC", "Support": "EV", "Ratio": 0.90, "Max Weekly Hours": 80},
+            {"Skill": "HEC", "Support": "EV Commercial", "Ratio": 0.70, "Max Weekly Hours": 40}
         ])
     elif input_key == "geography_mapping":
         return SampleDataGenerator.get_geog_mapping_data()
@@ -792,14 +559,14 @@ def _generate_sample_df_for_category(input_key: str) -> pd.DataFrame:
         return pd.DataFrame([{"ID": 1, "Name": input_key, "Status": "Active"}])
 
 
-def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
+def load_input_table_data(input_key: str, filename: str, allow_generated: bool = True) -> Dict[str, Any]:
     """
     Reads tabular data for the specified input category and file version.
     When Databricks mode is active and compute is available, queries Databricks Unity Catalog
     Delta table (<catalog>.<schema>.es_shiny_<input_key>), auto-creating it if not present.
     Otherwise falls back to local data/<folder>/ CSV or category sample generator.
     """
-    if not input_key:
+    if input_key not in DEFAULT_INPUT_OPTIONS or not filename or Path(filename).name != filename or any(c in filename for c in ("/", "\\", "..")):
         return {
             "success": False,
             "inputKey": "",
@@ -807,12 +574,20 @@ def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
             "columns": [],
             "rows": [],
             "totalRows": 0,
-            "error": "Input category must be provided."
+            "error": "A valid input category and file version must be provided."
         }
 
-    if not filename:
-        opts = DEFAULT_INPUT_OPTIONS.get(input_key, [])
-        filename = opts[0] if opts else f"{input_key}_default"
+    if not allow_generated:
+        try:
+            from planning_service import _read_source
+            frame, source = _read_source(input_key, filename)
+            return {"success": True, "inputKey": input_key, "fileName": filename,
+                    "filePath": filename, "columns": list(frame.columns),
+                    "rows": frame.to_dict(orient="records"), "totalRows": len(frame),
+                    "source": source, "error": None}
+        except Exception as exc:
+            return {"success": False, "inputKey": input_key, "fileName": filename,
+                    "columns": [], "rows": [], "totalRows": 0, "error": str(exc)}
 
     # Route to Databricks Unity Catalog when compute is active
     try:
@@ -854,7 +629,12 @@ def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
                 target_path = f
                 break
 
-    # If file still doesn't exist on disk, generate sample data using the category generator
+    if target_path is None and not allow_generated:
+        return {"success": False, "inputKey": input_key, "fileName": filename,
+                "columns": [], "rows": [], "totalRows": 0,
+                "error": "Selected file is missing. No sample data was substituted."}
+
+    # Legacy calculations may explicitly request a generated example.
     if target_path is None:
         try:
             df = _generate_sample_df_for_category(input_key)
@@ -904,104 +684,6 @@ def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
             "rows": [],
             "totalRows": 0,
             "error": f"Failed reading table '{target_path.name}': {e}"
-        }
-
-
-def save_input_table_data(
-    input_key: str,
-    filename: str,
-    rows: List[Dict[str, Any]],
-    columns: Optional[List[str]] = None
-) -> Dict[str, Any]:
-    """
-    Saves edited tabular data for the specified input category and file version.
-    Saves to the local CSV/Excel file in data/<folder>/ and updates Databricks Delta table if active.
-    """
-    if not input_key:
-        return {"success": False, "error": "Input category must be specified."}
-    if not filename:
-        return {"success": False, "error": "File name must be specified."}
-    if rows is None:
-        return {"success": False, "error": "Table rows must be provided."}
-
-    try:
-        if columns and len(columns) > 0:
-            df = pd.DataFrame(rows, columns=columns)
-        else:
-            df = pd.DataFrame(rows)
-
-        # Strip any internal frontend tracking fields like __rowId, __id, etc.
-        keep_cols = [c for c in df.columns if not str(c).startswith("__")]
-        df = df[keep_cols]
-
-        folder = CATEGORY_FOLDER_MAP.get(input_key, "capacity")
-        data_dir = EnvironmentConfig.get_data_dir() / folder
-        data_dir.mkdir(parents=True, exist_ok=True)
-
-        candidates = [
-            data_dir / filename,
-            data_dir / f"{filename}.csv",
-            data_dir / filename.replace(":", "-"),
-            data_dir / f"{filename.replace(':', '-')}.csv",
-            data_dir / f"{filename}.xlsx",
-            data_dir / f"{filename.replace(':', '-')}.xlsx"
-        ]
-
-        target_path = None
-        for cand in candidates:
-            if cand.exists() and cand.is_file():
-                target_path = cand
-                break
-
-        if target_path is None and data_dir.exists():
-            clean_target = filename.replace(":", "-").lower()
-            for f in data_dir.iterdir():
-                if f.is_file() and (f.stem.lower() == clean_target or f.name.lower() == clean_target):
-                    target_path = f
-                    break
-
-        if target_path is None:
-            safe_name = filename.replace(":", "-")
-            if not safe_name.endswith((".csv", ".xlsx", ".xls")):
-                safe_name = f"{safe_name}.csv"
-            target_path = data_dir / safe_name
-
-        # Persist to disk (CSV or Excel)
-        if target_path.suffix.lower() in [".xlsx", ".xls"]:
-            df.to_excel(target_path, index=False)
-        else:
-            df.to_csv(target_path, index=False)
-
-        # Route to Databricks Unity Catalog if compute is active
-        try:
-            from engine.data_engine import CapacityDataEngine
-            engine = CapacityDataEngine.get_instance()
-            if engine.is_databricks_active():
-                engine.save_input_table_data(input_key, filename, df)
-        except Exception as db_err:
-            print(f"[Databricks] Unity Catalog save warning for '{input_key}': {db_err}")
-
-        # Clean null/NaN values for JSON serialization
-        df_clean = df.where(pd.notnull(df), None)
-        out_cols = [str(c) for c in df_clean.columns]
-        out_rows = df_clean.to_dict(orient="records")
-
-        return {
-            "success": True,
-            "inputKey": input_key,
-            "fileName": filename,
-            "filePath": target_path.name,
-            "columns": out_cols,
-            "rows": out_rows,
-            "totalRows": len(out_rows),
-            "error": None
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "inputKey": input_key,
-            "fileName": filename,
-            "error": f"Failed saving table data to '{filename}': {str(e)}"
         }
 
 
@@ -1337,7 +1019,7 @@ class ScenarioManager:
     ) -> str:
         """Saves a new scenario and persists to both local storage and Unity Catalog."""
         scenarios = self.get_all_scenarios()
-        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         scenario_id = f"{plan_type} {month} V.{version} {now_str}"
         
         new_scen = {
@@ -1347,15 +1029,18 @@ class ScenarioManager:
             "version": str(version),
             "remarks": remarks or "",
             "created_at": now_str,
-            "inputs": inputs
+            "inputs": json.loads(json.dumps(inputs))
         }
         scenarios[scenario_id] = new_scen
         
         try:
-            with open(self.scenarios_file, "w", encoding="utf-8") as f:
+            import tempfile
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=self.scenarios_file.parent, delete=False, suffix=".tmp") as f:
                 json.dump(scenarios, f, indent=2)
+                temporary = f.name
+            os.replace(temporary, self.scenarios_file)
         except Exception as e:
-            print(f"Warning: could not write local scenarios.json: {e}")
+            raise RuntimeError("Scenario could not be saved to local storage.") from e
 
         try:
             from engine.data_engine import CapacityDataEngine
@@ -1366,7 +1051,7 @@ class ScenarioManager:
             from cluster_manager import ClusterStartingError
             if isinstance(e, ClusterStartingError):
                 raise
-            print(f"[Databricks] Save scenario Delta warning: {e}")
+            raise RuntimeError("Local scenario saved, but Databricks persistence failed. Check the connection before retrying.") from e
             
         return scenario_id
 
@@ -1481,10 +1166,25 @@ class SampleDataGenerator:
     @staticmethod
     def get_demand_jobs_data() -> pd.DataFrame:
         """
-        Generates National Demand Jobs table at weekly level.
+        Generates National Demand Jobs table matching Image 6.
         Columns: Region Code, Area Code, Patch, Skill, Type, Work Code, Product, Weekcomm, Values.
         """
-        return get_weekly_synthetic_data("demand_input")
+        data = [
+            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA11 Inverness & Aviemore", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
+            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA12 Aberdeen North", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
+            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA12 Aberdeen South", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
+            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA13 Dundee & Perth", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
+            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA13 Fife", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
+            {"Region Code": "A", "Area Code": "EA2", "Patch": "EA21 Dunbartonshire & Glasgow North", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
+            {"Region Code": "A", "Area Code": "EA2", "Patch": "EA21 Stirling & Falkirk", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
+            {"Region Code": "A", "Area Code": "EA3", "Patch": "EA31 Clyde Coast", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
+            {"Region Code": "A", "Area Code": "EA3", "Patch": "EA31 Glasgow South & Renfrewshire", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00", "Weekcomm": "2025-01-06", "Values": 0},
+            {"Region Code": "B", "Area Code": "EB1", "Patch": "EB12 Altrincham", "Skill": "KAC", "Type": "Patch", "Work Code": "W01", "Product": "W01", "Weekcomm": "2025-01-06", "Values": 14},
+            {"Region Code": "B", "Area Code": "EB1", "Patch": "EB14 Stockport", "Skill": "HEC", "Type": "Patch", "Work Code": "W17", "Product": "W17", "Weekcomm": "2025-01-06", "Values": 28},
+            {"Region Code": "C", "Area Code": "EC6", "Patch": "EC62 Essex East", "Skill": "EV", "Type": "Patch", "Work Code": "W23", "Product": "W23", "Weekcomm": "2025-01-06", "Values": 19},
+            {"Region Code": "D", "Area Code": "ED4", "Patch": "ED44 Canterbury & Dover", "Skill": "HEC", "Type": "Patch", "Work Code": "W26", "Product": "W26", "Weekcomm": "2025-01-06", "Values": 35}
+        ]
+        return pd.DataFrame(data)
 
     @staticmethod
     def get_demand_hours_data() -> pd.DataFrame:
@@ -1534,27 +1234,67 @@ class SampleDataGenerator:
     @staticmethod
     def get_overlays_data(format_type: str = "Percentage") -> pd.DataFrame:
         """
-        Generates Downtime Overlays table at weekly level.
+        Generates Downtime Overlays table matching Image 9.
         Columns: patch, skill, metric, level2, weekcomm, values.
         """
-        fmt_key = "downtime_overlays_hours" if "hour" in format_type.lower() else "downtime_overlays_percentage"
-        return get_weekly_synthetic_data(fmt_key)
+        suffix = " %" if format_type == "Percentage" else " Hrs"
+        mult = 1.0 if format_type == "Percentage" else 7.5
+        
+        data = [
+            {"patch": "EA11 Aberdeen North", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
+            {"patch": "EA11 Inverness & Aviemore", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
+            {"patch": "EA12 Aberdeen South", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
+            {"patch": "EA12 Dundee & Perth", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
+            {"patch": "EA12 Fife", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
+            {"patch": "EA21 Dunbartonshire & Glasgow North", "skill": "HEC", "metric": "Training", "level2": f"GFF3 HEC SIPD Training{suffix}", "weekcomm": "2025-01-06", "values": 0.0 * mult},
+            {"patch": "EB12 Altrincham", "skill": "HEC", "metric": "Sickness", "level2": f"Short Term Absence{suffix}", "weekcomm": "2025-01-06", "values": round(3.5 * mult, 2)},
+            {"patch": "EC62 Essex East", "skill": "EV", "metric": "Annual Leave", "level2": f"Bank Holiday Overlay{suffix}", "weekcomm": "2025-01-06", "values": round(5.0 * mult, 2)}
+        ]
+        return pd.DataFrame(data)
 
     @staticmethod
     def get_attrition_data() -> pd.DataFrame:
         """
-        Generates Attrition table at weekly level covering full trajectory horizon.
+        Generates Attrition table matching Image 10.
         Columns: Region Code, Skill, Weekcomm, Values.
         """
-        return get_weekly_synthetic_data("attrition")
+        data = [
+            {"Region Code": "A", "Skill": "HEC", "Weekcomm": "2025-01-06", "Values": 0.20000000298023224},
+            {"Region Code": "B", "Skill": "HEC", "Weekcomm": "2025-01-06", "Values": 0.20000000298023224},
+            {"Region Code": "C", "Skill": "HEC", "Weekcomm": "2025-01-06", "Values": 0.20000000298023224},
+            {"Region Code": "D", "Skill": "HEC", "Weekcomm": "2025-01-06", "Values": 0.20000000298023224},
+            {"Region Code": "A", "Skill": "KAC", "Weekcomm": "2025-01-06", "Values": 0.08500000089406967},
+            {"Region Code": "B", "Skill": "KAC", "Weekcomm": "2025-01-06", "Values": 0.045000000178813934},
+            {"Region Code": "C", "Skill": "KAC", "Weekcomm": "2025-01-06", "Values": 0.045000000178813934},
+            {"Region Code": "D", "Skill": "KAC", "Weekcomm": "2025-01-06", "Values": 0.13500000536441803},
+            {"Region Code": "A", "Skill": "EV", "Weekcomm": "2025-01-06", "Values": 0.0},
+            {"Region Code": "B", "Skill": "EV", "Weekcomm": "2025-01-06", "Values": 0.0},
+            {"Region Code": "C", "Skill": "EV", "Weekcomm": "2025-01-06", "Values": 0.0}
+        ]
+        return pd.DataFrame(data)
 
     @staticmethod
     def get_job_times_data() -> pd.DataFrame:
         """
-        Generates Job Times Assumptions table at weekly level.
+        Generates Job Times Assumptions table matching Image 11.
         Columns: Patch, Work Code, Skill, Weekcomm, Values.
         """
-        return get_weekly_synthetic_data("job_time_assumptions")
+        patches_subset = [
+            "EA74 Hull & York", "EB11 Liverpool & Formby", "EB12 Altrincham",
+            "EB12 Lancashire South", "EB13 Manchester Centre", "EB13 Oldham & Glossop",
+            "EB14 Cheshire East", "EB14 Stockport", "EB21 Cheshire West",
+            "EB22 Wales North West", "EB23 Wales North East"
+        ]
+        data = []
+        for p in patches_subset:
+            data.append({
+                "Patch": p,
+                "Work Code": "W01",
+                "Skill": "KAC",
+                "Weekcomm": "2025-07-21",
+                "Values": 1.27
+            })
+        return pd.DataFrame(data)
 
     @staticmethod
     def get_geog_mapping_data() -> pd.DataFrame:
@@ -1658,162 +1398,4 @@ class SampleDataGenerator:
                 "Delta Imbalance": round(imb2 - imb1, 1)
             })
         return pd.DataFrame(rows)
-
-
-def export_scenario_to_powerbi(
-    scenario_id: str,
-    export_target: str = "private",
-    export_name: str = "",
-    description: str = ""
-) -> Dict[str, Any]:
-    """
-    Exports the selected scenario data for Microsoft Power BI.
-    Supports 2 targets:
-      - 'private': Centrica Energy Services - Private Capacity Planning Workspace (Restricted, Executive RLS)
-      - 'public': Centrica Energy Services - Shared Organization Capacity Reports (Public, Organization Shared)
-    Allows exporting with custom dataset/report name of user's choice.
-    Saves CSV and .pbids to data/exports/ and records in powerbi_export_history.json.
-    """
-    try:
-        # Sanitize export name or build default fallback
-        raw_name = (export_name or "").strip()
-        clean_name = re.sub(r'[^a-zA-Z0-9_\- ]', '_', raw_name)
-        if not clean_name:
-            clean_name = f"{scenario_id.replace(' ', '_').replace(':', '-')}_PowerBI"
-        clean_name = clean_name.replace(" ", "_")
-
-        is_private = (str(export_target).lower() == "private")
-        workspace_name = (
-            "Centrica Energy Services - Private Capacity Planning Workspace"
-            if is_private
-            else "Centrica Energy Services - Shared Organization Capacity Reports (Public)"
-        )
-        access_level = "Restricted (Executive RLS)" if is_private else "Organization-Wide (Public Shared)"
-        target_label = "Private Power BI" if is_private else "Public Power BI"
-
-        # Pull scenario dataset
-        df_imbalance = SampleDataGenerator.get_imbalance_data()
-        date_cols = [c for c in df_imbalance.columns if re.match(r'^\d{4}-\d{2}-\d{2}$', str(c))]
-
-        # Build enriched tabular dataset for Power BI DirectQuery / Import
-        records = []
-        now_dt = datetime.now()
-        now_str = now_dt.strftime("%Y-%m-%d %H:%M:%S")
-
-        for _, row in df_imbalance.iterrows():
-            patch = row.get("Patch", "")
-            skill = row.get("Skill", "")
-            metric = row.get("Metric", "")
-            stage = row.get("Type", "")
-            for d in date_cols:
-                val = float(row[d]) if pd.notnull(row[d]) else 0.0
-                status = "Surplus" if val > 0.05 else ("Deficit" if val < -0.05 else "Balanced")
-                records.append({
-                    "Scenario_ID": scenario_id,
-                    "Export_Name": clean_name,
-                    "Export_Target": target_label,
-                    "Target_Workspace": workspace_name,
-                    "Access_Level": access_level,
-                    "Published_Timestamp": now_str,
-                    "Week_Commencing": d,
-                    "Patch": patch,
-                    "Skill": skill,
-                    "Metric": metric,
-                    "Calculation_Stage": stage,
-                    "Net_Imbalance_Hours": round(val, 2),
-                    "Net_Imbalance_FTE": round(val / 37.5, 3),
-                    "Buffer_Status": status,
-                    "Export_Notes": description or ""
-                })
-
-        export_df = pd.DataFrame(records)
-
-        # Ensure output directory exists
-        exports_dir = Path("data") / "exports"
-        exports_dir.mkdir(parents=True, exist_ok=True)
-
-        csv_path = exports_dir / f"{clean_name}.csv"
-        export_df.to_csv(csv_path, index=False)
-
-        # Create standard Power BI Data Source (.pbids) file
-        pbids_path = exports_dir / f"{clean_name}.pbids"
-        abs_csv_path = str(csv_path.resolve()).replace("\\", "\\\\")
-        pbids_content = {
-            "version": "0.1",
-            "connections": [
-                {
-                    "details": {
-                        "path": abs_csv_path
-                    },
-                    "connectionType": "File"
-                }
-            ]
-        }
-        with open(pbids_path, "w", encoding="utf-8") as f:
-            json.dump(pbids_content, f, indent=2)
-
-        # Write metadata JSON
-        meta = {
-            "export_name": clean_name,
-            "scenario_id": scenario_id,
-            "export_target": "private" if is_private else "public",
-            "target_label": target_label,
-            "workspace_name": workspace_name,
-            "access_level": access_level,
-            "description": description or "",
-            "timestamp": now_str,
-            "rows_count": len(export_df),
-            "csv_file": f"{clean_name}.csv",
-            "pbids_file": f"{clean_name}.pbids"
-        }
-        with open(exports_dir / f"{clean_name}_meta.json", "w", encoding="utf-8") as f:
-            json.dump(meta, f, indent=2)
-
-        # Append to export history
-        history_file = exports_dir / "powerbi_export_history.json"
-        history = []
-        if history_file.exists():
-            try:
-                history = json.loads(history_file.read_text(encoding="utf-8"))
-            except Exception:
-                history = []
-        history.insert(0, meta)
-        history = history[:30]
-        history_file.write_text(json.dumps(history, indent=2), encoding="utf-8")
-
-        return {
-            "success": True,
-            "exportName": clean_name,
-            "scenarioId": scenario_id,
-            "exportTarget": "private" if is_private else "public",
-            "targetLabel": target_label,
-            "targetWorkspace": workspace_name,
-            "accessLevel": access_level,
-            "timestamp": now_str,
-            "totalRows": len(export_df),
-            "csvFileName": f"{clean_name}.csv",
-            "pbidsFileName": f"{clean_name}.pbids",
-            "columns": list(export_df.columns),
-            "sampleRows": export_df.head(15).to_dict(orient="records"),
-            "history": history
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-            "scenarioId": scenario_id,
-            "exportName": export_name
-        }
-
-
-def get_powerbi_export_history() -> List[Dict[str, Any]]:
-    """Retrieves previous Power BI exports history."""
-    history_file = Path("data") / "exports" / "powerbi_export_history.json"
-    if history_file.exists():
-        try:
-            return json.loads(history_file.read_text(encoding="utf-8"))
-        except Exception:
-            return []
-    return []
-
 

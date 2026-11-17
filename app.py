@@ -18,12 +18,11 @@ from data_manager import (
     SampleDataGenerator,
     register_uploaded_file,
     load_input_table_data,
-    save_input_table_data,
-    get_calculation_module_data,
-    export_scenario_to_powerbi,
-    get_powerbi_export_history
+    get_calculation_module_data
 )
 from engine.data_engine import CapacityDataEngine
+from planning_service import selected_dataset
+from planner_workspace import PlannerWorkspace
 from cluster_manager import register_cluster_handlers
 from ui import (
     CUSTOM_CSS,
@@ -76,11 +75,12 @@ def create_classic_ui():
             )
         ),
         ui.nav_control(ui.HTML(get_british_gas_logo_html())),
-        title="Capacity Planning",
+        title="British Gas | Capacity Planning",
         id="main_navbar",
         header=ui.TagList(
             ui.tags.head(
                 ui.tags.style(CUSTOM_CSS),
+                ui.tags.link(rel="icon", type="image/png", href="brand/british-gas-icon.png"),
                 ui.tags.meta(name="viewport", content="width=device-width, initial-scale=1"),
                 ui.tags.script("""
                     $(document).on('hidden.bs.modal hide.bs.modal', function () {
@@ -134,6 +134,34 @@ def server(input, output, session):
 
     # --- REACT JAVASCRIPT EVENT BRIDGE ---
 
+    @reactive.effect
+    @reactive.event(input.planner_workspace_event)
+    async def _on_planner_workspace():
+        req = input.planner_workspace_event()
+        if not isinstance(req, dict):
+            return
+        try:
+            from cluster_manager import get_current_user
+            response = PlannerWorkspace().execute(req, actor=get_current_user(session))
+            if req.get("op") == "refresh":
+                response["catalog"] = {"scenarios": sm.get_all_scenarios(), "inputOptions": DEFAULT_INPUT_OPTIONS, "remarksMap": DEFAULT_REMARKS}
+        except Exception as exc:
+            response = {"success": False, "op": req.get("op"), "requestId": req.get("requestId"), "error": str(exc)}
+        await session.send_custom_message("planner_workspace_response", response)
+
+    @reactive.effect
+    @reactive.event(input.planning_source_request)
+    async def _on_planning_source():
+        req = input.planning_source_request()
+        if not isinstance(req, dict):
+            return
+        try:
+            result = {"success": True, "dataset": selected_dataset(req.get("inputs", {}))}
+        except Exception as exc:
+            result = {"success": False, "error": str(exc)}
+        result["requestId"] = req.get("requestId")
+        await session.send_custom_message("planning_source_response", result)
+
     # Handle Scenario Save from React UI
     @reactive.effect
     @reactive.event(input.save_scenario_event)
@@ -148,7 +176,11 @@ def server(input, output, session):
         remarks = data.get("remarks", "")
         inputs = data.get("inputs", {})
         
-        new_id = sm.save_scenario(plan_type, month, version, remarks, inputs)
+        try:
+            new_id = sm.save_scenario(plan_type, month, version, remarks, inputs)
+        except Exception as exc:
+            await session.send_custom_message("show_toast", {"message": str(exc), "type": "error"})
+            return
         
         # Broadcast updated scenarios back to React
         await session.send_custom_message("update_scenario_data", {
@@ -192,19 +224,47 @@ def server(input, output, session):
         
         files = data.get("files", [])
         saved_count = 0
+        saved = []
+        errors = []
         for f in files:
             f_name = f.get("name")
             f_type = f.get("type")
             f_remarks = f.get("remarks", "")
             f_content = f.get("content", None)
-            if f_name and f_type:
-                register_uploaded_file(f_type, f_name, f_remarks, f_content)
-                saved_count += 1
+            if f_name and f_type and isinstance(f_content, str) and f_content.strip():
+                if f_type not in DEFAULT_INPUT_OPTIONS or not isinstance(f_name, str) or Path(f_name).name != f_name or any(c in f_name for c in ("/", "\\", "..")):
+                    errors.append(f"Invalid input category or filename: {f_name}")
+                    continue
+                if register_uploaded_file(f_type, f_name, f_remarks, f_content):
+                    saved_count += 1
+                    saved.append({"name": f_name.rsplit('.', 1)[0] if f_name.lower().endswith(('.csv', '.xlsx', '.xls')) else f_name, "type": f_type})
+                else:
+                    errors.append(f"Could not save {f_name}")
+            else:
+                errors.append(f"File content or category missing: {f_name}")
+
+        await session.send_custom_message("planning_upload_response", {
+            "saved": saved, "errors": errors, "inputOptions": DEFAULT_INPUT_OPTIONS, "remarksMap": DEFAULT_REMARKS
+        })
                 
         await session.send_custom_message("show_toast", {
-            "message": f"Successfully registered {saved_count} validated file(s) in backend.",
-            "type": "success"
+            "message": f"Saved {saved_count} file(s). {len(errors)} failed. Validate sources before calculation.",
+            "type": "error" if errors else "success"
         })
+
+    # Handle Stage Switching (dev / uat / prod simulation) from React UI
+    @reactive.effect
+    @reactive.event(input.switch_stage_event)
+    async def _on_switch_stage():
+        stage = input.switch_stage_event()
+        if stage in ["dev", "uat", "prod", ""]:
+            EnvironmentConfig.set_stage_override(stage)
+            updated_status = engine.get_engine_status()
+            await session.send_custom_message("update_env_status", updated_status)
+            await session.send_custom_message("show_toast", {
+                "message": f"Switched Databricks stage to '{EnvironmentConfig.get_stage().upper()}' (Schema: {EnvironmentConfig.get_schema()})",
+                "type": "info"
+            })
 
     # Handle Input File Table Data Request from React UI
     @reactive.effect
@@ -218,41 +278,11 @@ def server(input, output, session):
         file_name = req.get("fileName", "")
         request_id = req.get("requestId", None)
         
-        result = load_input_table_data(input_key, file_name)
+        result = load_input_table_data(input_key, file_name, allow_generated=False)
         if request_id is not None:
             result["requestId"] = request_id
             
         await session.send_custom_message("response_input_file_data", result)
-
-    # Handle Input File Table Data Save from React UI
-    @reactive.effect
-    @reactive.event(input.save_input_file_data)
-    async def _on_save_input_file_data():
-        req = input.save_input_file_data()
-        if not req or not isinstance(req, dict):
-            return
-        
-        input_key = req.get("inputKey", "")
-        file_name = req.get("fileName", "")
-        rows = req.get("rows", [])
-        columns = req.get("columns", [])
-        request_id = req.get("requestId", None)
-        
-        result = save_input_table_data(input_key, file_name, rows, columns)
-        if request_id is not None:
-            result["requestId"] = request_id
-            
-        await session.send_custom_message("response_save_input_file_data", result)
-        if result.get("success"):
-            await session.send_custom_message("show_toast", {
-                "message": f"Saved changes to '{file_name}' ({len(rows)} rows)!",
-                "type": "success"
-            })
-        else:
-            await session.send_custom_message("show_toast", {
-                "message": f"Failed saving '{file_name}': {result.get('error')}",
-                "type": "warning"
-            })
 
     # Handle Calculation Module Data Request from React UI
     @reactive.effect
@@ -270,37 +300,6 @@ def server(input, output, session):
             result["requestId"] = request_id
             
         await session.send_custom_message("response_calc_module_data", result)
-
-    # Handle Scenario Export to Power BI (Private / Public with custom name of choice)
-    @reactive.effect
-    @reactive.event(input.export_powerbi_scenario)
-    async def _on_export_powerbi_scenario():
-        req = input.export_powerbi_scenario()
-        if not req or not isinstance(req, dict):
-            return
-        
-        scenario_id = req.get("scenarioId", "")
-        export_target = req.get("exportTarget", "private") # "private" or "public"
-        export_name = req.get("exportName", "")
-        description = req.get("description", "")
-        request_id = req.get("requestId", None)
-        
-        result = export_scenario_to_powerbi(scenario_id, export_target, export_name, description)
-        if request_id is not None:
-            result["requestId"] = request_id
-            
-        await session.send_custom_message("response_export_powerbi", result)
-        if result.get("success"):
-            target_label = "Private Power BI" if export_target == "private" else "Public Power BI"
-            await session.send_custom_message("show_toast", {
-                "message": f"Successfully exported scenario to {target_label} as '{result.get('exportName')}'!",
-                "type": "success"
-            })
-        else:
-            await session.send_custom_message("show_toast", {
-                "message": f"Failed exporting scenario to Power BI: {result.get('error')}",
-                "type": "warning"
-            })
 
     # Register standard PyShiny server handlers (calculators, downloads, classic views)
     register_server_handlers(input, output, session)

@@ -1,6 +1,10 @@
 # British Gas Field Capacity Planning Platform (React + PyShiny)
 
-A production-grade Capacity Planning application combining a **Modern React 18 & Tailwind CSS Frontend** with a **PyShiny & PySpark Backend**. 
+British Gas planning terminology is applied to display labels and the searchable **Terms & definitions** view. See [Naming conventions and implementation scope](docs/terminology/NAMING-CONVENTIONS.md). Source schemas and saved business identifiers are retained.
+
+A capacity planning application with a React 18 frontend and PyShiny backend. The default workspace is now **Capacity Desk**, with reconciled analytics, explicit proposal drivers and strict weekly-hours source validation. See [CAPACITY-DESK.md](CAPACITY-DESK.md) for current setup, source contracts, structure and verification.
+
+The default dataset is clearly labelled synthetic. Raw operational input transformations and live Databricks deployment still require validation. The feature descriptions below also cover the retained legacy workspace, which contains illustrative analytics.
 
 Engineered for **Dual Environment Execution**:
 - **Production (Databricks Apps)**: Queries Databricks Unity Catalog (`catalog.schema.table`) with PySpark distributed calculation.
@@ -19,8 +23,7 @@ Engineered for **Dual Environment Execution**:
 - **Scenario Studio (Home Redesign)**:
   - Bento Grid layout with 4 KPI summary cards (Total Demand, Available Capacity, Net Buffer, SLA Coverage).
   - Unified grid for all 21 inputs (Capacity Inputs, Capacity Config, Demand, Demand Config, Other Config, Actuals).
-  - Every input card contains the file dropdown, **View & Edit (Excel Mode)** button, **Delete** button, **Undo** button, and dynamic operational remarks.
-  - **Excel-Style Floating Window Editor**: Max-viewport modal featuring inline cell editing, Excel formula bar (`fx`), cell coordinate navigation, multi-cell TSV clipboard paste, Add/Delete row controls, and persistence back to disk / Unity Catalog Delta tables.
+  - Every input card contains the file dropdown, **Delete** button, **Undo** button, and dynamic operational remarks.
   - Drag-and-drop bulk upload dropzone with auto-assignment.
 - **Scenario Diff & Comparison**:
   - Side-by-side parameter diff highlighting what changed between Scenario A and Scenario B.
@@ -30,6 +33,10 @@ Engineered for **Dual Environment Execution**:
   - Inday workload profile matrix across all 32 UK engineering patches.
 - **New Feature Modules**:
   1. 🤖 **Capacity Copilot**: Slide-over AI assistant drawer for root-cause analysis, deficit explanation, and automated scenario suggestions.
+  2. 🗺️ **UK Geospatial Imbalance Map**: Visual regional overview highlighting surplus and deficit territories.
+  3. 📅 **Shift & Roster Planning**: Modeling 4-day compressed hours vs standard 37.5-hour shifts.
+  4. 💰 **Financial Impact**: Cost waterfall analyzing direct labor vs overtime vs CTR contractor spend.
+  5. ⚙️ **Unity Catalog Architecture Console**: Live inspection of Databricks Unity Catalog schemas and PySpark execution state.
 
 ---
 
