@@ -8,7 +8,6 @@ Verifies that changing scenarios in the dropdown updates scenario-related number
 5. Dem vs Cap Matrix (Weekly profile and regional rollup)
 """
 
-import re
 import sys
 import time
 import subprocess

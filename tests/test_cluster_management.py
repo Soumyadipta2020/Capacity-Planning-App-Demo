@@ -12,13 +12,6 @@ Verifies:
 """
 
 import sys
-import time
-from pathlib import Path
-
-root_dir = Path(__file__).resolve().parent.parent
-if str(root_dir) not in sys.path:
-    sys.path.insert(0, str(root_dir))
-
 from cluster_manager import (
     ClusterManager,
     ClusterStartingError,
@@ -33,10 +26,7 @@ from cluster_manager import (
     logout_confirmation_modal,
     session_ended_modal,
     render_cluster_banner,
-    get_current_user,
-    RUNNING_STATE,
-    OFFLINE_STATES,
-    STARTING_STATES
+    RUNNING_STATE
 )
 from config import EnvironmentConfig
 from engine.data_engine import CapacityDataEngine
@@ -313,7 +303,7 @@ def test_databricks_auto_table_creation_and_usage():
     import re
     import pandas as pd
     import numpy as np
-    from data_manager import ScenarioManager, load_input_table_data, register_uploaded_file
+    from data_manager import ScenarioManager, register_uploaded_file
 
     engine = CapacityDataEngine.get_instance()
 

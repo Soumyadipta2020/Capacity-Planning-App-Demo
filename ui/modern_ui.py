@@ -7,9 +7,7 @@ achieving a true 100% full-bleed edge-to-edge layout with zero left margin.
 
 import json
 import time
-from pathlib import Path
 from shiny import ui
-from config import EnvironmentConfig
 from data_manager import (
     DEFAULT_INPUT_OPTIONS,
     DEFAULT_REMARKS,
@@ -66,6 +64,9 @@ def create_modern_ui_page():
             ui.tags.meta(charset="utf-8"),
             ui.tags.meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"),
             ui.tags.title("ES Capacity App | Capacity Planning Platform"),
+            ui.tags.link(rel="icon", type="image/x-icon", href="favicon.ico"),
+            ui.tags.link(rel="shortcut icon", href="favicon.ico"),
+            ui.tags.link(rel="apple-touch-icon", href="favicon.png"),
             
             # Google Font: Inter
             ui.tags.link(rel="preconnect", href="https://fonts.googleapis.com"),
