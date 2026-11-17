@@ -82,6 +82,9 @@ def create_classic_ui():
             ui.tags.head(
                 ui.tags.style(CUSTOM_CSS),
                 ui.tags.meta(name="viewport", content="width=device-width, initial-scale=1"),
+                ui.tags.link(rel="icon", type="image/x-icon", href="favicon.ico"),
+                ui.tags.link(rel="shortcut icon", href="favicon.ico"),
+                ui.tags.link(rel="apple-touch-icon", href="favicon.png"),
                 ui.tags.script("""
                     $(document).on('hidden.bs.modal hide.bs.modal', function () {
                         setTimeout(function() {

@@ -35,6 +35,21 @@ try:
         print(f"HTML output contains 'ES Capacity App': {'ES Capacity App' in body}")
         print(f"HTML output contains 'react-root': {'react-root' in body}")
         print(f"HTML output references 'react_app.js': {'react_app.js' in body}")
+        print(f"HTML output references 'favicon.ico': {'favicon.ico' in body}")
+        assert 'favicon.ico' in body
+
+    # Check that static asset favicon.ico is served properly with HTTP 200 (prevents 404 GET /favicon.ico)
+    with urllib.request.urlopen("http://127.0.0.1:8001/favicon.ico", timeout=10) as resp_ico:
+        print(f"favicon.ico static asset response status: {resp_ico.getcode()}")
+        assert resp_ico.getcode() == 200
+        ico_content = resp_ico.read()
+        assert len(ico_content) > 0
+        print(f"Verified favicon.ico static asset served successfully ({len(ico_content)} bytes)!")
+
+    # Check that static asset favicon.png is served properly
+    with urllib.request.urlopen("http://127.0.0.1:8001/favicon.png", timeout=10) as resp_png:
+        print(f"favicon.png static asset response status: {resp_png.getcode()}")
+        assert resp_png.getcode() == 200
 
     # Check that static asset react_app.js is served properly
     with urllib.request.urlopen("http://127.0.0.1:8001/react_app.js", timeout=10) as resp_js:
