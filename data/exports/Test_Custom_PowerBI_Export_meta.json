@@ -6,7 +6,7 @@
   "workspace_name": "Centrica Energy Services - Private Capacity Planning Workspace",
   "access_level": "Restricted (Executive RLS)",
   "description": "Automated test export",
-  "timestamp": "2026-11-17 19:28:56",
+  "timestamp": "2026-11-17 21:49:50",
   "rows_count": 180,
   "csv_file": "Test_Custom_PowerBI_Export.csv",
   "pbids_file": "Test_Custom_PowerBI_Export.pbids"

@@ -12,7 +12,7 @@ import os
 import sys
 import platform
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List
 from dotenv import load_dotenv
 
 # Load local environment settings from .env if present

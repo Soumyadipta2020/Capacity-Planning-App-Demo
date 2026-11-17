@@ -3,29 +3,22 @@ Server Logic Module
 Contains all reactive outputs, event handlers, and data bindings for the Capacity Planning App.
 """
 
-import io
 import json
-import os
 from datetime import datetime
-from typing import Dict, Any, List
 
 from shiny import Inputs, Outputs, Session, reactive, render, ui
 from shinywidgets import render_widget
 import plotly.graph_objects as go
 import pandas as pd
-import numpy as np
 
 from config import EnvironmentConfig
 from data_manager import (
     DEFAULT_INPUT_OPTIONS,
-    DEFAULT_REMARKS,
     get_file_remark,
     ScenarioManager,
     SampleDataGenerator,
     load_input_table_data,
-    DATE_COLS,
-    PATCHES,
-    SKILLS
+    DATE_COLS
 )
 
 # Complete list of all 21 input keys and their human-readable labels
