@@ -7,9 +7,7 @@ achieving a true 100% full-bleed edge-to-edge layout with zero left margin.
 
 import json
 import time
-from pathlib import Path
 from shiny import ui
-from config import EnvironmentConfig
 from data_manager import (
     DEFAULT_INPUT_OPTIONS,
     DEFAULT_REMARKS,

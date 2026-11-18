@@ -6,42 +6,38 @@ Dual Engine: PySpark on Databricks Unity Catalog (Production) vs Pandas on VS Co
 """
 
 import os
-import sys
 from pathlib import Path
-from shiny import App, ui, reactive
 
+from shiny import App, reactive, ui
+
+from cluster_manager import register_cluster_handlers
 from config import EnvironmentConfig
 from data_manager import (
-    DEFAULT_INPUT_OPTIONS,
-    DEFAULT_REMARKS,
     ScenarioManager,
-    SampleDataGenerator,
-    register_uploaded_file,
-    load_input_table_data,
-    save_input_table_data,
-    get_calculation_module_data,
     export_scenario_to_powerbi,
-    get_powerbi_export_history
+    get_calculation_module_data,
+    load_input_table_data,
+    register_uploaded_file,
+    save_input_table_data,
 )
 from engine.data_engine import CapacityDataEngine
-from cluster_manager import register_cluster_handlers
+from server_logic import register_server_handlers
 from ui import (
     CUSTOM_CSS,
-    get_british_gas_logo_html,
-    get_env_badge_html,
+    create_about_tab,
+    create_capacity_config_panels,
+    create_capacity_panels,
+    create_config_tab,
+    create_dem_vs_cap_tab,
+    create_demand_config_panels,
+    create_demand_tab,
     create_home_tab,
+    create_modern_ui_page,
     create_scenario_comparison_tab,
     create_visuals_tab,
-    create_dem_vs_cap_tab,
-    create_demand_tab,
-    create_capacity_panels,
-    create_capacity_config_panels,
-    create_demand_config_panels,
-    create_config_tab,
-    create_about_tab,
-    create_modern_ui_page
+    get_british_gas_logo_html,
+    get_env_badge_html,
 )
-from server_logic import register_server_handlers
 
 WORKSPACE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = WORKSPACE_DIR / "static"
@@ -365,7 +361,7 @@ if __name__ == "__main__":
     # -----------------------------------------------------------------------
     status = engine.get_engine_status()
     print("\n [STEP 2/2] Loading application using verified data tables...")
-    print(f" UI Framework       : Modern React 18 + Tailwind CSS")
+    print(" UI Framework       : Modern React 18 + Tailwind CSS")
     print(f" Execution Engine   : {status['engine_type']}")
     print(f" Storage Target     : {status['storage_target']}")
     print(f" Calculation Mode   : {status['calculation_mode']}")

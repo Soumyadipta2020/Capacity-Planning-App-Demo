@@ -75,7 +75,7 @@ try:
         assert 'handleToggleAllML' in js_content
 
         # Test backend registration and sorting by datetimestamp
-        from data_manager import register_uploaded_file, DEFAULT_INPUT_OPTIONS, DEFAULT_REMARKS, parse_date_from_option, CATEGORY_FOLDER_MAP
+        from data_manager import register_uploaded_file, DEFAULT_INPUT_OPTIONS, DEFAULT_REMARKS, CATEGORY_FOLDER_MAP
         test_file_name = "fte_transfer_q4_2026-10-30 18:00:00"
         register_uploaded_file("fte_transfer", test_file_name, "Test Q4 upload", "from,to,fte\nEast,West,10")
         assert test_file_name in DEFAULT_INPUT_OPTIONS["fte_transfer"]
