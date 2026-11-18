@@ -90,6 +90,7 @@ def create_modern_ui_page():
             ui.tags.script(
                 """
                 tailwind.config = {
+                    darkMode: 'class',
                     theme: {
                         extend: {
                             fontFamily: {
@@ -102,17 +103,35 @@ def create_modern_ui_page():
                                 brandBlueLight: '#eff6ff',
                                 chartTeal: '#38d4c3',
                                 chartCoral: '#f87171',
-                                chartYellow: '#facc15'
+                                chartYellow: '#facc15',
+                                midnightAbyss: '#070e1c',
+                                midnightNavy: '#0c1b31',
+                                midnightBorder: '#18365d',
+                                midnightCyan: '#80c6ff',
+                                midnightText: '#adbed4'
                             }
                         }
                     }
                 }
                 """
             ),
+
+            # Instant Dark Mode Initialization (prevents flash of white on refresh)
+            ui.tags.script(
+                """
+                (function() {
+                    try {
+                        if (localStorage.getItem('capacity-app-dark-mode') === 'true') {
+                            document.documentElement.classList.add('dark');
+                        }
+                    } catch (e) {}
+                })();
+                """
+            ),
             
             # Reset CSS: Force 0 margin & padding on html, body, and root (preventing left whitespace & double scrollbars)
             ui.tags.style(
-                """
+                r"""
                 *, *::before, *::after {
                     box-sizing: border-box;
                 }
@@ -128,6 +147,11 @@ def create_modern_ui_page():
                     font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
                     display: flex !important;
                     flex-direction: column !important;
+                    transition: background-color 0.3s ease, color 0.3s ease;
+                }
+                html.dark body, html.dark {
+                    background-color: #070e1c !important;
+                    color: #adbed4 !important;
                 }
                 #cluster_banner_container {
                     width: 100%;
@@ -315,22 +339,171 @@ def create_modern_ui_page():
                     }
                 }
                 
-                /* MODERN GLOWING HOVER EFFECTS (BRITISH GAS BLUE THEME) */
+                /* MODERN GLOWING HOVER EFFECTS WITH COLOR-MATCHED ICON GLOWS */
                 .glow-card {
                     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
                 }
                 .glow-card:hover {
                     transform: translateY(-2px);
                     box-shadow: 0 12px 28px -4px rgba(0, 94, 184, 0.16), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
-                    border-color: #005eb8 !important;
                 }
                 .glow-icon {
                     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
                 }
-                .glow-card:hover .glow-icon {
-                    box-shadow: 0 0 16px rgba(0, 114, 206, 0.35);
+                .glow-card:hover .glow-icon, .glow-icon:hover {
                     transform: scale(1.08);
-                    border-color: #005eb8 !important;
+                }
+
+                /* 1. Blue Icon Glow (Total Demand / Upload) */
+                .glow-icon-blue, [class*="text-blue-"].glow-icon {
+                    box-shadow: 0 0 10px rgba(37, 99, 235, 0.25);
+                    border-color: rgba(59, 130, 246, 0.35) !important;
+                }
+                .glow-card:hover .glow-icon-blue, .glow-icon-blue:hover, button:hover .glow-icon-blue, .glow-card:hover [class*="text-blue-"].glow-icon, [class*="text-blue-"].glow-icon:hover {
+                    box-shadow: 0 0 18px rgba(37, 99, 235, 0.55), 0 0 6px rgba(37, 99, 235, 0.35);
+                    border-color: #2563eb !important;
+                }
+                html.dark .glow-icon-blue, html.dark [class*="text-blue-"].glow-icon {
+                    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4), inset 0 0 8px rgba(59, 130, 246, 0.2);
+                    border-color: rgba(96, 165, 250, 0.5) !important;
+                    background-color: rgba(30, 58, 138, 0.35) !important;
+                }
+                html.dark .glow-card:hover .glow-icon-blue, html.dark .glow-icon-blue:hover, html.dark button:hover .glow-icon-blue, html.dark .glow-card:hover [class*="text-blue-"].glow-icon, html.dark [class*="text-blue-"].glow-icon:hover {
+                    box-shadow: 0 0 22px rgba(96, 165, 250, 0.75), 0 0 8px rgba(96, 165, 250, 0.45);
+                    border-color: #60a5fa !important;
+                }
+
+                /* 2. Sky / Cyan Icon Glow (Net Capacity) */
+                .glow-icon-sky, [class*="text-sky-"].glow-icon {
+                    box-shadow: 0 0 10px rgba(14, 165, 233, 0.25);
+                    border-color: rgba(14, 165, 233, 0.35) !important;
+                }
+                .glow-card:hover .glow-icon-sky, .glow-icon-sky:hover, button:hover .glow-icon-sky, .glow-card:hover [class*="text-sky-"].glow-icon, [class*="text-sky-"].glow-icon:hover {
+                    box-shadow: 0 0 18px rgba(14, 165, 233, 0.55), 0 0 6px rgba(14, 165, 233, 0.35);
+                    border-color: #0ea5e9 !important;
+                }
+                html.dark .glow-icon-sky, html.dark [class*="text-sky-"].glow-icon {
+                    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4), inset 0 0 8px rgba(56, 189, 248, 0.2);
+                    border-color: rgba(56, 189, 248, 0.5) !important;
+                    background-color: rgba(12, 74, 110, 0.35) !important;
+                }
+                html.dark .glow-card:hover .glow-icon-sky, html.dark .glow-icon-sky:hover, html.dark button:hover .glow-icon-sky, html.dark .glow-card:hover [class*="text-sky-"].glow-icon, html.dark [class*="text-sky-"].glow-icon:hover {
+                    box-shadow: 0 0 22px rgba(56, 189, 248, 0.75), 0 0 8px rgba(56, 189, 248, 0.45);
+                    border-color: #38bdf8 !important;
+                }
+
+                /* 3. Emerald / Green Icon Glow (Net Buffer) */
+                .glow-icon-emerald, [class*="text-emerald-"].glow-icon {
+                    box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+                    border-color: rgba(16, 185, 129, 0.35) !important;
+                }
+                .glow-card:hover .glow-icon-emerald, .glow-icon-emerald:hover, button:hover .glow-icon-emerald, .glow-card:hover [class*="text-emerald-"].glow-icon, [class*="text-emerald-"].glow-icon:hover {
+                    box-shadow: 0 0 18px rgba(16, 185, 129, 0.55), 0 0 6px rgba(16, 185, 129, 0.35);
+                    border-color: #10b981 !important;
+                }
+                html.dark .glow-icon-emerald, html.dark [class*="text-emerald-"].glow-icon {
+                    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4), inset 0 0 8px rgba(16, 185, 129, 0.2);
+                    border-color: rgba(52, 211, 153, 0.5) !important;
+                    background-color: rgba(6, 78, 59, 0.35) !important;
+                }
+                html.dark .glow-card:hover .glow-icon-emerald, html.dark .glow-icon-emerald:hover, html.dark button:hover .glow-icon-emerald, html.dark .glow-card:hover [class*="text-emerald-"].glow-icon, html.dark [class*="text-emerald-"].glow-icon:hover {
+                    box-shadow: 0 0 22px rgba(52, 211, 153, 0.75), 0 0 8px rgba(52, 211, 153, 0.45);
+                    border-color: #34d399 !important;
+                }
+
+                /* 4. Amber / Gold Icon Glow (Coverage Ratio) */
+                .glow-icon-amber, [class*="text-amber-"].glow-icon {
+                    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+                    border-color: rgba(245, 158, 11, 0.4) !important;
+                }
+                .glow-card:hover .glow-icon-amber, .glow-icon-amber:hover, button:hover .glow-icon-amber, .glow-card:hover [class*="text-amber-"].glow-icon, [class*="text-amber-"].glow-icon:hover {
+                    box-shadow: 0 0 20px rgba(245, 158, 11, 0.65), 0 0 6px rgba(245, 158, 11, 0.4);
+                    border-color: #f59e0b !important;
+                }
+                html.dark .glow-icon-amber, html.dark [class*="text-amber-"].glow-icon {
+                    box-shadow: 0 0 14px rgba(245, 158, 11, 0.5), inset 0 0 8px rgba(245, 158, 11, 0.25);
+                    border-color: rgba(251, 191, 36, 0.6) !important;
+                    background-color: rgba(120, 53, 15, 0.4) !important;
+                }
+                html.dark .glow-card:hover .glow-icon-amber, html.dark .glow-icon-amber:hover, html.dark button:hover .glow-icon-amber, html.dark .glow-card:hover [class*="text-amber-"].glow-icon, html.dark [class*="text-amber-"].glow-icon:hover {
+                    box-shadow: 0 0 24px rgba(251, 191, 36, 0.8), 0 0 8px rgba(251, 191, 36, 0.5);
+                    border-color: #fbbf24 !important;
+                }
+
+                /* 5. Purple / Violet Icon Glow (Shortfall Risk) */
+                .glow-icon-purple, [class*="text-purple-"].glow-icon {
+                    box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+                    border-color: rgba(168, 85, 247, 0.4) !important;
+                }
+                .glow-card:hover .glow-icon-purple, .glow-icon-purple:hover, button:hover .glow-icon-purple, .glow-card:hover [class*="text-purple-"].glow-icon, [class*="text-purple-"].glow-icon:hover {
+                    box-shadow: 0 0 20px rgba(168, 85, 247, 0.65), 0 0 6px rgba(168, 85, 247, 0.4);
+                    border-color: #a855f7 !important;
+                }
+                html.dark .glow-icon-purple, html.dark [class*="text-purple-"].glow-icon {
+                    box-shadow: 0 0 14px rgba(168, 85, 247, 0.5), inset 0 0 8px rgba(168, 85, 247, 0.25);
+                    border-color: rgba(192, 132, 252, 0.6) !important;
+                    background-color: rgba(88, 28, 135, 0.4) !important;
+                }
+                html.dark .glow-card:hover .glow-icon-purple, html.dark .glow-icon-purple:hover, html.dark button:hover .glow-icon-purple, html.dark .glow-card:hover [class*="text-purple-"].glow-icon, html.dark [class*="text-purple-"].glow-icon:hover {
+                    box-shadow: 0 0 24px rgba(192, 132, 252, 0.8), 0 0 8px rgba(192, 132, 252, 0.5);
+                    border-color: #c084fc !important;
+                }
+
+                /* 6. Indigo Icon Glow */
+                .glow-icon-indigo, [class*="text-indigo-"].glow-icon {
+                    box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+                    border-color: rgba(99, 102, 241, 0.4) !important;
+                }
+                .glow-card:hover .glow-icon-indigo, .glow-icon-indigo:hover, button:hover .glow-icon-indigo, .glow-card:hover [class*="text-indigo-"].glow-icon, [class*="text-indigo-"].glow-icon:hover {
+                    box-shadow: 0 0 20px rgba(99, 102, 241, 0.65), 0 0 6px rgba(99, 102, 241, 0.4);
+                    border-color: #6366f1 !important;
+                }
+                html.dark .glow-icon-indigo, html.dark [class*="text-indigo-"].glow-icon {
+                    box-shadow: 0 0 14px rgba(99, 102, 241, 0.5), inset 0 0 8px rgba(99, 102, 241, 0.25);
+                    border-color: rgba(129, 140, 248, 0.6) !important;
+                    background-color: rgba(49, 46, 129, 0.4) !important;
+                }
+                html.dark .glow-card:hover .glow-icon-indigo, html.dark .glow-icon-indigo:hover, html.dark button:hover .glow-icon-indigo, html.dark .glow-card:hover [class*="text-indigo-"].glow-icon, html.dark [class*="text-indigo-"].glow-icon:hover {
+                    box-shadow: 0 0 24px rgba(129, 140, 248, 0.8), 0 0 8px rgba(129, 140, 248, 0.5);
+                    border-color: #818cf8 !important;
+                }
+
+                /* 7. Rose / Red Icon Glow */
+                .glow-icon-rose, [class*="text-rose-"].glow-icon {
+                    box-shadow: 0 0 10px rgba(244, 63, 94, 0.3);
+                    border-color: rgba(244, 63, 94, 0.4) !important;
+                }
+                .glow-card:hover .glow-icon-rose, .glow-icon-rose:hover, button:hover .glow-icon-rose, .glow-card:hover [class*="text-rose-"].glow-icon, [class*="text-rose-"].glow-icon:hover {
+                    box-shadow: 0 0 20px rgba(244, 63, 94, 0.65), 0 0 6px rgba(244, 63, 94, 0.4);
+                    border-color: #f43f5e !important;
+                }
+                html.dark .glow-icon-rose, html.dark [class*="text-rose-"].glow-icon {
+                    box-shadow: 0 0 14px rgba(244, 63, 94, 0.5), inset 0 0 8px rgba(244, 63, 94, 0.25);
+                    border-color: rgba(251, 113, 133, 0.6) !important;
+                    background-color: rgba(136, 19, 55, 0.4) !important;
+                }
+                html.dark .glow-card:hover .glow-icon-rose, html.dark .glow-icon-rose:hover, html.dark button:hover .glow-icon-rose, html.dark .glow-card:hover [class*="text-rose-"].glow-icon, html.dark [class*="text-rose-"].glow-icon:hover {
+                    box-shadow: 0 0 24px rgba(251, 113, 133, 0.8), 0 0 8px rgba(251, 113, 133, 0.5);
+                    border-color: #fb7185 !important;
+                }
+
+                /* 8. Slate / Neutral Icon Glow */
+                .glow-icon-slate, [class*="text-slate-"].glow-icon {
+                    box-shadow: 0 0 10px rgba(100, 116, 139, 0.2);
+                    border-color: rgba(148, 163, 184, 0.35) !important;
+                }
+                .glow-card:hover .glow-icon-slate, .glow-icon-slate:hover, button:hover .glow-icon-slate, .glow-card:hover [class*="text-slate-"].glow-icon, [class*="text-slate-"].glow-icon:hover {
+                    box-shadow: 0 0 18px rgba(100, 116, 139, 0.45), 0 0 6px rgba(100, 116, 139, 0.3);
+                    border-color: #64748b !important;
+                }
+                html.dark .glow-icon-slate, html.dark [class*="text-slate-"].glow-icon {
+                    box-shadow: 0 0 12px rgba(148, 163, 184, 0.3), inset 0 0 8px rgba(148, 163, 184, 0.15);
+                    border-color: rgba(203, 213, 225, 0.4) !important;
+                    background-color: rgba(30, 41, 59, 0.5) !important;
+                }
+                html.dark .glow-card:hover .glow-icon-slate, html.dark .glow-icon-slate:hover, html.dark button:hover .glow-icon-slate, html.dark .glow-card:hover [class*="text-slate-"].glow-icon, html.dark [class*="text-slate-"].glow-icon:hover {
+                    box-shadow: 0 0 20px rgba(203, 213, 225, 0.6), 0 0 8px rgba(203, 213, 225, 0.35);
+                    border-color: #cbd5e1 !important;
                 }
                 .glow-button {
                     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -371,6 +544,12 @@ def create_modern_ui_page():
                 ::-webkit-scrollbar-thumb:hover {
                     background: #94a3b8;
                 }
+                html.dark ::-webkit-scrollbar-thumb {
+                    background: #475569;
+                }
+                html.dark ::-webkit-scrollbar-thumb:hover {
+                    background: #64748b;
+                }
 
                 /* Guarantee raw PyShiny bootstrap modal popups do not overlay modern React UI */
                 #shiny-modal-wrapper, #shiny-modal-wrapper .modal, #shiny-modal-wrapper .modal-backdrop {
@@ -379,6 +558,351 @@ def create_modern_ui_page():
                 body > .modal-backdrop {
                     display: none !important;
                 }
+
+                /* ========================================================================
+                   LEADERSHIP PLANNING WORKSPACE - MIDNIGHT OCEANIC THEME
+                   Inspired by Leadership Analytics Command Center (Dark Sapphire & Cyan)
+                   ======================================================================== */
+                html.dark {
+                    color-scheme: dark;
+                }
+                html.dark body,
+                html.dark #react-root {
+                    background-color: #070e1c !important;
+                    background-image: radial-gradient(ellipse at 85% 0%, rgba(26, 60, 107, 0.35) 0%, transparent 60%), radial-gradient(ellipse at 15% 100%, rgba(12, 30, 60, 0.4) 0%, transparent 50%) !important;
+                    color: #adbed4 !important;
+                }
+
+                /* Fine blueprint technical grid overlay */
+                html.dark body::before {
+                    content: "";
+                    position: fixed;
+                    inset: 0;
+                    pointer-events: none;
+                    background-image: linear-gradient(rgba(56, 189, 248, 0.02) 1px, transparent 1px),
+                                      linear-gradient(90deg, rgba(56, 189, 248, 0.02) 1px, transparent 1px);
+                    background-size: 32px 32px;
+                    z-index: 0;
+                }
+
+                /* Headers & Bold Text -> Brilliant White */
+                html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
+                    color: #ffffff !important;
+                    letter-spacing: -0.02em;
+                }
+                html.dark strong, html.dark b, html.dark .font-black, html.dark .font-extrabold {
+                    color: #ffffff !important;
+                }
+
+                /* Eyebrows & Overlines -> Ice Sky Cyan (#80c6ff), excluding elements with explicit semantic colors */
+                html.dark [class*="uppercase"][class*="tracking-"]:not([class*="text-rose"]):not([class*="text-emerald"]):not([class*="text-purple"]):not([class*="text-amber"]):not([class*="text-slate"]):not([class*="text-red"]):not([class*="text-green"]),
+                html.dark [class*="av-eyebrow"],
+                html.dark .tracking-widest:not([class*="text-rose"]):not([class*="text-emerald"]):not([class*="text-purple"]):not([class*="text-amber"]):not([class*="text-slate"]) {
+                    color: #80c6ff !important;
+                }
+
+                /* Text contrast remapping (Leadership Palette: White, Silvery Slate, Oceanic Blue) */
+                html.dark .text-slate-900, html.dark [class*="text-slate-900"] { color: #ffffff !important; }
+                html.dark .text-slate-800, html.dark [class*="text-slate-800"] { color: #f1f5f9 !important; }
+                html.dark .text-slate-700, html.dark [class*="text-slate-700"] { color: #e2edff !important; }
+                html.dark .text-slate-600, html.dark [class*="text-slate-600"] { color: #c4d4e9 !important; }
+                html.dark .text-slate-500, html.dark [class*="text-slate-500"] { color: #adbed4 !important; }
+                html.dark .text-slate-400, html.dark [class*="text-slate-400"] { color: #8fa5c2 !important; }
+                html.dark .text-slate-300, html.dark [class*="text-slate-300"] { color: #c4d4e9 !important; }
+                html.dark .text-slate-200, html.dark [class*="text-slate-200"] { color: #e2edff !important; }
+
+                /* Colored Text on Dark Surfaces */
+                html.dark .text-\[\#005eb8\], html.dark [class*="text-[#005eb8]"],
+                html.dark .text-blue-950, html.dark [class*="text-blue-950"],
+                html.dark .text-blue-900, html.dark [class*="text-blue-900"],
+                html.dark .text-blue-800, html.dark [class*="text-blue-800"],
+                html.dark .text-blue-700, html.dark [class*="text-blue-700"] { color: #80c6ff !important; }
+                html.dark .text-blue-600, html.dark [class*="text-blue-600"] { color: #93c5fd !important; }
+
+                html.dark .text-emerald-950, html.dark [class*="text-emerald-950"],
+                html.dark .text-emerald-900, html.dark [class*="text-emerald-900"],
+                html.dark .text-emerald-800, html.dark [class*="text-emerald-800"],
+                html.dark .text-emerald-700, html.dark [class*="text-emerald-700"] { color: #6ee7b7 !important; }
+                html.dark .text-emerald-600, html.dark [class*="text-emerald-600"] { color: #34d399 !important; }
+
+                html.dark .text-rose-950, html.dark [class*="text-rose-950"],
+                html.dark .text-rose-900, html.dark [class*="text-rose-900"],
+                html.dark .text-rose-800, html.dark [class*="text-rose-800"],
+                html.dark .text-rose-700, html.dark [class*="text-rose-700"] { color: #fca5a5 !important; }
+                html.dark .text-rose-600, html.dark [class*="text-rose-600"] { color: #f87171 !important; }
+
+                html.dark .text-amber-950, html.dark [class*="text-amber-950"],
+                html.dark .text-amber-900, html.dark [class*="text-amber-900"],
+                html.dark .text-amber-800, html.dark [class*="text-amber-800"],
+                html.dark .text-amber-700, html.dark [class*="text-amber-700"] { color: #fbbf24 !important; }
+                html.dark .text-amber-600, html.dark [class*="text-amber-600"],
+                html.dark .text-amber-500, html.dark [class*="text-amber-500"] { color: #fbbf24 !important; }
+
+                /* Always keep text on high-luminance amber/yellow backgrounds dark */
+                .bg-amber-400, [class*="bg-amber-400"],
+                .bg-amber-400 *, [class*="bg-amber-400"] *,
+                html.dark .bg-amber-400, html.dark [class*="bg-amber-400"],
+                html.dark .bg-amber-400 *, html.dark [class*="bg-amber-400"] *,
+                .bg-yellow-400, [class*="bg-yellow-400"],
+                .bg-yellow-400 *, [class*="bg-yellow-400"] *,
+                html.dark .bg-yellow-400, html.dark [class*="bg-yellow-400"],
+                html.dark .bg-yellow-400 *, html.dark [class*="bg-yellow-400"] * {
+                    color: #0f172a !important;
+                }
+
+                html.dark .text-purple-950, html.dark [class*="text-purple-950"],
+                html.dark .text-purple-900, html.dark [class*="text-purple-900"],
+                html.dark .text-purple-800, html.dark [class*="text-purple-800"],
+                html.dark .text-purple-700, html.dark [class*="text-purple-700"] { color: #d8b4fe !important; }
+                html.dark .text-purple-600, html.dark [class*="text-purple-600"] { color: #c084fc !important; }
+
+                html.dark .text-white, html.dark [class*="text-white"] { color: #ffffff !important; }
+
+                /* Surface backgrounds - Deep Sapphire Ocean with Ambient Glow */
+                html.dark .bg-white, html.dark [class*="bg-white"],
+                html.dark .bg-slate-800, html.dark [class*="bg-slate-800"],
+                html.dark .bg-slate-900, html.dark [class*="bg-slate-900"] {
+                    background-image: radial-gradient(ellipse at 84% 8%, rgba(37, 91, 156, 0.22) 0%, transparent 55%), linear-gradient(135deg, #0c1b31 0%, #081324 100%) !important;
+                    background-color: #0b1a30 !important;
+                    border-color: #18365d !important;
+                    box-shadow: 0 8px 24px -4px rgba(2, 6, 23, 0.75), inset 0 1px 0 rgba(147, 197, 253, 0.1) !important;
+                }
+                html.dark .bg-\[\#fbfcfd\], html.dark [class*="bg-[#fbfcfd]"],
+                html.dark .bg-\[\#fcfdfd\], html.dark [class*="bg-[#fcfdfd]"],
+                html.dark .bg-\[\#f8fafc\], html.dark [class*="bg-[#f8fafc]"],
+                html.dark .bg-\[\#f0f7ff\], html.dark [class*="bg-[#f0f7ff]"] {
+                    background-image: none !important;
+                    background-color: #070e1c !important;
+                }
+                html.dark .bg-slate-50, html.dark [class*="bg-slate-50"] {
+                    background-image: none !important;
+                    background-color: #091629 !important;
+                    border-color: #18365d !important;
+                }
+                html.dark .bg-slate-100, html.dark [class*="bg-slate-100"],
+                html.dark .bg-slate-200, html.dark [class*="bg-slate-200"] {
+                    background-image: none !important;
+                    background-color: #0d1e38 !important;
+                    border-color: #18365d !important;
+                }
+
+                /* Neutralize ALL linear gradients with white/light stops */
+                html.dark [class*="from-white"], html.dark [class*="via-white"], html.dark [class*="to-white"],
+                html.dark [class*="from-slate-50"], html.dark [class*="via-slate-50"], html.dark [class*="to-slate-50"],
+                html.dark [class*="from-blue-50"], html.dark [class*="via-blue-50"], html.dark [class*="to-blue-50"],
+                html.dark [class*="from-indigo-50"], html.dark [class*="via-indigo-50"], html.dark [class*="to-indigo-50"],
+                html.dark [class*="from-sky-50"], html.dark [class*="via-sky-50"], html.dark [class*="to-sky-50"],
+                html.dark [class*="from-emerald-50"], html.dark [class*="via-emerald-50"], html.dark [class*="to-emerald-50"],
+                html.dark [class*="from-rose-50"], html.dark [class*="via-rose-50"], html.dark [class*="to-rose-50"],
+                html.dark [class*="from-amber-50"], html.dark [class*="via-amber-50"], html.dark [class*="to-amber-50"],
+                html.dark [class*="from-purple-50"], html.dark [class*="via-purple-50"], html.dark [class*="to-purple-50"] {
+                    background-image: radial-gradient(ellipse at 84% 8%, rgba(37, 91, 156, 0.22) 0%, transparent 55%), linear-gradient(135deg, #0c1b31 0%, #081324 100%) !important;
+                    background-color: #0b1a30 !important;
+                    border-color: #18365d !important;
+                }
+
+                /* Frosted Pills & Metadata Capsules (Inspired by Image Pills) */
+                html.dark [class*="rounded-full"][class*="border"] {
+                    background-color: rgba(255, 255, 255, 0.06) !important;
+                    border-color: rgba(255, 255, 255, 0.14) !important;
+                    color: #c4d4e9 !important;
+                }
+                html.dark [class~="bg-blue-50"], html.dark [class*="bg-blue-50/"], html.dark [class~="bg-sky-50"], html.dark [class*="bg-sky-50/"] {
+                    background-color: rgba(20, 48, 88, 0.6) !important;
+                    border-color: #1e457d !important;
+                    color: #80c6ff !important;
+                }
+                html.dark [class~="bg-blue-100"], html.dark [class*="bg-blue-100/"] {
+                    background-color: rgba(30, 68, 130, 0.75) !important;
+                    border-color: #255b9c !important;
+                    color: #d8efff !important;
+                }
+                html.dark [class~="bg-emerald-50"], html.dark [class*="bg-emerald-50/"] {
+                    background-color: rgba(6, 78, 59, 0.45) !important;
+                    border-color: rgba(16, 185, 129, 0.4) !important;
+                    color: #6ee7b7 !important;
+                }
+                html.dark [class~="bg-emerald-100"], html.dark [class*="bg-emerald-100/"] {
+                    background-color: rgba(6, 95, 70, 0.6) !important;
+                    border-color: rgba(16, 185, 129, 0.5) !important;
+                    color: #a7f3d0 !important;
+                }
+                html.dark [class~="bg-rose-50"], html.dark [class*="bg-rose-50/"] {
+                    background-color: rgba(136, 19, 55, 0.45) !important;
+                    border-color: rgba(244, 63, 94, 0.4) !important;
+                    color: #fca5a5 !important;
+                }
+                html.dark [class~="bg-rose-100"], html.dark [class*="bg-rose-100/"] {
+                    background-color: rgba(159, 18, 57, 0.6) !important;
+                    border-color: rgba(244, 63, 94, 0.5) !important;
+                    color: #fecdd3 !important;
+                }
+                html.dark [class~="bg-amber-50"], html.dark [class*="bg-amber-50/"] {
+                    background-color: rgba(120, 53, 15, 0.45) !important;
+                    border-color: rgba(245, 158, 11, 0.4) !important;
+                    color: #fbbf24 !important;
+                }
+                html.dark [class~="bg-amber-100"], html.dark [class*="bg-amber-100/"] {
+                    background-color: rgba(146, 64, 14, 0.6) !important;
+                    border-color: rgba(245, 158, 11, 0.5) !important;
+                    color: #fde68a !important;
+                }
+                html.dark [class~="bg-purple-50"], html.dark [class*="bg-purple-50/"] {
+                    background-color: rgba(88, 28, 135, 0.45) !important;
+                    border-color: rgba(168, 85, 247, 0.4) !important;
+                    color: #d8b4fe !important;
+                }
+                html.dark [class~="bg-purple-100"], html.dark [class*="bg-purple-100/"] {
+                    background-color: rgba(107, 33, 168, 0.6) !important;
+                    border-color: rgba(168, 85, 247, 0.5) !important;
+                    color: #e9d5ff !important;
+                }
+                html.dark [class~="bg-indigo-50"], html.dark [class*="bg-indigo-50/"] {
+                    background-color: rgba(49, 46, 129, 0.45) !important;
+                    border-color: rgba(99, 102, 241, 0.4) !important;
+                    color: #a5b4fc !important;
+                }
+
+                /* Borders - Sapphire Blue (#18365d) */
+                html.dark [class*="border-slate-100"],
+                html.dark [class*="border-slate-200"],
+                html.dark [class*="divide-slate-100"],
+                html.dark [class*="divide-slate-200"] { border-color: #18365d !important; }
+                html.dark [class*="border-slate-300"],
+                html.dark [class*="divide-slate-300"] { border-color: #214472 !important; }
+
+                /* Form Controls (Leadership Sapphire Theme) */
+                select.bg-transparent,
+                select[class*="bg-transparent"],
+                input.bg-transparent,
+                input[class*="bg-transparent"],
+                html.dark select.bg-transparent,
+                html.dark select[class*="bg-transparent"],
+                html.dark input.bg-transparent,
+                html.dark input[class*="bg-transparent"] {
+                    background: transparent !important;
+                    background-color: transparent !important;
+                    border: none !important;
+                    border-color: transparent !important;
+                    box-shadow: none !important;
+                    outline: none !important;
+                }
+                select.bg-transparent:focus,
+                select[class*="bg-transparent"]:focus,
+                input.bg-transparent:focus,
+                input[class*="bg-transparent"]:focus,
+                html.dark select.bg-transparent:focus,
+                html.dark select[class*="bg-transparent"]:focus,
+                html.dark input.bg-transparent:focus,
+                html.dark input[class*="bg-transparent"]:focus {
+                    background: transparent !important;
+                    background-color: transparent !important;
+                    border: none !important;
+                    border-color: transparent !important;
+                    box-shadow: none !important;
+                    outline: none !important;
+                }
+                html.dark select:not(.bg-transparent):not([class*="bg-transparent"]),
+                html.dark input[type="text"]:not(.bg-transparent):not([class*="bg-transparent"]),
+                html.dark input[type="number"]:not(.bg-transparent):not([class*="bg-transparent"]),
+                html.dark input[type="search"]:not(.bg-transparent):not([class*="bg-transparent"]),
+                html.dark textarea:not(.bg-transparent) {
+                    background-color: #081324 !important;
+                    color: #ffffff !important;
+                    border: 1px solid #18365d !important;
+                    border-radius: 8px !important;
+                }
+                html.dark select:not(.bg-transparent):not([class*="bg-transparent"]):focus,
+                html.dark input:not(.bg-transparent):not([class*="bg-transparent"]):focus,
+                html.dark textarea:not(.bg-transparent):focus {
+                    border-color: #2563eb !important;
+                    outline: 2px solid rgba(37, 99, 235, 0.25) !important;
+                    outline-offset: 1px !important;
+                }
+                html.dark select option, html.dark select optgroup {
+                    background-color: #081324 !important;
+                    color: #ffffff !important;
+                }
+                html.dark input::placeholder, html.dark textarea::placeholder {
+                    color: #7d93b2 !important;
+                }
+
+                /* Buttons (Sapphire Accent & Glassy Navy) */
+                html.dark .bg-\[\#005eb8\], html.dark [class*="bg-[#005eb8]"] {
+                    background: linear-gradient(135deg, #005eb8 0%, #1d4ed8 100%) !important;
+                    border: 1px solid rgba(147, 197, 253, 0.35) !important;
+                    box-shadow: 0 4px 14px rgba(0, 94, 184, 0.4) !important;
+                    color: #ffffff !important;
+                }
+                html.dark .bg-\[\#005eb8\]:hover, html.dark [class*="bg-[#005eb8]"]:hover {
+                    background: linear-gradient(135deg, #004b87 0%, #1e40af 100%) !important;
+                    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5) !important;
+                }
+
+                /* Tables (Leadership Cockpit Grid) */
+                html.dark table { color: #c4d4e9 !important; border-color: #18365d !important; }
+                html.dark table th, html.dark thead th {
+                    background-color: #0c1b31 !important;
+                    color: #80c6ff !important;
+                    border-color: #18365d !important;
+                }
+                html.dark table td { border-color: #122846 !important; }
+                html.dark table tr:hover td {
+                    background-color: #112649 !important;
+                    color: #ffffff !important;
+                }
+                html.dark thead, html.dark thead tr, html.dark th {
+                    background-color: #1e293b !important;
+                    color: #ffffff !important;
+                    border-color: #334155 !important;
+                }
+                html.dark th span, html.dark th div { color: #f8fafc !important; }
+                html.dark td { color: #cbd5e1 !important; border-color: #334155 !important; }
+                html.dark td span, html.dark td div, html.dark td strong, html.dark td b { color: inherit; }
+                html.dark tbody tr:hover, html.dark tbody tr:hover td {
+                    background-color: #334155 !important;
+                }
+                html.dark tfoot, html.dark tfoot tr, html.dark tfoot td {
+                    background-color: #1e293b !important;
+                    color: #f8fafc !important;
+                    border-color: #334155 !important;
+                }
+                html.dark [class*="sticky"] { background-color: #1e293b !important; }
+
+                /* Modals & Dialogs */
+                html.dark .fixed .bg-white,
+                html.dark [class*="fixed"] [class*="bg-white"],
+                html.dark .status-modal-content,
+                html.dark .status-modal-badge-card,
+                html.dark .modal-content {
+                    background-color: #1e293b !important;
+                    background-image: none !important;
+                    border-color: #334155 !important;
+                    color: #f8fafc !important;
+                }
+                html.dark .status-modal-title { color: #ffffff !important; }
+                html.dark .status-modal-subtitle { color: #cbd5e1 !important; }
+                html.dark .session-option-box {
+                    background: #0f172a !important;
+                    border-color: #334155 !important;
+                    color: #e2e8f0 !important;
+                }
+                html.dark .session-option-box:hover {
+                    background: #334155 !important;
+                    border-color: #60a5fa !important;
+                }
+
+                /* SVG elements */
+                html.dark svg text { fill: #cbd5e1; }
+                html.dark svg text[fill="#0f172a"], html.dark svg text[fill="#17243b"], html.dark svg text[fill="#24344e"] { fill: #ffffff !important; }
+                html.dark svg text[fill="#334155"], html.dark svg text[fill="#475569"] { fill: #f1f5f9 !important; }
+                html.dark svg text[fill="#64748b"], html.dark svg text[fill="#94a3b8"] { fill: #cbd5e1 !important; }
+                html.dark svg text[fill="#005eb8"], html.dark svg text[fill="#1d4ed8"], html.dark svg text[fill="#2563eb"], html.dark svg text[fill="#0284c7"] { fill: #60a5fa !important; }
+                html.dark svg text[fill="#059669"], html.dark svg text[fill="#10b981"], html.dark svg text[fill="#16a34a"] { fill: #6ee7b7 !important; }
+                html.dark svg text[fill="#dc2626"], html.dark svg text[fill="#ef4444"], html.dark svg text[fill="#f43f5e"] { fill: #fca5a5 !important; }
+                html.dark svg line[stroke="#f1f5f9"], html.dark svg line[stroke="#e2e8f0"], html.dark svg line[stroke="#eef2f7"], html.dark svg line[stroke="#e8edf5"] { stroke: #334155 !important; }
+                html.dark svg line[stroke="#94a3b8"] { stroke: #64748b !important; }
+                html.dark svg circle[stroke="#fff"], html.dark svg circle[stroke="#ffffff"] { stroke: #1e293b !important; }
                 """
             ),
             
@@ -427,6 +951,7 @@ def create_modern_ui_page():
         ui.tags.script(src=f"analytics_engine.js?v={cache_bust}"),
         ui.tags.link(rel="stylesheet", href=f"analytics.css?v={cache_bust}"),
         ui.tags.link(rel="stylesheet", href=f"analytics_details.css?v={cache_bust}"),
+        ui.tags.link(rel="stylesheet", href=f"dark_theme.css?v={cache_bust}"),
         ui.tags.script(type="text/babel", src=f"analytics_charts.js?v={cache_bust}"),
         ui.tags.script(type="text/babel", src=f"analytics_details.js?v={cache_bust}"),
         ui.tags.script(type="text/babel", src=f"analytics_ui.js?v={cache_bust}"),

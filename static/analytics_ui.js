@@ -302,7 +302,7 @@ function AnalyticsWorkspace({
     sub
   }) => <div className="analytics-metric" style={{
     '--accent': title.toLowerCase().includes('shortfall') ? '#f43f5e' : title.toLowerCase().includes('surplus') ? '#14b8a6' : title.toLowerCase().includes('coverage') ? '#8b5cf6' : '#2563eb'
-  }}><p className="av-metric-title">{title}</p><p className="av-metric-value">{value}</p><p className="av-metric-sub">{sub}</p></div>;
+  }}><p className="av-metric-title whitespace-nowrap truncate">{title}</p><p className="av-metric-value whitespace-nowrap">{value}</p><p className="av-metric-sub whitespace-nowrap truncate">{sub}</p></div>;
   const Field = AnalyticsField;
   const BarList = ({
     rows,

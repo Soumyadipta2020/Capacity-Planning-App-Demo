@@ -430,6 +430,23 @@ function IconMinimize({ className = "w-4 h-4" }) {
     );
 }
 
+function IconSun({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5" strokeWidth="2" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+        </svg>
+    );
+}
+
+function IconMoon({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+    );
+}
+
 // ================================================================================================
 // TIMESTAMP PARSING & SORTING HELPER
 // ================================================================================================
@@ -564,6 +581,29 @@ function ModernCapacityApp() {
     const [activeTab, setActiveTab] = useState('insights');
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+    
+    // Dark Theme State (persisted to localStorage)
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+        try {
+            const saved = localStorage.getItem('capacity-app-dark-mode');
+            return saved === 'true';
+        } catch (e) {
+            return false;
+        }
+    });
+
+    // Apply/remove dark class on <html> element whenever isDarkMode changes
+    useEffect(() => {
+        const root = document.documentElement;
+        if (isDarkMode) {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
+        try {
+            localStorage.setItem('capacity-app-dark-mode', isDarkMode.toString());
+        } catch (e) {}
+    }, [isDarkMode]);
     
     // Engine & Environment state
     const [envInfo, setEnvInfo] = useState({
@@ -1002,34 +1042,46 @@ function ModernCapacityApp() {
     };
 
     return (
-        <div className="flex h-screen w-full bg-[#fcfdfd] font-sans text-slate-800 overflow-hidden antialiased">
+        <div className={`flex h-screen w-full font-sans overflow-hidden antialiased transition-colors duration-300 ${
+            isDarkMode ? 'bg-[#070e1c] text-[#adbed4]' : 'bg-[#fcfdfd] text-slate-800'
+        }`}>
             {/* FLOATING TOAST */}
             {toast && (
                 <div className={`fixed bottom-20 right-8 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl text-xs font-semibold border backdrop-blur-md animate-slide-up ${
                     toast.type === 'success' ? 'bg-[#005eb8] text-white border-blue-500' :
                     toast.type === 'warning' ? 'bg-amber-500 text-white border-amber-400' :
-                    'bg-slate-900 text-white border-slate-700'
+                    'bg-[#081224] text-white border-[#18365d]'
                 }`}>
                     <span>{toast.message}</span>
                 </div>
             )}
 
             {/* WHITE & BRITISH GAS BLUE SIDEBAR (FLUSH TO LEFT EDGE: 0 MARGIN) */}
-            <aside className={`bg-white border-r border-slate-200/90 flex flex-col transition-all duration-300 z-30 shadow-[2px_0_12px_rgba(0,0,0,0.02)] flex-shrink-0 h-full ${
+            <aside className={`flex flex-col transition-all duration-300 z-30 flex-shrink-0 h-full ${
+                isDarkMode 
+                    ? 'bg-[#060b17] border-r border-[#18365d] shadow-[4px_0_24px_rgba(2,6,23,0.6)]' 
+                    : 'bg-white border-r border-slate-200/90 shadow-[2px_0_12px_rgba(0,0,0,0.02)]'
+            } ${
                 isSidebarCollapsed ? 'w-20' : 'w-64'
             }`}>
                 {/* Brand Header */}
-                <div className="h-14 flex items-center justify-center px-4 border-b border-slate-100 flex-shrink-0">
-                    <div className="bg-[#005eb8] text-white font-black tracking-tight px-3 py-1.5 rounded-lg text-sm shadow-sm flex items-center justify-center glow-button whitespace-nowrap">
+                <div className={`h-14 flex items-center justify-center px-4 border-b flex-shrink-0 ${
+                    isDarkMode ? 'border-[#18365d]' : 'border-slate-100'
+                }`}>
+                    <div className={`font-black tracking-tight text-sm flex items-center justify-center whitespace-nowrap select-none ${
+                        isDarkMode ? 'text-white' : 'text-slate-900'
+                    }`}>
                         {isSidebarCollapsed ? 'ES' : 'ES Capacity App'}
                     </div>
                 </div>
 
                 {/* Engine & Compute Mode Pills */}
                 {!isSidebarCollapsed && (
-                    <div className="px-4 py-1.5 border-b border-slate-100 flex flex-col items-center justify-center gap-1 bg-slate-50/40">
+                    <div className={`px-4 py-1.5 border-b flex flex-col items-center justify-center gap-1 ${
+                        isDarkMode ? 'border-[#18365d] bg-[#091528]/80' : 'border-slate-100 bg-slate-50/40'
+                    }`}>
                         <div className="flex items-center justify-center gap-2">
-                            <span className="text-[10px] font-medium text-slate-400 lowercase">environment</span>
+                            <span className={`text-[10px] font-medium lowercase ${isDarkMode ? 'text-[#7d93b2]' : 'text-slate-400'}`}>environment</span>
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 ${
                                 envInfo.is_databricks 
                                     ? 'bg-rose-50 text-rose-700 border border-rose-200' 
@@ -1080,13 +1132,19 @@ function ModernCapacityApp() {
                             onClick={() => setActiveTab(tab.id)}
                             className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium text-xs transition-all group ${
                                 activeTab === tab.id
-                                    ? 'bg-blue-50 text-blue-700 font-semibold shadow-xs border border-blue-100/80'
-                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                    ? isDarkMode 
+                                        ? 'bg-gradient-to-r from-blue-900/60 to-blue-800/40 text-[#80c6ff] font-bold shadow-[0_2px_12px_rgba(37,99,235,0.25)] border border-[#2563eb]/60'
+                                        : 'bg-blue-50 text-blue-700 font-semibold shadow-xs border border-blue-100/80'
+                                    : isDarkMode
+                                        ? 'text-[#7d93b2] hover:bg-[#0c1a32] hover:text-[#e2edff]'
+                                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                             }`}
                         >
                             <div className="flex items-center gap-2.5">
                                 <span className={`transition-transform duration-200 group-hover:scale-110 ${
-                                    activeTab === tab.id ? 'text-blue-700' : 'text-slate-400 group-hover:text-blue-600'
+                                    activeTab === tab.id 
+                                        ? isDarkMode ? 'text-[#80c6ff]' : 'text-blue-700' 
+                                        : isDarkMode ? 'text-[#7d93b2] group-hover:text-[#80c6ff]' : 'text-slate-400 group-hover:text-blue-600'
                                 }`}>
                                     {tab.icon}
                                 </span>
@@ -1094,7 +1152,9 @@ function ModernCapacityApp() {
                             </div>
                             {!isSidebarCollapsed && tab.badge && (
                                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                                    activeTab === tab.id ? 'bg-[#005eb8] text-white' : 'bg-slate-100 text-slate-500'
+                                    activeTab === tab.id 
+                                        ? 'bg-[#005eb8] text-white' 
+                                        : isDarkMode ? 'bg-[#0c1c38] text-[#80c6ff] border border-[#18365d]' : 'bg-slate-100 text-slate-500'
                                 }`}>
                                     {tab.badge}
                                 </span>
@@ -1104,14 +1164,21 @@ function ModernCapacityApp() {
                 </nav>
 
                 {/* Sidebar Footer Controls */}
-                <div className="p-2.5 border-t border-slate-100 flex items-center justify-center">
+                <div className={`p-2.5 border-t flex flex-col gap-1.5 ${
+                    isDarkMode ? 'border-[#18365d]' : 'border-slate-100'
+                }`}>
+                    {/* Dark / Light Theme Toggle */}
                     <button
-                        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                        className="text-slate-400 hover:text-slate-700 text-[11px] font-medium px-2 py-1 rounded-lg hover:bg-slate-50 transition flex items-center gap-1.5"
-                        title="Toggle Sidebar"
+                        onClick={() => setIsDarkMode(!isDarkMode)}
+                        className={`w-full flex items-center justify-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl transition ${
+                            isDarkMode
+                                ? 'text-amber-400 hover:text-amber-300 hover:bg-[#0c1a32] border border-amber-500/20 bg-amber-500/10'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 border border-slate-200/80 bg-slate-50/50'
+                        }`}
+                        title={isDarkMode ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
                     >
-                        <span>◫</span>
-                        {!isSidebarCollapsed && <span>Collapse</span>}
+                        {isDarkMode ? <IconSun className="w-4 h-4 text-amber-400" /> : <IconMoon className="w-4 h-4 text-slate-500" />}
+                        <span>{isDarkMode ? 'Light Theme' : 'Dark Theme'}</span>
                     </button>
                 </div>
             </aside>
@@ -1119,36 +1186,58 @@ function ModernCapacityApp() {
             {/* MAIN APP SHELL (FULL-BLEED FLUID) */}
             <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
                 {/* TOP HEADER (COMPACT 56PX HEIGHT) */}
-                <header className="h-14 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between z-20 flex-shrink-0">
+                <header className={`h-14 px-6 flex items-center justify-between z-20 flex-shrink-0 border-b transition-colors duration-300 ${
+                    isDarkMode 
+                        ? 'bg-[#081224]/95 border-[#18365d] shadow-sm backdrop-blur-md' 
+                        : 'bg-white border-slate-200/80'
+                }`}>
                     {/* Scenario Quick Selector Pill */}
                     <div className="flex items-center gap-2.5 min-w-0">
-                        <button className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-500 transition shadow-xs flex-shrink-0 hover:text-slate-800">
-                            <IconGear className="w-3.5 h-3.5" />
+                        <button className={`w-8 h-8 rounded-lg border flex items-center justify-center transition shadow-xs flex-shrink-0 ${
+                            isDarkMode 
+                                ? 'bg-[#0c1b31] hover:bg-[#112649] border-[#18365d] text-[#80c6ff] hover:text-white' 
+                                : 'bg-slate-50 hover:bg-slate-100 border-slate-200/80 text-slate-500 hover:text-slate-800'
+                        }`}>
+                            <IconGear className="w-3.5 h-3.5 text-current" />
                         </button>
                         {activeTab !== 'comparison' ? (
                             <div className="flex items-center gap-2">
-                                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Scenario:</span>
-                                <div className="flex items-center bg-white border border-slate-200 rounded-lg px-2.5 py-1 shadow-xs hover:border-blue-300 transition">
+                                <span className={`text-[11px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#80c6ff]' : 'text-slate-500'}`}>Active Scenario:</span>
+                                <div className={`flex items-center border rounded-lg px-2.5 py-1 shadow-xs transition ${
+                                    isDarkMode 
+                                        ? 'bg-[#0c1b31] border-[#18365d] hover:border-[#2563eb]/60 text-white' 
+                                        : 'bg-white border-slate-200 hover:border-blue-300 text-slate-800'
+                                }`}>
                                     <select
                                         value={selectedScenarioId}
                                         onChange={(e) => handleLoadScenario(e.target.value)}
-                                        className="bg-transparent text-slate-800 text-xs font-semibold focus:outline-none cursor-pointer max-w-sm truncate"
+                                        className={`bg-transparent text-xs font-bold focus:outline-none cursor-pointer max-w-sm truncate border-0 p-0 m-0 ${
+                                            isDarkMode ? 'text-white' : 'text-slate-800'
+                                        }`}
                                     >
                                         {Object.keys(scenarios).map(id => (
-                                            <option key={id} value={id}>{id}</option>
+                                            <option key={id} value={id} className={isDarkMode ? 'bg-[#081324] text-white' : ''}>{id}</option>
                                         ))}
                                     </select>
-                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 ml-2">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold ml-2 ${
+                                        isDarkMode 
+                                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' 
+                                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    }`}>
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                         Synced
                                     </span>
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2 px-3 py-1 bg-blue-50/80 border border-blue-200 rounded-lg text-xs font-semibold text-[#005eb8] shadow-xs">
-                                <IconScale className="w-3.5 h-3.5 text-[#005eb8]" />
+                            <div className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-semibold shadow-xs border ${
+                                isDarkMode ? 'bg-[#0c1b31] border-[#18365d] text-[#80c6ff]' : 'bg-blue-50/80 border-blue-200 text-[#005eb8]'
+                            }`}>
+                                <IconScale className="w-3.5 h-3.5 text-current" />
                                 <span>Scenario Diff Mode: Dual Scenario Comparison</span>
-                                <span className="text-[10px] text-blue-700 bg-white px-1.5 py-0.5 rounded border border-blue-200 font-bold">Independent Selectors</span>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold ${
+                                    isDarkMode ? 'text-white bg-[#081324] border-[#18365d]' : 'text-blue-700 bg-white border-blue-200'
+                                }`}>Independent Selectors</span>
                             </div>
                         )}
                     </div>
@@ -1162,10 +1251,14 @@ function ModernCapacityApp() {
                                 setPowerBIExportResult(null);
                                 setIsExportPowerBIModalOpen(true);
                             }}
-                            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-[#F2C811] text-amber-950 hover:text-slate-900 border border-amber-300 hover:border-amber-400 transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button group"
+                            className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button group ${
+                                isDarkMode
+                                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30'
+                                    : 'bg-amber-50 hover:bg-[#F2C811] text-amber-950 hover:text-slate-900 border-amber-300 hover:border-amber-400'
+                            }`}
                             title="Export Selected Scenario to Power BI (Private or Public Workspace with Custom Name)"
                         >
-                            <IconPowerBI className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                            <IconPowerBI className="w-3.5 h-3.5 group-hover:scale-110 transition-transform text-current" />
                             <span>Export</span>
                         </button>
                         <button
@@ -1174,39 +1267,59 @@ function ModernCapacityApp() {
                                 setIsCalcModalOpen(true);
                                 handleRequestCalcModule(selectedCalcModule || 'imbalance');
                             }}
-                            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-[#005eb8] text-[#005eb8] hover:text-white border border-blue-200 hover:border-[#005eb8] transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button"
+                            className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button ${
+                                isDarkMode
+                                    ? 'bg-blue-500/20 text-blue-300 border-blue-500/40 hover:bg-blue-500/30'
+                                    : 'bg-blue-50 hover:bg-[#005eb8] text-[#005eb8] hover:text-white border-blue-200 hover:border-[#005eb8]'
+                            }`}
                             title="View Calculation Modules (FTE, Downtime, Productivity, Capacity, Demand, Imbalance)"
                         >
-                            <IconEye className="w-3.5 h-3.5" />
+                            <IconEye className="w-3.5 h-3.5 text-current" />
                             <span>View Calculations</span>
                         </button>
                         <button
                             onClick={() => setActiveTab('inputs')}
-                            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 transition flex items-center gap-1.5 shadow-xs hover:border-blue-300"
+                            className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 shadow-xs ${
+                                isDarkMode
+                                    ? 'bg-[#0c1b31] hover:bg-[#112649] text-white border-[#18365d] hover:border-[#2563eb]/60'
+                                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-blue-300'
+                            }`}
                         >
-                            <IconSliders className="w-3.5 h-3.5 text-blue-600" />
+                            <IconSliders className="w-3.5 h-3.5 text-current" />
                             <span>Configure Inputs (21)</span>
                         </button>
                         <button 
                             onClick={() => showToast("Refreshed scenario data from backend.", "success")}
-                            className="w-7 h-7 rounded-lg bg-white hover:bg-slate-50 border border-slate-200/90 flex items-center justify-center text-slate-600 shadow-xs transition hover:text-blue-600"
+                            className={`w-7 h-7 rounded-lg border flex items-center justify-center shadow-xs transition ${
+                                isDarkMode
+                                    ? 'bg-[#0c1b31] hover:bg-[#112649] border-[#18365d] text-[#adbed4] hover:text-white'
+                                    : 'bg-white hover:bg-slate-50 border-slate-200/90 text-slate-600 hover:text-blue-600'
+                            }`}
                             title="Refresh Data"
                         >
-                            <IconRefresh className="w-3.5 h-3.5" />
+                            <IconRefresh className="w-3.5 h-3.5 text-current" />
                         </button>
                         <button 
                             onClick={() => showToast("Exporting scenario report...", "info")}
-                            className="w-7 h-7 rounded-lg bg-white hover:bg-slate-50 border border-slate-200/90 flex items-center justify-center text-slate-600 shadow-xs transition hover:text-blue-600"
+                            className={`w-7 h-7 rounded-lg border flex items-center justify-center shadow-xs transition ${
+                                isDarkMode
+                                    ? 'bg-[#0c1b31] hover:bg-[#112649] border-[#18365d] text-[#adbed4] hover:text-white'
+                                    : 'bg-white hover:bg-slate-50 border-slate-200/90 text-slate-600 hover:text-blue-600'
+                            }`}
                             title="Download Report"
                         >
-                            <IconDownload className="w-3.5 h-3.5" />
+                            <IconDownload className="w-3.5 h-3.5 text-current" />
                         </button>
                         <button
                             onClick={() => setIsCopilotOpen(true)}
-                            className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-50 to-sky-50 border border-blue-200/60 flex items-center justify-center text-blue-600 shadow-xs hover:shadow transition glow-button"
+                            className={`w-7 h-7 rounded-lg border flex items-center justify-center shadow-xs hover:shadow transition glow-button ${
+                                isDarkMode
+                                    ? 'bg-[#0c1b31] hover:bg-[#112649] border-[#18365d] text-[#80c6ff] hover:text-white'
+                                    : 'bg-gradient-to-tr from-blue-50 to-sky-50 border-blue-200/60 text-blue-600'
+                            }`}
                             title="Capacity AI Assistant"
                         >
-                            <IconSparkles className="w-3.5 h-3.5 text-blue-600" />
+                            <IconSparkles className="w-3.5 h-3.5 text-current" />
                         </button>
                         <button
                             onClick={() => {
@@ -1216,10 +1329,14 @@ function ModernCapacityApp() {
                                     databricks_host: envInfo.databricks_host || ''
                                 });
                             }}
-                            className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-rose-50/80 hover:bg-rose-100 text-rose-700 border border-rose-200/80 transition flex items-center gap-1.5 shadow-xs"
+                            className={`text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition flex items-center gap-1.5 shadow-xs ${
+                                isDarkMode
+                                    ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border-rose-500/30'
+                                    : 'bg-rose-50/80 hover:bg-rose-100 text-rose-700 border-rose-200/80'
+                            }`}
                             title="End active session or log out of Databricks"
                         >
-                            <svg className="w-3.5 h-3.5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg className="w-3.5 h-3.5 text-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                 <polyline points="16 17 21 12 16 7"></polyline>
                                 <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -1283,7 +1400,9 @@ function ModernCapacityApp() {
                 )}
 
                 {/* TAB CONTENT AREA (FLUID SCROLLABLE MAIN WITH TIGHT SPACING) */}
-                <main className="flex-1 overflow-y-auto px-6 py-4 bg-[#fbfcfd] space-y-3.5">
+                <main className={`flex-1 overflow-y-auto px-6 py-4 space-y-3.5 transition-colors duration-300 ${
+                    isDarkMode ? 'bg-[#070e1c]' : 'bg-[#fbfcfd]'
+                }`}>
                     {activeTab === 'analytics' && (
                         <AnalyticsWorkspace
                             scenarios={scenarios}
@@ -1368,35 +1487,45 @@ function ModernCapacityApp() {
 
             {/* CAPACITY COPILOT SLIDE-OVER DRAWER */}
             {isCopilotOpen && (
-                <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/30 backdrop-blur-xs animate-fade-in">
-                    <div className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-slide-left">
+                <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+                    <div className={`w-full max-w-md h-full shadow-2xl flex flex-col animate-slide-left transition-colors duration-200 ${
+                        isDarkMode ? 'bg-slate-800 text-slate-100' : 'bg-white text-slate-800'
+                    }`}>
                         {/* Drawer Header */}
-                        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50 text-slate-800">
+                        <div className={`p-5 border-b flex items-center justify-between ${
+                            isDarkMode ? 'bg-slate-900/90 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-100 text-slate-800'
+                        }`}>
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
-                                    <IconRobot className="w-5 h-5 text-blue-700" />
+                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                                    isDarkMode ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40' : 'bg-blue-50 text-blue-700'
+                                }`}>
+                                    <IconRobot className="w-5 h-5" />
                                 </div>
                                 <div>
                                     <h3 className="font-extrabold text-sm">Capacity Intelligence Copilot</h3>
-                                    <p className="text-[11px] text-slate-400">Databricks Unified Intelligence</p>
+                                    <p className={`text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-400'}`}>Databricks Unified Intelligence</p>
                                 </div>
                             </div>
                             <button
                                 onClick={() => setIsCopilotOpen(false)}
-                                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+                                className={`p-1 rounded-lg transition ${isDarkMode ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-700' : 'text-slate-400 hover:text-slate-600'}`}
                             >
                                 <IconX className="w-4 h-4" />
                             </button>
                         </div>
 
                         {/* Chat Messages */}
-                        <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-[#fbfcfd]">
+                        <div className={`flex-1 overflow-y-auto p-5 space-y-4 ${
+                            isDarkMode ? 'bg-slate-900' : 'bg-[#fbfcfd]'
+                        }`}>
                             {copilotMessages.map((msg, idx) => (
                                 <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                     <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs shadow-xs leading-relaxed ${
                                         msg.role === 'user'
                                             ? 'bg-[#005eb8] text-white font-semibold rounded-br-none'
-                                            : 'bg-white text-slate-800 border border-slate-200/80 rounded-bl-none'
+                                            : isDarkMode
+                                                ? 'bg-slate-800 text-slate-100 border border-slate-700 rounded-bl-none'
+                                                : 'bg-white text-slate-800 border border-slate-200/80 rounded-bl-none'
                                     }`}>
                                         <p className="whitespace-pre-line">{msg.text}</p>
                                     </div>
@@ -1405,32 +1534,48 @@ function ModernCapacityApp() {
                         </div>
 
                         {/* Quick Prompts */}
-                        <div className="p-3 border-t border-slate-100 bg-white flex gap-2 overflow-x-auto text-[11px]">
+                        <div className={`p-3 border-t flex gap-2 overflow-x-auto text-[11px] ${
+                            isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'
+                        }`}>
                             <button 
                                 onClick={() => { setCopilotInput("Explain Leicester patch deficit"); }}
-                                className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full text-slate-700 whitespace-nowrap font-medium transition flex items-center gap-1.5"
+                                className={`px-3 py-1.5 border rounded-full whitespace-nowrap font-medium transition flex items-center gap-1.5 ${
+                                    isDarkMode
+                                        ? 'bg-slate-700/60 hover:bg-slate-700 border-slate-600 text-slate-200'
+                                        : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700'
+                                }`}
                             >
-                                <IconBolt className="w-3.5 h-3.5 text-amber-500" />
+                                <IconBolt className="w-3.5 h-3.5 text-amber-400" />
                                 <span>Leicester deficit</span>
                             </button>
                             <button 
                                 onClick={() => { setCopilotInput("Suggest contractor cost reduction"); }}
-                                className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full text-slate-700 whitespace-nowrap font-medium transition flex items-center gap-1.5"
+                                className={`px-3 py-1.5 border rounded-full whitespace-nowrap font-medium transition flex items-center gap-1.5 ${
+                                    isDarkMode
+                                        ? 'bg-slate-700/60 hover:bg-slate-700 border-slate-600 text-slate-200'
+                                        : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700'
+                                }`}
                             >
-                                <IconCurrency className="w-3.5 h-3.5 text-emerald-600" />
+                                <IconCurrency className="w-3.5 h-3.5 text-emerald-400" />
                                 <span>Contractor savings</span>
                             </button>
                         </div>
 
                         {/* Input Box */}
-                        <div className="p-4 border-t border-slate-100 bg-white flex gap-2">
+                        <div className={`p-4 border-t flex gap-2 ${
+                            isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'
+                        }`}>
                             <input
                                 type="text"
                                 placeholder="Ask Copilot about imbalances, shifts, rosters..."
                                 value={copilotInput}
                                 onChange={(e) => setCopilotInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSendCopilot()}
-                                className="flex-1 text-xs px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#005eb8]"
+                                className={`flex-1 text-xs px-3.5 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#005eb8] ${
+                                    isDarkMode
+                                        ? 'bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-500'
+                                        : 'bg-slate-50 border-slate-200 text-slate-800'
+                                }`}
                             />
                             <button
                                 onClick={handleSendCopilot}
@@ -1577,7 +1722,7 @@ function ClusterManagementModal({
                 {/* --- 1. LOGOUT CONFIRMATION MODAL --- */}
                 {modalType === 'logout' && (
                     <div className="p-6 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-rose-600 mb-3 shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-rose-600 mb-3 shadow-xs glow-icon glow-icon-rose">
                             <svg className="w-6 h-6 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                 <polyline points="16 17 21 12 16 7"></polyline>
@@ -1600,7 +1745,7 @@ function ClusterManagementModal({
                             {/* Option 1: End Session */}
                             <div className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition bg-gradient-to-b from-white to-slate-50/50 flex flex-col justify-between">
                                 <div>
-                                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] mb-2.5">
+                                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] mb-2.5 glow-icon glow-icon-blue">
                                         <svg className="w-4 h-4 text-[#005eb8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                             <circle cx="12" cy="12" r="10"></circle>
                                             <line x1="10" y1="15" x2="10" y2="9"></line>
@@ -1623,7 +1768,7 @@ function ClusterManagementModal({
                             {/* Option 2: Log Out Databricks */}
                             <div className="p-4 rounded-xl border border-slate-200 hover:border-rose-300 hover:shadow-md transition bg-gradient-to-b from-white to-rose-50/20 flex flex-col justify-between">
                                 <div>
-                                    <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-2.5">
+                                    <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-2.5 glow-icon glow-icon-rose">
                                         <svg className="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                             <polyline points="16 17 21 12 16 7"></polyline>
@@ -1657,7 +1802,7 @@ function ClusterManagementModal({
                 {/* --- 2. CLUSTER OFFLINE MODAL --- */}
                 {modalType === 'offline' && (
                     <div className="p-6 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mb-3 shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mb-3 shadow-xs glow-icon glow-icon-amber">
                             <svg className="w-6 h-6 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                 <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                                 <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
@@ -1731,7 +1876,7 @@ function ClusterManagementModal({
                 {/* --- 4. CLUSTER ERROR MODAL --- */}
                 {modalType === 'error' && (
                     <div className="p-6 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-3 shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-3 shadow-xs glow-icon glow-icon-rose">
                             <IconAlertCircle className="w-6 h-6 text-rose-600" />
                         </div>
                         <h3 className="text-lg font-extrabold text-slate-900 mb-1">Cluster Connection Issue</h3>
@@ -1763,7 +1908,7 @@ function ClusterManagementModal({
                 {/* --- 5. SESSION INACTIVE MODAL --- */}
                 {modalType === 'inactive' && (
                     <div className="p-6 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 mb-3 shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 mb-3 shadow-xs glow-icon glow-icon-slate">
                             <IconClock className="w-6 h-6 text-slate-600" />
                         </div>
                         <h3 className="text-lg font-extrabold text-slate-900 mb-1">Session Inactive</h3>
@@ -1783,7 +1928,7 @@ function ClusterManagementModal({
                 {/* --- 6. SESSION ENDED MODAL --- */}
                 {modalType === 'session_ended' && (
                     <div className="p-6 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] mb-3 shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] mb-3 shadow-xs glow-icon glow-icon-blue">
                             <IconLock className="w-6 h-6 text-[#005eb8]" />
                         </div>
                         <h3 className="text-lg font-extrabold text-slate-900 mb-1">Application Session Paused</h3>
@@ -1833,6 +1978,7 @@ function MonteCarloSimulationModal({
 }) {
     if (!isOpen) return null;
 
+    const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
     const [hoverFte, setHoverFte] = useState(null);
 
     useEffect(() => {
@@ -1916,33 +2062,33 @@ function MonteCarloSimulationModal({
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
             <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col glow-card">
                 {/* Header */}
-                <div className="px-5 py-3.5 bg-gradient-to-r from-slate-50 via-purple-50/30 to-white border-b border-slate-200/80 flex items-center justify-between">
+                <div className="px-5 py-3.5 bg-gradient-to-r from-slate-50 via-purple-50/30 to-white dark:from-[#0c1b31] dark:via-[#112649] dark:to-[#0c1b31] border-b border-slate-200/80 dark:border-[#18365d] flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center shadow-xs">
-                            <IconSparkles className="w-5 h-5 text-purple-600" />
+                        <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-300 flex items-center justify-center shadow-xs glow-icon glow-icon-purple">
+                            <IconSparkles className="w-5 h-5 text-current" />
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h3 className="font-extrabold text-sm sm:text-base text-slate-800">
-                                    Monte Carlo Capacity Shortfall Risk Simulation
+                                <h3 className="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white">
+                                    Capacity Shortfall Risk Simulation
                                 </h3>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                                     10,000 Iterations
                                 </span>
                             </div>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-slate-500 dark:text-[#adbed4]">
                                 Stochastic stress testing of engineer capacity vs customer demand under extreme winter weather, sickness & attrition
                             </p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-mono text-slate-400 hidden sm:inline">
-                            Scenario: <strong>{scenario.id || 'Active'}</strong>
+                        <span className="text-[11px] font-mono text-slate-400 dark:text-[#adbed4] hidden sm:inline">
+                            Scenario: <strong className="text-slate-700 dark:text-white">{scenario.id || 'Active'}</strong>
                         </span>
                         <button
                             onClick={onClose}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 dark:text-[#adbed4] hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#112649] transition"
                             title="Close (Esc)"
                         >
                             <IconX className="w-4 h-4" />
@@ -1955,72 +2101,60 @@ function MonteCarloSimulationModal({
                     {/* Top 4 Executive KPI Tiles */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         {/* 1. Probability of Deficit */}
-                        <div className="bg-rose-50/70 p-3 rounded-xl border border-rose-200 flex flex-col justify-between">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700">Shortfall Risk</span>
-                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-100 text-rose-800">
+                        <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-rose-200/90 dark:border-rose-900/60 shadow-xs flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-1 gap-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 whitespace-nowrap">Shortfall Risk</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 whitespace-nowrap flex-shrink-0">
                                     Deficit Tail
                                 </span>
                             </div>
-                            <div className="mt-2">
-                                <div className="text-2xl font-black text-rose-600 tracking-tight leading-none">
-                                    {shortfallPct}%
-                                </div>
-                                <div className="text-[11px] text-rose-700 font-semibold mt-1">
-                                    Low Risk • {slaConfidence}% SLA Safe
-                                </div>
+                            <div className="mt-1">
+                                <div className="text-2xl font-black text-rose-600 dark:text-rose-400 tracking-tight leading-none whitespace-nowrap">{shortfallPct}%</div>
+                                <div className="text-[11px] text-rose-600/80 dark:text-rose-300/80 font-medium mt-1 whitespace-nowrap truncate">Low Risk • {slaConfidence}% SLA Safe</div>
                             </div>
                         </div>
 
                         {/* 2. Downside VaR */}
-                        <div className="bg-purple-50/70 p-3 rounded-xl border border-purple-200 flex flex-col justify-between">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700">P95 Worst-Case (VaR)</span>
-                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-800">
+                        <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-purple-200/90 dark:border-purple-900/60 shadow-xs flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-1 gap-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-300 whitespace-nowrap">P95 Worst-Case</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 whitespace-nowrap flex-shrink-0">
                                     Worst 5%
                                 </span>
                             </div>
-                            <div className="mt-2">
-                                <div className="text-2xl font-black text-purple-900 tracking-tight leading-none">
-                                    {simData.p95VarFte || -2.8} <span className="text-xs font-bold text-purple-600">FTE</span>
-                                </div>
-                                <div className="text-[11px] text-purple-700 font-semibold mt-1">
-                                    ~105 hrs gap in Midlands
-                                </div>
+                            <div className="mt-1">
+                                <div className="text-2xl font-black text-purple-700 dark:text-purple-300 tracking-tight leading-none whitespace-nowrap">{simData.p95VarFte || -2.8} <span className="text-xs font-bold text-purple-500 dark:text-purple-400">FTE</span></div>
+                                <div className="text-[11px] text-slate-500 dark:text-[#adbed4] font-medium mt-1 whitespace-nowrap truncate">~105 hrs gap in Midlands</div>
                             </div>
                         </div>
 
                         {/* 3. Expected Mean Buffer */}
-                        <div className="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 flex flex-col justify-between">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Expected Mean Buffer</span>
-                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">
+                        <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-emerald-200/90 dark:border-emerald-900/60 shadow-xs flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-1 gap-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 whitespace-nowrap">Expected Buffer</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 whitespace-nowrap flex-shrink-0">
                                     Average
                                 </span>
                             </div>
-                            <div className="mt-2">
-                                <div className="text-2xl font-black text-emerald-700 tracking-tight leading-none">
-                                    +{meanFte} <span className="text-xs font-bold text-emerald-600">FTE</span>
-                                </div>
-                                <div className="text-[11px] text-emerald-700 font-semibold mt-1">
-                                    Solid National Headroom
-                                </div>
+                            <div className="mt-1">
+                                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight leading-none whitespace-nowrap">+{meanFte} <span className="text-xs font-bold text-emerald-500 dark:text-emerald-400">FTE</span></div>
+                                <div className="text-[11px] text-emerald-600/80 dark:text-emerald-300/80 font-medium mt-1 whitespace-nowrap truncate">Solid National Headroom</div>
                             </div>
                         </div>
 
                         {/* 4. Target Compliance */}
-                        <div className="bg-blue-50/70 p-3 rounded-xl border border-blue-200 flex flex-col justify-between">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Target Compliant</span>
-                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-800">
-                                    ≥105% Target
+                        <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-blue-200/90 dark:border-blue-900/60 shadow-xs flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-1 gap-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-[#80c6ff] whitespace-nowrap">Target Compliant</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-[#80c6ff] border border-blue-200 dark:border-blue-800/60 whitespace-nowrap flex-shrink-0">
+                                    ≥105% SLA
                                 </span>
                             </div>
-                            <div className="mt-2">
-                                <div className="text-2xl font-black text-blue-700 tracking-tight leading-none">
+                            <div className="mt-1">
+                                <div className="text-2xl font-black text-blue-600 dark:text-[#80c6ff] tracking-tight leading-none whitespace-nowrap">
                                     {simData.targetCompliancePct || 91.4}%
                                 </div>
-                                <div className="text-[11px] text-blue-700 font-semibold mt-1">
+                                <div className="text-[11px] text-blue-600/80 dark:text-[#80c6ff]/80 font-medium mt-1 whitespace-nowrap truncate">
                                     Meets Centrica Standard
                                 </div>
                             </div>
@@ -2028,89 +2162,89 @@ function MonteCarloSimulationModal({
                     </div>
 
                     {/* EXECUTIVE INTUITIVE VISUAL: OUTCOME PROBABILITY DISTRIBUTION & STRESS BELL CURVE */}
-                    <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                    <div className="bg-slate-50/80 dark:bg-[#0c1b31] p-4 rounded-xl border border-slate-200 dark:border-[#18365d] shadow-xs space-y-3.5">
                         {/* Section Title & Zone Legend */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-200 gap-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-200 dark:border-[#18365d] gap-2">
                             <div>
-                                <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 flex items-center gap-2">
+                                <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 dark:text-white flex items-center gap-2">
                                     <span>Plan Resilience & Capacity Deficit Risk Distribution</span>
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60">
                                         Safe Zone (95.2%)
                                     </span>
                                 </h4>
-                                <p className="text-[11px] text-slate-500">
+                                <p className="text-[11px] text-slate-500 dark:text-[#adbed4]">
                                     Visual probability breakdown across 10,000 simulated winter operating scenarios
                                 </p>
                             </div>
 
                             {/* Legend */}
                             <div className="flex items-center gap-3 text-xs font-bold">
-                                <span className="flex items-center gap-1.5 text-rose-700">
-                                    <span className="w-3 h-3 rounded-xs bg-rose-500 inline-block shadow-2xs" />
+                                <span className="flex items-center gap-1.5 text-rose-700 dark:text-rose-300">
+                                    <span className="w-3 h-3 rounded-xs bg-rose-500 dark:bg-rose-400 inline-block shadow-xs ring-1 ring-rose-500/50" />
                                     <span>Deficit Risk ({shortfallPct}%)</span>
                                 </span>
-                                <span className="flex items-center gap-1.5 text-amber-700">
-                                    <span className="w-3 h-3 rounded-xs bg-amber-400 inline-block shadow-2xs" />
+                                <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400">
+                                    <span className="w-3 h-3 rounded-xs bg-amber-400 dark:bg-amber-400 inline-block shadow-xs ring-1 ring-amber-400/50" />
                                     <span>Tight Buffer ({tightPct}%)</span>
                                 </span>
-                                <span className="flex items-center gap-1.5 text-emerald-700">
-                                    <span className="w-3 h-3 rounded-xs bg-emerald-500 inline-block shadow-2xs" />
+                                <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
+                                    <span className="w-3 h-3 rounded-xs bg-emerald-500 dark:bg-emerald-400 inline-block shadow-xs ring-1 ring-emerald-500/50" />
                                     <span>Safe Buffer ({safePct}%)</span>
                                 </span>
                             </div>
                         </div>
 
                         {/* 1. Intuitive High-Level Outcome Progress Bar (Instantly clear to any leader) */}
-                        <div className="space-y-1.5 bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs">
-                            <div className="flex justify-between items-center text-xs font-bold text-slate-700">
-                                <span>High-Level Operating Outcome Distribution</span>
-                                <span className="text-slate-400 font-mono text-[11px]">Total 10,000 Trials</span>
+                        <div className="space-y-1.5 bg-white dark:bg-[#081324] p-3 rounded-xl border border-slate-200/90 dark:border-[#18365d] shadow-2xs">
+                            <div className="flex justify-between items-center text-xs font-bold text-slate-800 dark:text-slate-200">
+                                <span className="font-extrabold text-slate-900 dark:text-white">High-Level Operating Outcome Distribution</span>
+                                <span className="text-slate-600 dark:text-[#adbed4] font-mono text-[11px] font-bold">Total 10,000 Trials</span>
                             </div>
 
                             {/* Segmented Progress Bar */}
-                            <div className="h-6 w-full rounded-lg overflow-hidden flex bg-slate-100 border border-slate-200/80 text-white text-[11px] font-extrabold shadow-inner">
+                            <div className="h-6 w-full rounded-lg overflow-hidden flex bg-slate-100 dark:bg-[#070e1c] border border-slate-200/80 dark:border-[#18365d] text-[11px] font-extrabold shadow-inner">
                                 <div
                                     style={{ width: `${shortfallPct}%` }}
-                                    className="bg-rose-500 hover:bg-rose-600 transition flex items-center justify-center px-1 text-white truncate"
+                                    className="bg-rose-500 hover:bg-rose-600 transition flex items-center justify-center px-1 text-white font-black truncate"
                                     title={`Deficit Risk: ${shortfallPct}% (Capacity shortfall)`}
                                 >
-                                    {shortfallPct > 3 ? `${shortfallPct}% Deficit` : ''}
+                                    <span className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]">{shortfallPct >= 6 ? `${shortfallPct}% Deficit` : shortfallPct >= 3 ? `${shortfallPct}%` : ''}</span>
                                 </div>
                                 <div
-                                    style={{ width: `${tightPct}%` }}
-                                    className="bg-amber-400 hover:bg-amber-500 transition flex items-center justify-center px-1 text-slate-900 truncate"
+                                    style={{ width: `${tightPct}%`, color: '#0f172a' }}
+                                    className="bg-amber-400 hover:bg-amber-500 transition flex items-center justify-center px-1 truncate shadow-xs"
                                     title={`Tight Buffer: ${tightPct}% (0 to 15 FTE buffer)`}
                                 >
-                                    {tightPct}% Tight
+                                    <span style={{ color: '#0f172a', fontWeight: 900 }}>{tightPct >= 10 ? `${tightPct}% Tight` : `${tightPct}%`}</span>
                                 </div>
                                 <div
                                     style={{ width: `${safePct}%` }}
-                                    className="bg-emerald-500 hover:bg-emerald-600 transition flex items-center justify-center px-2 text-white truncate"
+                                    className="bg-emerald-600 hover:bg-emerald-700 transition flex items-center justify-center px-2 text-white font-black truncate"
                                     title={`Comfortable Surplus: ${safePct}% (SLA fully compliant)`}
                                 >
-                                    {safePct}% Safe & SLA Compliant (+15 to +150 FTE Buffer)
+                                    <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] text-white font-black">{safePct}% Safe & SLA Compliant (+15 to +150 FTE Buffer)</span>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
-                                <span className="flex items-center gap-1 text-rose-600 font-semibold">
+                            <div className="flex items-center justify-between text-[11px] pt-1">
+                                <span className="flex items-center gap-1 text-rose-700 dark:text-rose-400 font-bold">
                                     ◄ Capacity Shortfall (Demand &gt; Supply)
                                 </span>
-                                <span className="font-bold text-slate-700">Breakeven Line (0 FTE)</span>
-                                <span className="flex items-center gap-1 text-emerald-600 font-semibold">
+                                <span className="font-extrabold text-slate-800 dark:text-slate-200">Breakeven Line (0 FTE)</span>
+                                <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold">
                                     Capacity Surplus (Customer SLAs 100% Met) ►
                                 </span>
                             </div>
                         </div>
 
                         {/* 2. Visual Bell Curve Probability Density Graphic */}
-                        <div className="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs relative">
-                            <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 text-xs">
-                                <span className="font-bold text-slate-700 flex items-center gap-1.5">
-                                    <IconTrendingUp className="w-3.5 h-3.5 text-purple-600" />
+                        <div className="bg-white dark:bg-[#081324] p-3.5 rounded-xl border border-slate-200/90 dark:border-[#18365d] shadow-2xs relative">
+                            <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-[#18365d] text-xs">
+                                <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                                    <IconTrendingUp className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                                     <span>Stochastic Net Buffer Probability Bell Curve</span>
                                 </span>
-                                <span className="text-[11px] text-slate-400 font-medium">
+                                <span className="text-[11px] text-slate-400 dark:text-[#adbed4] font-medium">
                                     Hover mouse across curve to inspect buffer levels
                                 </span>
                             </div>
@@ -2127,16 +2261,16 @@ function MonteCarloSimulationModal({
                                 >
                                     <defs>
                                         <linearGradient id="deficitGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.45" />
-                                            <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.05" />
+                                            <stop offset="0%" stopColor="#f43f5e" stopOpacity={isDark ? 0.6 : 0.45} />
+                                            <stop offset="100%" stopColor="#f43f5e" stopOpacity={0.05} />
                                         </linearGradient>
                                         <linearGradient id="tightGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.45" />
-                                            <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.05" />
+                                            <stop offset="0%" stopColor="#fbbf24" stopOpacity={isDark ? 0.6 : 0.45} />
+                                            <stop offset="100%" stopColor="#fbbf24" stopOpacity={0.05} />
                                         </linearGradient>
                                         <linearGradient id="safeGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.40" />
-                                            <stop offset="100%" stopColor="#10b981" stopOpacity="0.05" />
+                                            <stop offset="0%" stopColor="#10b981" stopOpacity={isDark ? 0.55 : 0.40} />
+                                            <stop offset="100%" stopColor="#10b981" stopOpacity={0.05} />
                                         </linearGradient>
                                     </defs>
 
@@ -2146,7 +2280,7 @@ function MonteCarloSimulationModal({
                                         y1={padTop + plotH}
                                         x2={svgWidth - padRight}
                                         y2={padTop + plotH}
-                                        stroke="#cbd5e1"
+                                        stroke={isDark ? "#18365d" : "#cbd5e1"}
                                         strokeWidth="1.5"
                                     />
 
@@ -2169,7 +2303,7 @@ function MonteCarloSimulationModal({
                                     <path
                                         d={fullLinePath}
                                         fill="none"
-                                        stroke="#475569"
+                                        stroke={isDark ? "#80c6ff" : "#475569"}
                                         strokeWidth="2.5"
                                         strokeLinecap="round"
                                     />
@@ -2180,18 +2314,18 @@ function MonteCarloSimulationModal({
                                         y1={padTop}
                                         x2={zeroX}
                                         y2={padTop + plotH}
-                                        stroke="#dc2626"
+                                        stroke={isDark ? "#f87171" : "#dc2626"}
                                         strokeWidth="2"
                                         strokeDasharray="4 3"
                                     />
                                     <rect
-                                        x={zeroX - 42}
+                                        x={zeroX - 44}
                                         y={padTop + 2}
-                                        width="84"
+                                        width="88"
                                         height="18"
                                         rx="4"
-                                        fill="#fef2f2"
-                                        stroke="#dc2626"
+                                        fill={isDark ? "#3b1219" : "#fef2f2"}
+                                        stroke={isDark ? "#ef4444" : "#dc2626"}
                                         strokeWidth="1"
                                     />
                                     <text
@@ -2200,7 +2334,7 @@ function MonteCarloSimulationModal({
                                         textAnchor="middle"
                                         fontSize="9.5"
                                         fontWeight="800"
-                                        fill="#dc2626"
+                                        fill={isDark ? "#fca5a5" : "#dc2626"}
                                     >
                                         0 FTE Threshold
                                     </text>
@@ -2211,7 +2345,7 @@ function MonteCarloSimulationModal({
                                         y1={padTop + 10}
                                         x2={meanX}
                                         y2={padTop + plotH}
-                                        stroke="#059669"
+                                        stroke={isDark ? "#34d399" : "#059669"}
                                         strokeWidth="1.5"
                                         strokeDasharray="3 3"
                                     />
@@ -2219,18 +2353,18 @@ function MonteCarloSimulationModal({
                                         cx={meanX}
                                         cy={getY(meanFte)}
                                         r="4.5"
-                                        fill="#059669"
-                                        stroke="#ffffff"
+                                        fill={isDark ? "#10b981" : "#059669"}
+                                        stroke={isDark ? "#081324" : "#ffffff"}
                                         strokeWidth="2"
                                     />
                                     <rect
-                                        x={meanX - 48}
+                                        x={meanX - 50}
                                         y={padTop + 2}
-                                        width="96"
+                                        width="100"
                                         height="18"
                                         rx="4"
-                                        fill="#ecfdf5"
-                                        stroke="#059669"
+                                        fill={isDark ? "#062e24" : "#ecfdf5"}
+                                        stroke={isDark ? "#10b981" : "#059669"}
                                         strokeWidth="1"
                                     />
                                     <text
@@ -2239,7 +2373,7 @@ function MonteCarloSimulationModal({
                                         textAnchor="middle"
                                         fontSize="9.5"
                                         fontWeight="800"
-                                        fill="#059669"
+                                        fill={isDark ? "#6ee7b7" : "#059669"}
                                     >
                                         Mean: +{meanFte} FTE
                                     </text>
@@ -2259,7 +2393,7 @@ function MonteCarloSimulationModal({
                                         cy={getY(simData.p95VarFte || -2.8)}
                                         r="4"
                                         fill="#9333ea"
-                                        stroke="#ffffff"
+                                        stroke={isDark ? "#081324" : "#ffffff"}
                                         strokeWidth="1.5"
                                     />
 
@@ -2271,24 +2405,22 @@ function MonteCarloSimulationModal({
                                                 y1={padTop + plotH}
                                                 x2={getX(fte)}
                                                 y2={padTop + plotH + 4}
-                                                stroke="#94a3b8"
+                                                stroke={isDark ? "#18365d" : "#94a3b8"}
                                                 strokeWidth="1"
                                             />
                                             <text
                                                 x={getX(fte)}
                                                 y={padTop + plotH + 16}
                                                 textAnchor="middle"
-                                                fontSize="9.5"
-                                                fontWeight={fte === 0 ? "800" : "600"}
-                                                fill={fte < 0 ? "#dc2626" : fte === 0 ? "#0f172a" : "#64748b"}
+                                                fontSize="9"
                                                 fontFamily="monospace"
+                                                fill={isDark ? "#adbed4" : "#64748b"}
                                             >
                                                 {fte > 0 ? `+${fte}` : fte} FTE
                                             </text>
                                         </g>
                                     ))}
-
-                                    {/* Interactive Hover Line & Dot */}
+{/* Interactive Hover Line & Dot */}
                                     {hoverFte !== null && (
                                         <g>
                                             <line
@@ -2445,7 +2577,9 @@ function MonteCarloSimulationModal({
 
                     {/* Operational Recommendation Callout */}
                     <div className="p-3.5 rounded-xl bg-purple-50/80 border border-purple-200 text-xs flex items-start gap-3">
-                        <IconSparkles className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
+                        <div className="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/50 border border-purple-200 dark:border-purple-800 flex items-center justify-center shrink-0 glow-icon glow-icon-purple text-purple-600 dark:text-purple-300 mt-0.5">
+                            <IconSparkles className="w-4 h-4 text-current" />
+                        </div>
                         <div>
                             <div className="font-extrabold text-purple-900 mb-0.5">
                                 Executive Takeaway & Action Recommendation for Leadership
@@ -2471,7 +2605,7 @@ function MonteCarloSimulationModal({
                             onClick={onExportCsv}
                             className="px-3.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition flex items-center gap-1.5 shadow-xs"
                         >
-                            <IconDownload className="w-3.5 h-3.5 text-slate-500" />
+                            <IconDownload className="w-3.5 h-3.5 text-current" />
                             <span>Export Simulation CSV</span>
                         </button>
 
@@ -2554,7 +2688,7 @@ function computeScenarioAnalytics(scen) {
     if (pType === 'HV' && (sMonth === 'OCT' || sId.includes('HV OCT'))) {
         res = {
             totalDemand: 44850,
-            demandTrend: "↑ +16.6% vs Q3 baseline",
+            demandTrend: "↑ +16.6%",
             isDemandTrendUp: true,
             netCapacity: 42320,
             efficiencyRate: "85.2%",
@@ -2596,7 +2730,7 @@ function computeScenarioAnalytics(scen) {
     } else if (pType === 'LV' && (sMonth === 'JUL' || sId.includes('JUL'))) {
         res = {
             totalDemand: 33650,
-            demandTrend: "↓ -12.5% vs Q3 baseline",
+            demandTrend: "↓ -12.5%",
             isDemandTrendUp: false,
             netCapacity: 36800,
             efficiencyRate: "89.4%",
@@ -2638,7 +2772,7 @@ function computeScenarioAnalytics(scen) {
     } else if (sMonth === 'NOV' || sId.includes('NOV')) {
         res = {
             totalDemand: 40920,
-            demandTrend: "↑ +6.4% vs Q3 baseline",
+            demandTrend: "↑ +6.4%",
             isDemandTrendUp: true,
             netCapacity: 42450,
             efficiencyRate: "87.8%",
@@ -2681,7 +2815,7 @@ function computeScenarioAnalytics(scen) {
         // Standard October Baseline (LV OCT V.0)
         res = {
             totalDemand: 38450,
-            demandTrend: "↑ +2.4% vs Q3 baseline",
+            demandTrend: "↑ +2.4%",
             isDemandTrendUp: true,
             netCapacity: 41200,
             efficiencyRate: "88.5%",
@@ -2754,7 +2888,7 @@ function computeScenarioAnalytics(scen) {
 
         res = {
             totalDemand: totDem,
-            demandTrend: `${dScale >= 1.0 ? '↑ +' : '↓ -'}${Math.abs(((dScale - 1) * 100)).toFixed(1)}% vs baseline`,
+            demandTrend: `${dScale >= 1.0 ? '↑ +' : '↓ -'}${Math.abs(((dScale - 1) * 100)).toFixed(1)}%`,
             isDemandTrendUp: dScale >= 1.0,
             netCapacity: netCap,
             efficiencyRate: `${(88.5 * (cScale / dScale)).toFixed(1)}%`,
@@ -2973,7 +3107,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         onClick={onCompareScenario}
                         className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg border border-slate-200/90 shadow-xs transition flex items-center gap-1.5 hover:border-blue-400 hover:text-blue-700"
                     >
-                        <IconScale className="w-3.5 h-3.5 text-slate-500" />
+                        <IconScale className="w-3.5 h-3.5 text-current" />
                         <span>Compare Diff</span>
                     </button>
                 </div>
@@ -2983,134 +3117,129 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 {/* 1. Total Demand Card */}
                 <div className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Total Demand</span>
-                        <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center glow-icon">
-                            <IconDemand className="w-3.5 h-3.5 text-blue-600" />
+                    <div className="flex items-center justify-between mb-1 gap-1">
+                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap truncate">Total Demand</span>
+                        <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center glow-icon glow-icon-blue flex-shrink-0">
+                            <IconDemand className="w-3.5 h-3.5 text-current" />
                         </div>
                     </div>
                     <div>
-                        <div className="flex items-baseline gap-1.5">
-                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">{analytics.totalDemandFormatted}</span>
-                            <span className="text-xs font-semibold text-slate-400">hrs</span>
+                        <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap">{analytics.totalDemandFormatted}</span>
+                            <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">hrs</span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                        <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap flex-shrink-0 ${
                                 analytics.isDemandTrendUp ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-blue-50 text-blue-700 border border-blue-200/60'
                             }`}>
                                 {analytics.demandTrend}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">vs baseline</span>
+                            <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">vs baseline</span>
                         </div>
                     </div>
                 </div>
 
                 {/* 2. Net Capacity Card */}
                 <div className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Net Capacity</span>
-                        <div className="w-7 h-7 rounded-lg bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center glow-icon">
+                    <div className="flex items-center justify-between mb-1 gap-1">
+                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap truncate">Net Capacity</span>
+                        <div className="w-7 h-7 rounded-lg bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center glow-icon glow-icon-sky flex-shrink-0">
                             <IconCapacity className="w-3.5 h-3.5 text-sky-600" />
                         </div>
                     </div>
                     <div>
-                        <div className="flex items-baseline gap-1.5">
-                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">{analytics.netCapacityFormatted}</span>
-                            <span className="text-xs font-semibold text-slate-400">hrs</span>
+                        <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap">{analytics.netCapacityFormatted}</span>
+                            <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">hrs</span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200/60">
+                        <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200/60 whitespace-nowrap flex-shrink-0">
                                 {analytics.efficiencyRate}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">Direct Labor Efficiency</span>
+                            <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Direct Labor Efficiency</span>
                         </div>
                     </div>
                 </div>
 
                 {/* 3. Net Buffer Card */}
                 <div className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Net Buffer</span>
-                        <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center glow-icon">
+                    <div className="flex items-center justify-between mb-1 gap-1">
+                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap truncate">Net Buffer</span>
+                        <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center glow-icon glow-icon-emerald flex-shrink-0">
                             <IconBuffer className="w-3.5 h-3.5 text-emerald-600" />
                         </div>
                     </div>
                     <div>
-                        <div className="flex items-baseline gap-1.5">
-                            <span className={`text-xl font-black tracking-tight leading-none ${analytics.isSlaMet ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                            <span className={`text-xl font-black tracking-tight leading-none whitespace-nowrap ${analytics.isSlaMet ? 'text-emerald-600' : 'text-rose-600'}`}>
                                 {analytics.netBufferFormatted}
                             </span>
-                            <span className="text-xs font-semibold text-slate-400">FTE</span>
+                            <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">FTE</span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                        <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap flex-shrink-0 ${
                                 analytics.isSlaMet ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-rose-50 text-rose-700 border border-rose-200/60'
                             }`}>
                                 {analytics.isSlaMet ? <IconCheck className="w-3 h-3 text-emerald-700" /> : <IconAlertCircle className="w-3 h-3 text-rose-700" />}
                                 {analytics.slaStatusText}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">{analytics.slaSubtext}</span>
+                            <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">{analytics.slaSubtext}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* 4. Coverage Ratio Card */}
                 <div className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Coverage Ratio</span>
-                        <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-100 text-amber-500 flex items-center justify-center glow-icon">
+                    <div className="flex items-center justify-between mb-1 gap-1">
+                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap truncate">Coverage Ratio</span>
+                        <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-100 text-amber-500 flex items-center justify-center glow-icon glow-icon-amber flex-shrink-0">
                             <IconCoverage className="w-3.5 h-3.5 text-amber-500" />
                         </div>
                     </div>
                     <div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">{analytics.coverageRatioFormatted}</span>
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700">Target: {analytics.targetRatio}%</span>
+                        <div className="flex items-baseline gap-2 whitespace-nowrap">
+                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap">{analytics.coverageRatioFormatted}</span>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 whitespace-nowrap flex-shrink-0">Target: {analytics.targetRatio}%</span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                        <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap flex-shrink-0 ${
                                 analytics.deficitPatchesCount > 0 ? 'bg-rose-50 text-rose-600 border border-rose-200/60' : 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
                             }`}>
                                 {analytics.deficitPatchesText}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">{analytics.deficitPatchDetail}</span>
+                            <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">{analytics.deficitPatchDetail}</span>
                         </div>
                     </div>
                 </div>
 
-                {/* 5. Plan Shortfall Risk (Monte Carlo Simulation) Card */}
+                {/* 5. Plan Shortfall Risk Card */}
                 <div 
                     onClick={() => setShowMonteCarloModal(true)}
                     className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between cursor-pointer hover:border-purple-300 hover:shadow-md transition"
-                    title="Click to inspect Monte Carlo capacity shortfall risk simulation"
+                    title="Click to inspect capacity shortfall risk simulation"
                 >
-                    <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Shortfall Risk</span>
-                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 border border-purple-200/60 uppercase">
-                                Monte Carlo
-                            </span>
-                        </div>
-                        <div className="w-7 h-7 rounded-lg bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center glow-icon group-hover:scale-105 transition">
+                    <div className="flex items-center justify-between mb-1 gap-1">
+                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap">Shortfall Risk</span>
+                        <div className="w-7 h-7 rounded-lg bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center glow-icon glow-icon-purple flex-shrink-0">
                             <IconSparkles className="w-3.5 h-3.5 text-purple-600" />
                         </div>
                     </div>
                     <div>
-                        <div className="flex items-baseline gap-2">
-                            <span className={`text-xl font-black tracking-tight leading-none ${simData.riskPct > 10 ? 'text-rose-600' : simData.riskPct > 5 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                        <div className="flex items-baseline gap-2 whitespace-nowrap">
+                            <span className={`text-xl font-black tracking-tight leading-none whitespace-nowrap ${simData.riskPct > 10 ? 'text-rose-600' : simData.riskPct > 5 ? 'text-amber-600' : 'text-emerald-600'}`}>
                                 {simData.riskPct}%
                             </span>
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60 whitespace-nowrap flex-shrink-0">
                                 {simData.slaConfidence}% SLA Conf.
                             </span>
                         </div>
-                        <div className="flex items-center justify-between mt-1">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500">
-                                <span className={`w-1.5 h-1.5 rounded-full inline-block ${simData.p95VarFte < -5 ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
-                                <span>P95 VaR: {simData.p95VarFte} FTE</span>
+                        <div className="flex items-center justify-between mt-1 gap-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 whitespace-nowrap truncate">
+                                <span className={`w-1.5 h-1.5 rounded-full inline-block flex-shrink-0 ${simData.p95VarFte < -5 ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
+                                <span className="whitespace-nowrap truncate">P95 VaR: {simData.p95VarFte} FTE</span>
                             </span>
-                            <span className="text-[10px] text-purple-600 font-bold group-hover:underline flex items-center gap-0.5">
-                                <span>10k runs</span>
+                            <span className="text-[10px] text-purple-600 font-bold group-hover:underline flex items-center gap-0.5 whitespace-nowrap flex-shrink-0">
+                                <span className="whitespace-nowrap">10k runs</span>
                                 <span className="text-[9px]">↗</span>
                             </span>
                         </div>
@@ -3125,8 +3254,8 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                     {/* Card Header & Controls Toolbar */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-2">
                         <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                <IconCalendar className="w-3.5 h-3.5 text-blue-600" />
+                            <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800/80 text-[#005eb8] dark:text-[#80c6ff] flex items-center justify-center glow-icon glow-icon-blue">
+                                <IconCalendar className="w-3.5 h-3.5 text-current" />
                             </div>
                             <div>
                                 <h3 className="font-extrabold text-xs sm:text-sm text-slate-800">Weekly Trajectory Envelope</h3>
@@ -3137,12 +3266,12 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         {/* Date Range Filter with Year & Chart Legend */}
                         <div className="flex flex-wrap items-center gap-3">
                             {/* Date Range Filter Dropdowns (Includes Year) */}
-                            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs shadow-2xs">
-                                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Date:</span>
+                            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-[#0c1b31] border border-slate-200/90 dark:border-[#18365d] rounded-lg px-2.5 py-1 text-xs shadow-2xs">
+                                <span className="text-[10px] font-bold uppercase text-slate-400 dark:text-[#80c6ff] tracking-wider">Date:</span>
                                 <select
                                     value={trajectoryStartDate}
                                     onChange={(e) => handleTrajectoryStartChange(e.target.value)}
-                                    className="bg-transparent font-bold text-slate-700 text-xs focus:outline-none cursor-pointer"
+                                    className="bg-transparent font-bold text-slate-700 dark:text-white text-xs focus:outline-none cursor-pointer border-0 p-0 m-0"
                                     title="Start Week Commencing (with Year)"
                                 >
                                     {TRAJECTORY_HORIZON_WEEKS.map(w => {
@@ -3150,7 +3279,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                         const year = w.split('-')[0];
                                         const lbl = meta?.label || w.slice(5);
                                         return (
-                                            <option key={w} value={w}>
+                                            <option key={w} value={w} className="bg-white dark:bg-[#081324] text-slate-800 dark:text-white">
                                                 {lbl}, {year} (Wk {meta?.weekNum})
                                             </option>
                                         );
@@ -3160,7 +3289,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                 <select
                                     value={trajectoryEndDate}
                                     onChange={(e) => handleTrajectoryEndChange(e.target.value)}
-                                    className="bg-transparent font-bold text-slate-700 text-xs focus:outline-none cursor-pointer"
+                                    className="bg-transparent font-bold text-slate-700 dark:text-white text-xs focus:outline-none cursor-pointer border-0 p-0 m-0"
                                     title="End Week Commencing (with Year)"
                                 >
                                     {TRAJECTORY_HORIZON_WEEKS.map(w => {
@@ -3168,7 +3297,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                         const year = w.split('-')[0];
                                         const lbl = meta?.label || w.slice(5);
                                         return (
-                                            <option key={w} value={w}>
+                                            <option key={w} value={w} className="bg-white dark:bg-[#081324] text-slate-800 dark:text-white">
                                                 {lbl}, {year} (Wk {meta?.weekNum})
                                             </option>
                                         );
@@ -3371,7 +3500,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                                                 textAnchor="middle"
                                                                 fontSize={N > 14 ? "8.5" : "10"}
                                                                 fontWeight={isHovered ? "800" : "600"}
-                                                                fill={isHovered ? "#005eb8" : "#64748b"}
+                                                                fill={isHovered ? "#60a5fa" : (typeof document !== 'undefined' && document.documentElement.classList.contains('dark') ? "#cbd5e1" : "#64748b")}
                                                             >
                                                                 {d.label}
                                                             </text>
@@ -3381,7 +3510,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                                                 textAnchor="middle"
                                                                 fontSize={N > 14 ? "8" : "9"}
                                                                 fontWeight="700"
-                                                                fill={d.netHrs >= 0 ? "#059669" : "#dc2626"}
+                                                                fill={d.netHrs >= 0 ? (typeof document !== 'undefined' && document.documentElement.classList.contains('dark') ? "#6ee7b7" : "#059669") : (typeof document !== 'undefined' && document.documentElement.classList.contains('dark') ? "#fca5a5" : "#dc2626")}
                                                                 fontFamily="monospace"
                                                             >
                                                                 {d.netHrs >= 0 ? '+' : ''}{d.netFte}F
@@ -3642,14 +3771,14 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                     className="bg-slate-50/60 hover:bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs hover:shadow-xs transition glow-card flex flex-col justify-between"
                                 >
                                     <div>
-                                        <div className="flex items-center justify-between mb-0.5">
-                                            <span className="text-xs font-extrabold text-slate-800 truncate">{metric.name}</span>
-                                            <span className={`text-[10px] font-bold flex items-center gap-0.5 ${metric.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                        <div className="flex items-center justify-between mb-0.5 gap-1">
+                                            <span className="text-xs font-extrabold text-slate-800 whitespace-nowrap truncate">{metric.name}</span>
+                                            <span className={`text-[10px] font-bold flex items-center gap-0.5 whitespace-nowrap flex-shrink-0 ${metric.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
                                                 {metric.trend}
                                             </span>
                                         </div>
-                                        <div className="text-sm font-black text-slate-900 tracking-tight leading-tight">
-                                            {metric.currentVal} <span className="text-[10px] font-semibold text-slate-400 font-normal">{metric.unit}</span>
+                                        <div className="text-sm font-black text-slate-900 tracking-tight leading-tight whitespace-nowrap">
+                                            {metric.currentVal} <span className="text-[10px] font-semibold text-slate-400 font-normal whitespace-nowrap">{metric.unit}</span>
                                         </div>
                                     </div>
 
@@ -3683,7 +3812,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                     </div>
 
                                     {/* Card Footer: Start Week & End Week */}
-                                    <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono pt-1 border-t border-slate-100">
+                                    <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono pt-1 border-t border-slate-100 whitespace-nowrap">
                                         <span>WK {startWk}</span>
                                         <span>WK {endWk}</span>
                                     </div>
@@ -3697,10 +3826,10 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
             {/* AI DIAGNOSTICS & ACTIVE INPUT SUMMARY */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
                 {/* Copilot Executive Takeaways */}
-                <div className="lg:col-span-2 bg-[#f0f7ff] p-4 rounded-xl border border-blue-200/80 shadow-xs space-y-2 glow-card">
+                <div className="lg:col-span-2 bg-slate-50/80 p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-2 glow-card">
                     <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-lg bg-blue-600/10 flex items-center justify-center text-blue-800">
-                            <IconRobot className="w-3.5 h-3.5 text-blue-800" />
+                        <div className="w-6 h-6 rounded-lg bg-blue-600/10 border border-blue-200/60 dark:border-blue-800/80 flex items-center justify-center text-blue-800 dark:text-blue-400 glow-icon glow-icon-blue">
+                            <IconRobot className="w-3.5 h-3.5 text-current" />
                         </div>
                         <h4 className="font-extrabold text-xs sm:text-sm text-blue-900">Capacity Copilot Scenario Takeaways</h4>
                     </div>
@@ -4107,7 +4236,7 @@ function ValidationResultsModal({ isOpen, onClose, results, onConfirmOk }) {
                 {/* Modal Header */}
                 <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8]">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] glow-icon glow-icon-blue">
                             <IconUpload className="w-5 h-5 text-[#005eb8]" />
                         </div>
                         <div>
@@ -4172,12 +4301,12 @@ function ValidationResultsModal({ isOpen, onClose, results, onConfirmOk }) {
                                             <td className="py-3 px-3.5 text-center">
                                                 {isPass ? (
                                                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                                                        <IconCheck className="w-3 h-3 text-emerald-800" />
+                                                        <IconCheck className="w-3 h-3 text-current" />
                                                         Passed
                                                     </span>
                                                 ) : (
                                                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
-                                                        <IconAlertCircle className="w-3 h-3 text-rose-800" />
+                                                        <IconAlertCircle className="w-3 h-3 text-current" />
                                                         Failed
                                                     </span>
                                                 )}
@@ -4318,7 +4447,7 @@ function BulkUploadSection({
                 className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50/60 transition select-none border-b border-slate-100"
             >
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center glow-icon">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center glow-icon glow-icon-blue">
                         <IconUpload className="w-4 h-4 text-[#005eb8]" />
                     </div>
                     <div>
@@ -4372,7 +4501,7 @@ function BulkUploadSection({
                             className="hidden"
                             onChange={handleFileSelect}
                         />
-                        <div className="w-10 h-10 rounded-full bg-blue-50 text-[#005eb8] flex items-center justify-center mb-2 shadow-xs">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center mb-2 shadow-xs glow-icon glow-icon-blue">
                             <IconUpload className="w-5 h-5 text-[#005eb8]" />
                         </div>
                         <p className="text-xs font-bold text-slate-700">
@@ -4428,7 +4557,7 @@ function BulkUploadSection({
                                                         <select
                                                             value={item.fileType}
                                                             onChange={(e) => handleUpdateType(item.id, e.target.value)}
-                                                            className="w-full text-xs bg-white text-slate-800 font-medium px-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
+                                                            className="w-full text-xs bg-white dark:bg-[#081324] text-slate-800 dark:text-white font-medium px-2 py-1.5 rounded-lg border border-slate-200 dark:border-[#18365d] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
                                                         >
                                                             {ALL_INPUT_CATEGORIES.map(cat => (
                                                                 <option key={cat.key} value={cat.key}>
@@ -4815,7 +4944,7 @@ function DownloadTemplatesView({ showToast }) {
                                 onClick={() => downloadSingleTemplate(key)}
                                 className="w-full mt-3 bg-slate-50 hover:bg-blue-50 hover:text-blue-700 text-slate-700 font-bold text-xs py-1.5 px-3 rounded-lg border border-slate-200 hover:border-blue-300 transition flex items-center justify-center gap-1.5 shadow-xs glow-button"
                             >
-                                <IconDownload className="w-3.5 h-3.5 text-blue-600" />
+                                <IconDownload className="w-3.5 h-3.5 text-current" />
                                 <span>Download Template</span>
                             </button>
                         </div>
@@ -6438,7 +6567,7 @@ function InputTableViewModal({
                 <div className="bg-slate-50/95 px-4 py-2.5 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
                     {/* Left: Icon, Input Label, and File Version Switcher */}
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center shadow-xs flex-shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center shadow-xs flex-shrink-0 glow-icon glow-icon-blue">
                             <IconEye className="w-5 h-5 text-[#005eb8]" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -6470,7 +6599,7 @@ function InputTableViewModal({
                                     <select
                                         value={fileName}
                                         onChange={(e) => handleRequestSelectChoice(e.target.value)}
-                                        className="text-xs font-mono font-bold text-[#005eb8] bg-white border border-blue-200 rounded-md px-2 py-0.5 shadow-2xs max-w-[280px] sm:max-w-[420px] truncate cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        className="text-xs font-mono font-bold text-[#005eb8] dark:text-[#80c6ff] bg-white dark:bg-[#081324] border border-blue-200 dark:border-[#18365d] rounded-md px-2 py-0.5 shadow-2xs max-w-[280px] sm:max-w-[420px] truncate cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                         title={`Switch version: currently viewing ${fileName}`}
                                     >
                                         {availableChoices.map(c => (
@@ -6575,7 +6704,7 @@ function InputTableViewModal({
                             <select
                                 value={pageSize}
                                 onChange={(e) => setPageSize(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                                className="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                                className="text-xs font-semibold bg-white dark:bg-[#081324] text-slate-700 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
                                 title="Rows per page (choose 'All' to show all records without paging)"
                             >
                                 <option value={25}>25</option>
@@ -6603,7 +6732,7 @@ function InputTableViewModal({
                             className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
                             title="Export data as CSV file"
                         >
-                            <IconDownload className="w-3.5 h-3.5 text-slate-600" />
+                            <IconDownload className="w-3.5 h-3.5 text-current" />
                             <span className="hidden sm:inline">Export</span>
                         </button>
 
@@ -6701,7 +6830,7 @@ function InputTableViewModal({
                                 className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 shadow-2xs transition cursor-pointer"
                                 title="Copy selected cells, rows, or columns to clipboard (Ctrl+C)"
                             >
-                                <IconCopy className="w-3.5 h-3.5 text-slate-600" />
+                                <IconCopy className="w-3.5 h-3.5 text-current" />
                                 <span>Copy Selected</span>
                                 {selectedCellKeys.size > 0 && (
                                     <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded-full font-bold">
@@ -6717,7 +6846,7 @@ function InputTableViewModal({
                                 className="inline-flex items-center gap-1 bg-white hover:bg-emerald-50 text-emerald-800 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-emerald-300 shadow-2xs transition cursor-pointer"
                                 title="Paste multi-row data copied to clipboard (Ctrl+V)"
                             >
-                                <IconClipboard className="w-3.5 h-3.5 text-emerald-700" />
+                                <IconClipboard className="w-3.5 h-3.5 text-current" />
                                 <span>Paste</span>
                             </button>
 
@@ -6732,7 +6861,7 @@ function InputTableViewModal({
                                 }`}
                                 title="Open bulk data modification drawer"
                             >
-                                <IconSliders className="w-3.5 h-3.5" />
+                                <IconSliders className="w-3.5 h-3.5 text-current" />
                                 <span>Bulk Change</span>
                             </button>
 
@@ -6743,7 +6872,7 @@ function InputTableViewModal({
                                 className="inline-flex items-center gap-1 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-900 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 shadow-2xs transition cursor-pointer"
                                 title="Add a new blank row at the bottom"
                             >
-                                <IconPlus className="w-3.5 h-3.5 text-emerald-600" />
+                                <IconPlus className="w-3.5 h-3.5 text-current" />
                                 <span>Add Row</span>
                             </button>
 
@@ -6761,7 +6890,7 @@ function InputTableViewModal({
                                 className="inline-flex items-center gap-1 bg-white hover:bg-rose-50 text-rose-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-rose-200 shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                                 title={isWholeRowSelection ? "Delete selected rows" : "Clear contents of selected cells (Delete)"}
                             >
-                                <IconTrash className="w-3.5 h-3.5 text-rose-600" />
+                                <IconTrash className="w-3.5 h-3.5 text-current" />
                                 <span>
                                     {isWholeRowSelection 
                                         ? `Delete Row${selectedRowIds.size > 1 ? `s (${selectedRowIds.size})` : ''}` 
@@ -6777,7 +6906,7 @@ function InputTableViewModal({
                                 className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                                 title="Undo last edit (Ctrl+Z)"
                             >
-                                <IconRotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                                <IconRotateCcw className="w-3.5 h-3.5 text-current" />
                                 <span>Undo</span>
                             </button>
 
@@ -6822,10 +6951,10 @@ function InputTableViewModal({
 
                 {/* BULK DATA MODIFICATION DRAWER */}
                 {showBulkEditDrawer && (
-                    <div className="bg-gradient-to-r from-blue-50/95 via-indigo-50/90 to-blue-50/95 border-b border-blue-200/90 p-3 sm:p-4 text-xs shadow-md animate-fade-in flex-shrink-0">
+                    <div className={`${(typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) ? 'bg-[#0b1a30] border-[#18365d]' : 'bg-gradient-to-r from-blue-50/95 via-indigo-50/90 to-blue-50/95 border-blue-200/90'} border-b p-3 sm:p-4 text-xs shadow-md animate-fade-in flex-shrink-0`}>
                         <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-blue-200/70">
                             <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                                <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs glow-icon glow-icon-blue">
                                     <IconSliders className="w-3.5 h-3.5" />
                                 </div>
                                 <div>
@@ -6861,7 +6990,7 @@ function InputTableViewModal({
                                     <select
                                         value={bulkGeoVal}
                                         onChange={(e) => setBulkGeoVal(e.target.value)}
-                                        className="w-full bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer"
+                                        className="w-full bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer"
                                     >
                                         <option value="ALL">All Geographies ({geoOptions.length})</option>
                                         {geoOptions.map(g => (
@@ -6875,14 +7004,14 @@ function InputTableViewModal({
 
                             {/* 2. Skill Filter */}
                             <div>
-                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                                    Skill {bulkSkillCol && <span className="font-mono text-[10px] text-blue-600">({bulkSkillCol})</span>}
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                                    Skill {bulkSkillCol && <span className="font-mono text-[10px] text-blue-600 dark:text-[#80c6ff]">({bulkSkillCol})</span>}
                                 </label>
                                 {bulkSkillCol ? (
                                     <select
                                         value={bulkSkillVal}
                                         onChange={(e) => setBulkSkillVal(e.target.value)}
-                                        className="w-full bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer"
+                                        className="w-full bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer"
                                     >
                                         <option value="ALL">All Skills ({skillOptions.length})</option>
                                         {skillOptions.map(s => (
@@ -6896,14 +7025,14 @@ function InputTableViewModal({
 
                             {/* 3. Date From */}
                             <div>
-                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                                    Date From {bulkDateCol && <span className="font-mono text-[10px] text-blue-600">({bulkDateCol})</span>}
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                                    Date From {bulkDateCol && <span className="font-mono text-[10px] text-blue-600 dark:text-[#80c6ff]">({bulkDateCol})</span>}
                                 </label>
                                 {bulkDateCol ? (
                                     <select
                                         value={bulkDateFrom}
                                         onChange={(e) => setBulkDateFrom(e.target.value)}
-                                        className="w-full bg-white border border-blue-300 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer font-mono"
+                                        className="w-full bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer font-mono"
                                     >
                                         <option value="ALL">Start of Horizon</option>
                                         {dateOptions.map(d => (
@@ -6917,14 +7046,14 @@ function InputTableViewModal({
 
                             {/* 4. Date To */}
                             <div>
-                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
                                     Date To
                                 </label>
                                 {bulkDateCol ? (
                                     <select
                                         value={bulkDateTo}
                                         onChange={(e) => setBulkDateTo(e.target.value)}
-                                        className="w-full bg-white border border-blue-300 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer font-mono"
+                                        className="w-full bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer font-mono"
                                     >
                                         <option value="ALL">End of Horizon</option>
                                         {dateOptions.map(d => (
@@ -6938,14 +7067,14 @@ function InputTableViewModal({
 
                             {/* 5. Target Column & Operation */}
                             <div>
-                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
                                     Target Col & Action
                                 </label>
                                 <div className="flex gap-1">
                                     <select
                                         value={bulkTargetCol}
                                         onChange={(e) => setBulkTargetCol(e.target.value)}
-                                        className="w-1/2 bg-white border border-blue-300 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer truncate"
+                                        className="w-1/2 bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2 py-1.5 text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer truncate"
                                         title="Column to modify"
                                     >
                                         {columns.map(c => (
@@ -6955,7 +7084,7 @@ function InputTableViewModal({
                                     <select
                                         value={bulkOperation}
                                         onChange={(e) => setBulkOperation(e.target.value)}
-                                        className="w-1/2 bg-white border border-blue-300 rounded-lg px-1.5 py-1.5 text-xs font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer truncate"
+                                        className="w-1/2 bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-1.5 py-1.5 text-xs font-bold text-blue-900 dark:text-[#80c6ff] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer truncate"
                                         title="Bulk modification operation"
                                     >
                                         <option value="increase_pct">+% Increase</option>
@@ -7063,7 +7192,7 @@ function InputTableViewModal({
                         </div>
                     ) : error ? (
                         <div className="h-full flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto space-y-3">
-                            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center glow-icon glow-icon-rose">
                                 <IconAlertCircle className="w-6 h-6" />
                             </div>
                             <h4 className="text-sm font-bold text-slate-800">Unable to load table data</h4>
@@ -7379,7 +7508,7 @@ function InputTableViewModal({
                         >
                             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center">
+                                    <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center glow-icon glow-icon-emerald">
                                         <IconClipboard className="w-5 h-5 text-emerald-700" />
                                     </div>
                                     <div>
@@ -7448,7 +7577,7 @@ function InputTableViewModal({
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center flex-shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center flex-shrink-0 glow-icon glow-icon-amber">
                                     <IconAlertCircle className="w-5 h-5 text-amber-600" />
                                 </div>
                                 <div>
@@ -7775,7 +7904,7 @@ function CalculationModulesModal({
                 <div className="bg-slate-50/95 px-4 py-2.5 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
                     {/* Left: Icon, Module Dropdown Selector & Tag */}
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center shadow-xs flex-shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center shadow-xs flex-shrink-0 glow-icon glow-icon-blue">
                             <IconEye className="w-5 h-5 text-[#005eb8]" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -7785,7 +7914,7 @@ function CalculationModulesModal({
                                 <select
                                     value={activeModule}
                                     onChange={(e) => onChangeModule && onChangeModule(e.target.value)}
-                                    className="text-xs sm:text-sm font-extrabold text-[#005eb8] bg-white border border-blue-300 rounded-lg px-2.5 py-1 shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[340px] sm:max-w-[460px] truncate"
+                                    className="text-xs sm:text-sm font-extrabold text-[#005eb8] dark:text-[#80c6ff] bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2.5 py-1 shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[340px] sm:max-w-[460px] truncate"
                                     title="Select Calculation Module to View"
                                 >
                                     <optgroup label="1. Master Combined Calculation">
@@ -7852,7 +7981,7 @@ function CalculationModulesModal({
                             <select
                                 value={pageSize}
                                 onChange={(e) => setPageSize(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                                className="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                                className="text-xs font-semibold bg-white dark:bg-[#081324] text-slate-700 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
                                 title="Rows per page (select 'All' to show all records without scrolling)"
                             >
                                 <option value={25}>25</option>
@@ -7871,7 +8000,7 @@ function CalculationModulesModal({
                             className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
                             title="Export calculation table as CSV"
                         >
-                            <IconDownload className="w-3.5 h-3.5 text-slate-600" />
+                            <IconDownload className="w-3.5 h-3.5 text-current" />
                             <span className="hidden sm:inline">Export</span>
                         </button>
 
@@ -7898,10 +8027,10 @@ function CalculationModulesModal({
                 </div>
 
                 {/* CALCULATION PIPELINE BREADCRUMB BAR (INTERACTIVE FEED PIPELINE) */}
-                <div className="bg-slate-100/90 px-4 py-1.5 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-2 text-xs flex-shrink-0">
-                    {/* Pipeline Pills */}
+                <div className="bg-slate-100/90 dark:bg-[#0c1b31] px-4 py-2 border-b border-slate-200/90 dark:border-[#18365d] flex flex-col gap-2 text-xs flex-shrink-0">
+                    {/* Row 1: Pipeline Flow Pills */}
                     <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mr-1">Pipeline:</span>
+                        <span className="text-[10px] font-extrabold text-slate-400 dark:text-[#7d93b2] uppercase tracking-wider mr-1">Pipeline:</span>
                         
                         {/* Feed 1: FTE */}
                         <button
@@ -7910,13 +8039,13 @@ function CalculationModulesModal({
                             className={`px-2.5 py-0.5 rounded-md font-bold text-[11px] transition flex items-center gap-1 cursor-pointer ${
                                 activeModule === 'fte'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200'
+                                    : 'bg-white dark:bg-[#081324] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-[#112649] border border-slate-200 dark:border-[#18365d]'
                             }`}
                         >
                             <span>FTE Module</span>
                         </button>
 
-                        <span className="text-slate-400 font-black">+</span>
+                        <span className="text-slate-400 dark:text-[#7d93b2] font-black">+</span>
 
                         {/* Feed 2: Downtime */}
                         <button
@@ -7925,13 +8054,13 @@ function CalculationModulesModal({
                             className={`px-2.5 py-0.5 rounded-md font-bold text-[11px] transition flex items-center gap-1 cursor-pointer ${
                                 activeModule === 'downtime'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200'
+                                    : 'bg-white dark:bg-[#081324] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-[#112649] border border-slate-200 dark:border-[#18365d]'
                             }`}
                         >
                             <span>Downtime Overlays</span>
                         </button>
 
-                        <span className="text-slate-400 font-black">+</span>
+                        <span className="text-slate-400 dark:text-[#7d93b2] font-black">+</span>
 
                         {/* Feed 3: Productivity */}
                         <button
@@ -7940,13 +8069,13 @@ function CalculationModulesModal({
                             className={`px-2.5 py-0.5 rounded-md font-bold text-[11px] transition flex items-center gap-1 cursor-pointer ${
                                 activeModule === 'productivity'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200'
+                                    : 'bg-white dark:bg-[#081324] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-[#112649] border border-slate-200 dark:border-[#18365d]'
                             }`}
                         >
                             <span>Productivity Rates</span>
                         </button>
 
-                        <span className="text-blue-500 font-black text-sm">➔</span>
+                        <span className="text-blue-500 dark:text-[#80c6ff] font-black text-sm">➔</span>
 
                         {/* Engine 1: Capacity */}
                         <button
@@ -7955,14 +8084,14 @@ function CalculationModulesModal({
                             className={`px-2.5 py-0.5 rounded-md font-black text-[11px] transition flex items-center gap-1 cursor-pointer ${
                                 activeModule === 'capacity'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-blue-50 text-[#005eb8] hover:bg-blue-100 border border-blue-200'
+                                    : 'bg-blue-50 dark:bg-[#081324] text-[#005eb8] dark:text-[#80c6ff] hover:bg-blue-100 dark:hover:bg-[#112649] border border-blue-200 dark:border-[#18365d]'
                             }`}
                         >
-                            <IconCapacity className="w-3.5 h-3.5" />
+                            <IconCapacity className="w-3.5 h-3.5 text-current" />
                             <span>Capacity Calculation</span>
                         </button>
 
-                        <span className="text-slate-400 font-black">|</span>
+                        <span className="text-slate-400 dark:text-[#7d93b2] font-black">|</span>
 
                         {/* Engine 2: Demand */}
                         <button
@@ -7971,14 +8100,14 @@ function CalculationModulesModal({
                             className={`px-2.5 py-0.5 rounded-md font-black text-[11px] transition flex items-center gap-1 cursor-pointer ${
                                 activeModule === 'demand'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-blue-50 text-[#005eb8] hover:bg-blue-100 border border-blue-200'
+                                    : 'bg-blue-50 dark:bg-[#081324] text-[#005eb8] dark:text-[#80c6ff] hover:bg-blue-100 dark:hover:bg-[#112649] border border-blue-200 dark:border-[#18365d]'
                             }`}
                         >
-                            <IconDemand className="w-3.5 h-3.5" />
+                            <IconDemand className="w-3.5 h-3.5 text-current" />
                             <span>Demand Calculation</span>
                         </button>
 
-                        <span className="text-blue-500 font-black text-sm">➔</span>
+                        <span className="text-blue-500 dark:text-[#80c6ff] font-black text-sm">➔</span>
 
                         {/* Master Combined: Imbalance */}
                         <button
@@ -7987,20 +8116,34 @@ function CalculationModulesModal({
                             className={`px-2.5 py-0.5 rounded-md font-black text-[11px] transition flex items-center gap-1 cursor-pointer ${
                                 activeModule === 'imbalance'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200'
+                                    : 'bg-indigo-50 dark:bg-[#081324] text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-[#112649] border border-indigo-200 dark:border-[#18365d]'
                             }`}
                         >
-                            <IconScale className="w-3.5 h-3.5" />
+                            <IconScale className="w-3.5 h-3.5 text-current" />
                             <span>Imbalance (Combined)</span>
                         </button>
                     </div>
 
-                    {/* Formula Snippet */}
-                    <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-slate-500">
-                        <span className="font-bold text-slate-600">Formula:</span>
-                        <code className="bg-white px-2 py-0.5 rounded text-[10px] text-blue-900 border border-slate-200 font-mono truncate max-w-[480px]">
-                            {currentMeta.formula}
-                        </code>
+                    {/* Row 2: Dedicated Full-Width Formula Bar - Always Visible, Complete & Unclipped */}
+                    <div className="flex items-center gap-2 pt-1.5 border-t border-slate-200/80 dark:border-[#18365d]/80 text-xs flex-wrap">
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <span className="w-5 h-5 rounded-md bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-[#80c6ff] border border-blue-200/80 dark:border-blue-700/50 flex items-center justify-center font-serif italic font-extrabold text-xs shadow-2xs">
+                                fx
+                            </span>
+                            <span className="font-extrabold text-[11px] uppercase tracking-wider text-slate-600 dark:text-[#adbed4]">
+                                Formula:
+                            </span>
+                        </div>
+                        <div className="flex-1 flex flex-wrap items-center gap-2 min-w-0">
+                            {currentMeta.formula.split(' | ').map((part, pIdx) => (
+                                <code
+                                    key={pIdx}
+                                    className="bg-white dark:bg-[#081324] px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-[#005eb8] dark:text-[#80c6ff] border border-blue-200/90 dark:border-[#18365d] shadow-2xs leading-relaxed select-all"
+                                >
+                                    {part}
+                                </code>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -8014,7 +8157,7 @@ function CalculationModulesModal({
                         </div>
                     ) : error ? (
                         <div className="h-full flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto space-y-3">
-                            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center glow-icon glow-icon-rose">
                                 <IconAlertCircle className="w-6 h-6" />
                             </div>
                             <h4 className="text-sm font-bold text-slate-800">Calculation error occurred</h4>
@@ -8354,7 +8497,7 @@ function ExportPowerBIModal({
                 {/* MODAL HEADER */}
                 <div className="bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border-b border-amber-200/60 px-6 py-4 flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center shadow-xs flex-shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center shadow-xs flex-shrink-0 glow-icon glow-icon-amber">
                             <IconPowerBI className="w-6 h-6" />
                         </div>
                         <div>
@@ -8387,7 +8530,7 @@ function ExportPowerBIModal({
                     {isSuccess ? (
                         /* SUCCESS CONFIRMATION VIEW */
                         <div className="space-y-5 text-center py-4 animate-fade-in">
-                            <div className="w-16 h-16 rounded-full bg-emerald-100 border-2 border-emerald-400 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+                            <div className="w-16 h-16 rounded-full bg-emerald-100 border-2 border-emerald-400 text-emerald-600 flex items-center justify-center mx-auto shadow-sm glow-icon glow-icon-emerald">
                                 <IconCheck className="w-8 h-8 text-emerald-600 stroke-[3]" />
                             </div>
                             <div className="space-y-1">
@@ -8441,7 +8584,7 @@ function ExportPowerBIModal({
                                     }}
                                     className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-bold shadow-2xs transition cursor-pointer"
                                 >
-                                    <IconDownload className="w-4 h-4 text-slate-600" />
+                                    <IconDownload className="w-4 h-4 text-current" />
                                     <span>Download .csv</span>
                                 </button>
                                 <button
@@ -8484,7 +8627,7 @@ function ExportPowerBIModal({
                                     <select
                                         value={selectedScenario}
                                         onChange={(e) => handleScenarioChange(e.target.value)}
-                                        className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 shadow-2xs focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 cursor-pointer"
+                                        className="w-full bg-white dark:bg-[#081324] border border-slate-300 dark:border-[#18365d] rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white shadow-2xs focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 cursor-pointer"
                                     >
                                         {scenarioKeys.map(k => (
                                             <option key={k} value={k}>
@@ -9173,7 +9316,7 @@ function ScenarioInputsStudioView({
                     {/* ML FORECASTING GLOBAL CONTROLLER BAR */}
                     <div className="bg-white px-4 py-2.5 rounded-xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 glow-card">
                         <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8]">
+                            <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] glow-icon glow-icon-blue">
                                 <IconBolt className="w-4 h-4 text-[#005eb8]" />
                             </div>
                             <div>
@@ -10314,10 +10457,12 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
         return <IconBarChart className="w-3.5 h-3.5 text-[#005eb8]" />;
     };
     const iconBgClass = (iconText === 'bolt')
-        ? 'bg-amber-50 border-amber-200/70 text-amber-500'
+        ? 'bg-amber-50 border-amber-200/70 text-amber-500 glow-icon glow-icon-amber'
         : (iconText === 'trend')
-            ? 'bg-blue-50 border-blue-200/70 text-blue-600'
-            : 'bg-blue-50 border-blue-200/70 text-[#005eb8]';
+            ? 'bg-blue-50 border-blue-200/70 text-blue-600 glow-icon glow-icon-blue'
+            : (iconText === 'scale')
+                ? 'bg-indigo-50 border-indigo-200/70 text-indigo-600 glow-icon glow-icon-indigo'
+                : 'bg-blue-50 border-blue-200/70 text-[#005eb8] glow-icon glow-icon-blue';
 
     return (
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs glow-card p-3.5 sm:p-4 flex flex-col justify-between h-[465px] min-h-[465px] w-full">
@@ -10651,7 +10796,7 @@ function WorkStreamRebalanceChart({ demData, unit = "hrs" }) {
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs glow-card p-4 sm:p-5 w-full">
             <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 flex items-center justify-center shadow-2xs">
+                    <span className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 flex items-center justify-center shadow-2xs glow-icon glow-icon-indigo">
                         <IconScale className="w-3.5 h-3.5 text-indigo-600" />
                     </span>
                     <div>
@@ -10950,7 +11095,7 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
             {/* Section Header with Mode Toggle */}
             <div className="bg-white p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-xs flex flex-wrap items-center justify-between gap-3 glow-card">
                 <div className="flex items-center gap-2.5">
-                    <span className="w-7 h-7 rounded-lg bg-blue-50 text-[#005eb8] flex items-center justify-center border border-blue-100 shadow-2xs">
+                    <span className="w-7 h-7 rounded-lg bg-blue-50 text-[#005eb8] flex items-center justify-center border border-blue-100 shadow-2xs glow-icon glow-icon-blue">
                         <IconBarChart className="w-4 h-4 text-[#005eb8]" />
                     </span>
                     <div>
@@ -11594,11 +11739,11 @@ function ScenarioComparisonView({
             {/* 3. EXECUTIVE KPI METRIC CARDS */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 relative z-10">
                 {/* Net Delta Imbalance */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden group">
+                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden group glow-card">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
                     <div className="flex items-center justify-between">
                         <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Net Imbalance Delta</span>
-                        <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shadow-2xs flex-shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shadow-2xs flex-shrink-0 glow-icon glow-icon-emerald">
                             <IconScale className="w-3.5 h-3.5 text-emerald-600" />
                         </div>
                     </div>
@@ -11616,11 +11761,11 @@ function ScenarioComparisonView({
                 </div>
 
                 {/* Comparison Demand */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
+                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden glow-card">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-[#005eb8]"></div>
                     <div className="flex items-center justify-between">
                         <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Demand</span>
-                        <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 text-[#005eb8] flex items-center justify-center shadow-2xs flex-shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 text-[#005eb8] flex items-center justify-center shadow-2xs flex-shrink-0 glow-icon glow-icon-blue">
                             <IconDemand className="w-3.5 h-3.5 text-[#005eb8]" />
                         </div>
                     </div>
@@ -11639,11 +11784,11 @@ function ScenarioComparisonView({
                 </div>
 
                 {/* Comparison Capacity */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
+                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden glow-card">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-700 to-slate-900"></div>
                     <div className="flex items-center justify-between">
                         <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Capacity</span>
-                        <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-center shadow-2xs flex-shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-center shadow-2xs flex-shrink-0 glow-icon glow-icon-slate">
                             <IconCapacity className="w-3.5 h-3.5 text-slate-800" />
                         </div>
                     </div>
@@ -11662,11 +11807,11 @@ function ScenarioComparisonView({
                 </div>
 
                 {/* Filter Scope Coverage */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
+                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden glow-card">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
                     <div className="flex items-center justify-between">
                         <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Operational Scope</span>
-                        <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shadow-2xs flex-shrink-0">
+                        <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shadow-2xs flex-shrink-0 glow-icon glow-icon-indigo">
                             <IconMap className="w-3.5 h-3.5 text-indigo-600" />
                         </div>
                     </div>
@@ -12285,7 +12430,7 @@ function DemVsCapView({
             {/* Top Operational Header Toolbar */}
             <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs glow-card flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-xs">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-xs glow-icon glow-icon-blue">
                         <IconMatrix className="w-5 h-5" />
                     </div>
                     <div>
@@ -12345,51 +12490,61 @@ function DemVsCapView({
 
             {/* Weekly Horizon Summary KPI Cards (Modern Icons) */}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
-                    <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Planning Horizon</span>
-                        <IconCalendar className="w-3.5 h-3.5 text-blue-500" />
+                <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card">
+                    <div className="flex items-center justify-between text-slate-400 gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Planning Horizon</span>
+                        <div className="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-500 flex items-center justify-center glow-icon glow-icon-blue flex-shrink-0">
+                            <IconCalendar className="w-3.5 h-3.5 text-current" />
+                        </div>
                     </div>
-                    <div className="text-sm font-extrabold text-slate-800 mt-1">12 Rolling Weeks</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">Sep 28 to Dec 14, 2026</div>
+                    <div className="text-sm font-extrabold text-slate-800 dark:text-white mt-1 whitespace-nowrap">12 Rolling Weeks</div>
+                    <div className="text-[11px] text-slate-500 dark:text-[#7d93b2] mt-0.5 whitespace-nowrap truncate">Sep 28 to Dec 14, 2026</div>
                 </div>
 
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
-                    <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Deficit Weeks</span>
-                        <IconAlertCircle className="w-3.5 h-3.5 text-rose-500" />
+                <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card">
+                    <div className="flex items-center justify-between text-slate-400 gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Deficit Weeks</span>
+                        <div className="w-6 h-6 rounded-md bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/60 text-rose-500 flex items-center justify-center glow-icon glow-icon-rose flex-shrink-0">
+                            <IconAlertCircle className="w-3.5 h-3.5 text-current" />
+                        </div>
                     </div>
-                    <div className="text-sm font-extrabold text-rose-600 mt-1">
+                    <div className="text-sm font-extrabold text-rose-600 mt-1 whitespace-nowrap">
                         {deficitActionRows.length > 0 ? `${deficitActionRows.length} Patch-Weeks` : '0 Deficits'}
                     </div>
-                    <div className="text-[11px] text-rose-500 mt-0.5">Below SLA Zero Baseline</div>
+                    <div className="text-[11px] text-rose-500 mt-0.5 whitespace-nowrap truncate">Below SLA Zero Baseline</div>
                 </div>
 
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
-                    <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Peak Deficit Week</span>
-                        <IconTrendingDown className="w-3.5 h-3.5 text-rose-500" />
+                <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card">
+                    <div className="flex items-center justify-between text-slate-400 gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Peak Deficit Week</span>
+                        <div className="w-6 h-6 rounded-md bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/60 text-rose-500 flex items-center justify-center glow-icon glow-icon-rose flex-shrink-0">
+                            <IconTrendingDown className="w-3.5 h-3.5 text-current" />
+                        </div>
                     </div>
-                    <div className="text-sm font-extrabold text-rose-600 mt-1">Wk 44 (Oct 26)</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">Leicester -4.10 FTE</div>
+                    <div className="text-sm font-extrabold text-rose-600 mt-1 whitespace-nowrap">Wk 44 (Oct 26)</div>
+                    <div className="text-[11px] text-slate-500 dark:text-[#7d93b2] mt-0.5 whitespace-nowrap truncate">Leicester -4.10 FTE</div>
                 </div>
 
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
-                    <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Peak Buffer Week</span>
-                        <IconTrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card">
+                    <div className="flex items-center justify-between text-slate-400 gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Peak Buffer Week</span>
+                        <div className="w-6 h-6 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/60 text-emerald-500 flex items-center justify-center glow-icon glow-icon-emerald flex-shrink-0">
+                            <IconTrendingUp className="w-3.5 h-3.5 text-current" />
+                        </div>
                     </div>
-                    <div className="text-sm font-extrabold text-emerald-600 mt-1">Wk 46 (Nov 09)</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">+18.20 FTE Surplus</div>
+                    <div className="text-sm font-extrabold text-emerald-600 mt-1 whitespace-nowrap">Wk 46 (Nov 09)</div>
+                    <div className="text-[11px] text-slate-500 dark:text-[#7d93b2] mt-0.5 whitespace-nowrap truncate">+18.20 FTE Surplus</div>
                 </div>
 
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
-                    <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Engine Status</span>
-                        <IconCheck className="w-3.5 h-3.5 text-blue-500" />
+                <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card">
+                    <div className="flex items-center justify-between text-slate-400 gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Engine Status</span>
+                        <div className="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-500 flex items-center justify-center glow-icon glow-icon-blue flex-shrink-0">
+                            <IconCheck className="w-3.5 h-3.5 text-current" />
+                        </div>
                     </div>
-                    <div className="text-sm font-extrabold text-blue-700 mt-1">Calculated</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">Sync at {calcTimestamp}</div>
+                    <div className="text-sm font-extrabold text-blue-700 dark:text-[#80c6ff] mt-1 whitespace-nowrap">Calculated</div>
+                    <div className="text-[11px] text-slate-500 dark:text-[#7d93b2] mt-0.5 whitespace-nowrap truncate">Sync at {calcTimestamp}</div>
                 </div>
             </div>
 
