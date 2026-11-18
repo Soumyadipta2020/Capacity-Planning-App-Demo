@@ -426,6 +426,12 @@ def create_modern_ui_page():
         # Root container for React
         ui.div(id="react-root"),
         
+        ui.tags.script(src=f"analytics_engine.js?v={cache_bust}"),
+        ui.tags.link(rel="stylesheet", href=f"analytics.css?v={cache_bust}"),
+        ui.tags.link(rel="stylesheet", href=f"analytics_details.css?v={cache_bust}"),
+        ui.tags.script(type="text/babel", src=f"analytics_charts.js?v={cache_bust}"),
+        ui.tags.script(type="text/babel", src=f"analytics_details.js?v={cache_bust}"),
+        ui.tags.script(type="text/babel", src=f"analytics_ui.js?v={cache_bust}"),
         # Load React application code from static with cache-buster
         ui.tags.script(
             type="text/babel",

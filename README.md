@@ -1,5 +1,7 @@
 # British Gas Field Capacity Planning Platform (React + PyShiny)
 
+The modern interface now includes a separate **Analytics** tab with twelve source-based investigations, deterministic stress tests, evidence drilldown, and decision-brief exports. See [Analytics implementation and model assumptions](docs/ANALYTICS_IMPLEMENTATION.md) for usage, validation, and current data limitations.
+
 A production-grade Capacity Planning application combining a **Modern React 18 & Tailwind CSS Frontend** with a **PyShiny & PySpark Backend**. 
 
 Engineered for **Dual Environment Execution**:
