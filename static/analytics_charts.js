@@ -1,0 +1,215 @@
+/* Buildless, responsive SVG charts. All marks retain source-driven drilldown. */
+(function () {
+  const palette = ['#2563eb', '#14b8a6', '#8b5cf6', '#f59e0b', '#f43f5e', '#64748b'];
+  const format = n => n === null || n === undefined ? 'Unavailable' : Number(n).toLocaleString('en-GB', {
+    maximumFractionDigits: 1
+  });
+  const valid = n => n !== null && n !== undefined && Number.isFinite(Number(n));
+  function ChartHeading({
+    title,
+    subtitle,
+    badge
+  }) {
+    return <div className="av-chart-heading"><div><h3>{title}</h3>{subtitle && <p>{subtitle}</p>}</div>{badge && <span className="av-chart-badge">{badge}</span>}</div>;
+  }
+  function Trend({
+    title,
+    subtitle,
+    data = [],
+    series = [],
+    unit = 'h',
+    stacked = false,
+    onSelect
+  }) {
+    const [hidden, setHidden] = React.useState([]),
+      [hover, setHover] = React.useState(null);
+    const shown = series.filter(s => !hidden.includes(s.key));
+    const W = 900,
+      H = 276,
+      L = 62,
+      R = 18,
+      T = 18,
+      B = 38,
+      plotW = W - L - R,
+      plotH = H - T - B;
+    const max = Math.max(1, ...data.map(r => stacked ? shown.reduce((v, s) => v + (valid(r[s.key]) ? Math.max(0, r[s.key]) : 0), 0) : Math.max(0, ...shown.map(s => valid(r[s.key]) ? r[s.key] : 0)))) * 1.12;
+    const x = i => L + (data.length > 1 ? i / (data.length - 1) * plotW : plotW / 2),
+      y = v => T + plotH - v / max * plotH;
+    const gradient = 'av-' + title.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const selected = hover === null ? null : data[hover];
+    const activate = (event, row) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onSelect?.(row);
+      }
+    };
+    return <section className="analytics-panel av-chart"><ChartHeading title={title} subtitle={subtitle} badge={onSelect ? 'Click a week to drill down' : unit} />
+      {!data.length ? <div className="av-empty">No observations in this scope. Reset filters or inspect source coverage.</div> : <>
+      <div className="av-legend">{series.map((s, i) => <button key={s.key} aria-pressed={!hidden.includes(s.key)} onClick={() => setHidden(old => old.includes(s.key) ? old.filter(k => k !== s.key) : [...old, s.key])} style={{
+            opacity: hidden.includes(s.key) ? 0.4 : 1
+          }}><i style={{
+              background: s.color || palette[i]
+            }} />{s.label}</button>)}<span>Toggle a series</span></div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="av-trend-svg" role="group" aria-label={title}>
+        <defs>{shown.map((s, i) => <linearGradient key={s.key} id={gradient + s.key} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={s.color || palette[i]} stopOpacity={stacked ? 0.65 : 0.16} /><stop offset="100%" stopColor={s.color || palette[i]} stopOpacity={stacked ? 0.2 : 0.01} /></linearGradient>)}</defs>
+        {[0, 1, 2, 3, 4].map(t => <g key={t}><line x1={L} x2={W - R} y1={y(max * t / 4)} y2={y(max * t / 4)} stroke="#e8edf5" strokeDasharray={t ? '3 5' : undefined} /><text x={L - 10} y={y(max * t / 4) + 4} textAnchor="end" className="av-axis">{format(max * t / 4)}</text></g>)}
+        {shown.map((s, si) => {
+            const lower = data.map(r => stacked ? shown.slice(0, si).reduce((v, p) => v + (valid(r[p.key]) ? Math.max(0, r[p.key]) : 0), 0) : 0);
+            const upper = data.map((r, i) => lower[i] + (valid(r[s.key]) ? Math.max(0, r[s.key]) : 0));
+            const segments = [];
+            let segment = [];
+            data.forEach((r, i) => {
+              if (valid(r[s.key])) segment.push(i);else if (segment.length) {
+                segments.push(segment);
+                segment = [];
+              }
+            });
+            if (segment.length) segments.push(segment);
+            return <g key={s.key}>{segments.map((indices, k) => {
+                const line = indices.map((i, j) => `${j ? 'L' : 'M'} ${x(i)} ${y(upper[i])}`).join(' ');
+                const fill = line + ' ' + indices.slice().reverse().map(i => `L ${x(i)} ${y(lower[i])}`).join(' ') + ' Z';
+                return <g key={k}><path d={fill} fill={`url(#${gradient + s.key})`} /><path d={line} stroke={s.color || palette[si]} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />{indices.length === 1 && <circle cx={x(indices[0])} cy={y(upper[indices[0]])} r="3" fill={s.color || palette[si]} />}</g>;
+              })}</g>;
+          })}
+        {data.map((r, i) => <g key={r.key || i} tabIndex="0" role={onSelect ? 'button' : 'img'} aria-label={`${r.label || r.key}: ${shown.map(s => s.label + ' ' + format(r[s.key]) + ' ' + unit).join(', ')}`} onFocus={() => setHover(i)} onBlur={() => setHover(null)} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)} onClick={() => onSelect?.(r)} onKeyDown={e => activate(e, r)} style={{
+            cursor: onSelect ? 'pointer' : 'crosshair'
+          }}>
+          <rect x={Math.max(L, x(i) - plotW / Math.max(2, data.length - 1) / 2)} y={T} width={plotW / Math.max(1, data.length - 1)} height={plotH} fill="transparent" />
+          {i % Math.max(1, Math.ceil(data.length / 7)) === 0 && <text x={x(i)} y={H - 11} textAnchor="middle" className="av-axis">{r.label || r.key}</text>}
+        </g>)}
+        {selected && <g pointerEvents="none"><line x1={x(hover)} x2={x(hover)} y1={T} y2={T + plotH} stroke="#94a3b8" strokeDasharray="4 4" />{shown.map((s, i) => valid(selected[s.key]) && <circle key={s.key} cx={x(hover)} cy={y((stacked ? shown.slice(0, i).reduce((v, p) => v + (selected[p.key] || 0), 0) : 0) + selected[s.key])} r="4.5" fill={s.color || palette[i]} stroke="white" strokeWidth="2" />)}</g>}
+      </svg>
+      <div className="av-chart-readout" aria-live="polite"><strong>{selected?.key || 'Explore the trajectory'}</strong>{selected ? shown.map((s, i) => <span key={s.key}><i style={{
+              background: s.color || palette[i]
+            }} />{s.label}: <b>{format(selected[s.key])} {unit}</b></span>) : <span>Hover or focus a week for values. {onSelect ? 'Select it to focus the investigation.' : ''}</span>}</div>
+      </>}
+    </section>;
+  }
+  function Donut({
+    title,
+    subtitle,
+    segments = [],
+    center,
+    caption,
+    onSelect
+  }) {
+    const [active, setActive] = React.useState(null);
+    const total = segments.reduce((v, s) => v + Math.max(0, s.value || 0), 0),
+      radius = 71,
+      circumference = 2 * Math.PI * radius;
+    let offset = 0;
+    return <section className="analytics-panel av-chart"><ChartHeading title={title} subtitle={subtitle} /><div className="av-donut-layout"><div className="av-donut-graphic"><svg viewBox="0 0 190 190" role="group" aria-label={title}><circle cx="95" cy="95" r={radius} fill="none" stroke="#eef2f7" strokeWidth="17" />{segments.map((s, i) => {
+              const length = total ? s.value / total * circumference : 0,
+                start = offset;
+              offset += length;
+              return <circle key={s.name} cx="95" cy="95" r={radius} fill="none" stroke={s.color || palette[i]} strokeWidth={active === i ? 22 : 17} strokeDasharray={`${Math.max(0, length - 2)} ${circumference}`} strokeDashoffset={-start} transform="rotate(-90 95 95)" tabIndex={total ? 0 : undefined} role="button" aria-label={`${s.name}: ${format(s.value)}, ${total ? format(s.value / total * 100) : 0}%`} onMouseEnter={() => setActive(i)} onMouseLeave={() => setActive(null)} onFocus={() => setActive(i)} onBlur={() => setActive(null)} onClick={() => onSelect?.(s)} onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelect?.(s);
+                }
+              }} className="av-donut-segment" />;
+            })}<text x="95" y="94" textAnchor="middle" className="av-donut-value">{active === null ? center : total ? format(segments[active].value / total * 100) + '%' : '—'}</text><text x="95" y="114" textAnchor="middle" className="av-axis">{active === null ? caption : 'of visible total'}</text></svg></div><div className="av-donut-legend">{segments.map((s, i) => <button key={s.name} onClick={() => onSelect?.(s)} onMouseEnter={() => setActive(i)} onMouseLeave={() => setActive(null)}><i style={{
+              background: s.color || palette[i]
+            }} /><span>{s.name}<small>{total ? format(s.value / total * 100) : 0}% of total</small></span><b>{format(s.value)}</b></button>)}</div></div></section>;
+  }
+  function Bars({
+    title,
+    subtitle,
+    rows = [],
+    unit = 'h',
+    onSelect,
+    diverging = false
+  }) {
+    const max = Math.max(1, ...rows.filter(r => valid(r.value)).map(r => Math.abs(r.value)));
+    return <section className="analytics-panel av-chart"><ChartHeading title={title} subtitle={subtitle} badge={onSelect ? 'Select to investigate' : unit} /><div className="av-bars">{rows.map((r, i) => <button key={r.name} onClick={() => onSelect?.(r)} disabled={!onSelect} className="av-bar-row"><span className="av-bar-label">{r.name}</span><span className={`av-bar-track ${diverging ? 'av-diverging' : ''}`}>{diverging && <span className="av-zero" />}<span className="av-bar-fill" style={{
+              width: valid(r.value) ? `${Math.abs(r.value) / max * (diverging ? 49 : 100)}%` : '0%',
+              left: diverging ? r.value < 0 ? `${50 - Math.abs(r.value) / max * 49}%` : '50%' : '0',
+              background: r.color || (r.value < 0 ? '#f43f5e' : palette[i % palette.length])
+            }} /></span><b>{valid(r.value) ? `${format(r.value)} ${unit}` : 'Unavailable'}</b></button>)}{!rows.length && <div className="av-empty">No values in this scope.</div>}</div></section>;
+  }
+  function Heatmap({
+    title,
+    subtitle,
+    rows = [],
+    onSelect
+  }) {
+    const [hover, setHover] = React.useState(null);
+    const weeks = [...new Set(rows.map(r => r.week))].sort(),
+      groups = [...new Set(rows.map(r => r.region + ' / ' + r.skill))].sort();
+    const index = new Map(rows.map(r => [r.region + ' / ' + r.skill + '|' + r.week, r]));
+    const max = Math.max(1, ...rows.filter(r => valid(r.gap)).map(r => Math.abs(r.gap)));
+    return <section className="analytics-panel av-chart"><ChartHeading title={title} subtitle={subtitle} badge="Select a cell to focus" /><div className="av-heat-legend"><span><i style={{
+            background: '#fb7185'
+          }} />Shortfall</span><span><i style={{
+            background: '#5eead4'
+          }} />Surplus</span><span><i className="av-missing" />Unavailable evidence</span></div>{!rows.length ? <div className="av-empty">No pressure observations in this scope.</div> : <div className="av-heat-scroll"><div className="av-heat-grid" style={{
+          gridTemplateColumns: `110px repeat(${weeks.length}, minmax(29px,1fr))`
+        }}><span className="av-heat-label">Region / skill</span>{weeks.map(w => <span key={w} className="av-heat-week">{w.slice(5)}</span>)}{groups.map(g => <React.Fragment key={g}><span className="av-heat-label">{g}</span>{weeks.map(w => {
+              const r = index.get(g + '|' + w),
+                known = valid(r?.gap),
+                negative = known && r.gap < 0,
+                alpha = known ? 0.15 + Math.sqrt(Math.abs(r.gap) / max) * 0.75 : 0;
+              return <button key={w} className={`av-heat-cell ${!known ? 'av-missing' : ''}`} style={known ? {
+                background: negative ? `rgba(244,63,94,${alpha})` : `rgba(20,184,166,${alpha})`
+              } : undefined} onMouseEnter={() => setHover(r || {
+                region: g,
+                week: w,
+                gap: null
+              })} onMouseLeave={() => setHover(null)} onFocus={() => setHover(r || {
+                region: g,
+                week: w,
+                gap: null
+              })} onBlur={() => setHover(null)} onClick={() => r && onSelect?.(r)} aria-label={`${g}, ${w}: ${known ? format(r.gap) + ' hours buffer' : 'unavailable evidence'}`} title={`${g} · ${w} · ${known ? format(r.gap) + ' h' : 'Unavailable'}`} disabled={!r}>{known ? negative ? '−' : '+' : '·'}</button>;
+            })}</React.Fragment>)}</div></div>}<div className="av-chart-readout" aria-live="polite"><strong>{hover ? `${hover.region} ${hover.skill || ''} · ${hover.week}` : 'Find a pressure pocket'}</strong><span>{hover ? hover.gap === null ? 'This cell has insufficient evidence for a buffer calculation.' : `${format(hover.gap)} h buffer · ${format(hover.coverage)}% matched-scope coverage` : 'Color intensity is relative to the largest visible buffer; grey cells are never treated as zero.'}</span></div></section>;
+  }
+  function Waterfall({
+    title,
+    subtitle,
+    steps = [],
+    onSelect,
+    unit = 'h'
+  }) {
+    let running = 0;
+    const bars = steps.map(s => {
+      const start = s.total ? 0 : running,
+        end = s.total ? s.value : running + s.value;
+      running = end;
+      return {
+        ...s,
+        start,
+        end
+      };
+    });
+    const values = bars.flatMap(s => [s.start, s.end]),
+      low = Math.min(0, ...values),
+      high = Math.max(1, ...values),
+      span = high - low || 1;
+    const W = 900,
+      H = 286,
+      L = 60,
+      T = 24,
+      B = 66,
+      plotH = H - T - B,
+      barW = Math.min(85, 740 / Math.max(1, bars.length)),
+      stepW = 810 / Math.max(1, bars.length),
+      y = v => T + (high - v) / span * plotH;
+    const unchanged = bars.length > 1 && steps.filter(s => !s.total).every(s => valid(s.value) && Math.abs(s.value) < 1e-9) && Math.abs(bars[0].value - bars[bars.length - 1].value) < 1e-9;
+    return <section className="analytics-panel av-chart"><ChartHeading title={title} subtitle={subtitle} badge={unit} />{unchanged ? <div className="av-no-change"><span>=</span><div><strong>No change across comparable scope</strong><p>Volume, work mix and duration contributions are unchanged.</p></div><b>{format(bars[0].value)} {unit}</b></div> : !bars.length ? <div className="av-empty">No comparable contribution data.</div> : <svg className="av-waterfall-svg" viewBox={`0 0 ${W} ${H}`} role="group" aria-label={title}><line x1={L} x2={W - 15} y1={y(0)} y2={y(0)} stroke="#cbd5e1" />{bars.map((s, i) => {
+          const x = L + i * stepW + (stepW - barW) / 2;
+          return <g key={s.name} role={onSelect ? 'button' : 'img'} tabIndex="0" aria-label={`${s.name}: ${format(s.value)} ${unit}`} onClick={() => onSelect?.(s)} onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onSelect?.(s);
+            }
+          }} className="av-waterfall-mark"><title>{s.name + ': ' + format(s.value) + ' ' + unit}</title>{i < bars.length - 1 && <line x1={x + barW} x2={x + stepW} y1={y(s.end)} y2={y(s.end)} stroke="#94a3b8" strokeDasharray="3 4" />}<rect x={x} y={Math.min(y(s.start), y(s.end))} width={barW} height={Math.max(2, Math.abs(y(s.start) - y(s.end)))} rx="5" fill={s.color || (s.total ? '#1d4ed8' : s.value < 0 ? '#f43f5e' : '#14b8a6')} /><text x={x + barW / 2} y={Math.max(14, Math.min(y(s.start), y(s.end)) - 8)} textAnchor="middle" className="av-value">{s.total ? '' : s.value > 0 ? '+' : ''}{format(s.value)}</text><text x={x + barW / 2} y={H - B + 22} textAnchor="middle" className="av-axis">{s.name.split(' ').slice(0, 2).join(' ')}<tspan x={x + barW / 2} dy="15">{s.name.split(' ').slice(2).join(' ')}</tspan></text></g>;
+        })}</svg>}</section>;
+  }
+  window.AnalyticsViz = {
+    Trend,
+    Donut,
+    Bars,
+    Heatmap,
+    Waterfall,
+    palette
+  };
+})();

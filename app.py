@@ -133,6 +133,27 @@ def server(input, output, session):
 
     # --- REACT JAVASCRIPT EVENT BRIDGE ---
 
+    @reactive.effect
+    @reactive.event(input.request_analytics_bundle)
+    async def _on_request_analytics_bundle():
+        from engine.analytics_loader import load_analytics_bundle
+        request = input.request_analytics_bundle()
+        if not isinstance(request, dict):
+            return
+        request_id = request.get("requestId")
+        try:
+            if request.get("draft"):
+                scenario = {"id": "Draft inputs", "inputs": request.get("inputs", {})}
+            else:
+                scenario = sm.get_scenario(request.get("scenarioId", ""))
+            if not scenario:
+                raise ValueError("Selected scenario no longer exists")
+            result = load_analytics_bundle(scenario, engine)
+        except Exception as error:
+            result = {"success": False, "error": str(error)}
+        result["requestId"] = request_id
+        await session.send_custom_message("response_analytics_bundle", result)
+
     # Handle Scenario Save from React UI
     @reactive.effect
     @reactive.event(input.save_scenario_event)

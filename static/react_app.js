@@ -671,6 +671,9 @@ function ModernCapacityApp() {
         }
 
         if (window.Shiny && window.Shiny.addCustomMessageHandler) {
+            window.Shiny.addCustomMessageHandler('response_analytics_bundle', function(data) {
+                window.dispatchEvent(new CustomEvent('capacity-analytics-data', {detail: data}));
+            });
             window.Shiny.addCustomMessageHandler('update_scenario_data', function(data) {
                 if (data.scenarios) setScenarios(data.scenarios);
                 if (data.selectedScenarioId) setSelectedScenarioId(data.selectedScenarioId);
@@ -1070,6 +1073,7 @@ function ModernCapacityApp() {
                         { id: 'inputs', label: 'Inputs & Parameters', icon: <IconSliders />, badge: '21 Files' },
                         { id: 'comparison', label: 'Scenario Diff & Variance', icon: <IconScale /> },
                         { id: 'dem_cap', label: 'Dem vs Cap Matrix', icon: <IconMatrix /> },
+                        { id: 'analytics', label: 'Analytics', icon: <IconBarChart /> },
                     ].map(tab => (
                         <button
                             key={tab.id}
@@ -1280,6 +1284,15 @@ function ModernCapacityApp() {
 
                 {/* TAB CONTENT AREA (FLUID SCROLLABLE MAIN WITH TIGHT SPACING) */}
                 <main className="flex-1 overflow-y-auto px-6 py-4 bg-[#fbfcfd] space-y-3.5">
+                    {activeTab === 'analytics' && (
+                        <AnalyticsWorkspace
+                            scenarios={scenarios}
+                            selectedScenarioId={selectedScenarioId}
+                            inputsState={inputsState}
+                            onSelectScenario={handleLoadScenario}
+                            onNavigateToInputs={() => setActiveTab('inputs')}
+                        />
+                    )}
                     {/* TAB 1: EXECUTIVE SCENARIO INSIGHTS (HOMEPAGE) */}
                     {activeTab === 'insights' && (
                         <ScenarioExecutiveInsightsView
