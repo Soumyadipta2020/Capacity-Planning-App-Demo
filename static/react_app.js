@@ -447,6 +447,14 @@ function IconMoon({ className = "w-4 h-4" }) {
     );
 }
 
+function IconChevronDown({ className = "w-3.5 h-3.5" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
+    );
+}
+
 // ================================================================================================
 // TIMESTAMP PARSING & SORTING HELPER
 // ================================================================================================
@@ -579,6 +587,7 @@ function buildGeographyHierarchy(rows) {
 // ================================================================================================
 function ModernCapacityApp() {
     const [activeTab, setActiveTab] = useState('insights');
+    const [studioSubTab, setStudioSubTab] = useState('inputs_selection');
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isCopilotOpen, setIsCopilotOpen] = useState(false);
     
@@ -1122,45 +1131,104 @@ function ModernCapacityApp() {
                 <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
                     {[
                         { id: 'insights', label: 'Executive Insights', icon: <IconDashboard />, badge: 'Home' },
-                        { id: 'inputs', label: 'Inputs & Parameters', icon: <IconSliders />, badge: '21 Files' },
+                        { id: 'inputs', label: 'Inputs & Parameters', icon: <IconSliders />, badge: '21 Files', hasSubmenu: true },
                         { id: 'comparison', label: 'Scenario Diff & Variance', icon: <IconScale /> },
                         { id: 'dem_cap', label: 'Dem vs Cap Matrix', icon: <IconMatrix /> },
                         { id: 'analytics', label: 'Analytics', icon: <IconBarChart /> },
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium text-xs transition-all group ${
-                                activeTab === tab.id
-                                    ? isDarkMode 
-                                        ? 'bg-gradient-to-r from-blue-900/60 to-blue-800/40 text-[#80c6ff] font-bold shadow-[0_2px_12px_rgba(37,99,235,0.25)] border border-[#2563eb]/60'
-                                        : 'bg-blue-50 text-blue-700 font-semibold shadow-xs border border-blue-100/80'
-                                    : isDarkMode
-                                        ? 'text-[#7d93b2] hover:bg-[#0c1a32] hover:text-[#e2edff]'
-                                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                            }`}
-                        >
-                            <div className="flex items-center gap-2.5">
-                                <span className={`transition-transform duration-200 group-hover:scale-110 ${
-                                    activeTab === tab.id 
-                                        ? isDarkMode ? 'text-[#80c6ff]' : 'text-blue-700' 
-                                        : isDarkMode ? 'text-[#7d93b2] group-hover:text-[#80c6ff]' : 'text-slate-400 group-hover:text-blue-600'
-                                }`}>
-                                    {tab.icon}
-                                </span>
-                                {!isSidebarCollapsed && <span>{tab.label}</span>}
+                    ].map(tab => {
+                        const isActive = activeTab === tab.id;
+                        return (
+                            <div key={tab.id} className="space-y-1">
+                                <button
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium text-xs transition-all group ${
+                                        isActive
+                                            ? isDarkMode 
+                                                ? 'bg-gradient-to-r from-blue-900/60 to-blue-800/40 text-[#80c6ff] font-bold shadow-[0_2px_12px_rgba(37,99,235,0.25)] border border-[#2563eb]/60'
+                                                : 'bg-blue-50 text-blue-700 font-semibold shadow-xs border border-blue-100/80'
+                                            : isDarkMode
+                                                ? 'text-[#7d93b2] hover:bg-[#0c1a32] hover:text-[#e2edff]'
+                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                        <span className={`transition-transform duration-200 group-hover:scale-110 flex-shrink-0 ${
+                                            isActive 
+                                                ? isDarkMode ? 'text-[#80c6ff]' : 'text-blue-700' 
+                                                : isDarkMode ? 'text-[#7d93b2] group-hover:text-[#80c6ff]' : 'text-slate-400 group-hover:text-blue-600'
+                                        }`}>
+                                            {tab.icon}
+                                        </span>
+                                        {!isSidebarCollapsed && <span className="truncate">{tab.label}</span>}
+                                    </div>
+                                    {!isSidebarCollapsed && (
+                                        <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
+                                            {tab.badge && (
+                                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                                                    isActive 
+                                                        ? 'bg-[#005eb8] text-white' 
+                                                        : isDarkMode ? 'bg-[#0c1c38] text-[#80c6ff] border border-[#18365d]' : 'bg-slate-100 text-slate-500'
+                                                }`}>
+                                                    {tab.badge}
+                                                </span>
+                                            )}
+                                            {tab.hasSubmenu && (
+                                                <IconChevronDown className={`w-3 h-3 transition-transform duration-200 ${isActive ? 'rotate-180 text-blue-500 dark:text-[#80c6ff]' : 'text-slate-400'}`} />
+                                            )}
+                                        </div>
+                                    )}
+                                </button>
+
+                                {/* SUBMENUS: Inputs & Parameters */}
+                                {tab.id === 'inputs' && isActive && !isSidebarCollapsed && (
+                                    <div className="ml-3 pl-2.5 my-1 border-l-2 border-blue-500/30 dark:border-blue-500/40 space-y-1">
+                                        {[
+                                            { id: 'inputs_selection', label: 'Scenario & Input Selection', shortLabel: 'Scenario & Inputs', icon: <IconSliders className="w-3.5 h-3.5 flex-shrink-0" />, badge: '21' },
+                                            { id: 'bulk_upload', label: 'Bulk Upload', shortLabel: 'Bulk Upload', icon: <IconUpload className="w-3.5 h-3.5 flex-shrink-0" />, badge: 'Ingest' },
+                                            { id: 'download_templates', label: 'Download Templates', shortLabel: 'Download Templates', icon: <IconDownload className="w-3.5 h-3.5 flex-shrink-0" />, badge: '21 Ready' },
+                                        ].map(sub => {
+                                            const isSubActive = studioSubTab === sub.id;
+                                            return (
+                                                <button
+                                                    key={sub.id}
+                                                    type="button"
+                                                    title={`${sub.label} (${sub.badge})`}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setActiveTab('inputs');
+                                                        setStudioSubTab(sub.id);
+                                                    }}
+                                                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all select-none cursor-pointer ${
+                                                        isSubActive
+                                                            ? isDarkMode
+                                                                ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/70 text-[#80c6ff] font-bold border border-[#2563eb]/60 shadow-xs'
+                                                                : 'bg-[#005eb8] text-white font-bold shadow-xs'
+                                                            : isDarkMode
+                                                                ? 'text-[#adbed4] hover:bg-[#0c1a32] hover:text-white'
+                                                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center gap-2 truncate min-w-0">
+                                                        <span className={isSubActive ? (isDarkMode ? 'text-[#80c6ff]' : 'text-white') : (isDarkMode ? 'text-[#7d93b2]' : 'text-blue-600')}>
+                                                            {sub.icon}
+                                                        </span>
+                                                        <span className="truncate text-[11px]">{sub.shortLabel}</span>
+                                                    </div>
+                                                    <span className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded-md flex-shrink-0 ml-1.5 ${
+                                                        isSubActive
+                                                            ? isDarkMode ? 'bg-[#081528] text-[#80c6ff] border border-[#18365d]' : 'bg-white/20 text-white'
+                                                            : isDarkMode ? 'bg-[#081528] text-[#7d93b2] border border-[#18365d]' : 'bg-slate-200/80 text-slate-600'
+                                                    }`}>
+                                                        {sub.badge}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
-                            {!isSidebarCollapsed && tab.badge && (
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                                    activeTab === tab.id 
-                                        ? 'bg-[#005eb8] text-white' 
-                                        : isDarkMode ? 'bg-[#0c1c38] text-[#80c6ff] border border-[#18365d]' : 'bg-slate-100 text-slate-500'
-                                }`}>
-                                    {tab.badge}
-                                </span>
-                            )}
-                        </button>
-                    ))}
+                        );
+                    })}
                 </nav>
 
                 {/* Sidebar Footer Controls */}
@@ -1428,6 +1496,8 @@ function ModernCapacityApp() {
                     {/* TAB 2: SCENARIO INPUTS & PARAMETERS STUDIO */}
                     {activeTab === 'inputs' && (
                         <ScenarioInputsStudioView
+                            studioSubTab={studioSubTab}
+                            setStudioSubTab={setStudioSubTab}
                             planType={planType}
                             setPlanType={setPlanType}
                             month={month}
@@ -2166,28 +2236,30 @@ function MonteCarloSimulationModal({
                         {/* Section Title & Zone Legend */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-200 dark:border-[#18365d] gap-2">
                             <div>
-                                <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 dark:text-white flex items-center gap-2">
-                                    <span>Plan Resilience & Capacity Deficit Risk Distribution</span>
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60">
-                                        Safe Zone (95.2%)
-                                    </span>
+                                <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 dark:text-white">
+                                    Plan Resilience & Capacity Deficit Risk Distribution
                                 </h4>
                                 <p className="text-[11px] text-slate-500 dark:text-[#adbed4]">
                                     Visual probability breakdown across 10,000 simulated winter operating scenarios
                                 </p>
                             </div>
 
-                            {/* Legend */}
-                            <div className="flex items-center gap-3 text-xs font-bold">
-                                <span className="flex items-center gap-1.5 text-rose-700 dark:text-rose-300">
+                            {/* Legend & Safe Zone Resilience Pill */}
+                            <div className="flex items-center gap-2.5 sm:gap-3 text-xs font-bold flex-wrap sm:flex-nowrap justify-end">
+                                <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 dark:border-emerald-500/40 whitespace-nowrap shadow-2xs">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                                    <span>Safe Zone ({slaConfidence}%)</span>
+                                </span>
+                                <div className="h-3.5 w-px bg-slate-200 dark:bg-[#18365d] hidden sm:block" />
+                                <span className="flex items-center gap-1.5 text-rose-700 dark:text-rose-300 whitespace-nowrap">
                                     <span className="w-3 h-3 rounded-xs bg-rose-500 dark:bg-rose-400 inline-block shadow-xs ring-1 ring-rose-500/50" />
                                     <span>Deficit Risk ({shortfallPct}%)</span>
                                 </span>
-                                <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400">
+                                <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 whitespace-nowrap">
                                     <span className="w-3 h-3 rounded-xs bg-amber-400 dark:bg-amber-400 inline-block shadow-xs ring-1 ring-amber-400/50" />
                                     <span>Tight Buffer ({tightPct}%)</span>
                                 </span>
-                                <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
+                                <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 whitespace-nowrap">
                                     <span className="w-3 h-3 rounded-xs bg-emerald-500 dark:bg-emerald-400 inline-block shadow-xs ring-1 ring-emerald-500/50" />
                                     <span>Safe Buffer ({safePct}%)</span>
                                 </span>
@@ -8885,9 +8957,13 @@ function ScenarioInputsStudioView({
     onInputUndo,
     onApplyUploadedFiles,
     setInputsState,
-    showToast
+    showToast,
+    studioSubTab: propStudioSubTab,
+    setStudioSubTab: propSetStudioSubTab
 }) {
-    const [studioSubTab, setStudioSubTab] = useState('inputs_selection');
+    const [localSubTab, setLocalSubTab] = useState('inputs_selection');
+    const studioSubTab = propStudioSubTab !== undefined ? propStudioSubTab : localSubTab;
+    const setStudioSubTab = propSetStudioSubTab || setLocalSubTab;
     const [filterCategory, setFilterCategory] = useState('all');
     const [stagedFiles, setStagedFiles] = useState([]);
     const [isValidating, setIsValidating] = useState(false);
@@ -9134,87 +9210,6 @@ function ScenarioInputsStudioView({
 
     return (
         <div className="space-y-3.5 w-full">
-            {/* SLEEK COMPACT SUB-TABS NAVIGATION BAR (HEIGHT ~38PX, HIGH VISIBILITY) */}
-            <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 glow-card">
-                {/* Segmented Pill Track */}
-                <div className="flex items-center gap-1 p-0.5 bg-slate-100 rounded-lg border border-slate-200/70">
-                    {/* Tab 1: Scenario Creation & Input Selection */}
-                    <button
-                        type="button"
-                        onClick={() => setStudioSubTab('inputs_selection')}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer select-none ${
-                            studioSubTab === 'inputs_selection'
-                                ? 'bg-[#005eb8] text-white shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-                        }`}
-                    >
-                        <IconSliders className={`w-3.5 h-3.5 ${studioSubTab === 'inputs_selection' ? 'text-white' : 'text-blue-600'}`} />
-                        <span>Scenario & Input Selection</span>
-                        <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-md ${
-                            studioSubTab === 'inputs_selection'
-                                ? 'bg-white/20 text-white'
-                                : 'bg-slate-200 text-slate-600'
-                        }`}>
-                            21
-                        </span>
-                    </button>
-
-                    {/* Tab 2: Bulk Upload & Validation */}
-                    <button
-                        type="button"
-                        onClick={() => setStudioSubTab('bulk_upload')}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer select-none ${
-                            studioSubTab === 'bulk_upload'
-                                ? 'bg-[#005eb8] text-white shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-                        }`}
-                    >
-                        <IconUpload className={`w-3.5 h-3.5 ${studioSubTab === 'bulk_upload' ? 'text-white' : 'text-blue-600'}`} />
-                        <span>Bulk Upload</span>
-                        <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-md ${
-                            studioSubTab === 'bulk_upload'
-                                ? 'bg-white/20 text-white'
-                                : stagedFiles.length > 0
-                                ? 'bg-emerald-500 text-white animate-pulse'
-                                : 'bg-slate-200 text-slate-600'
-                        }`}>
-                            {stagedFiles.length > 0 ? stagedFiles.length : 'Ingest'}
-                        </span>
-                    </button>
-
-                    {/* Tab 3: Download Templates */}
-                    <button
-                        type="button"
-                        onClick={() => setStudioSubTab('download_templates')}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer select-none ${
-                            studioSubTab === 'download_templates'
-                                ? 'bg-[#005eb8] text-white shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-                        }`}
-                    >
-                        <IconDownload className={`w-3.5 h-3.5 ${studioSubTab === 'download_templates' ? 'text-white' : 'text-blue-600'}`} />
-                        <span>Download Templates</span>
-                        <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-md ${
-                            studioSubTab === 'download_templates'
-                                ? 'bg-white/20 text-white'
-                                : 'bg-slate-200 text-slate-600'
-                        }`}>
-                            21 Ready
-                        </span>
-                    </button>
-                </div>
-
-                {/* Right Status Indicator */}
-                <div className="hidden md:flex items-center gap-2 pr-1 text-slate-500">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-                    <span className="text-[11px] font-medium">
-                        {studioSubTab === 'inputs_selection' && "Active Governance Inputs (21 Models)"}
-                        {studioSubTab === 'bulk_upload' && "Multi-File Schema Validation Engine"}
-                        {studioSubTab === 'download_templates' && "Standard .CSV Template Repository"}
-                    </span>
-                </div>
-            </div>
-
             {/* FLOATING WINDOW: VALIDATION & INGESTION RESULTS MODAL (ALWAYS AVAILABLE) */}
             <ValidationResultsModal
                 isOpen={isResultModalOpen}
@@ -9252,13 +9247,13 @@ function ScenarioInputsStudioView({
                         </div>
 
                         {/* Scenario Metadata Editor */}
-                        <div className="grid grid-cols-1 md:grid-cols-6 gap-2.5 pt-3 items-end">
-                            <div>
-                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Plan Type</label>
+                        <div className="flex flex-col md:flex-row gap-2.5 pt-3 items-end">
+                            <div className="w-full md:w-64 lg:w-72 flex-shrink-0">
+                                <label className="text-[11px] font-bold text-slate-600 dark:text-[#adbed4] block mb-1">Plan Type</label>
                                 <select
                                     value={planType}
                                     onChange={(e) => setPlanType(e.target.value)}
-                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                    className="w-full text-xs bg-slate-50 dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl p-2.5 font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 cursor-pointer"
                                 >
                                     <option value="LV">LV (Standard Operating Plan)</option>
                                     <option value="HV">HV (Surge Volume Plan)</option>
@@ -9266,12 +9261,12 @@ function ScenarioInputsStudioView({
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Month</label>
+                            <div className="w-full md:w-24 flex-shrink-0">
+                                <label className="text-[11px] font-bold text-slate-600 dark:text-[#adbed4] block mb-1">Month</label>
                                 <select
                                     value={month}
                                     onChange={(e) => setMonth(e.target.value)}
-                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                    className="w-full text-xs bg-slate-50 dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl p-2.5 font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 cursor-pointer text-center"
                                 >
                                     {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"].map(m => (
                                         <option key={m} value={m}>{m}</option>
@@ -9279,32 +9274,32 @@ function ScenarioInputsStudioView({
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Version</label>
+                            <div className="w-full md:w-20 flex-shrink-0">
+                                <label className="text-[11px] font-bold text-slate-600 dark:text-[#adbed4] block mb-1">Version</label>
                                 <input
                                     type="number"
                                     min="0"
                                     value={version}
                                     onChange={(e) => setVersion(e.target.value)}
-                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                    className="w-full text-xs bg-slate-50 dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl p-2.5 font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"
                                 />
                             </div>
 
-                            <div className="md:col-span-2">
-                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Scenario Remarks</label>
+                            <div className="w-full md:flex-1 min-w-[140px]">
+                                <label className="text-[11px] font-bold text-slate-600 dark:text-[#adbed4] block mb-1">Scenario Remarks</label>
                                 <input
                                     type="text"
                                     placeholder="e.g. October baseline run with revised sick overlays"
                                     value={remarks}
                                     onChange={(e) => setRemarks(e.target.value)}
-                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                    className="w-full text-xs bg-slate-50 dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl p-2.5 font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 
-                            <div>
+                            <div className="w-full md:w-auto flex-shrink-0">
                                 <button
                                     onClick={onSave}
-                                    className="w-full bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 glow-button"
+                                    className="w-full md:w-auto bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 glow-button cursor-pointer whitespace-nowrap"
                                 >
                                     <IconCheck className="w-3.5 h-3.5" />
                                     <span>Save Scenario</span>
@@ -9627,7 +9622,7 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
 // ------------------------------------------------------------------------------------------------
 // 3. TREE DROPDOWN GEOGRAPHY HIERARCHY SELECTOR WITH RADIO BUTTONS (National -> Region -> ACDM -> Territory)
 // ------------------------------------------------------------------------------------------------
-function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, sourceFileName, onClose, onNavigateToInputs }) {
+function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, sourceFileName, onClose, onNavigateToInputs, compact = false }) {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [expanded, setExpanded] = useState({
@@ -9699,26 +9694,28 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
             <button
                 type="button"
                 onClick={() => setIsOpen(prev => !prev)}
-                className={`w-full h-[44px] px-3 bg-white hover:bg-slate-50 border rounded-xl shadow-2xs flex items-center justify-between gap-2 transition cursor-pointer text-left select-none ${
-                    isOpen ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-300 hover:border-blue-400'
+                className={`w-full ${compact ? 'h-[32px] px-2.5 rounded-lg' : 'h-[44px] px-3 rounded-xl'} bg-white dark:bg-[#081324] hover:bg-slate-50 dark:hover:bg-[#112649] border border-slate-300 dark:border-[#18365d] shadow-2xs flex items-center justify-between gap-2 transition cursor-pointer text-left select-none ${
+                    isOpen ? 'border-blue-500 ring-2 ring-blue-500/20' : 'hover:border-blue-400'
                 }`}
                 title={`Selected Geography Scope: ${getScopeDisplay()}`}
             >
                 <div className="flex items-center gap-2 min-w-0">
                     {/* Radio Button Indicator */}
-                    <span className="w-4 h-4 rounded-full border-2 border-slate-800 bg-white flex items-center justify-center flex-shrink-0">
-                        <span className="w-2 h-2 rounded-full bg-slate-900" />
+                    <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-800 dark:border-white bg-white dark:bg-[#081324] flex items-center justify-center flex-shrink-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-white" />
                     </span>
-                    <span className="text-xs font-bold text-slate-800 truncate">
+                    <span className="text-xs font-bold text-slate-800 dark:text-white truncate">
                         {getScopeDisplay()}
                     </span>
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 bg-blue-50 text-blue-700 rounded border border-blue-200 uppercase flex-shrink-0">
-                        {selectedGeo ? selectedGeo.type : 'national'}
-                    </span>
+                    {!compact && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-[#80c6ff] rounded border border-blue-200 dark:border-blue-800 uppercase flex-shrink-0">
+                            {selectedGeo ? selectedGeo.type : 'national'}
+                        </span>
+                    )}
                 </div>
 
-                <div className="flex items-center gap-1.5 flex-shrink-0 text-slate-500">
-                    <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">
+                <div className="flex items-center gap-1.5 flex-shrink-0 text-slate-500 dark:text-[#adbed4]">
+                    <span className="text-[10px] font-bold bg-slate-100 dark:bg-[#0c1b31] text-slate-600 dark:text-[#adbed4] px-1.5 py-0.5 rounded border border-slate-200 dark:border-[#18365d]">
                         {selectedGeo && selectedGeo.count !== undefined ? `${selectedGeo.count} Terr` : `${totalTerritories} Terr`}
                     </span>
                     {/* Chevron: points up (^) when open, down (v) when closed */}
@@ -9735,9 +9732,9 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
 
             {/* 2. Floating Dropdown Menu (Tree with Radio Buttons matching user image) */}
             {isOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-full min-w-[320px] sm:min-w-[360px] max-w-[440px] bg-white border border-slate-300 rounded-xl shadow-2xl z-[100] overflow-hidden text-slate-800 animate-fade-in">
+                <div className="absolute top-full left-0 mt-1.5 w-full min-w-[320px] sm:min-w-[360px] max-w-[440px] bg-white dark:bg-[#0c1b31] border border-slate-300 dark:border-[#18365d] rounded-xl shadow-2xl z-[100] overflow-hidden text-slate-800 dark:text-slate-100 animate-fade-in">
                     {/* Top Search & Filter Bar */}
-                    <div className="p-2 border-b border-slate-100 bg-slate-50/80 flex items-center gap-2">
+                    <div className="p-2 border-b border-slate-100 dark:border-[#18365d] bg-slate-50/80 dark:bg-[#081324] flex items-center gap-2">
                         <div className="relative flex-1">
                             <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
                                 <IconSearch className="w-3.5 h-3.5" />
@@ -9747,7 +9744,7 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Search patch, ACDM, or region..."
-                                className="w-full text-xs pl-7 pr-6 py-1.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder-slate-400"
+                                className="w-full text-xs pl-7 pr-6 py-1.5 border border-slate-200 dark:border-[#18365d] rounded-lg bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-slate-400"
                             />
                             {searchTerm && (
                                 <button
@@ -11361,168 +11358,107 @@ function ScenarioComparisonView({
 
     return (
         <div className="space-y-4 w-full">
-            {/* 1. DUAL SCENARIO COMPARATOR STRIP */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs glow-card">
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5">
-                    <div className="flex items-center gap-2.5">
-                        <span className="w-8 h-8 rounded-xl bg-blue-50 text-[#005eb8] flex items-center justify-center border border-blue-100 shadow-2xs">
-                            <IconScale className="w-4 h-4 text-[#005eb8]" />
+            {/* 1 & 2. UNIFIED COMPACT SCENARIO COMPARATOR & OPERATIONAL FILTERS PANEL */}
+            <div className="bg-gradient-to-b from-blue-50/90 via-sky-50/30 to-white dark:bg-gradient-to-b dark:from-[#0f2444] dark:via-[#0c1c36] dark:to-[#08152a] p-3 sm:p-3.5 rounded-xl border-2 border-blue-400/80 dark:border-blue-500/70 shadow-lg shadow-blue-500/10 dark:shadow-[0_8px_32px_rgba(0,140,255,0.22)] ring-1 ring-blue-500/30 dark:ring-blue-400/30 relative z-30 space-y-2.5">
+                {/* Master Control Deck Accent Top Bar */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#005eb8] via-[#00a3e0] to-indigo-600 rounded-t-xl pointer-events-none"></div>
+
+                {/* Row 1: Dual Scenario Selectors with Swap */}
+                <div className="flex items-center gap-2.5 pb-2.5 border-b border-blue-200/70 dark:border-blue-900/60 w-full pt-0.5">
+                    {/* Baseline Scenario (1) */}
+                    <div className="flex-1 min-w-0 flex items-center gap-2 bg-blue-50/70 dark:bg-[#071324] border border-blue-300 dark:border-blue-600/50 rounded-lg px-2.5 py-1.5 shadow-2xs">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-[#005eb8] dark:text-[#80c6ff] flex-shrink-0 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-blue-600 ring-2 ring-blue-200 dark:ring-blue-900" />
+                            <span>Baseline Scenario (1):</span>
                         </span>
-                        <div>
-                            <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                                <span>Scenario Variance & Operational Diff</span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                    Dual Plan Comparator
-                                </span>
-                            </h3>
-                            <p className="text-[11px] text-slate-500">
-                                Compare any two capacity operating plans side-by-side with dynamic operational drill-downs
-                            </p>
-                        </div>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={handleSwapScenarios}
-                        className="text-xs font-bold text-slate-700 hover:text-blue-700 bg-slate-50 hover:bg-blue-50/80 border border-slate-300 hover:border-blue-300 px-3.5 py-1.5 rounded-xl transition flex items-center gap-2 shadow-2xs group"
-                        title="Swap Baseline and Comparison Scenarios"
-                    >
-                        <span className="text-sm group-hover:rotate-180 transition-transform duration-300">⇄</span>
-                        <span>Swap Scenarios</span>
-                    </button>
-                </div>
-
-                {/* Dual Scenario Comparator Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                    {/* Baseline Scenario (1) Card */}
-                    <div className="bg-gradient-to-b from-blue-50/40 via-white to-white border border-blue-200/80 rounded-xl p-3.5 shadow-2xs">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-[11px] font-extrabold text-[#005eb8] uppercase tracking-wider flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 rounded-full bg-blue-600 ring-2 ring-blue-200"></span>
-                                Baseline Scenario (1)
-                            </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-100/70 text-blue-800 rounded-md">
-                                Reference
-                            </span>
-                        </div>
                         <select
                             value={baselineScenarioId}
                             onChange={(e) => setBaselineScenarioId(e.target.value)}
-                            className="w-full text-xs font-bold bg-white text-slate-800 border border-slate-300 hover:border-blue-400 rounded-xl p-2.5 focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer truncate"
+                            className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded px-2 py-0.5 focus:ring-1 focus:ring-blue-500 cursor-pointer truncate"
+                            title={`Baseline Scenario (1): ${baselineScenarioId} - ${scen1.remarks || 'Operating Plan Baseline'}`}
                         >
                             {Object.keys(scenarios).map(id => (
-                                <option key={id} value={id}>{id}</option>
+                                <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
                             ))}
                         </select>
-                        <div className="mt-2 text-[11px] flex items-center gap-2 text-slate-500 bg-slate-50/80 p-2 rounded-lg border border-slate-100">
-                            <span className="font-semibold text-slate-700 flex-shrink-0">Remarks:</span>
-                            <span className="truncate italic text-slate-600" title={scen1.remarks || "Operating Plan Baseline"}>
-                                {scen1.remarks || "Operating Plan Baseline"}
-                            </span>
-                        </div>
                     </div>
 
-                    {/* Comparison Scenario (2) Card */}
-                    <div className="bg-gradient-to-b from-emerald-50/40 via-white to-white border border-emerald-200/80 rounded-xl p-3.5 shadow-2xs">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-[11px] font-extrabold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-emerald-200"></span>
-                                Comparison Scenario (2)
-                            </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-100/70 text-emerald-800 rounded-md">
-                                Target Plan
-                            </span>
-                        </div>
+                    {/* Swap Scenarios Button */}
+                    <button
+                        type="button"
+                        onClick={handleSwapScenarios}
+                        className="px-3 py-1.5 rounded-lg bg-white hover:bg-blue-50 dark:bg-[#08152a] dark:hover:bg-[#112649] text-slate-700 dark:text-[#adbed4] hover:text-[#005eb8] dark:hover:text-white border border-blue-200 dark:border-blue-700/60 transition shadow-2xs flex-shrink-0 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+                        title="Swap Baseline and Comparison Scenarios"
+                    >
+                        <span className="text-sm">⇄</span>
+                        <span>Swap Scenarios</span>
+                    </button>
+
+                    {/* Comparison Scenario (2) */}
+                    <div className="flex-1 min-w-0 flex items-center gap-2 bg-emerald-50/70 dark:bg-[#071324] border border-emerald-300 dark:border-emerald-600/50 rounded-lg px-2.5 py-1.5 shadow-2xs">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex-shrink-0 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 dark:ring-emerald-900" />
+                            <span>Comparison Scenario (2):</span>
+                        </span>
                         <select
                             value={comparisonScenarioId}
                             onChange={(e) => setComparisonScenarioId(e.target.value)}
-                            className="w-full text-xs font-bold bg-white text-slate-800 border border-slate-300 hover:border-emerald-400 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-500/20 shadow-2xs cursor-pointer truncate"
+                            className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded px-2 py-0.5 focus:ring-1 focus:ring-emerald-500 cursor-pointer truncate"
+                            title={`Comparison Scenario (2): ${comparisonScenarioId} - ${scen2.remarks || 'Secondary revision'}`}
                         >
                             {Object.keys(scenarios).map(id => (
-                                <option key={id} value={id}>{id}</option>
+                                <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
                             ))}
                         </select>
-                        <div className="mt-2 text-[11px] flex items-center gap-2 text-slate-500 bg-slate-50/80 p-2 rounded-lg border border-slate-100">
-                            <span className="font-semibold text-slate-700 flex-shrink-0">Remarks:</span>
-                            <span className="truncate italic text-slate-600" title={scen2.remarks || "Secondary revision"}>
-                                {scen2.remarks || "Secondary revision"}
-                            </span>
-                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* 2. OPERATIONAL FILTERS STRIP (GEOGRAPHY, SKILL TYPE, DATE RANGE) */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs glow-card relative z-30">
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5 pb-2.5 border-b border-slate-100">
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
-                            <IconSliders className="w-3.5 h-3.5 text-[#005eb8]" />
-                            <span>Scenario Filters & Operational Drill-Down</span>
+                {/* Row 2: 3 Compact Drill-Down Filters (Geography, Skill, Date) */}
+                <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-2.5">
+                    {/* A. Geography Hierarchy Scope Filter */}
+                    <div className="flex-1 min-w-[190px] flex items-center gap-2 relative z-50">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-[#005eb8] dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1 flex-shrink-0" title="Geography Scope">
+                            <IconGlobe className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                            <span>Geography:</span>
                         </span>
-                        <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">
-                            Live Scope
-                        </span>
+                        <div className="flex-1 min-w-0">
+                            <GeographyHierarchySelector
+                                hierarchy={hierarchy}
+                                selectedGeo={selectedGeo}
+                                onSelectGeo={setSelectedGeo}
+                                sourceFileName={selectedGeographyFile}
+                                onNavigateToInputs={onNavigateToInputs}
+                                compact={true}
+                            />
+                        </div>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={handleResetFilters}
-                        className="text-xs font-bold text-slate-500 hover:text-blue-700 hover:underline flex items-center gap-1 transition"
-                    >
-                        <span>↺</span>
-                        <span>Reset All Filters</span>
-                    </button>
-                </div>
-
-                {/* 3-Column Perfectly Aligned Filters Row (Exact 44px Control Heights) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
-                    {/* A. Geography Hierarchy Scope Filter (Hierarchical Tree Dropdown with Radio Buttons) */}
-                    <div className="relative z-50">
-                        <div className="flex items-center justify-between h-5 mb-1.5">
-                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                                <IconGlobe className="w-3.5 h-3.5 text-slate-500" />
-                                <span>Geography Scope</span>
-                            </label>
-                            <span className="text-[10px] text-blue-600 font-bold">Hierarchical Tree</span>
-                        </div>
-                        <GeographyHierarchySelector
-                            hierarchy={hierarchy}
-                            selectedGeo={selectedGeo}
-                            onSelectGeo={setSelectedGeo}
-                            sourceFileName={selectedGeographyFile}
-                            onNavigateToInputs={onNavigateToInputs}
-                        />
-                    </div>
-
-                    {/* B. Skill Type Filter (HEC, KAC, All Skills) */}
-                    <div>
-                        <div className="flex items-center justify-between h-5 mb-1.5">
-                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                                <IconBolt className="w-3.5 h-3.5 text-slate-500" />
-                                <span>Skill Type Filter</span>
-                            </label>
-                            <span className="text-[10px] text-slate-400 font-medium">Heating vs Appliance</span>
-                        </div>
-                        <div className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200 h-[44px]">
+                    {/* B. Skill Type Filter */}
+                    <div className="flex items-center gap-2 flex-shrink-0" title="Skill Type Filter">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-[#005eb8] dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
+                            <IconBolt className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                            <span>Skill:</span>
+                        </span>
+                        <div className="flex items-center bg-white/90 dark:bg-[#081324] p-0.5 rounded-lg border border-slate-200 dark:border-[#18365d] h-[32px] shadow-2xs">
                             {[
                                 { id: 'ALL', label: 'All Skills', icon: IconGlobe },
                                 { id: 'HEC', label: 'HEC Core', icon: IconBolt },
                                 { id: 'KAC', label: 'KAC Appliance', icon: IconWrench }
                             ].map(s => {
                                 const IconComp = s.icon;
+                                const isSelected = skillFilter === s.id;
                                 return (
                                     <button
                                         key={s.id}
                                         type="button"
                                         onClick={() => setSkillFilter(s.id)}
-                                        className={`flex-1 h-full text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                                            skillFilter === s.id
-                                                ? 'bg-white text-[#005eb8] shadow-xs border border-slate-200/80'
-                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                        className={`px-2.5 h-full text-[11px] font-bold rounded-md transition-all flex items-center justify-center gap-1 cursor-pointer select-none ${
+                                            isSelected
+                                                ? 'bg-[#005eb8] text-white dark:bg-[#183a6b] dark:text-[#80c6ff] shadow-xs border border-blue-600 dark:border-[#2563eb]/60'
+                                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
                                         }`}
                                     >
-                                        <IconComp className="w-3.5 h-3.5" />
+                                        <IconComp className="w-3 h-3 flex-shrink-0" />
                                         <span>{s.label}</span>
                                     </button>
                                 );
@@ -11530,168 +11466,44 @@ function ScenarioComparisonView({
                         </div>
                     </div>
 
-                    {/* C. Date Range Filter with Quick Horizon Presets */}
-                    <div>
-                        <div className="flex items-center justify-between h-5 mb-1.5">
-                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                                <IconCalendar className="w-3.5 h-3.5 text-slate-500" />
-                                <span>Date Range Filter</span>
-                            </label>
-                            <span className="text-[10px] text-slate-400 font-semibold">{visibleWeeks.length} Wks Selected</span>
+                    {/* C. Date Range Filter */}
+                    <div className="flex items-center gap-2 flex-shrink-0" title="Date Range Filter">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-[#005eb8] dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
+                            <IconCalendar className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                            <span>Date:</span>
+                        </span>
+                        <div className="flex items-center gap-1 bg-white dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-lg px-2 h-[32px] shadow-2xs">
+                            <select
+                                value={startDate}
+                                onChange={(e) => {
+                                    if (e.target.value <= endDate) setStartDate(e.target.value);
+                                }}
+                                className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
+                                title="Start Week"
+                            >
+                                {allWeeks.map(w => (
+                                    <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
+                                ))}
+                            </select>
+                            <span className="text-slate-400 text-[10px] font-bold">→</span>
+                            <select
+                                value={endDate}
+                                onChange={(e) => {
+                                    if (e.target.value >= startDate) setEndDate(e.target.value);
+                                }}
+                                className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
+                                title="End Week"
+                            >
+                                {allWeeks.map(w => (
+                                    <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
+                                ))}
+                            </select>
                         </div>
-                        <div className="flex items-center gap-2 h-[44px]">
-                            <div className="relative flex-1 h-full">
-                                <select
-                                    value={startDate}
-                                    onChange={(e) => {
-                                        if (e.target.value <= endDate) setStartDate(e.target.value);
-                                    }}
-                                    className="w-full h-full text-xs font-bold bg-white border border-slate-300 rounded-xl px-2.5 focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer truncate"
-                                    title="Start Week Commencing"
-                                >
-                                    {allWeeks.map(w => (
-                                        <option key={w} value={w}>{w}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <span className="text-slate-400 text-xs font-bold flex-shrink-0">→</span>
-                            <div className="relative flex-1 h-full">
-                                <select
-                                    value={endDate}
-                                    onChange={(e) => {
-                                        if (e.target.value >= startDate) setEndDate(e.target.value);
-                                    }}
-                                    className="w-full h-full text-xs font-bold bg-white border border-slate-300 rounded-xl px-2.5 focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer truncate"
-                                    title="End Week Commencing"
-                                >
-                                    {allWeeks.map(w => (
-                                        <option key={w} value={w}>{w}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Filter Breadcrumbs & Horizon Presets Strip */}
-                <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5 text-xs">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-extrabold text-slate-400 uppercase tracking-wider text-[10px]">Active Filters:</span>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-[#005eb8] font-bold text-xs border border-blue-200">
-                            {selectedGeo.type === 'national' ? <IconGlobe className="w-3.5 h-3.5 text-[#005eb8]" /> : <IconPin className="w-3.5 h-3.5 text-[#005eb8]" />}
-                            <span>{getScopeDisplay()}</span>
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">
-                            <span>Skill: {skillFilter === 'ALL' ? 'All Skills (HEC + KAC)' : skillFilter}</span>
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">
-                            <span>Horizon: {startDate} → {endDate} ({visibleWeeks.length} Wks)</span>
-                        </span>
-                    </div>
-
-                    {/* Quick Horizon Presets */}
-                    <div className="flex items-center gap-1 text-[11px]">
-                        <span className="text-slate-400 text-[10px] font-semibold mr-1">Presets:</span>
-                        <button
-                            type="button"
-                            onClick={() => handlePresetDates('all')}
-                            className={`px-2.5 py-1 rounded-lg font-bold border transition cursor-pointer ${
-                                startDate === allWeeks[0] && endDate === allWeeks[allWeeks.length - 1]
-                                    ? 'bg-[#005eb8] text-white border-blue-700 shadow-2xs'
-                                    : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 border-slate-200'
-                            }`}
-                        >
-                            All 8 Wks
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => handlePresetDates('first4')}
-                            className={`px-2.5 py-1 rounded-lg font-bold border transition cursor-pointer ${
-                                startDate === allWeeks[0] && endDate === allWeeks[3]
-                                    ? 'bg-[#005eb8] text-white border-blue-700 shadow-2xs'
-                                    : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 border-slate-200'
-                            }`}
-                        >
-                            First 4 Wks
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => handlePresetDates('last4')}
-                            className={`px-2.5 py-1 rounded-lg font-bold border transition cursor-pointer ${
-                                startDate === allWeeks[4] && endDate === allWeeks[allWeeks.length - 1]
-                                    ? 'bg-[#005eb8] text-white border-blue-700 shadow-2xs'
-                                    : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 border-slate-200'
-                            }`}
-                        >
-                            Second 4 Wks
-                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* 2.5 EXECUTIVE AI SCENARIO TAKEAWAYS BANNER */}
-            <div className="rounded-2xl p-4 bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-sky-50/80 border border-blue-200/90 shadow-xs glow-card relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#005eb8] via-indigo-500 to-sky-400"></div>
-                <div className="relative z-10">
-                    <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-blue-200/60">
-                        <div className="flex items-center gap-2">
-                            <span className="w-7 h-7 rounded-lg bg-blue-600/10 text-[#005eb8] border border-blue-200/80 flex items-center justify-center shadow-2xs">
-                                <IconLightbulb className="w-4 h-4 text-[#005eb8]" />
-                            </span>
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight uppercase">
-                                    Executive Strategic Takeaways & Variance Synthesis
-                                </h4>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100/70 text-[#005eb8] border border-blue-200">
-                                    AI Scenario Synthesis
-                                </span>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2 text-[11px]">
-                            <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold text-xs font-mono shadow-2xs">
-                                {totals.totDelta >= 0 ? `Net Headroom: +${totals.totDelta.toLocaleString()} hrs (+${toFte(totals.totDelta)} FTE)` : `Net Deficit: ${totals.totDelta.toLocaleString()} hrs (${toFte(totals.totDelta)} FTE)`}
-                            </span>
-                            <span className="px-2.5 py-1 rounded-full bg-white text-slate-700 border border-blue-200 font-bold text-xs shadow-2xs">
-                                Automated Scenario Intelligence
-                            </span>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 text-xs">
-                        {/* Workforce Posture */}
-                        <div className="bg-white p-3 rounded-xl border border-blue-200/80 shadow-2xs hover:shadow-xs hover:border-blue-300 transition">
-                            <div className="flex items-center gap-1.5 text-blue-700 font-extrabold text-xs mb-1">
-                                <IconScale className="w-3.5 h-3.5 text-blue-700" />
-                                <span>Workforce Posture</span>
-                            </div>
-                            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
-                                Comparison plan delivers an overall <b className="text-emerald-700 font-mono font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">+{totals.totDelta.toLocaleString()} hrs</b> (+{toFte(totals.totDelta)} FTE) buffer improvement over Baseline across the {visibleWeeks.length}-week horizon, mitigating peak surge risks.
-                            </p>
-                        </div>
 
-                        {/* Capacity Expansion Levers */}
-                        <div className="bg-white p-3 rounded-xl border border-emerald-200/80 shadow-2xs hover:shadow-xs hover:border-emerald-300 transition">
-                            <div className="flex items-center gap-1.5 text-emerald-700 font-extrabold text-xs mb-1">
-                                <IconBolt className="w-3.5 h-3.5 text-emerald-700" />
-                                <span>Capacity Expansion Levers</span>
-                            </div>
-                            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
-                                Available hours increase by <b className="text-emerald-700 font-mono font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">{totals.totC2 - totals.totC1 >= 0 ? '+' : ''}{(totals.totC2 - totals.totC1).toLocaleString()} hrs</b> ({totals.totC2 - totals.totC1 >= 0 ? '+' : ''}{toFte(totals.totC2 - totals.totC1)} FTE), driven by gross hours uplift (+472 hrs) and sickness / downtime recovery.
-                            </p>
-                        </div>
-
-                        {/* Demand Mix Rebalancing */}
-                        <div className="bg-white p-3 rounded-xl border border-purple-200/80 shadow-2xs hover:shadow-xs hover:border-purple-300 transition">
-                            <div className="flex items-center gap-1.5 text-purple-700 font-extrabold text-xs mb-1">
-                                <IconTrendingUp className="w-3.5 h-3.5 text-purple-700" />
-                                <span>Demand Mix Rebalancing</span>
-                            </div>
-                            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
-                                Total demand adjusts by <b className="text-blue-700 font-mono font-bold bg-blue-50 px-1 py-0.2 rounded border border-blue-200">{totals.totD2 - totals.totD1 >= 0 ? '+' : ''}{(totals.totD2 - totals.totD1).toLocaleString()} hrs</b> ({toFte(totals.totD2 - totals.totD1)} FTE) through HEC Upgrade acceleration (+435 hrs) and reduced HEC repair backlog (-615 hrs).
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             {/* 3. EXECUTIVE KPI METRIC CARDS HEADER WITH HOURS <-> FTE TOGGLE */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
