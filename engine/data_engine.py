@@ -715,12 +715,9 @@ class CapacityDataEngine:
         Queries Databricks Unity Catalog when compute is running, else reads local storage.
         """
         df = self.load_table(input_key, file_version=filename)
-        display_df = df.copy()
-
         # Clean nulls for JSON serialization
-        display_df = display_df.where(pd.notnull(display_df), None)
-        columns = [str(c) for c in display_df.columns]
-        rows = display_df.to_dict(orient="records")
+        from data_manager import sanitize_dataframe_for_json
+        columns, rows = sanitize_dataframe_for_json(df)
 
         table_name = self.get_table_name(input_key)
         full_path = f"{self.catalog}.{self.schema}.{table_name}"

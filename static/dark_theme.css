@@ -1463,3 +1463,118 @@ html.dark .av-formula-cards code {
 html.dark .av-formula-cards p {
     color: #adbed4 !important;
 }
+
+/* ================================================================================================
+   15. SCENARIO DIFF & VARIANCE TAB (LIGHT & DARK THEME ENHANCEMENTS)
+   ================================================================================================ */
+/* Filter container dark styling */
+html.dark .diff-filter-card {
+    background-color: #06101f !important;
+    background-image: radial-gradient(ellipse at 85% 0%, rgba(37, 99, 235, 0.22) 0%, transparent 55%), linear-gradient(135deg, #09172d 0%, #060e1c 100%) !important;
+    border: 2px solid #1e40af !important;
+    box-shadow: 0 0 24px rgba(30, 64, 175, 0.25) !important;
+}
+
+/* KPI Scorecard 4-cards dark styling */
+html.dark .diff-kpi-card-net {
+    background-color: #041a14 !important;
+    background-image: radial-gradient(ellipse at 85% 90%, rgba(16, 185, 129, 0.22) 0%, transparent 60%), linear-gradient(145deg, #07261e 0%, #03140f 100%) !important;
+    border: 1px solid #10b981 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.22) !important;
+}
+
+html.dark .diff-kpi-card-demand {
+    background-color: #06152b !important;
+    background-image: radial-gradient(ellipse at 85% 90%, rgba(37, 99, 235, 0.22) 0%, transparent 60%), linear-gradient(145deg, #09203e 0%, #041124 100%) !important;
+    border: 1px solid #2563eb !important;
+    border-radius: 12px !important;
+    box-shadow: 0 0 16px rgba(37, 99, 235, 0.22) !important;
+}
+
+html.dark .diff-kpi-card-capacity {
+    background-color: #120c2a !important;
+    background-image: radial-gradient(ellipse at 85% 90%, rgba(124, 58, 237, 0.22) 0%, transparent 60%), linear-gradient(145deg, #1b123d 0%, #0d0820 100%) !important;
+    border: 1px solid #7c3aed !important;
+    border-radius: 12px !important;
+    box-shadow: 0 0 16px rgba(124, 58, 237, 0.22) !important;
+}
+
+html.dark .diff-kpi-card-scope {
+    background-color: #1c1103 !important;
+    background-image: radial-gradient(ellipse at 85% 90%, rgba(217, 119, 6, 0.22) 0%, transparent 60%), linear-gradient(145deg, #281805 0%, #120b02 100%) !important;
+    border: 1px solid #d97706 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 0 16px rgba(217, 119, 6, 0.22) !important;
+}
+
+/* KPI Scorecard 4-cards base transition */
+.diff-kpi-card-net,
+.diff-kpi-card-demand,
+.diff-kpi-card-capacity,
+.diff-kpi-card-scope {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Light mode card hover highlights */
+.diff-kpi-card-net:hover {
+    border-color: #10b981 !important;
+    box-shadow: 0 10px 26px -2px rgba(16, 185, 129, 0.25), 0 4px 12px -2px rgba(0, 0, 0, 0.05) !important;
+    transform: translateY(-2px);
+}
+
+.diff-kpi-card-demand:hover {
+    border-color: #2563eb !important;
+    box-shadow: 0 10px 26px -2px rgba(37, 99, 235, 0.25), 0 4px 12px -2px rgba(0, 0, 0, 0.05) !important;
+    transform: translateY(-2px);
+}
+
+.diff-kpi-card-capacity:hover {
+    border-color: #7c3aed !important;
+    box-shadow: 0 10px 26px -2px rgba(124, 58, 237, 0.25), 0 4px 12px -2px rgba(0, 0, 0, 0.05) !important;
+    transform: translateY(-2px);
+}
+
+.diff-kpi-card-scope:hover {
+    border-color: #d97706 !important;
+    box-shadow: 0 10px 26px -2px rgba(217, 119, 6, 0.25), 0 4px 12px -2px rgba(0, 0, 0, 0.05) !important;
+    transform: translateY(-2px);
+}
+
+/* Dark mode card hover glowing highlights */
+html.dark .diff-kpi-card-net:hover {
+    border-color: #34d399 !important;
+    box-shadow: 0 0 32px rgba(16, 185, 129, 0.45), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+html.dark .diff-kpi-card-demand:hover {
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 32px rgba(37, 99, 235, 0.45), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+html.dark .diff-kpi-card-capacity:hover {
+    border-color: #c084fc !important;
+    box-shadow: 0 0 32px rgba(124, 58, 237, 0.45), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+html.dark .diff-kpi-card-scope:hover {
+    border-color: #fbbf24 !important;
+    box-shadow: 0 0 32px rgba(217, 119, 6, 0.45), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+/* Waterfall card dark surfaces */
+html.dark .diff-waterfall-card {
+    background-color: #071324 !important;
+    background-image: linear-gradient(135deg, #0c1c33 0%, #06101d 100%) !important;
+    border: 1px solid #18365d !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Suppress unstyled PyShiny default notification panel in Modern React UI */
+#shiny-notification-panel {
+    display: none !important;
+}

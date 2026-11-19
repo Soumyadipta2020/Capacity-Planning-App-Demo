@@ -14,6 +14,7 @@ from cluster_manager import register_cluster_handlers
 from config import EnvironmentConfig
 from data_manager import (
     ScenarioManager,
+    clean_for_json,
     export_scenario_to_powerbi,
     get_calculation_module_data,
     load_input_table_data,
@@ -81,6 +82,19 @@ def create_classic_ui():
                 ui.tags.link(rel="icon", type="image/x-icon", href="favicon.ico"),
                 ui.tags.link(rel="shortcut icon", href="favicon.ico"),
                 ui.tags.link(rel="apple-touch-icon", href="favicon.png"),
+                ui.tags.script("""
+                    (function() {
+                        var origParse = JSON.parse;
+                        JSON.parse = function(text, reviver) {
+                            if (typeof text === 'string' && (text.indexOf('NaN') !== -1 || text.indexOf('Infinity') !== -1)) {
+                                text = text.replace(/:\\s*NaN\\b/g, ': null')
+                                           .replace(/:\\s*-Infinity\\b/g, ': null')
+                                           .replace(/:\\s*Infinity\\b/g, ': null');
+                            }
+                            return origParse.call(this, text, reviver);
+                        };
+                    })();
+                """),
                 ui.tags.script("""
                     $(document).on('hidden.bs.modal hide.bs.modal', function () {
                         setTimeout(function() {
@@ -242,7 +256,7 @@ def server(input, output, session):
         if request_id is not None:
             result["requestId"] = request_id
             
-        await session.send_custom_message("response_input_file_data", result)
+        await session.send_custom_message("response_input_file_data", clean_for_json(result))
 
     # Handle Input File Table Data Save from React UI
     @reactive.effect
@@ -262,7 +276,7 @@ def server(input, output, session):
         if request_id is not None:
             result["requestId"] = request_id
             
-        await session.send_custom_message("response_save_input_file_data", result)
+        await session.send_custom_message("response_save_input_file_data", clean_for_json(result))
         if result.get("success"):
             await session.send_custom_message("show_toast", {
                 "message": f"Saved changes to '{file_name}' ({len(rows)} rows)!",
@@ -289,7 +303,7 @@ def server(input, output, session):
         if request_id is not None:
             result["requestId"] = request_id
             
-        await session.send_custom_message("response_calc_module_data", result)
+        await session.send_custom_message("response_calc_module_data", clean_for_json(result))
 
     # Handle Scenario Export to Power BI (Private / Public with custom name of choice)
     @reactive.effect

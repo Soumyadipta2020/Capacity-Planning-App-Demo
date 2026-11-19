@@ -8,10 +8,58 @@ import random
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
+import math
+import numpy as np
 import pandas as pd
 
 from config import EnvironmentConfig
+
+def clean_for_json(obj: Any) -> Any:
+    """
+    Recursively sanitizes Python objects (dicts, lists, scalars) for standard JSON serialization.
+    Replaces any float NaN, Inf, -Inf, pd.NA, or pd.NaT values with None (which serialize as 'null'),
+    strictly preventing invalid non-standard 'NaN' tokens from appearing in JSON output.
+    """
+    if isinstance(obj, dict):
+        return {k: clean_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [clean_for_json(x) for x in obj]
+    elif isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return None
+        return obj
+    elif pd.isna(obj):
+        return None
+    return obj
+
+def sanitize_dataframe_for_json(df: pd.DataFrame) -> Tuple[List[str], List[Dict[str, Any]]]:
+    """
+    Converts a pandas DataFrame into strictly JSON-compliant columns and rows.
+    Guarantees that all NaN, NaT, Inf, -Inf, and pd.NA values are converted to None,
+    preventing non-standard 'NaN' tokens from being emitted in JSON strings which crash JSON.parse() on client.
+    """
+    if df is None or not isinstance(df, pd.DataFrame) or df.empty:
+        return (list(df.columns) if isinstance(df, pd.DataFrame) else []), []
+
+    columns = [str(c) for c in df.columns]
+    raw_rows = df.to_dict(orient="records")
+    clean_rows = []
+    for r in raw_rows:
+        clean_row = {}
+        for col in columns:
+            v = r.get(col)
+            if v is None:
+                clean_row[col] = None
+            elif pd.isna(v):
+                clean_row[col] = None
+            elif isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+                clean_row[col] = None
+            else:
+                clean_row[col] = v
+        clean_rows.append(clean_row)
+        
+    return columns, clean_rows
 
 # Common UK Patches and Skills from Centrica / British Gas Capacity Planning
 PATCHES = [
@@ -879,9 +927,7 @@ def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
             df = pd.read_csv(target_path)
             
         # Clean null/NaN values for JSON serialization
-        df = df.where(pd.notnull(df), None)
-        columns = [str(c) for c in df.columns]
-        rows = df.to_dict(orient="records")
+        columns, rows = sanitize_dataframe_for_json(df)
         
         return {
             "success": True,
@@ -980,9 +1026,7 @@ def save_input_table_data(
             print(f"[Databricks] Unity Catalog save warning for '{input_key}': {db_err}")
 
         # Clean null/NaN values for JSON serialization
-        df_clean = df.where(pd.notnull(df), None)
-        out_cols = [str(c) for c in df_clean.columns]
-        out_rows = df_clean.to_dict(orient="records")
+        out_cols, out_rows = sanitize_dataframe_for_json(df)
 
         return {
             "success": True,
@@ -1185,9 +1229,7 @@ def get_calculation_module_data(module_key: str) -> Dict[str, Any]:
         else:
             df = _generate_imbalance_calc_df()
             
-        df = df.where(pd.notnull(df), None)
-        columns = [str(c) for c in df.columns]
-        rows = df.to_dict(orient="records")
+        columns, rows = sanitize_dataframe_for_json(df)
         
         return {
             "success": True,

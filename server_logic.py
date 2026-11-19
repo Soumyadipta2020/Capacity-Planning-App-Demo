@@ -3,6 +3,7 @@ Server Logic Module
 Contains all reactive outputs, event handlers, and data bindings for the Capacity Planning App.
 """
 
+import os
 import json
 from datetime import datetime
 
@@ -90,7 +91,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
                 
                 rows = tbl.get("rows", [])
                 cols = tbl.get("columns", [])
-                df = pd.DataFrame(rows)
+                df = pd.DataFrame(rows).fillna("")
                 
                 ui.modal_show(
                     ui.modal(
@@ -116,60 +117,121 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
             @reactive.effect
             @reactive.event(input[btn_del_key])
             def _on_delete():
+                del_event = None
                 try:
-                    curr = input[key]()
+                    del_event = input[btn_del_key]()
                 except Exception:
-                    curr = None
+                    pass
+
+                curr = None
+                if isinstance(del_event, dict) and del_event.get("target"):
+                    curr = del_event.get("target")
+                else:
+                    try:
+                        curr = input[key]()
+                    except Exception:
+                        curr = None
+
                 if not curr:
                     return
 
+                # Retrieve current choices from state, merging with DEFAULT_INPUT_OPTIONS to ensure uploaded files exist
                 choices = list(input_choices_state[key].get())
+                for opt in DEFAULT_INPUT_OPTIONS.get(key, []):
+                    if opt not in choices:
+                        choices.append(opt)
+
+                if curr not in choices:
+                    choices.append(curr)
+
                 if len(choices) <= 1:
-                    ui.notification_show(
-                        f"Cannot delete '{curr}'. At least one file version must remain for {lbl}.",
-                        type="warning"
-                    )
+                    if os.environ.get("CAPACITY_UI_MODE", "modern").lower() == "classic":
+                        ui.notification_show(
+                            f"Cannot delete '{curr}'. At least one file version must remain for {lbl}.",
+                            type="warning"
+                        )
                     return
 
                 # Record in deleted history for Undo
                 hist = list(input_deleted_history[key].get())
-                hist.append(curr)
+                if curr not in hist:
+                    hist.append(curr)
                 input_deleted_history[key].set(hist)
 
-                # Remove from current choices
-                choices.remove(curr)
+                # Remove from current choices safely without throwing ValueError
+                if curr in choices:
+                    choices.remove(curr)
                 input_choices_state[key].set(choices)
-                new_sel = choices[0]
-                ui.update_select(key, choices=choices, selected=new_sel)
-                ui.notification_show(
-                    f"Deleted '{curr}' from {lbl}. Click Undo to restore.",
-                    type="message"
-                )
+
+                # Also remove from DEFAULT_INPUT_OPTIONS if present
+                if key in DEFAULT_INPUT_OPTIONS and curr in DEFAULT_INPUT_OPTIONS[key]:
+                    try:
+                        DEFAULT_INPUT_OPTIONS[key].remove(curr)
+                    except Exception:
+                        pass
+
+                new_sel = choices[0] if choices else ""
+                if isinstance(del_event, dict) and del_event.get("newSel") in choices:
+                    new_sel = del_event.get("newSel")
+
+                try:
+                    ui.update_select(key, choices=choices, selected=new_sel)
+                except Exception:
+                    pass
+
+                if os.environ.get("CAPACITY_UI_MODE", "modern").lower() == "classic":
+                    ui.notification_show(
+                        f"Deleted '{curr}' from {lbl}. Click Undo to restore.",
+                        type="message"
+                    )
 
             # Undo handler for this specific input
             @reactive.effect
             @reactive.event(input[btn_undo_key])
             def _on_undo():
+                undo_event = None
+                try:
+                    undo_event = input[btn_undo_key]()
+                except Exception:
+                    pass
+
                 hist = list(input_deleted_history[key].get())
-                if not hist:
-                    ui.notification_show(
-                        f"No deleted versions to restore for {lbl}.",
-                        type="warning"
-                    )
+                restored = None
+                if isinstance(undo_event, dict) and undo_event.get("restored"):
+                    restored = undo_event.get("restored")
+                    if restored in hist:
+                        hist.remove(restored)
+                elif hist:
+                    restored = hist.pop()
+
+                if not restored:
+                    if os.environ.get("CAPACITY_UI_MODE", "modern").lower() == "classic":
+                        ui.notification_show(
+                            f"No deleted versions to restore for {lbl}.",
+                            type="warning"
+                        )
                     return
 
-                restored = hist.pop()
                 input_deleted_history[key].set(hist)
 
                 choices = list(input_choices_state[key].get())
                 if restored not in choices:
                     choices.insert(0, restored)
                 input_choices_state[key].set(choices)
-                ui.update_select(key, choices=choices, selected=restored)
-                ui.notification_show(
-                    f"Restored version '{restored}' for {lbl}.",
-                    type="message"
-                )
+
+                if key in DEFAULT_INPUT_OPTIONS and restored not in DEFAULT_INPUT_OPTIONS[key]:
+                    DEFAULT_INPUT_OPTIONS[key].insert(0, restored)
+
+                try:
+                    ui.update_select(key, choices=choices, selected=restored)
+                except Exception:
+                    pass
+
+                if os.environ.get("CAPACITY_UI_MODE", "modern").lower() == "classic":
+                    ui.notification_show(
+                        f"Restored version '{restored}' for {lbl}.",
+                        type="message"
+                    )
 
             # Dynamic Remarks output for this specific input
             @output(id=remarks_key)
@@ -187,6 +249,32 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
                 )
 
         attach_input_handlers(input_key, label)
+
+    # Synchronize newly uploaded files from React UI to input_choices_state
+    @reactive.effect
+    @reactive.event(input.bulk_upload_event)
+    def _sync_uploaded_files_to_choices():
+        try:
+            data = input.bulk_upload_event()
+        except Exception:
+            data = None
+        if not data or not isinstance(data, dict):
+            return
+        files = data.get("files", [])
+        for f in files:
+            f_type = f.get("type")
+            f_name = f.get("name")
+            if f_type and f_name and f_type in input_choices_state:
+                import re
+                clean_name = re.sub(r'\.(csv|xlsx|xls)$', '', f_name, flags=re.IGNORECASE)
+                curr_list = list(input_choices_state[f_type].get())
+                if clean_name not in curr_list:
+                    curr_list.insert(0, clean_name)
+                    input_choices_state[f_type].set(curr_list)
+                    try:
+                        ui.update_select(f_type, choices=curr_list, selected=clean_name)
+                    except Exception:
+                        pass
 
     # -------------------------------------------------------------------------
     # 1. HOME TAB: SCENARIO ACTIONS & BULK UPLOAD

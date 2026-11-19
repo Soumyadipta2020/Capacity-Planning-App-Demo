@@ -455,6 +455,56 @@ function IconChevronDown({ className = "w-3.5 h-3.5" }) {
     );
 }
 
+function IconFilter({ className = "w-3.5 h-3.5" }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+        </svg>
+    );
+}
+
+function IconInfo({ className = "w-3.5 h-3.5" }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+    );
+}
+
+function IconTrophy({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+            <path d="M4 22h16" />
+            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+        </svg>
+    );
+}
+
+function IconArrowsSwap({ className = "w-3.5 h-3.5" }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m16 3 4 4-4 4" />
+            <path d="M20 7H4" />
+            <path d="m8 21-4-4 4-4" />
+            <path d="M4 17h16" />
+        </svg>
+    );
+}
+
+function IconExpand({ className = "w-3.5 h-3.5" }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+        </svg>
+    );
+}
+
 // ================================================================================================
 // TIMESTAMP PARSING & SORTING HELPER
 // ================================================================================================
@@ -872,7 +922,8 @@ function ModernCapacityApp() {
         showToast(`Deleted '${curr}' from ${label}. Click Undo to restore.`, 'info');
 
         if (window.Shiny && window.Shiny.setInputValue) {
-            window.Shiny.setInputValue(`btn_del_${key}`, Math.random(), { priority: 'event' });
+            window.Shiny.setInputValue(key, newSel, { priority: 'event' });
+            window.Shiny.setInputValue(`btn_del_${key}`, { target: curr, newSel: newSel, timestamp: Date.now() }, { priority: 'event' });
         }
     };
 
@@ -896,7 +947,8 @@ function ModernCapacityApp() {
         showToast(`Restored version '${restored}' for ${label}.`, 'success');
 
         if (window.Shiny && window.Shiny.setInputValue) {
-            window.Shiny.setInputValue(`btn_undo_${key}`, Math.random(), { priority: 'event' });
+            window.Shiny.setInputValue(key, restored, { priority: 'event' });
+            window.Shiny.setInputValue(`btn_undo_${key}`, { restored: restored, timestamp: Date.now() }, { priority: 'event' });
         }
     };
 
@@ -943,6 +995,9 @@ function ModernCapacityApp() {
             const next = { ...prev };
             stampedFiles.forEach(pf => {
                 next[pf.fileType] = pf.stampedName;
+                if (window.Shiny && window.Shiny.setInputValue) {
+                    window.Shiny.setInputValue(pf.fileType, pf.stampedName, { priority: 'event' });
+                }
             });
             return next;
         });
@@ -1054,14 +1109,29 @@ function ModernCapacityApp() {
         <div className={`flex h-screen w-full font-sans overflow-hidden antialiased transition-colors duration-300 ${
             isDarkMode ? 'bg-[#070e1c] text-[#adbed4]' : 'bg-[#fcfdfd] text-slate-800'
         }`}>
-            {/* FLOATING TOAST */}
+            {/* FLOATING TOAST (BOTTOM-CENTER POSITIONED) */}
             {toast && (
-                <div className={`fixed bottom-20 right-8 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl text-xs font-semibold border backdrop-blur-md animate-slide-up ${
-                    toast.type === 'success' ? 'bg-[#005eb8] text-white border-blue-500' :
-                    toast.type === 'warning' ? 'bg-amber-500 text-white border-amber-400' :
-                    'bg-[#081224] text-white border-[#18365d]'
-                }`}>
-                    <span>{toast.message}</span>
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] pointer-events-auto">
+                    <div className={`flex items-center gap-2.5 px-4 py-2.5 rounded-full shadow-2xl text-xs font-bold border backdrop-blur-md transition-all duration-200 animate-slide-up ${
+                        toast.type === 'success' ? 'bg-[#005eb8]/95 text-white border-blue-400 shadow-blue-500/25' :
+                        toast.type === 'warning' ? 'bg-amber-600/95 text-white border-amber-400 shadow-amber-500/25' :
+                        toast.type === 'error' ? 'bg-rose-600/95 text-white border-rose-400 shadow-rose-500/25' :
+                        'bg-[#081528]/95 text-white border-[#1d3d6e] shadow-black/40'
+                    }`}>
+                        {toast.type === 'success' && <IconCheck className="w-4 h-4 text-emerald-300 flex-shrink-0" />}
+                        {toast.type === 'warning' && <IconAlertCircle className="w-4 h-4 text-amber-200 flex-shrink-0" />}
+                        {toast.type === 'error' && <IconAlertCircle className="w-4 h-4 text-rose-200 flex-shrink-0" />}
+                        {(!toast.type || toast.type === 'info') && <IconInfo className="w-4 h-4 text-sky-300 flex-shrink-0" />}
+                        <span className="tracking-tight whitespace-nowrap">{toast.message}</span>
+                        <button
+                            type="button"
+                            onClick={() => setToast(null)}
+                            className="ml-2 text-white/70 hover:text-white transition cursor-pointer text-xs font-bold leading-none p-0.5 rounded hover:bg-white/10"
+                            title="Dismiss"
+                        >
+                            ✕
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -1532,6 +1602,8 @@ function ModernCapacityApp() {
                             selectedGeographyFile={inputsState['geography_mapping']}
                             geographyDatasets={geographyDatasets}
                             onNavigateToInputs={() => setActiveTab('inputs')}
+                            isDarkMode={isDarkMode}
+                            showToast={showToast}
                         />
                     )}
 
@@ -6667,18 +6739,53 @@ function InputTableViewModal({
                             {/* Dropdown to switch file versions directly in the floating window */}
                             <div className="flex items-center gap-2 mt-1">
                                 <span className="text-[11px] font-semibold text-slate-500 flex-shrink-0">Selected File:</span>
-                                {availableChoices && availableChoices.length > 0 ? (
-                                    <select
-                                        value={fileName}
-                                        onChange={(e) => handleRequestSelectChoice(e.target.value)}
-                                        className="text-xs font-mono font-bold text-[#005eb8] dark:text-[#80c6ff] bg-white dark:bg-[#081324] border border-blue-200 dark:border-[#18365d] rounded-md px-2 py-0.5 shadow-2xs max-w-[280px] sm:max-w-[420px] truncate cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        title={`Switch version: currently viewing ${fileName}`}
-                                    >
-                                        {availableChoices.map(c => (
-                                            <option key={c} value={c}>{c}</option>
-                                        ))}
-                                    </select>
-                                ) : (
+                                {availableChoices && availableChoices.length > 0 ? (() => {
+                                    const isViewingML = fileName && typeof fileName === 'string' && (fileName.toLowerCase().includes('ml_forecast') || fileName.toLowerCase().includes('ml_'));
+                                    const userChoices = availableChoices.filter(c => !(c && typeof c === 'string' && (c.toLowerCase().includes('ml_forecast') || c.toLowerCase().includes('ml_'))));
+                                    const mlChoices = availableChoices.filter(c => c && typeof c === 'string' && (c.toLowerCase().includes('ml_forecast') || c.toLowerCase().includes('ml_')));
+                                    return (
+                                        <select
+                                            value={fileName}
+                                            onChange={(e) => handleRequestSelectChoice(e.target.value)}
+                                            className="text-xs font-mono font-bold text-[#005eb8] dark:text-[#80c6ff] bg-white dark:bg-[#081324] border border-blue-200 dark:border-[#18365d] rounded-md px-2 py-0.5 shadow-2xs max-w-[280px] sm:max-w-[420px] truncate cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            title={`Switch version: currently viewing ${fileName}`}
+                                        >
+                                            {isViewingML ? (
+                                                <>
+                                                    {mlChoices.length > 0 && (
+                                                        <optgroup label="ML Model Forecasts">
+                                                            {mlChoices.map(c => (
+                                                                <option key={c} value={c}>{c}</option>
+                                                            ))}
+                                                        </optgroup>
+                                                    )}
+                                                    {userChoices.length > 0 && (
+                                                        <optgroup label="User Uploaded & Governance Files">
+                                                            {userChoices.map(c => (
+                                                                <option key={c} value={c}>{c}</option>
+                                                            ))}
+                                                        </optgroup>
+                                                    )}
+                                                    {mlChoices.length === 0 && userChoices.length === 0 && (
+                                                        availableChoices.map(c => (
+                                                            <option key={c} value={c}>{c}</option>
+                                                        ))
+                                                    )}
+                                                </>
+                                            ) : (
+                                                userChoices.length > 0 ? (
+                                                    userChoices.map(c => (
+                                                        <option key={c} value={c}>{c}</option>
+                                                    ))
+                                                ) : (
+                                                    availableChoices.map(c => (
+                                                        <option key={c} value={c}>{c}</option>
+                                                    ))
+                                                )
+                                            )}
+                                        </select>
+                                    );
+                                })() : (
                                     <span className="font-mono text-xs font-bold text-[#005eb8] truncate">
                                         {fileName}
                                     </span>
@@ -9533,7 +9640,9 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                         </div>
                     </div>
 
-                    <span className="text-[10px] text-slate-400 font-mono hidden xs:inline">{sortedChoices.length} ver</span>
+                    <span className="text-[10px] text-slate-400 font-mono hidden xs:inline">
+                        {isMLActive ? sortedChoices.length : userChoices.length} ver
+                    </span>
                 </div>
             </div>
 
@@ -9549,24 +9658,38 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                                 : 'bg-slate-50 text-slate-800 border-slate-200'
                         }`}
                     >
-                        {mlChoices.length > 0 && (
-                            <optgroup label="ML Model Forecasts">
-                                {mlChoices.map(c => (
+                        {isMLActive ? (
+                            <>
+                                {mlChoices.length > 0 && (
+                                    <optgroup label="ML Model Forecasts">
+                                        {mlChoices.map(c => (
+                                            <option key={c} value={c} title={c}>{c}</option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {userChoices.length > 0 && (
+                                    <optgroup label="User Uploaded & Governance Files">
+                                        {userChoices.map(c => (
+                                            <option key={c} value={c} title={c}>{c}</option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {mlChoices.length === 0 && userChoices.length === 0 && (
+                                    sortedChoices.map(c => (
+                                        <option key={c} value={c} title={c}>{c}</option>
+                                    ))
+                                )}
+                            </>
+                        ) : (
+                            userChoices.length > 0 ? (
+                                userChoices.map(c => (
                                     <option key={c} value={c} title={c}>{c}</option>
-                                ))}
-                            </optgroup>
-                        )}
-                        {userChoices.length > 0 && (
-                            <optgroup label="User Uploaded & Governance Files">
-                                {userChoices.map(c => (
+                                ))
+                            ) : (
+                                sortedChoices.map(c => (
                                     <option key={c} value={c} title={c}>{c}</option>
-                                ))}
-                            </optgroup>
-                        )}
-                        {mlChoices.length === 0 && userChoices.length === 0 && (
-                            sortedChoices.map(c => (
-                                <option key={c} value={c} title={c}>{c}</option>
-                            ))
+                                ))
+                            )
                         )}
                     </select>
                 </div>
@@ -10039,147 +10162,154 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
 // ------------------------------------------------------------------------------------------------
 // 3.5 SCENARIO VARIANCE WATERFALL MODELS (CAPACITY & DEMAND BRIDGES)
 // ------------------------------------------------------------------------------------------------
+function WaveBackground({ strokeColor, fillColor, id = "wave-grad" }) {
+    return (
+        <svg
+            className="absolute right-0 bottom-0 w-[38%] max-w-[140px] h-[65%] pointer-events-none select-none overflow-hidden"
+            viewBox="0 0 200 80"
+            preserveAspectRatio="none"
+        >
+            <defs>
+                {/* Horizontal Fade Mask so the wave smoothly dissolves/mixes with card background at left */}
+                <linearGradient id={`${id}-mask-grad`} x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#fff" stopOpacity="0" />
+                    <stop offset="30%" stopColor="#fff" stopOpacity="0.35" />
+                    <stop offset="70%" stopColor="#fff" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="#fff" stopOpacity="1" />
+                </linearGradient>
+                <mask id={`${id}-fade-mask`} maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="80">
+                    <rect x="0" y="0" width="200" height="80" fill={`url(#${id}-mask-grad)`} />
+                </mask>
+
+                {/* Soft translucent vertical fill gradient */}
+                <linearGradient id={`${id}-vfill`} x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor={fillColor} stopOpacity="0.20" />
+                    <stop offset="65%" stopColor={fillColor} stopOpacity="0.05" />
+                    <stop offset="100%" stopColor={fillColor} stopOpacity="0.0" />
+                </linearGradient>
+            </defs>
+
+            <g mask={`url(#${id}-fade-mask)`}>
+                {/* Area Fill */}
+                <path
+                    d="M 0,62 C 18,60 32,46 45,46 C 58,46 68,58 80,58 C 98,58 114,28 130,28 C 146,28 154,52 165,52 C 178,52 190,36 200,36 L 200,80 L 0,80 Z"
+                    fill={`url(#${id}-vfill)`}
+                />
+                {/* Sleek Line Stroke */}
+                <path
+                    d="M 0,62 C 18,60 32,46 45,46 C 58,46 68,58 80,58 C 98,58 114,28 130,28 C 146,28 154,52 165,52 C 178,52 190,36 200,36"
+                    fill="none"
+                    stroke={strokeColor}
+                    strokeWidth="2.25"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity="0.9"
+                />
+            </g>
+        </svg>
+    );
+}
+
 function computeCapacityWaterfall(totC1, totC2) {
-    // Formula: Available Hours = Gross Hours - (Sickness + Holiday + Training + Meeting + Others Downtimes)
-    // Downtimes: sickness, holiday, training, meeting, others downtimes
-    const gross1 = Math.round(totC1 * 1.25);
-    const sickness1 = Math.round(gross1 * 0.048);
-    const holiday1 = Math.round(gross1 * 0.092);
-    const training1 = Math.round(gross1 * 0.034);
-    const meeting1 = Math.round(gross1 * 0.022);
-    const others1 = gross1 - totC1 - (sickness1 + holiday1 + training1 + meeting1);
-
-    const gross2 = Math.round(totC2 * 1.242);
-    const sickness2 = Math.round(gross2 * 0.045);
-    const holiday2 = Math.round(gross2 * 0.090);
-    const training2 = Math.round(gross2 * 0.032);
-    const meeting2 = Math.round(gross2 * 0.021);
-    const others2 = gross2 - totC2 - (sickness2 + holiday2 + training2 + meeting2);
-
-    const dGross = gross2 - gross1;
-    // For downtimes: Available = Gross - Downtimes
-    // An increase in downtime reduces available hours; a decrease in downtime adds available hours
-    const impactGross = dGross;
-    const impactSickness = sickness1 - sickness2;
-    const impactHoliday = holiday1 - holiday2;
-    const impactTraining = training1 - training2;
-    const impactMeeting = meeting1 - meeting2;
-    const impactOthers = others1 - others2;
+    // Capacity Waterfall (Available Hours Bridge)
+    // Shows how different factors impact available capacity versus demand
+    // Columns: Base Capacity, + Productivity, + Overtime, + RDS, + Other, = Available Capacity
+    const baseC = Math.round(totC2 * (38240 / 37860));
+    const prod = Math.round(totC2 * (472 / 37860));
+    const ot = Math.round(totC2 * (118 / 37860));
+    const rds = Math.round(totC2 * (78 / 37860));
+    const other = Math.round(totC2 * (37 / 37860));
+    const availC = totC2;
 
     const steps = [
         {
-            key: 'baseline_avail',
-            label: 'Baseline Available Hours',
-            shortLabel: 'Baseline Avail',
-            line1: 'Baseline',
-            line2: 'Avail',
+            key: 'base_capacity',
+            label: 'Base Capacity',
+            shortLabel: 'Base Cap',
+            line1: 'Base Capacity',
+            line2: '',
             type: 'total',
-            val: totC1,
-            color: '#005eb8',
-            rawVal1: totC1,
-            rawVal2: totC1,
+            val: baseC,
+            color: '#0066cc',
+            darkColor: '#2563eb',
+            rawVal1: baseC,
+            rawVal2: baseC,
             diff: 0
         },
         {
-            key: 'gross_hours',
-            label: 'Gross Hours',
-            shortLabel: 'Gross Hours',
-            line1: 'Gross',
-            line2: 'Hours',
+            key: 'productivity',
+            label: '+ Productivity',
+            shortLabel: '+ Productivity',
+            line1: '+ Productivity',
+            line2: '',
             type: 'delta',
-            impact: impactGross,
-            color: impactGross >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: gross1,
-            rawVal2: gross2,
-            diff: dGross,
-            isDowntime: false
+            impact: prod,
+            color: '#10b981',
+            darkColor: '#22c55e',
+            rawVal1: 0,
+            rawVal2: prod,
+            diff: prod
         },
         {
-            key: 'sickness',
-            label: 'Sickness Downtime',
-            shortLabel: 'Sickness',
-            line1: 'Sickness',
-            line2: 'Downtime',
+            key: 'overtime',
+            label: '+ Overtime',
+            shortLabel: '+ Overtime',
+            line1: '+ Overtime',
+            line2: '',
             type: 'delta',
-            impact: impactSickness,
-            color: impactSickness >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: sickness1,
-            rawVal2: sickness2,
-            diff: sickness2 - sickness1,
-            isDowntime: true
+            impact: ot,
+            color: '#10b981',
+            darkColor: '#22c55e',
+            rawVal1: 0,
+            rawVal2: ot,
+            diff: ot
         },
         {
-            key: 'holiday',
-            label: 'Holiday Downtime',
-            shortLabel: 'Holiday',
-            line1: 'Holiday',
-            line2: 'Downtime',
+            key: 'rds',
+            label: '+ RDS',
+            shortLabel: '+ RDS',
+            line1: '+ RDS',
+            line2: '',
             type: 'delta',
-            impact: impactHoliday,
-            color: impactHoliday >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: holiday1,
-            rawVal2: holiday2,
-            diff: holiday2 - holiday1,
-            isDowntime: true
+            impact: rds,
+            color: '#10b981',
+            darkColor: '#22c55e',
+            rawVal1: 0,
+            rawVal2: rds,
+            diff: rds
         },
         {
-            key: 'training',
-            label: 'Training Downtime',
-            shortLabel: 'Training',
-            line1: 'Training',
-            line2: 'Downtime',
+            key: 'other_capacity',
+            label: '+ Other',
+            shortLabel: '+ Other',
+            line1: '+ Other',
+            line2: '',
             type: 'delta',
-            impact: impactTraining,
-            color: impactTraining >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: training1,
-            rawVal2: training2,
-            diff: training2 - training1,
-            isDowntime: true
+            impact: other,
+            color: '#10b981',
+            darkColor: '#22c55e',
+            rawVal1: 0,
+            rawVal2: other,
+            diff: other
         },
         {
-            key: 'meeting',
-            label: 'Meeting Downtime',
-            shortLabel: 'Meeting',
-            line1: 'Meeting',
-            line2: 'Downtime',
-            type: 'delta',
-            impact: impactMeeting,
-            color: impactMeeting >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: meeting1,
-            rawVal2: meeting2,
-            diff: meeting2 - meeting1,
-            isDowntime: true
-        },
-        {
-            key: 'others_downtimes',
-            label: 'Others Downtimes',
-            shortLabel: 'Others DT',
-            line1: 'Others',
-            line2: 'Downtimes',
-            type: 'delta',
-            impact: impactOthers,
-            color: impactOthers >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: others1,
-            rawVal2: others2,
-            diff: others2 - others1,
-            isDowntime: true
-        },
-        {
-            key: 'comparison_avail',
-            label: 'Comparison Available Hours',
-            shortLabel: 'Comp Avail',
-            line1: 'Comp',
-            line2: 'Avail',
+            key: 'available_capacity',
+            label: '= Available Capacity',
+            shortLabel: 'Available Cap',
+            line1: '= Available Capacity',
+            line2: '',
             type: 'total',
-            val: totC2,
-            color: '#4f46e5',
-            rawVal1: totC2,
-            rawVal2: totC2,
-            diff: totC2 - totC1
+            val: availC,
+            color: '#003d7a',
+            darkColor: '#1d4ed8',
+            rawVal1: totC1,
+            rawVal2: availC,
+            diff: availC - totC1
         }
     ];
 
-    let running = totC1;
+    // Position floating deltas at top level (~38k)
+    let running = availC - (prod + ot + rds + other);
     for (let i = 1; i < steps.length - 1; i++) {
         const s = steps[i];
         const startY = running;
@@ -10191,172 +10321,102 @@ function computeCapacityWaterfall(totC1, totC2) {
         s.endLevel = endY;
         running = endY;
     }
+    steps[0].startLevel = 0;
+    steps[0].endLevel = baseC;
     steps[steps.length - 1].startLevel = 0;
-    steps[steps.length - 1].endLevel = totC2;
+    steps[steps.length - 1].endLevel = availC;
 
     return {
-        baseline: { gross: gross1, sickness: sickness1, holiday: holiday1, training: training1, meeting: meeting1, others: others1, available: totC1 },
-        comparison: { gross: gross2, sickness: sickness2, holiday: holiday2, training: training2, meeting: meeting2, others: others2, available: totC2 },
+        baseline: { gross: Math.round(totC1 * 1.25), sickness: 0, holiday: 0, training: 0, meeting: 0, others: 0, available: totC1 },
+        comparison: { gross: Math.round(totC2 * 1.25), sickness: 0, holiday: 0, training: 0, meeting: 0, others: 0, available: availC },
         steps
     };
 }
 
 function computeDemandWaterfall(totD1, totD2, skillFilter) {
-    // Formula: Total Demand Hours = HEC Upgrade + HEC Repair + KAC Upgrade + KAC Repair + HEC Warranty + KAC Warranty
-    let hecU1, hecR1, kacU1, kacR1, hecW1, kacW1;
-    let hecU2, hecR2, kacU2, kacR2, hecW2, kacW2;
-
-    if (skillFilter === 'HEC') {
-        hecU1 = Math.round(totD1 * 0.52);
-        hecR1 = Math.round(totD1 * 0.35);
-        hecW1 = totD1 - (hecU1 + hecR1);
-        kacU1 = 0; kacR1 = 0; kacW1 = 0;
-
-        hecU2 = Math.round(totD2 * 0.54);
-        hecR2 = Math.round(totD2 * 0.34);
-        hecW2 = totD2 - (hecU2 + hecR2);
-        kacU2 = 0; kacR2 = 0; kacW2 = 0;
-    } else if (skillFilter === 'KAC') {
-        kacU1 = Math.round(totD1 * 0.45);
-        kacR1 = Math.round(totD1 * 0.40);
-        kacW1 = totD1 - (kacU1 + kacR1);
-        hecU1 = 0; hecR1 = 0; hecW1 = 0;
-
-        kacU2 = Math.round(totD2 * 0.44);
-        kacR2 = Math.round(totD2 * 0.41);
-        kacW2 = totD2 - (kacU2 + kacR2);
-        hecU2 = 0; hecR2 = 0; hecW2 = 0;
-    } else {
-        hecU1 = Math.round(totD1 * 0.32);
-        hecR1 = Math.round(totD1 * 0.28);
-        kacU1 = Math.round(totD1 * 0.15);
-        kacR1 = Math.round(totD1 * 0.12);
-        hecW1 = Math.round(totD1 * 0.08);
-        kacW1 = totD1 - (hecU1 + hecR1 + kacU1 + kacR1 + hecW1);
-
-        hecU2 = Math.round(totD2 * 0.335);
-        hecR2 = Math.round(totD2 * 0.265);
-        kacU2 = Math.round(totD2 * 0.145);
-        kacR2 = Math.round(totD2 * 0.125);
-        hecW2 = Math.round(totD2 * 0.078);
-        kacW2 = totD2 - (hecU2 + hecR2 + kacU2 + kacR2 + hecW2);
-    }
-
-    const dHecU = hecU2 - hecU1;
-    const dHecR = hecR2 - hecR1;
-    const dKacU = kacU2 - kacU1;
-    const dKacR = kacR2 - kacR1;
-    const dHecW = hecW2 - hecW1;
-    const dKacW = kacW2 - kacW1;
+    // Demand Waterfall (Total Demand Hours Bridge)
+    // Shows NECB & other adjustments (pool, growth, variations) for total demand
+    // Columns: Base Demand, + Growth, + Variations, + Other, = Total Demand
+    const baseD = Math.round(totD1 * (36360 / 35660));
+    const growth = Math.round(totD1 * (435 / 35660));
+    const variations = Math.round(totD1 * (-1345 / 35660));
+    const otherD = totD1 - (baseD + growth + variations);
+    const totalD = totD1;
 
     const steps = [
         {
-            key: 'baseline_demand',
-            label: 'Baseline Total Demand',
-            shortLabel: 'Baseline Demand',
-            line1: 'Baseline',
-            line2: 'Demand',
+            key: 'base_demand',
+            label: 'Base Demand',
+            shortLabel: 'Base Demand',
+            line1: 'Base Demand',
+            line2: '',
             type: 'total',
-            val: totD1,
-            color: '#005eb8',
-            rawVal1: totD1,
-            rawVal2: totD1,
+            val: baseD,
+            color: '#00c853',
+            darkColor: '#10b981',
+            rawVal1: baseD,
+            rawVal2: baseD,
             diff: 0
         },
         {
-            key: 'hec_upgrade',
-            label: 'HEC Upgrade',
-            shortLabel: 'HEC Upgrade',
-            line1: 'HEC',
-            line2: 'Upgrade',
+            key: 'growth',
+            label: '+ Growth',
+            shortLabel: '+ Growth',
+            line1: '+ Growth',
+            line2: '',
             type: 'delta',
-            impact: dHecU,
-            color: dHecU >= 0 ? '#3b82f6' : '#10b981',
-            rawVal1: hecU1,
-            rawVal2: hecU2,
-            diff: dHecU
+            impact: growth,
+            color: '#10b981',
+            darkColor: '#22c55e',
+            rawVal1: 0,
+            rawVal2: growth,
+            diff: growth
         },
         {
-            key: 'hec_repair',
-            label: 'HEC Repair',
-            shortLabel: 'HEC Repair',
-            line1: 'HEC',
-            line2: 'Repair',
+            key: 'variations',
+            label: '+ Variations',
+            shortLabel: '+ Variations',
+            line1: '+ Variations',
+            line2: '',
             type: 'delta',
-            impact: dHecR,
-            color: dHecR >= 0 ? '#3b82f6' : '#10b981',
-            rawVal1: hecR1,
-            rawVal2: hecR2,
-            diff: dHecR
+            impact: variations,
+            color: '#ef4444',
+            darkColor: '#f87171',
+            rawVal1: 0,
+            rawVal2: variations,
+            diff: variations
         },
         {
-            key: 'kac_upgrade',
-            label: 'KAC Upgrade',
-            shortLabel: 'KAC Upgrade',
-            line1: 'KAC',
-            line2: 'Upgrade',
+            key: 'other_demand',
+            label: '+ Other',
+            shortLabel: '+ Other',
+            line1: '+ Other',
+            line2: '',
             type: 'delta',
-            impact: dKacU,
-            color: dKacU >= 0 ? '#8b5cf6' : '#10b981',
-            rawVal1: kacU1,
-            rawVal2: kacU2,
-            diff: dKacU
+            impact: otherD,
+            color: otherD >= 0 ? '#10b981' : '#ef4444',
+            darkColor: otherD >= 0 ? '#22c55e' : '#f87171',
+            rawVal1: 0,
+            rawVal2: otherD,
+            diff: otherD
         },
         {
-            key: 'kac_repair',
-            label: 'KAC Repair',
-            shortLabel: 'KAC Repair',
-            line1: 'KAC',
-            line2: 'Repair',
-            type: 'delta',
-            impact: dKacR,
-            color: dKacR >= 0 ? '#8b5cf6' : '#10b981',
-            rawVal1: kacR1,
-            rawVal2: kacR2,
-            diff: dKacR
-        },
-        {
-            key: 'hec_warranty',
-            label: 'HEC Warranty',
-            shortLabel: 'HEC Warranty',
-            line1: 'HEC',
-            line2: 'Warranty',
-            type: 'delta',
-            impact: dHecW,
-            color: dHecW >= 0 ? '#3b82f6' : '#10b981',
-            rawVal1: hecW1,
-            rawVal2: hecW2,
-            diff: dHecW
-        },
-        {
-            key: 'kac_warranty',
-            label: 'KAC Warranty',
-            shortLabel: 'KAC Warranty',
-            line1: 'KAC',
-            line2: 'Warranty',
-            type: 'delta',
-            impact: dKacW,
-            color: dKacW >= 0 ? '#8b5cf6' : '#10b981',
-            rawVal1: kacW1,
-            rawVal2: kacW2,
-            diff: dKacW
-        },
-        {
-            key: 'comparison_demand',
-            label: 'Comparison Total Demand',
-            shortLabel: 'Comp Demand',
-            line1: 'Comp',
-            line2: 'Demand',
+            key: 'total_demand',
+            label: '= Total Demand',
+            shortLabel: 'Total Demand',
+            line1: '= Total Demand',
+            line2: '',
             type: 'total',
-            val: totD2,
-            color: '#4f46e5',
+            val: totalD,
+            color: '#4a148c',
+            darkColor: '#8b5cf6',
             rawVal1: totD2,
-            rawVal2: totD2,
-            diff: totD2 - totD1
+            rawVal2: totalD,
+            diff: totalD - totD2
         }
     ];
 
-    let running = totD1;
+    let running = baseD;
     for (let i = 1; i < steps.length - 1; i++) {
         const s = steps[i];
         const startY = running;
@@ -10368,20 +10428,41 @@ function computeDemandWaterfall(totD1, totD2, skillFilter) {
         s.endLevel = endY;
         running = endY;
     }
+    steps[0].startLevel = 0;
+    steps[0].endLevel = baseD;
     steps[steps.length - 1].startLevel = 0;
-    steps[steps.length - 1].endLevel = totD2;
+    steps[steps.length - 1].endLevel = totalD;
+
+    // Preserved fields for WorkStreamRebalanceChart compatibility
+    const hecU1 = Math.round(totD1 * 0.32);
+    const hecR1 = Math.round(totD1 * 0.28);
+    const kacU1 = Math.round(totD1 * 0.15);
+    const kacR1 = Math.round(totD1 * 0.12);
+    const hecW1 = Math.round(totD1 * 0.08);
+    const kacW1 = totD1 - (hecU1 + hecR1 + kacU1 + kacR1 + hecW1);
+
+    const hecU2 = Math.round(totD2 * 0.335);
+    const hecR2 = Math.round(totD2 * 0.265);
+    const kacU2 = Math.round(totD2 * 0.145);
+    const kacR2 = Math.round(totD2 * 0.125);
+    const hecW2 = Math.round(totD2 * 0.078);
+    const kacW2 = totD2 - (hecU2 + hecR2 + kacU2 + kacR2 + hecW2);
 
     return {
-        baseline: { hecU: hecU1, hecR: hecR1, kacU: kacU1, kacR: kacR1, hecW: hecW1, kacW: kacW1, total: totD1 },
-        comparison: { hecU: hecU2, hecR: hecR2, kacU: kacU2, kacR: kacR2, hecW: hecW2, kacW: kacW2, total: totD2 },
+        baseline: { hecU: hecU1, hecR: hecR1, kacU: kacU1, kacR: kacR1, hecW: hecW1, kacW: kacW1, total: totD1, base: baseD },
+        comparison: { hecU: hecU2, hecR: hecR2, kacU: kacU2, kacR: kacR2, hecW: hecW2, kacW: kacW2, total: totD2, base: baseD },
         steps
     };
 }
 
-function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeText, iconText = "chart", idPrefix = "wf", isSingleView = false }) {
-    const [useFocusedScale, setUseFocusedScale] = useState(true);
+function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeText, iconText = "chart", idPrefix = "wf", isSingleView = false, isDarkMode = false }) {
+    const isDark = isDarkMode || (typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+    const [useFocusedScale, setUseFocusedScale] = useState(false);
     const [activeTab, setActiveTab] = useState("chart"); // 'chart' | 'table'
     const [hoveredIdx, setHoveredIdx] = useState(null);
+    const [sensitivity, setSensitivity] = useState(idPrefix.includes('cap') ? '+/- 20%' : '+20%');
+    const [isSensitivityOpen, setIsSensitivityOpen] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
     const containerRef = useRef(null);
     const [containerWidth, setContainerWidth] = useState(620);
 
@@ -10414,25 +10495,23 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
         };
     }, []);
 
-    // Responsive width matching parent container screen size
+    // Responsive sizing
     const width = containerWidth;
-    const height = 340;
-    const padLeft = 48;
-    const padRight = 18;
-    const padTop = 26;
-    const padBottom = 54;
+    const height = isExpanded ? 440 : 340;
+    const padLeft = 44;
+    const padRight = 16;
+    const padTop = 24;
+    const padBottom = 44;
     const plotW = Math.max(100, width - padLeft - padRight);
     const plotH = height - padTop - padBottom;
 
     const allLevels = steps.flatMap(s => s.type === 'total' ? [s.val] : [s.startLevel, s.endLevel]);
     const minVal = Math.min(...allLevels);
     const maxVal = Math.max(...allLevels);
-    const span = Math.max(100, maxVal - minVal);
 
-    // Focused scaling: ~22% margin so floating deltas occupy ~65% of chart height prominently
-    const margin = Math.max(160, Math.round(span * 0.22));
-    const yMin = useFocusedScale ? Math.max(0, Math.floor((minVal - margin) / 50) * 50) : 0;
-    const yMax = Math.ceil((maxVal + margin) / 50) * 50;
+    // Default baseline scale 0k - 40k matching user design screenshots
+    const yMin = useFocusedScale ? Math.max(0, Math.floor((minVal - 600) / 500) * 500) : 0;
+    const yMax = useFocusedScale ? Math.ceil((maxVal + 600) / 500) * 500 : 40000;
     const yRange = (yMax - yMin) || 1;
 
     const getY = (val) => padTop + plotH - ((val - yMin) / yRange) * plotH;
@@ -10440,110 +10519,139 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
     const slotW = plotW / (steps.length || 1);
     const barW = Math.min(54, Math.max(34, Math.round(slotW * 0.52)));
 
-    const gridTicks = [0, 0.25, 0.5, 0.75, 1.0].map(pct => Math.round(yMin + pct * yRange));
+    const gridTicks = useFocusedScale
+        ? [0, 0.25, 0.5, 0.75, 1.0].map(pct => Math.round(yMin + pct * yRange))
+        : [0, 10000, 20000, 30000, 40000];
 
-    const total1 = steps[0]?.val || 0;
-    const total2 = steps[steps.length - 1]?.val || 0;
-    const netDelta = total2 - total1;
-
-    const renderWaterfallIcon = () => {
-        if (React.isValidElement(iconText)) return iconText;
-        if (iconText === 'bolt') return <IconBolt className="w-3.5 h-3.5 text-amber-500" />;
-        if (iconText === 'trend') return <IconTrendingUp className="w-3.5 h-3.5 text-blue-600" />;
-        if (iconText === 'scale') return <IconScale className="w-3.5 h-3.5 text-indigo-600" />;
-        return <IconBarChart className="w-3.5 h-3.5 text-[#005eb8]" />;
-    };
-    const iconBgClass = (iconText === 'bolt')
-        ? 'bg-amber-50 border-amber-200/70 text-amber-500 glow-icon glow-icon-amber'
-        : (iconText === 'trend')
-            ? 'bg-blue-50 border-blue-200/70 text-blue-600 glow-icon glow-icon-blue'
-            : (iconText === 'scale')
-                ? 'bg-indigo-50 border-indigo-200/70 text-indigo-600 glow-icon glow-icon-indigo'
-                : 'bg-blue-50 border-blue-200/70 text-[#005eb8] glow-icon glow-icon-blue';
+    const isCap = idPrefix.includes('cap');
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs glow-card p-3.5 sm:p-4 flex flex-col justify-between h-[465px] min-h-[465px] w-full">
-            {/* Header with Title & Net Delta Pill (No Formula Banner) */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
-                <div className="flex items-center gap-2 min-w-0">
-                    <span className={`w-7 h-7 rounded-lg border flex items-center justify-center shadow-2xs flex-shrink-0 ${iconBgClass}`}>
-                        {renderWaterfallIcon()}
+        <div className="diff-waterfall-card bg-white dark:bg-[#071324] rounded-2xl border border-slate-200/90 dark:border-[#18365d] shadow-xs p-3.5 sm:p-4 flex flex-col justify-between min-h-[465px] w-full transition-all duration-200">
+            {/* Header with Title & Sensitivity Selector */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-[#18365d]/80">
+                <div className="flex items-center gap-2.5 min-w-0">
+                    <span className={`w-8 h-8 rounded-full border flex items-center justify-center shadow-2xs flex-shrink-0 ${
+                        isCap 
+                            ? 'bg-blue-50 dark:bg-blue-950/80 border-blue-200 dark:border-blue-700/60 text-[#005eb8] dark:text-[#60a5fa]' 
+                            : 'bg-purple-50 dark:bg-purple-950/80 border-purple-200 dark:border-purple-700/60 text-[#7c3aed] dark:text-[#c084fc]'
+                    }`}>
+                        {isCap ? <IconBarChart className="w-4 h-4" /> : <IconTrendingUp className="w-4 h-4" />}
                     </span>
                     <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight truncate">
+                            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-tight truncate">
                                 {title}
                             </h4>
-                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full font-mono flex-shrink-0 ${
-                                netDelta >= 0 
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
-                            }`}>
-                                {netDelta >= 0 ? `+${netDelta.toLocaleString()}` : netDelta.toLocaleString()} {unit}
+                            {/* Sensitivity Pill Dropdown */}
+                            <div className="relative inline-block">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsSensitivityOpen(!isSensitivityOpen)}
+                                    className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#0c1b31] text-slate-700 dark:text-slate-200 hover:border-blue-400 flex items-center gap-1 cursor-pointer transition select-none"
+                                    title="Sensitivity Adjustment Range"
+                                >
+                                    <span>{sensitivity}</span>
+                                    <span className="text-[8px] text-slate-400">▼</span>
+                                </button>
+                                {isSensitivityOpen && (
+                                    <div className="absolute left-0 mt-1 w-24 bg-white dark:bg-[#0c1b31] border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl py-1 z-30 text-[10px] font-bold">
+                                        {['+/- 10%', '+/- 20%', '+/- 30%'].map(opt => (
+                                            <button
+                                                key={opt}
+                                                type="button"
+                                                onClick={() => { setSensitivity(opt); setIsSensitivityOpen(false); }}
+                                                className={`w-full px-2.5 py-1 text-left hover:bg-blue-50 dark:hover:bg-[#18365d] cursor-pointer ${sensitivity === opt ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}
+                                            >
+                                                {opt}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            {/* Info icon */}
+                            <span
+                                title={isCap ? "Shows how different factors impact available capacity versus demand." : "NECB & other adjustments (pool, growth, variations) for total demand."}
+                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-help flex items-center"
+                            >
+                                <IconInfo className="w-3.5 h-3.5" />
                             </span>
                         </div>
-                        <p className="text-[10px] text-slate-400 mt-0.5 truncate">{subtitle}</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{subtitle}</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                         type="button"
-                        onClick={() => setUseFocusedScale(prev => !prev)}
-                        className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition cursor-pointer ${
-                            useFocusedScale 
-                                ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-2xs' 
-                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                        }`}
-                        title="Toggle focused zoom vs zero-baseline scale"
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-md transition"
+                        title={isExpanded ? "Collapse height" : "Expand height"}
                     >
-                        {useFocusedScale ? (
-                            <span className="flex items-center gap-1.5">
-                                <IconSearch className="w-3 h-3 text-blue-600" />
-                                <span>Focused Zoom</span>
-                            </span>
-                        ) : (
-                            <span className="flex items-center gap-1.5">
-                                <IconRuler className="w-3 h-3 text-slate-500" />
-                                <span>Zero Baseline</span>
-                            </span>
-                        )}
+                        <IconExpand className="w-3.5 h-3.5" />
                     </button>
-                    <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[10px] font-bold">
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('chart')}
-                            className={`px-2.5 py-0.5 rounded-md transition cursor-pointer ${activeTab === 'chart' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-900'}`}
-                        >
-                            Chart
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('table')}
-                            className={`px-2.5 py-0.5 rounded-md transition cursor-pointer ${activeTab === 'table' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-900'}`}
-                        >
-                            Table
-                        </button>
-                    </div>
+                </div>
+            </div>
+
+            {/* Sub-controls row: Focused Zoom & Chart/Table Switcher */}
+            <div className="flex items-center justify-between gap-2 mt-2 pt-1 pb-1">
+                <button
+                    type="button"
+                    onClick={() => setUseFocusedScale(prev => !prev)}
+                    className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition cursor-pointer flex items-center gap-1.5 ${
+                        useFocusedScale
+                            ? 'bg-blue-50 dark:bg-blue-950/70 text-[#005eb8] dark:text-[#80c6ff] border-blue-300 dark:border-blue-700 shadow-2xs font-extrabold'
+                            : 'bg-white dark:bg-[#081324] text-slate-600 dark:text-[#adbed4] border-slate-200 dark:border-[#18365d] hover:bg-slate-50'
+                    }`}
+                    title="Toggle between focused delta zoom and zero-baseline full scale"
+                >
+                    <IconSearch className="w-3 h-3 text-[#005eb8] dark:text-[#80c6ff]" />
+                    <span>Focused Zoom</span>
+                </button>
+
+                <div className="flex items-center bg-slate-100 dark:bg-[#081324] p-0.5 rounded-lg border border-slate-200 dark:border-[#18365d] text-[10px] font-bold">
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab('chart')}
+                        className={`px-2.5 py-0.5 rounded-md transition cursor-pointer flex items-center gap-1 ${activeTab === 'chart' ? 'bg-white dark:bg-[#0c1b31] text-slate-900 dark:text-white shadow-2xs' : 'text-slate-500 dark:text-[#adbed4] hover:text-slate-900'}`}
+                    >
+                        <IconBarChart className="w-3 h-3" />
+                        <span>Chart</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab('table')}
+                        className={`px-2.5 py-0.5 rounded-md transition cursor-pointer flex items-center gap-1 ${activeTab === 'table' ? 'bg-white dark:bg-[#0c1b31] text-slate-900 dark:text-white shadow-2xs' : 'text-slate-500 dark:text-[#adbed4] hover:text-slate-900'}`}
+                    >
+                        <IconClipboard className="w-3 h-3" />
+                        <span>Table</span>
+                    </button>
                 </div>
             </div>
 
             {/* View Body */}
             {activeTab === 'chart' ? (
-                <div ref={containerRef} className="w-full h-[355px] relative mt-2 flex items-center justify-center">
+                <div ref={containerRef} className="w-full flex-1 relative mt-1 flex items-center justify-center">
                     <svg
                         viewBox={`0 0 ${width} ${height}`}
                         className="w-full h-full select-none block"
                         style={{ width: '100%', height: `${height}px` }}
                     >
                         <defs>
-                            <linearGradient id={`${idPrefix}-total1`} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#005eb8" />
-                                <stop offset="100%" stopColor="#0284c7" />
+                            <linearGradient id={`${idPrefix}-cap-base`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#0066cc" />
+                                <stop offset="100%" stopColor="#0052a3" />
                             </linearGradient>
-                            <linearGradient id={`${idPrefix}-total2`} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#4f46e5" />
-                                <stop offset="100%" stopColor="#6366f1" />
+                            <linearGradient id={`${idPrefix}-cap-avail`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#003d7a" />
+                                <stop offset="100%" stopColor="#002b57" />
+                            </linearGradient>
+                            <linearGradient id={`${idPrefix}-dem-base`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#00c853" />
+                                <stop offset="100%" stopColor="#009624" />
+                            </linearGradient>
+                            <linearGradient id={`${idPrefix}-dem-total`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#4a148c" />
+                                <stop offset="100%" stopColor="#311b92" />
                             </linearGradient>
                             <linearGradient id={`${idPrefix}-pos`} x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stopColor="#10b981" />
@@ -10559,9 +10667,7 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                         {gridTicks.map((tick, idx) => {
                             const y = getY(tick);
                             const kVal = tick / 1000;
-                            const tickLabel = tick >= 1000 
-                                ? (kVal % 1 === 0 ? `${kVal}k` : `${kVal.toFixed(1)}k`) 
-                                : tick.toLocaleString();
+                            const tickLabel = `${kVal}k`;
                             return (
                                 <g key={idx}>
                                     <line
@@ -10569,16 +10675,17 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                                         y1={y}
                                         x2={width - padRight}
                                         y2={y}
-                                        stroke="#f1f5f9"
+                                        stroke={isDark ? "#1e293b" : "#e2e8f0"}
                                         strokeWidth="1"
+                                        strokeDasharray="4 4"
                                     />
                                     <text
                                         x={padLeft - 6}
                                         y={y + 3.5}
                                         textAnchor="end"
-                                        fontSize="10.5"
-                                        fontWeight="500"
-                                        fill="#94a3b8"
+                                        fontSize="10"
+                                        fontWeight="600"
+                                        fill={isDark ? "#94a3b8" : "#64748b"}
                                         fontFamily="monospace"
                                     >
                                         {tickLabel}
@@ -10587,25 +10694,39 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                             );
                         })}
 
-                        {/* Dashed Connector Lines */}
-                        {steps.map((step, idx) => {
-                            if (idx >= steps.length - 1) return null;
-                            const curX = padLeft + idx * slotW + (slotW - barW) / 2 + barW;
-                            const nextX = padLeft + (idx + 1) * slotW + (slotW - barW) / 2;
-                            const levelY = getY(step.endLevel !== undefined ? step.endLevel : step.val);
-                            return (
-                                <line
-                                    key={`conn-${idx}`}
-                                    x1={curX}
-                                    y1={levelY}
-                                    x2={nextX}
-                                    y2={levelY}
-                                    stroke="#94a3b8"
-                                    strokeWidth="1.25"
-                                    strokeDasharray="3 3"
-                                />
-                            );
-                        })}
+                        {/* Dashed Reference & Connector Lines */}
+                        {isCap ? (
+                            /* Capacity Waterfall: Reference dashed line across floating bars connecting to Available Capacity */
+                            <line
+                                x1={padLeft + (slotW - barW) / 2 + barW}
+                                y1={getY(steps[steps.length - 1]?.val || 37860)}
+                                x2={padLeft + (steps.length - 1) * slotW + (slotW - barW) / 2}
+                                y2={getY(steps[steps.length - 1]?.val || 37860)}
+                                stroke={isDark ? "#475569" : "#94a3b8"}
+                                strokeWidth="1.25"
+                                strokeDasharray="3 3"
+                            />
+                        ) : (
+                            /* Demand Waterfall: Stepped connector line tracking cumulative reconciliations */
+                            steps.map((step, idx) => {
+                                if (idx >= steps.length - 1) return null;
+                                const curX = padLeft + idx * slotW + (slotW - barW) / 2 + barW;
+                                const nextX = padLeft + (idx + 1) * slotW + (slotW - barW) / 2;
+                                const levelY = getY(step.endLevel !== undefined ? step.endLevel : step.val);
+                                return (
+                                    <line
+                                        key={`conn-${idx}`}
+                                        x1={curX}
+                                        y1={levelY}
+                                        x2={nextX}
+                                        y2={levelY}
+                                        stroke={isDark ? "#475569" : "#94a3b8"}
+                                        strokeWidth="1.25"
+                                        strokeDasharray="3 3"
+                                    />
+                                );
+                            })
+                        )}
 
                         {/* Waterfall Bars */}
                         {steps.map((step, idx) => {
@@ -10615,26 +10736,24 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                             if (step.type === 'total') {
                                 topY = getY(step.val);
                                 barH = Math.max(3, getY(yMin) - topY);
-                                fillGrad = idx === 0 ? `url(#${idPrefix}-total1)` : `url(#${idPrefix}-total2)`;
+                                if (isCap) {
+                                    fillGrad = idx === 0 ? `url(#${idPrefix}-cap-base)` : `url(#${idPrefix}-cap-avail)`;
+                                } else {
+                                    fillGrad = idx === 0 ? `url(#${idPrefix}-dem-base)` : `url(#${idPrefix}-dem-total)`;
+                                }
                             } else {
                                 const high = Math.max(step.startLevel, step.endLevel);
                                 const low = Math.min(step.startLevel, step.endLevel);
                                 topY = getY(high);
-                                barH = Math.max(4, getY(low) - getY(high));
+                                barH = Math.max(4, Math.abs(getY(low) - getY(high)));
                                 fillGrad = step.impact >= 0 ? `url(#${idPrefix}-pos)` : `url(#${idPrefix}-neg)`;
                             }
 
                             const isHovered = hoveredIdx === idx;
-
-                            // Value label placement:
-                            // Positive delta: above bar (topY - 7)
-                            // Negative delta: below bar (topY + barH + 13)
-                            // Total bars: above bar (topY - 7)
-                            const isNegativeDelta = step.type === 'delta' && step.impact < 0;
-                            const labelY = isNegativeDelta ? (topY + barH + 13) : (topY - 7);
-                            const labelColor = step.type === 'total' 
-                                ? '#0f172a' 
-                                : (step.impact >= 0 ? '#059669' : '#dc2626');
+                            const labelY = topY - 7;
+                            const labelColor = isDark
+                                ? (step.type === 'total' ? '#ffffff' : (step.impact >= 0 ? '#34d399' : '#f87171'))
+                                : (step.type === 'total' ? '#0f172a' : (step.impact >= 0 ? '#059669' : '#dc2626'));
                             const valText = step.type === 'total' 
                                 ? step.val.toLocaleString() 
                                 : (step.impact >= 0 ? `+${step.impact.toLocaleString()}` : `${step.impact.toLocaleString()}`);
@@ -10646,53 +10765,41 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                                     onMouseEnter={() => setHoveredIdx(idx)}
                                     onMouseLeave={() => setHoveredIdx(null)}
                                 >
-                                    {/* Bar rect */}
+                                    {/* Bar rectangle */}
                                     <rect
                                         x={barX}
                                         y={topY}
                                         width={barW}
                                         height={barH}
-                                        rx={4}
+                                        rx={3}
                                         fill={fillGrad}
-                                        className={`transition-all duration-150 ${isHovered ? 'filter drop-shadow-md stroke-slate-900 stroke-1' : ''}`}
+                                        className={`transition-all duration-150 ${isHovered ? 'filter drop-shadow-md stroke-slate-400 stroke-1' : ''}`}
                                     />
 
-                                    {/* Value label - crisp, distinct font, never colliding */}
+                                    {/* Value label */}
                                     <text
                                         x={barX + barW / 2}
                                         y={labelY}
                                         textAnchor="middle"
-                                        fontSize="11"
-                                        fontFamily="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                                        fontSize="10.5"
+                                        fontFamily="monospace, ui-sans-serif, system-ui"
                                         fontWeight="800"
                                         fill={labelColor}
                                     >
                                         {valText}
                                     </text>
 
-                                    {/* X-axis two-line label: split into 2 lines so texts never collide horizontally */}
+                                    {/* X-axis label */}
                                     <text
                                         x={barX + barW / 2}
-                                        y={padTop + plotH + 16}
+                                        y={padTop + plotH + 18}
                                         textAnchor="middle"
-                                        fontSize="10"
+                                        fontSize="9.5"
                                         fontWeight={step.type === 'total' ? '800' : '600'}
-                                        fill={step.type === 'total' ? '#0f172a' : '#475569'}
+                                        fill={isDark ? (step.type === 'total' ? '#ffffff' : '#94a3b8') : (step.type === 'total' ? '#0f172a' : '#475569')}
                                     >
                                         {step.line1}
                                     </text>
-                                    {step.line2 ? (
-                                        <text
-                                            x={barX + barW / 2}
-                                            y={padTop + plotH + 28}
-                                            textAnchor="middle"
-                                            fontSize="9"
-                                            fontWeight={step.type === 'total' ? '700' : '500'}
-                                            fill={step.type === 'total' ? '#334155' : '#64748b'}
-                                        >
-                                            {step.line2}
-                                        </text>
-                                    ) : null}
                                 </g>
                             );
                         })}
@@ -10712,53 +10819,47 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                                 </span>
                             </div>
                             <div className="text-[11px] text-slate-300 font-mono flex items-center justify-between gap-4">
-                                <span>Baseline: {steps[hoveredIdx].rawVal1?.toLocaleString()} {unit}</span>
-                                <span>Comp: {steps[hoveredIdx].rawVal2?.toLocaleString()} {unit}</span>
+                                <span>Component Impact:</span>
+                                <span className={`font-bold ${steps[hoveredIdx].type === 'total' ? 'text-white' : (steps[hoveredIdx].impact >= 0 ? 'text-emerald-400' : 'text-rose-400')}`}>
+                                    {steps[hoveredIdx].type === 'total' ? steps[hoveredIdx].val?.toLocaleString() : (steps[hoveredIdx].impact >= 0 ? `+${steps[hoveredIdx].impact.toLocaleString()}` : steps[hoveredIdx].impact.toLocaleString())} {unit}
+                                </span>
                             </div>
-                            {steps[hoveredIdx].type === 'delta' && (
-                                <div className="text-[11px] font-mono flex items-center justify-between gap-4 border-t border-slate-700 pt-1">
-                                    <span className="text-slate-400">Net Impact:</span>
-                                    <span className={`font-bold ${steps[hoveredIdx].impact >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                        {steps[hoveredIdx].impact >= 0 ? `+${steps[hoveredIdx].impact.toLocaleString()}` : steps[hoveredIdx].impact.toLocaleString()} {unit}
-                                    </span>
-                                </div>
-                            )}
                         </div>
                     )}
                 </div>
             ) : (
-                /* Tabular Data View - identical height container so card size never shifts */
-                <div className="w-full h-[355px] overflow-auto rounded-xl border border-slate-200/90 mt-2 bg-white shadow-2xs">
+                /* Tabular Data View */
+                <div className="w-full flex-1 overflow-auto rounded-xl border border-slate-200/90 dark:border-[#18365d] mt-2 bg-white dark:bg-[#0c1b31] shadow-2xs">
                     <table className="w-full text-left text-xs border-collapse">
-                        <thead className="sticky top-0 bg-slate-50 z-10 shadow-2xs">
-                            <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-[11px]">
+                        <thead className="sticky top-0 bg-slate-50 dark:bg-[#081324] z-10 shadow-2xs">
+                            <tr className="bg-slate-50 dark:bg-[#081324] text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-[#18365d] text-[11px]">
                                 <th className="py-2.5 px-3">Metric Component</th>
                                 <th className="py-2.5 px-3">Type</th>
-                                <th className="py-2.5 px-3">Baseline (Scen 1)</th>
-                                <th className="py-2.5 px-3">Comparison (Scen 2)</th>
-                                <th className="py-2.5 px-3 text-right">Variance Impact</th>
+                                <th className="py-2.5 px-3">Baseline</th>
+                                <th className="py-2.5 px-3">Comparison</th>
+                                <th className="py-2.5 px-3 text-right">Impact</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
+                        <tbody className="divide-y divide-slate-100 dark:divide-[#18365d] font-mono text-[11px]">
                             {steps.map((st, i) => (
-                                <tr key={i} className={st.type === 'total' ? 'bg-slate-50/70 font-bold' : 'hover:bg-slate-50/50'}>
-                                    <td className="py-2.5 px-3 font-sans font-medium text-slate-800">{st.label}</td>
+                                <tr key={i} className={st.type === 'total' ? 'bg-slate-50/70 dark:bg-[#09172d] font-bold' : 'hover:bg-slate-50/50 dark:hover:bg-[#112649]'}>
+                                    <td className="py-2.5 px-3 font-sans font-medium text-slate-800 dark:text-white">{st.label}</td>
                                     <td className="py-2.5 px-3">
                                         <span className={`text-[9px] px-1.5 py-0.5 rounded uppercase font-bold ${
-                                            st.type === 'total' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
+                                            st.type === 'total' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                                         }`}>
                                             {st.type}
                                         </span>
                                     </td>
-                                    <td className="py-2.5 px-3 text-slate-700">{st.rawVal1?.toLocaleString()} {unit}</td>
-                                    <td className="py-2.5 px-3 text-slate-700">{st.rawVal2?.toLocaleString()} {unit}</td>
+                                    <td className="py-2.5 px-3 text-slate-700 dark:text-slate-300">{st.rawVal1?.toLocaleString()} {unit}</td>
+                                    <td className="py-2.5 px-3 text-slate-700 dark:text-slate-300">{st.rawVal2?.toLocaleString()} {unit}</td>
                                     <td className="py-2.5 px-3 text-right">
                                         {st.type === 'total' ? (
-                                            <span className="text-slate-800 font-black">
+                                            <span className="text-slate-800 dark:text-white font-black">
                                                 {st.val?.toLocaleString()} {unit}
                                             </span>
                                         ) : (
-                                            <span className={`font-bold ${st.impact >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                            <span className={`font-bold ${st.impact >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                                                 {st.impact >= 0 ? `+${st.impact.toLocaleString()}` : st.impact.toLocaleString()} {unit}
                                             </span>
                                         )}
@@ -10888,7 +10989,8 @@ function WorkStreamRebalanceChart({ demData, unit = "hrs" }) {
 // ------------------------------------------------------------------------------------------------
 // WEEKLY DUAL HORIZON TRAJECTORY CHART (SUPPLY VS DEMAND GAP OVER TIME)
 // ------------------------------------------------------------------------------------------------
-function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, comparisonScenarioId, metricUnit = 'hrs' }) {
+function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, comparisonScenarioId, metricUnit = 'hrs', isDarkMode = false }) {
+    const isDark = isDarkMode || (typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
     const [hoveredIdx, setHoveredIdx] = useState(null);
     const containerRef = useRef(null);
     const [containerWidth, setContainerWidth] = useState(1100);
@@ -10965,8 +11067,8 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
                     const y = getY(tick);
                     return (
                         <g key={idx}>
-                            <line x1={padLeft} y1={y} x2={width - padRight} y2={y} stroke="#f1f5f9" strokeWidth="1" />
-                            <text x={padLeft - 6} y={y + 3.5} textAnchor="end" fontSize="10" fontWeight="500" fill="#94a3b8" fontFamily="monospace">
+                            <line x1={padLeft} y1={y} x2={width - padRight} y2={y} stroke={isDark ? "#18365d" : "#f1f5f9"} strokeWidth="1" />
+                            <text x={padLeft - 6} y={y + 3.5} textAnchor="end" fontSize="10" fontWeight="500" fill={isDark ? "#94a3b8" : "#94a3b8"} fontFamily="monospace">
                                 {tick >= 1000 ? `${(tick / 1000).toFixed(1)}k` : tick}
                             </text>
                         </g>
@@ -10978,15 +11080,15 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
                     <path
                         d={`${weeklyData.map((r, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(r.c2)}`).join(' ')} ${weeklyData.slice().reverse().map((r, i) => `L ${getX(weeklyData.length - 1 - i)} ${getY(r.d2)}`).join(' ')} Z`}
                         fill="#10b981"
-                        fillOpacity="0.08"
+                        fillOpacity={isDark ? "0.14" : "0.08"}
                     />
                 )}
 
                 {/* Trajectory Lines stretching edge-to-edge */}
                 <path d={pathD1} fill="none" stroke="#93c5fd" strokeWidth="2" strokeDasharray="4 4" />
-                <path d={pathD2} fill="none" stroke="#005eb8" strokeWidth="2.5" />
-                <path d={pathC1} fill="none" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4 4" />
-                <path d={pathC2} fill="none" stroke="#059669" strokeWidth="2.5" />
+                <path d={pathD2} fill="none" stroke={isDark ? "#60a5fa" : "#005eb8"} strokeWidth="2.5" />
+                <path d={pathC1} fill="none" stroke={isDark ? "#64748b" : "#cbd5e1"} strokeWidth="2" strokeDasharray="4 4" />
+                <path d={pathC2} fill="none" stroke={isDark ? "#34d399" : "#059669"} strokeWidth="2.5" />
 
                 {/* Data Points & Interactive hover columns spanning full width */}
                 {weeklyData.map((r, i) => {
@@ -11004,12 +11106,12 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
                                 fill={isHovered ? "#3b82f6" : "transparent"}
                                 fillOpacity={isHovered ? "0.04" : "0"}
                             />
-                            <circle cx={x} cy={getY(r.d2)} r={isHovered ? 5.5 : 3.5} fill="#005eb8" stroke="#fff" strokeWidth="1.5" />
-                            <circle cx={x} cy={getY(r.c2)} r={isHovered ? 5.5 : 3.5} fill="#059669" stroke="#fff" strokeWidth="1.5" />
-                            <text x={x} y={padTop + plotH + 15} textAnchor="middle" fontSize="10.5" fontWeight="600" fill={isHovered ? "#005eb8" : "#64748b"}>
+                            <circle cx={x} cy={getY(r.d2)} r={isHovered ? 5.5 : 3.5} fill={isDark ? "#60a5fa" : "#005eb8"} stroke="#fff" strokeWidth="1.5" />
+                            <circle cx={x} cy={getY(r.c2)} r={isHovered ? 5.5 : 3.5} fill={isDark ? "#34d399" : "#059669"} stroke="#fff" strokeWidth="1.5" />
+                            <text x={x} y={padTop + plotH + 15} textAnchor="middle" fontSize="10.5" fontWeight="600" fill={isHovered ? (isDark ? "#60a5fa" : "#005eb8") : (isDark ? "#94a3b8" : "#64748b")}>
                                 {r.week.slice(5)}
                             </text>
-                            <text x={x} y={padTop + plotH + 28} textAnchor="middle" fontSize="10" fontWeight="800" fill="#059669" fontFamily="monospace">
+                            <text x={x} y={padTop + plotH + 28} textAnchor="middle" fontSize="10" fontWeight="800" fill={isDark ? "#34d399" : "#059669"} fontFamily="monospace">
                                 +{metricUnit === 'fte' ? (r.delta / 37.5).toFixed(1) : r.delta}
                             </text>
                         </g>
@@ -11048,33 +11150,33 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
             )}
 
             {/* Trajectory Legend */}
-            <div className="flex flex-wrap items-center justify-center gap-5 pt-2.5 text-[11px] text-slate-600 border-t border-slate-100 mt-2">
+            <div className="flex flex-wrap items-center justify-center gap-5 pt-2.5 text-[11px] text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-[#18365d] mt-2">
                 <span className="flex items-center gap-1.5">
-                    <span className="w-4 h-0.5 bg-[#005eb8]"></span>
-                    <span className="font-bold text-slate-700">Comp Demand</span>
+                    <span className="w-4 h-0.5 bg-[#005eb8] dark:bg-[#60a5fa]"></span>
+                    <span className="font-bold text-slate-700 dark:text-slate-200">Comp Demand</span>
                 </span>
                 <span className="flex items-center gap-1.5">
                     <span className="w-4 h-0.5 bg-blue-300 border-t border-dashed border-blue-400"></span>
-                    <span className="text-slate-500">Baseline Demand</span>
+                    <span className="text-slate-500 dark:text-slate-400">Baseline Demand</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                    <span className="w-4 h-0.5 bg-emerald-600"></span>
-                    <span className="font-bold text-emerald-800">Comp Capacity</span>
+                    <span className="w-4 h-0.5 bg-emerald-600 dark:bg-[#34d399]"></span>
+                    <span className="font-bold text-emerald-800 dark:text-emerald-300">Comp Capacity</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                    <span className="w-4 h-0.5 bg-slate-300 border-t border-dashed border-slate-400"></span>
-                    <span className="text-slate-500">Baseline Capacity</span>
+                    <span className="w-4 h-0.5 bg-slate-300 dark:bg-slate-500 border-t border-dashed border-slate-400"></span>
+                    <span className="text-slate-500 dark:text-slate-400">Baseline Capacity</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded bg-emerald-100 border border-emerald-300"></span>
-                    <span className="font-semibold text-emerald-700">Net Surplus Buffer</span>
+                    <span className="w-3 h-3 rounded bg-emerald-100 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-600"></span>
+                    <span className="font-semibold text-emerald-700 dark:text-emerald-300">Net Surplus Buffer</span>
                 </span>
             </div>
         </div>
     );
 }
 
-function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, baselineScenarioId, comparisonScenarioId }) {
+function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, baselineScenarioId, comparisonScenarioId, isDarkMode = false }) {
     const [viewMode, setViewMode] = useState('side_by_side'); // 'side_by_side' | 'capacity_only' | 'demand_only' | 'work_stream_rebalance'
 
     const capData = useMemo(() => {
@@ -11089,75 +11191,64 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
 
     return (
         <div className="space-y-3.5 relative z-10">
-            {/* Section Header with Mode Toggle */}
-            <div className="bg-white p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-xs flex flex-wrap items-center justify-between gap-3 glow-card">
-                <div className="flex items-center gap-2.5">
-                    <span className="w-7 h-7 rounded-lg bg-blue-50 text-[#005eb8] flex items-center justify-center border border-blue-100 shadow-2xs glow-icon glow-icon-blue">
-                        <IconBarChart className="w-4 h-4 text-[#005eb8]" />
-                    </span>
-                    <div>
-                        <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
-                            <span>Scenario Variance Waterfall Analysis: Capacity & Demand Bridges</span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                2 Dual Reconciliations
-                            </span>
-                        </h3>
-                        <p className="text-[11px] text-slate-400">
-                            Decomposes available capacity levers (gross hours & downtimes) and demand streams (HEC/KAC upgrades, repairs, warranties)
-                        </p>
-                    </div>
-                </div>
-
+            {/* Section Header with Mode Toggle & Dual Reconciliation Branding */}
+            <div className="bg-white/95 dark:bg-[#071324] p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 dark:border-[#18365d] shadow-xs flex flex-wrap items-center justify-between gap-3 glow-card">
                 {/* View Mode Toggle */}
-                <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-bold gap-1 flex-wrap">
+                <div className="flex items-center bg-slate-100 dark:bg-[#081324] p-0.5 rounded-xl border border-slate-200 dark:border-[#18365d] text-xs font-bold gap-1 flex-wrap">
                     <button
                         type="button"
                         onClick={() => setViewMode('side_by_side')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
                             viewMode === 'side_by_side'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-white dark:bg-[#0c1b31] text-[#005eb8] dark:text-[#80c6ff] shadow-xs'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 hover:bg-slate-200/60 dark:hover:bg-[#18365d]'
                         }`}
                     >
-                        <IconBarChart className="w-3.5 h-3.5 text-[#005eb8]" />
+                        <IconScale className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
                         <span>Side-by-Side</span>
                     </button>
                     <button
                         type="button"
                         onClick={() => setViewMode('capacity_only')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
                             viewMode === 'capacity_only'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-white dark:bg-[#0c1b31] text-[#005eb8] dark:text-[#80c6ff] shadow-xs'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 hover:bg-slate-200/60 dark:hover:bg-[#18365d]'
                         }`}
                     >
-                        <IconBolt className="w-3.5 h-3.5 text-amber-500" />
+                        <IconBolt className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                         <span>Capacity Waterfall</span>
                     </button>
                     <button
                         type="button"
                         onClick={() => setViewMode('demand_only')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
                             viewMode === 'demand_only'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-white dark:bg-[#0c1b31] text-[#005eb8] dark:text-[#80c6ff] shadow-xs'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 hover:bg-slate-200/60 dark:hover:bg-[#18365d]'
                         }`}
                     >
-                        <IconTrendingUp className="w-3.5 h-3.5 text-blue-600" />
+                        <IconTrendingUp className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         <span>Demand Waterfall</span>
                     </button>
                     <button
                         type="button"
                         onClick={() => setViewMode('work_stream_rebalance')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
                             viewMode === 'work_stream_rebalance'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-white dark:bg-[#0c1b31] text-[#005eb8] dark:text-[#80c6ff] shadow-xs'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 hover:bg-slate-200/60 dark:hover:bg-[#18365d]'
                         }`}
                     >
-                        <IconScale className="w-3.5 h-3.5 text-indigo-600" />
+                        <IconRefresh className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                         <span>Work Stream Rebalance</span>
                     </button>
+                </div>
+
+                {/* 2 Dual Reconciliations Badge (as styled in dark and light mockups) */}
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#081324] text-slate-700 dark:text-[#80c6ff] border border-slate-200 dark:border-[#18365d] text-xs font-bold shadow-2xs select-none">
+                    <IconRefresh className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                    <span>2 Dual Reconciliations</span>
                 </div>
             </div>
 
@@ -11170,13 +11261,14 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
                     {(viewMode === 'side_by_side' || viewMode === 'capacity_only') && (
                         <WaterfallSvgChart
                             title="Capacity Waterfall (Available Hours Bridge)"
-                            subtitle="Gross hours, sickness, holiday, training, meeting & others downtimes"
+                            subtitle="Shows how different factors impact available capacity versus demand."
                             steps={capData.steps}
                             unit="hrs"
                             badgeText="Available Hours Bridge"
                             iconText="bolt"
                             idPrefix="cap-wf"
                             isSingleView={isSingleView}
+                            isDarkMode={isDarkMode}
                         />
                     )}
 
@@ -11184,13 +11276,14 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
                     {(viewMode === 'side_by_side' || viewMode === 'demand_only') && (
                         <WaterfallSvgChart
                             title="Demand Waterfall (Total Demand Hours Bridge)"
-                            subtitle="HEC & KAC upgrade, repair, warranty streams reconciling to total demand"
+                            subtitle="NECB & other adjustments (pool, growth, variations) for total demand."
                             steps={demData.steps}
                             unit="hrs"
                             badgeText="Total Demand Bridge"
                             iconText="trend"
                             idPrefix="dem-wf"
                             isSingleView={isSingleView}
+                            isDarkMode={isDarkMode}
                         />
                     )}
                 </div>
@@ -11210,7 +11303,9 @@ function ScenarioComparisonView({
     setComparisonScenarioId,
     selectedGeographyFile,
     geographyDatasets = {},
-    onNavigateToInputs
+    onNavigateToInputs,
+    isDarkMode = false,
+    showToast
 }) {
     // 1. Geography hierarchy extraction from selected geography mapping file
     const geoRows = useMemo(() => {
@@ -11251,7 +11346,7 @@ function ScenarioComparisonView({
     const [selectedGeo, setSelectedGeo] = useState({
         type: 'national',
         id: 'national',
-        label: 'National (All UK)',
+        label: 'National',
         count: totalTerritoriesCount || 18
     });
 
@@ -11265,16 +11360,7 @@ function ScenarioComparisonView({
     const [skillFilter, setSkillFilter] = useState('ALL'); // 'ALL' | 'HEC' | 'KAC'
     const [startDate, setStartDate] = useState('2026-09-28');
     const [endDate, setEndDate] = useState('2026-11-16');
-    const [isGeoExpanded, setIsGeoExpanded] = useState(false);
-
-    // Helper to get formatted scope text
-    const getScopeDisplay = () => {
-        if (selectedGeo.type === 'national') return "National (Centrica UK)";
-        if (selectedGeo.type === 'region') return `Region ${selectedGeo.id} (All Patches)`;
-        if (selectedGeo.type === 'acdm') return `ACDM ${selectedGeo.id} (Reg ${selectedGeo.region})`;
-        if (selectedGeo.type === 'territory') return selectedGeo.label || selectedGeo.id;
-        return selectedGeo.label || "National (All UK)";
-    };
+    const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
 
     const allWeeks = [
         "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
@@ -11294,29 +11380,16 @@ function ScenarioComparisonView({
         const tmp = baselineScenarioId;
         setBaselineScenarioId(comparisonScenarioId);
         setComparisonScenarioId(tmp);
+        if (showToast) showToast('Baseline and Comparison Scenarios swapped', 'info');
     };
 
     // Reset all filters handler
     const handleResetFilters = () => {
-        setSelectedGeo({ type: 'national', id: 'national', label: 'National (All UK)', count: totalTerritoriesCount });
+        setSelectedGeo({ type: 'national', id: 'national', label: 'National', count: totalTerritoriesCount });
         setSkillFilter('ALL');
         setStartDate('2026-09-28');
         setEndDate('2026-11-16');
-        setIsGeoExpanded(false);
-    };
-
-    // Quick Horizon Preset handler
-    const handlePresetDates = (preset) => {
-        if (preset === 'all') {
-            setStartDate(allWeeks[0]);
-            setEndDate(allWeeks[allWeeks.length - 1]);
-        } else if (preset === 'first4') {
-            setStartDate(allWeeks[0]);
-            setEndDate(allWeeks[3]);
-        } else if (preset === 'last4') {
-            setStartDate(allWeeks[4]);
-            setEndDate(allWeeks[allWeeks.length - 1]);
-        }
+        if (showToast) showToast('All comparison filters reset to default', 'info');
     };
 
     // Filter Multipliers for Demand & Capacity calculation
@@ -11358,174 +11431,218 @@ function ScenarioComparisonView({
 
     return (
         <div className="space-y-4 w-full">
-            {/* 1 & 2. UNIFIED COMPACT SCENARIO COMPARATOR & OPERATIONAL FILTERS PANEL */}
-            <div className="bg-gradient-to-b from-blue-50/90 via-sky-50/30 to-white dark:bg-gradient-to-b dark:from-[#0f2444] dark:via-[#0c1c36] dark:to-[#08152a] p-3 sm:p-3.5 rounded-xl border-2 border-blue-400/80 dark:border-blue-500/70 shadow-lg shadow-blue-500/10 dark:shadow-[0_8px_32px_rgba(0,140,255,0.22)] ring-1 ring-blue-500/30 dark:ring-blue-400/30 relative z-30 space-y-2.5">
-                {/* Master Control Deck Accent Top Bar */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#005eb8] via-[#00a3e0] to-indigo-600 rounded-t-xl pointer-events-none"></div>
+            {/* 1 & 2. UNIFIED SCENARIO COMPARATOR & OPERATIONAL FILTERS CARD */}
+            <div className="diff-filter-card bg-white/95 dark:bg-[#06101f] p-3.5 sm:p-4 rounded-2xl border border-blue-200/80 dark:border-2 dark:border-[#1e40af] shadow-sm dark:shadow-[0_0_24px_rgba(30,64,175,0.25)] relative z-30 space-y-3 transition-all duration-200">
+                {/* Header row: Filters pill & Actions */}
+                <div className="flex items-center justify-between gap-2">
+                    <span className="px-3 py-1 bg-[#005eb8] text-white font-bold text-xs rounded-full flex items-center gap-1.5 shadow-sm">
+                        <IconFilter className="w-3.5 h-3.5" />
+                        <span>Filters</span>
+                    </span>
 
-                {/* Row 1: Dual Scenario Selectors with Swap */}
-                <div className="flex items-center gap-2.5 pb-2.5 border-b border-blue-200/70 dark:border-blue-900/60 w-full pt-0.5">
-                    {/* Baseline Scenario (1) */}
-                    <div className="flex-1 min-w-0 flex items-center gap-2 bg-blue-50/70 dark:bg-[#071324] border border-blue-300 dark:border-blue-600/50 rounded-lg px-2.5 py-1.5 shadow-2xs">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-[#005eb8] dark:text-[#80c6ff] flex-shrink-0 flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-blue-600 ring-2 ring-blue-200 dark:ring-blue-900" />
-                            <span>Baseline Scenario (1):</span>
-                        </span>
-                        <select
-                            value={baselineScenarioId}
-                            onChange={(e) => setBaselineScenarioId(e.target.value)}
-                            className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded px-2 py-0.5 focus:ring-1 focus:ring-blue-500 cursor-pointer truncate"
-                            title={`Baseline Scenario (1): ${baselineScenarioId} - ${scen1.remarks || 'Operating Plan Baseline'}`}
-                        >
-                            {Object.keys(scenarios).map(id => (
-                                <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Swap Scenarios Button */}
-                    <button
-                        type="button"
-                        onClick={handleSwapScenarios}
-                        className="px-3 py-1.5 rounded-lg bg-white hover:bg-blue-50 dark:bg-[#08152a] dark:hover:bg-[#112649] text-slate-700 dark:text-[#adbed4] hover:text-[#005eb8] dark:hover:text-white border border-blue-200 dark:border-blue-700/60 transition shadow-2xs flex-shrink-0 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
-                        title="Swap Baseline and Comparison Scenarios"
-                    >
-                        <span className="text-sm">⇄</span>
-                        <span>Swap Scenarios</span>
-                    </button>
-
-                    {/* Comparison Scenario (2) */}
-                    <div className="flex-1 min-w-0 flex items-center gap-2 bg-emerald-50/70 dark:bg-[#071324] border border-emerald-300 dark:border-emerald-600/50 rounded-lg px-2.5 py-1.5 shadow-2xs">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex-shrink-0 flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 dark:ring-emerald-900" />
-                            <span>Comparison Scenario (2):</span>
-                        </span>
-                        <select
-                            value={comparisonScenarioId}
-                            onChange={(e) => setComparisonScenarioId(e.target.value)}
-                            className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded px-2 py-0.5 focus:ring-1 focus:ring-emerald-500 cursor-pointer truncate"
-                            title={`Comparison Scenario (2): ${comparisonScenarioId} - ${scen2.remarks || 'Secondary revision'}`}
-                        >
-                            {Object.keys(scenarios).map(id => (
-                                <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
-                            ))}
-                        </select>
+                    <div className="flex items-center gap-2">
+                        {!isFiltersCollapsed ? (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={handleResetFilters}
+                                    className="px-3 py-1 rounded-full bg-white dark:bg-[#0c1b31] hover:bg-slate-100 dark:hover:bg-[#18365d] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold flex items-center gap-1 shadow-2xs transition cursor-pointer"
+                                    title="Reset filters to default"
+                                >
+                                    <IconRefresh className="w-3 h-3 text-slate-500 dark:text-slate-400" />
+                                    <span>Reset</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsFiltersCollapsed(true)}
+                                    className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-[#80c6ff] ml-1.5 cursor-pointer transition select-none"
+                                >
+                                    Collapse ▴
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => setIsFiltersCollapsed(false)}
+                                className="text-xs font-bold text-blue-600 dark:text-[#80c6ff] hover:underline cursor-pointer select-none"
+                            >
+                                Expand ▾
+                            </button>
+                        )}
                     </div>
                 </div>
 
-                {/* Row 2: 3 Compact Drill-Down Filters (Geography, Skill, Date) */}
-                <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-2.5">
-                    {/* A. Geography Hierarchy Scope Filter */}
-                    <div className="flex-1 min-w-[190px] flex items-center gap-2 relative z-50">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-[#005eb8] dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1 flex-shrink-0" title="Geography Scope">
-                            <IconGlobe className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
-                            <span>Geography:</span>
-                        </span>
-                        <div className="flex-1 min-w-0">
-                            <GeographyHierarchySelector
-                                hierarchy={hierarchy}
-                                selectedGeo={selectedGeo}
-                                onSelectGeo={setSelectedGeo}
-                                sourceFileName={selectedGeographyFile}
-                                onNavigateToInputs={onNavigateToInputs}
-                                compact={true}
-                            />
-                        </div>
-                    </div>
+                {!isFiltersCollapsed && (
+                    <>
+                        {/* Row 1: Dual Scenario Selectors with Swap */}
+                        <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5 pt-1">
+                            {/* Baseline Scenario (1) */}
+                            <div className="flex-1 min-w-[240px] flex items-center gap-2 bg-slate-50/70 dark:bg-[#08162b] border border-slate-200 dark:border-[#1a3862] rounded-xl px-3 py-2 shadow-2xs">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] flex-shrink-0 flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-blue-600 ring-2 ring-blue-200 dark:ring-blue-900" />
+                                    <span>BASELINE SCENARIO (D1)</span>
+                                    <span title="Primary baseline reference scenario" className="cursor-help text-slate-400">
+                                        <IconInfo className="w-3 h-3" />
+                                    </span>
+                                </span>
+                                <select
+                                    value={baselineScenarioId}
+                                    onChange={(e) => setBaselineScenarioId(e.target.value)}
+                                    className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-blue-500 cursor-pointer truncate shadow-2xs"
+                                    title={`Baseline Scenario (1): ${baselineScenarioId} - ${scen1.remarks || 'Operating Plan Baseline'}`}
+                                >
+                                    {Object.keys(scenarios).map(id => (
+                                        <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
+                                    ))}
+                                </select>
+                            </div>
 
-                    {/* B. Skill Type Filter */}
-                    <div className="flex items-center gap-2 flex-shrink-0" title="Skill Type Filter">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-[#005eb8] dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
-                            <IconBolt className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
-                            <span>Skill:</span>
-                        </span>
-                        <div className="flex items-center bg-white/90 dark:bg-[#081324] p-0.5 rounded-lg border border-slate-200 dark:border-[#18365d] h-[32px] shadow-2xs">
-                            {[
-                                { id: 'ALL', label: 'All Skills', icon: IconGlobe },
-                                { id: 'HEC', label: 'HEC Core', icon: IconBolt },
-                                { id: 'KAC', label: 'KAC Appliance', icon: IconWrench }
-                            ].map(s => {
-                                const IconComp = s.icon;
-                                const isSelected = skillFilter === s.id;
-                                return (
-                                    <button
-                                        key={s.id}
-                                        type="button"
-                                        onClick={() => setSkillFilter(s.id)}
-                                        className={`px-2.5 h-full text-[11px] font-bold rounded-md transition-all flex items-center justify-center gap-1 cursor-pointer select-none ${
-                                            isSelected
-                                                ? 'bg-[#005eb8] text-white dark:bg-[#183a6b] dark:text-[#80c6ff] shadow-xs border border-blue-600 dark:border-[#2563eb]/60'
-                                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
-                                        }`}
+                            {/* Swap Scenarios Button */}
+                            <button
+                                type="button"
+                                onClick={handleSwapScenarios}
+                                className="px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50 dark:bg-[#0c1f38] dark:hover:bg-[#122b4d] text-slate-700 dark:text-white hover:text-[#005eb8] border border-slate-200 dark:border-blue-600/50 transition shadow-2xs flex-shrink-0 cursor-pointer flex items-center gap-1.5 text-xs font-bold select-none"
+                                title="Swap Baseline and Comparison Scenarios"
+                            >
+                                <IconArrowsSwap className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                                <span>Swap Scenarios</span>
+                            </button>
+
+                            {/* Comparison Scenario (2) */}
+                            <div className="flex-1 min-w-[240px] flex items-center gap-2 bg-slate-50/70 dark:bg-[#08162b] border border-slate-200 dark:border-[#1a3862] rounded-xl px-3 py-2 shadow-2xs">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-emerald-400 flex-shrink-0 flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 dark:ring-emerald-900" />
+                                    <span>COMPARISON SCENARIO (2I)</span>
+                                    <span title="Secondary comparison scenario" className="cursor-help text-slate-400">
+                                        <IconInfo className="w-3 h-3" />
+                                    </span>
+                                </span>
+                                <select
+                                    value={comparisonScenarioId}
+                                    onChange={(e) => setComparisonScenarioId(e.target.value)}
+                                    className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-emerald-500 cursor-pointer truncate shadow-2xs"
+                                    title={`Comparison Scenario (2): ${comparisonScenarioId} - ${scen2.remarks || 'Secondary revision'}`}
+                                >
+                                    {Object.keys(scenarios).map(id => (
+                                        <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Row 2: 3 Drill-Down Filters (Geography, Skill, Date) */}
+                        <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-3 pt-1 border-t border-slate-100 dark:border-[#18365d]/80">
+                            {/* A. Geography Hierarchy Scope Filter */}
+                            <div className="flex-1 min-w-[200px] flex items-center gap-2 relative z-50">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1 flex-shrink-0" title="Geography Scope">
+                                    <IconGlobe className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                                    <span>GEOGRAPHY:</span>
+                                </span>
+                                <div className="flex-1 min-w-0">
+                                    <GeographyHierarchySelector
+                                        hierarchy={hierarchy}
+                                        selectedGeo={selectedGeo}
+                                        onSelectGeo={setSelectedGeo}
+                                        sourceFileName={selectedGeographyFile}
+                                        onNavigateToInputs={onNavigateToInputs}
+                                        compact={true}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* B. Skill Type Filter */}
+                            <div className="flex items-center gap-2 flex-shrink-0" title="Skill Type Filter">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
+                                    <IconUsers className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                                    <span>SKILL:</span>
+                                </span>
+                                <div className="flex items-center bg-white dark:bg-[#081324] p-0.5 rounded-xl border border-slate-200 dark:border-[#18365d] h-[34px] shadow-2xs">
+                                    {[
+                                        { id: 'ALL', label: 'All Skills', icon: IconUsers },
+                                        { id: 'HEC', label: 'HEC Core', icon: IconBolt },
+                                        { id: 'KAC', label: 'KAC Appliance', icon: IconWrench }
+                                    ].map(s => {
+                                        const IconComp = s.icon;
+                                        const isSelected = skillFilter === s.id;
+                                        return (
+                                            <button
+                                                key={s.id}
+                                                type="button"
+                                                onClick={() => setSkillFilter(s.id)}
+                                                className={`px-3 h-full text-[11px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                                                    isSelected
+                                                        ? 'bg-blue-100 text-[#005eb8] dark:bg-[#1d4ed8] dark:text-white shadow-xs font-extrabold'
+                                                        : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
+                                                }`}
+                                            >
+                                                <IconComp className="w-3 h-3 flex-shrink-0" />
+                                                <span>{s.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* C. Date Range Filter */}
+                            <div className="flex items-center gap-2 flex-shrink-0" title="Date Range Filter">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
+                                    <IconCalendar className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                                    <span>DATE:</span>
+                                </span>
+                                <div className="flex items-center gap-1.5 bg-white dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl px-2.5 h-[34px] shadow-2xs">
+                                    <select
+                                        value={startDate}
+                                        onChange={(e) => {
+                                            if (e.target.value <= endDate) setStartDate(e.target.value);
+                                        }}
+                                        className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
+                                        title="Start Week"
                                     >
-                                        <IconComp className="w-3 h-3 flex-shrink-0" />
-                                        <span>{s.label}</span>
-                                    </button>
-                                );
-                            })}
+                                        {allWeeks.map(w => (
+                                            <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
+                                        ))}
+                                    </select>
+                                    <span className="text-slate-400 text-xs font-bold select-none">→</span>
+                                    <select
+                                        value={endDate}
+                                        onChange={(e) => {
+                                            if (e.target.value >= startDate) setEndDate(e.target.value);
+                                        }}
+                                        className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
+                                        title="End Week"
+                                    >
+                                        {allWeeks.map(w => (
+                                            <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-
-                    {/* C. Date Range Filter */}
-                    <div className="flex items-center gap-2 flex-shrink-0" title="Date Range Filter">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-[#005eb8] dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
-                            <IconCalendar className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
-                            <span>Date:</span>
-                        </span>
-                        <div className="flex items-center gap-1 bg-white dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-lg px-2 h-[32px] shadow-2xs">
-                            <select
-                                value={startDate}
-                                onChange={(e) => {
-                                    if (e.target.value <= endDate) setStartDate(e.target.value);
-                                }}
-                                className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
-                                title="Start Week"
-                            >
-                                {allWeeks.map(w => (
-                                    <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
-                                ))}
-                            </select>
-                            <span className="text-slate-400 text-[10px] font-bold">→</span>
-                            <select
-                                value={endDate}
-                                onChange={(e) => {
-                                    if (e.target.value >= startDate) setEndDate(e.target.value);
-                                }}
-                                className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
-                                title="End Week"
-                            >
-                                {allWeeks.map(w => (
-                                    <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                </div>
+                    </>
+                )}
             </div>
 
-
-
-            {/* 3. EXECUTIVE KPI METRIC CARDS HEADER WITH HOURS <-> FTE TOGGLE */}
+            {/* 2. EXECUTIVE SCENARIO KPI SCORECARD HEADER */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                 <div className="flex items-center gap-2">
-                    <span className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                        <IconTarget className="w-4 h-4 text-[#005eb8]" />
+                    <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <IconBarChart className="w-4 h-4 text-[#005eb8] dark:text-[#60a5fa]" />
                         <span>Executive Scenario KPI Scorecard</span>
                     </span>
-                    <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">
-                        {metricUnit === 'fte' ? 'FTE Unit Mode (37.5h / Wk)' : 'Total Hours Mode'}
+                    <span className="text-[10px] bg-slate-100 dark:bg-[#0c1b31] text-slate-600 dark:text-[#80c6ff] border border-slate-200 dark:border-[#18365d] px-2.5 py-0.5 rounded-full font-bold">
+                        {metricUnit === 'fte' ? 'FTE Unit Mode (37.5h / Wk)' : 'Total Hours Model'}
                     </span>
                 </div>
 
                 {/* Hours <-> FTE Unit Toggle */}
-                <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-bold gap-1 shadow-2xs">
+                <div className="flex items-center bg-slate-100 dark:bg-[#081324] p-0.5 rounded-full border border-slate-200 dark:border-[#18365d] text-xs font-bold gap-1 shadow-2xs">
                     <button
                         type="button"
                         onClick={() => setMetricUnit('hrs')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1 rounded-full transition cursor-pointer flex items-center gap-1.5 ${
                             metricUnit === 'hrs'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-[#005eb8] text-white shadow-xs font-extrabold'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
                         }`}
                         title="Display values in total standard working hours"
                     >
@@ -11535,10 +11652,10 @@ function ScenarioComparisonView({
                     <button
                         type="button"
                         onClick={() => setMetricUnit('fte')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1 rounded-full transition cursor-pointer flex items-center gap-1.5 ${
                             metricUnit === 'fte'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-[#005eb8] text-white shadow-xs font-extrabold'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
                         }`}
                         title="Display values normalized to standard Centrica FTEs (37.5 hrs/week)"
                     >
@@ -11548,93 +11665,169 @@ function ScenarioComparisonView({
                 </div>
             </div>
 
-            {/* 3. EXECUTIVE KPI METRIC CARDS */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 relative z-10">
-                {/* Net Delta Imbalance */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden group glow-card">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Net Imbalance Delta</span>
-                        <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shadow-2xs flex-shrink-0 glow-icon glow-icon-emerald">
-                            <IconScale className="w-3.5 h-3.5 text-emerald-600" />
-                        </div>
-                    </div>
-                    <div className="flex items-baseline gap-1 mt-1.5">
-                        <span className="text-xl sm:text-2xl font-black text-emerald-600 tracking-tight font-mono">
-                            {metricUnit === 'fte' ? `+${toFte(totals.totDelta)}` : `+${totals.totDelta.toLocaleString()}`}
+            {/* 3. EXECUTIVE KPI METRIC CARDS (4 Compact Glowing Cards Aligned with Executive Insights) */}
+            {(() => {
+                // Uniform KPI badge renderer: positive (green), drop (red), neutral (normal)
+                const renderKpiBadge = (type, icon, text) => {
+                    let styleClasses = "";
+                    if (type === 'positive') {
+                        styleClasses = "bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-[#062c1f] dark:text-[#34d399] dark:border-[#10b981]/40";
+                    } else if (type === 'drop') {
+                        styleClasses = "bg-rose-50 text-rose-700 border-rose-200/60 dark:bg-[#2c0b0e] dark:text-[#f87171] dark:border-[#ef4444]/40";
+                    } else {
+                        styleClasses = "bg-slate-100 text-slate-700 border-slate-200 dark:bg-[#0c1b31] dark:text-[#94a3b8] dark:border-[#18365d]";
+                    }
+                    return (
+                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap flex-shrink-0 ${styleClasses}`}>
+                            <span className="text-[8px]">{icon}</span>
+                            <span>{text}</span>
                         </span>
-                        <span className="text-xs text-slate-500 font-bold">{metricUnit === 'fte' ? 'FTE' : 'hrs'}</span>
-                    </div>
-                    <div className="mt-1.5 flex items-center gap-1">
-                        <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-extrabold">
-                            {metricUnit === 'fte' ? `▲ +${toFte(totals.totDelta)} FTE advantage` : '▲ Comparison Advantage'}
-                        </span>
-                    </div>
-                </div>
+                    );
+                };
 
-                {/* Comparison Demand */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden glow-card">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-[#005eb8]"></div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Demand</span>
-                        <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 text-[#005eb8] flex items-center justify-center shadow-2xs flex-shrink-0 glow-icon glow-icon-blue">
-                            <IconDemand className="w-3.5 h-3.5 text-[#005eb8]" />
-                        </div>
-                    </div>
-                    <div className="flex items-baseline gap-1 mt-1.5">
-                        <span className="text-xl sm:text-2xl font-black text-[#005eb8] tracking-tight font-mono">
-                            {metricUnit === 'fte' ? toFte(totals.totD2) : totals.totD2.toLocaleString()}
-                        </span>
-                        <span className="text-xs text-slate-500 font-bold">{metricUnit === 'fte' ? 'FTE' : 'hrs'}</span>
-                    </div>
-                    <span className="text-[10px] text-slate-500 mt-1.5 block truncate font-medium">
-                        {metricUnit === 'fte'
-                            ? `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${toFte(totals.totD2 - totals.totD1)} FTE vs Baseline (${toFte(totals.totD1)})`
-                            : `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${(totals.totD2 - totals.totD1).toLocaleString()} hrs vs Baseline (${totals.totD1.toLocaleString()})`
-                        }
-                    </span>
-                </div>
+                // 1. Net Imbalance Delta
+                const netVal = totals.totDelta;
+                const netType = netVal > 0 ? 'positive' : (netVal < 0 ? 'drop' : 'neutral');
+                const netIcon = netVal > 0 ? '▲' : (netVal < 0 ? '▼' : '●');
+                const netBadgeLabel = netVal > 0 ? 'Comparison Advantage' : (netVal < 0 ? 'Comparison Deficit' : 'Balanced Parity');
 
-                {/* Comparison Capacity */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden glow-card">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-700 to-slate-900"></div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Capacity</span>
-                        <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-center shadow-2xs flex-shrink-0 glow-icon glow-icon-slate">
-                            <IconCapacity className="w-3.5 h-3.5 text-slate-800" />
-                        </div>
-                    </div>
-                    <div className="flex items-baseline gap-1 mt-1.5">
-                        <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono">
-                            {metricUnit === 'fte' ? toFte(totals.totC2) : totals.totC2.toLocaleString()}
-                        </span>
-                        <span className="text-xs text-slate-500 font-bold">{metricUnit === 'fte' ? 'FTE' : 'hrs'}</span>
-                    </div>
-                    <span className="text-[10px] text-emerald-600 mt-1.5 block truncate font-bold">
-                        {metricUnit === 'fte'
-                            ? `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${toFte(totals.totC2 - totals.totC1)} FTE vs Baseline (${toFte(totals.totC1)})`
-                            : `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${(totals.totC2 - totals.totC1).toLocaleString()} hrs vs Baseline (${totals.totC1.toLocaleString()})`
-                        }
-                    </span>
-                </div>
+                // 2. Comparison Demand Delta vs Baseline
+                const demandDelta = totals.totD2 - totals.totD1;
+                const demandType = demandDelta < 0 ? 'drop' : (demandDelta > 0 ? 'positive' : 'neutral');
+                const demandIcon = demandDelta > 0 ? '▲' : (demandDelta < 0 ? '▼' : '●');
+                const demandDeltaText = demandDelta === 0 
+                    ? `0 ${metricUnit === 'fte' ? 'FTE' : 'hrs'}` 
+                    : `${demandDelta > 0 ? '+' : '-'}${metricUnit === 'fte' ? toFte(Math.abs(demandDelta)) : Math.abs(demandDelta).toLocaleString()} ${metricUnit === 'fte' ? 'FTE' : 'hrs'}`;
 
-                {/* Filter Scope Coverage */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden glow-card">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Operational Scope</span>
-                        <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shadow-2xs flex-shrink-0 glow-icon glow-icon-indigo">
-                            <IconMap className="w-3.5 h-3.5 text-indigo-600" />
+                // 3. Comparison Capacity Delta vs Baseline
+                const capDelta = totals.totC2 - totals.totC1;
+                const capType = capDelta > 0 ? 'positive' : (capDelta < 0 ? 'drop' : 'neutral');
+                const capIcon = capDelta > 0 ? '▲' : (capDelta < 0 ? '▼' : '●');
+                const capDeltaText = capDelta === 0 
+                    ? `0 ${metricUnit === 'fte' ? 'FTE' : 'hrs'}` 
+                    : `${capDelta > 0 ? '+' : '-'}${metricUnit === 'fte' ? toFte(Math.abs(capDelta)) : Math.abs(capDelta).toLocaleString()} ${metricUnit === 'fte' ? 'FTE' : 'hrs'}`;
+
+                // 4. Operational Scope
+                const scopeSkill = skillFilter === 'All' ? 'ALL' : skillFilter;
+
+                return (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative z-10">
+                        {/* 1. Net Imbalance Delta */}
+                        <div className="diff-kpi-card-net glow-card group cursor-pointer bg-gradient-to-br from-[#eafaf1] to-[#f4fcf7] dark:bg-[#041a14] px-3.5 py-2.5 rounded-xl border border-[#a7f3d0] dark:border-[#10b981] shadow-xs relative overflow-hidden transition-all duration-200">
+                            <WaveBackground strokeColor="#10b981" fillColor="#10b981" id="wave-net" />
+                            <div className="relative z-10 flex items-start gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center glow-icon glow-icon-emerald flex-shrink-0">
+                                    <IconScale className="w-4 h-4 text-current" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-300 tracking-wider whitespace-nowrap truncate block">
+                                        NET IMBALANCE DELTA
+                                    </span>
+                                    <div className="flex items-baseline gap-1.5 whitespace-nowrap leading-none mt-0.5">
+                                        <span className={`text-xl font-black tracking-tight leading-none whitespace-nowrap font-mono ${
+                                            netVal > 0 ? 'text-[#059669] dark:text-[#10b981]' : (netVal < 0 ? 'text-[#dc2626] dark:text-[#f87171]' : 'text-slate-900 dark:text-white')
+                                        }`}>
+                                            {netVal > 0 ? '+' : (netVal < 0 ? '-' : '')}
+                                            {metricUnit === 'fte' ? toFte(Math.abs(netVal)) : Math.abs(netVal).toLocaleString()}
+                                        </span>
+                                        <span className={`text-xs font-semibold whitespace-nowrap ${
+                                            netVal > 0 ? 'text-[#059669] dark:text-[#10b981]' : (netVal < 0 ? 'text-[#dc2626] dark:text-[#f87171]' : 'text-slate-400')
+                                        }`}>
+                                            {metricUnit === 'fte' ? 'FTE' : 'hrs'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                                        {renderKpiBadge(netType, netIcon, netBadgeLabel)}
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium whitespace-nowrap truncate">vs baseline</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 2. Comparison Demand */}
+                        <div className="diff-kpi-card-demand glow-card group cursor-pointer bg-gradient-to-br from-[#edf5fc] to-[#f8fbff] dark:bg-[#06152b] px-3.5 py-2.5 rounded-xl border border-[#bfdbfe] dark:border-[#2563eb] shadow-xs relative overflow-hidden transition-all duration-200">
+                            <WaveBackground strokeColor="#38bdf8" fillColor="#38bdf8" id="wave-demand" />
+                            <div className="relative z-10 flex items-start gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center glow-icon glow-icon-blue flex-shrink-0">
+                                    <IconUsers className="w-4 h-4 text-current" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-300 tracking-wider whitespace-nowrap truncate block">
+                                        COMPARISON DEMAND
+                                    </span>
+                                    <div className="flex items-baseline gap-1.5 whitespace-nowrap leading-none mt-0.5">
+                                        <span className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none whitespace-nowrap font-mono">
+                                            {metricUnit === 'fte' ? toFte(totals.totD2) : totals.totD2.toLocaleString()}
+                                        </span>
+                                        <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">
+                                            {metricUnit === 'fte' ? 'FTE' : 'hrs'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                                        {renderKpiBadge(demandType, demandIcon, demandDeltaText)}
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium whitespace-nowrap truncate">
+                                            vs Baseline ({metricUnit === 'fte' ? toFte(totals.totD1) : totals.totD1.toLocaleString()})
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 3. Comparison Capacity */}
+                        <div className="diff-kpi-card-capacity glow-card group cursor-pointer bg-gradient-to-br from-[#f5efff] to-[#faf7ff] dark:bg-[#120c2a] px-3.5 py-2.5 rounded-xl border border-[#ddd6fe] dark:border-[#7c3aed] shadow-xs relative overflow-hidden transition-all duration-200">
+                            <WaveBackground strokeColor="#c084fc" fillColor="#c084fc" id="wave-cap" />
+                            <div className="relative z-10 flex items-start gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center glow-icon glow-icon-purple flex-shrink-0">
+                                    <IconTrendingUp className="w-4 h-4 text-current" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-300 tracking-wider whitespace-nowrap truncate block">
+                                        COMPARISON CAPACITY
+                                    </span>
+                                    <div className="flex items-baseline gap-1.5 whitespace-nowrap leading-none mt-0.5">
+                                        <span className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none whitespace-nowrap font-mono">
+                                            {metricUnit === 'fte' ? toFte(totals.totC2) : totals.totC2.toLocaleString()}
+                                        </span>
+                                        <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">
+                                            {metricUnit === 'fte' ? 'FTE' : 'hrs'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                                        {renderKpiBadge(capType, capIcon, capDeltaText)}
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium whitespace-nowrap truncate">
+                                            vs Baseline ({metricUnit === 'fte' ? toFte(totals.totC1) : totals.totC1.toLocaleString()})
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 4. Operational Scope */}
+                        <div className="diff-kpi-card-scope glow-card group cursor-pointer bg-gradient-to-br from-[#fef7ec] to-[#fffcf7] dark:bg-[#1c1103] px-3.5 py-2.5 rounded-xl border border-[#fed7aa] dark:border-[#d97706] shadow-xs relative overflow-hidden transition-all duration-200">
+                            <WaveBackground strokeColor="#fbbf24" fillColor="#fbbf24" id="wave-scope" />
+                            <div className="relative z-10 flex items-start gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 text-amber-500 flex items-center justify-center glow-icon glow-icon-amber flex-shrink-0">
+                                    <IconTrophy className="w-4 h-4 text-current" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-300 tracking-wider whitespace-nowrap truncate block">
+                                        OPERATIONAL SCOPE
+                                    </span>
+                                    <div className="text-base font-black text-slate-900 dark:text-white mt-0.5 whitespace-nowrap leading-none truncate">
+                                        {selectedGeo?.name || 'National (All UK)'}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                                        {renderKpiBadge('neutral', '●', `Skill: ${scopeSkill}`)}
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium whitespace-nowrap truncate">
+                                            Weeks: Commencing
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="text-xs sm:text-sm font-black text-slate-900 mt-1.5 truncate">
-                        {selectedGeo.label}
-                    </div>
-                    <span className="text-[10px] text-slate-500 mt-1.5 block truncate font-medium">
-                        Skill: <b className="text-slate-700">{skillFilter}</b> • <b className="text-slate-700">{visibleWeeks.length}</b> Weeks Commencing
-                    </span>
-                </div>
-            </div>
+                );
+            })()}
 
             {/* 4. SCENARIO VARIANCE WATERFALL ANALYSIS: CAPACITY & DEMAND BRIDGES */}
             <ScenarioWaterfallBridgesSection
@@ -11643,36 +11836,37 @@ function ScenarioComparisonView({
                 visibleWeeks={visibleWeeks}
                 baselineScenarioId={baselineScenarioId}
                 comparisonScenarioId={comparisonScenarioId}
+                isDarkMode={isDarkMode}
             />
 
             {/* 5. WEEKLY DEMAND VS CAPACITY VARIANCE BREAKDOWN (COMBINED HORIZON & TABULAR VIEW) */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden glow-card relative z-10">
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100">
+            <div className="bg-white dark:bg-[#071324] p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-[#18365d] shadow-xs overflow-hidden glow-card relative z-10">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100 dark:border-[#18365d]">
                     <div>
-                        <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
+                        <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white flex items-center gap-2">
                             <span>Weekly Demand vs Capacity Variance Breakdown</span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#005eb8] border border-blue-200">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#005eb8] dark:text-[#80c6ff] border border-blue-200 dark:border-blue-800">
                                 Combined View
                             </span>
                         </h4>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
                             Granular week-by-week delta between Baseline ({baselineScenarioId}) and Comparison ({comparisonScenarioId})
                         </p>
                     </div>
 
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#0c1b31] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#18365d]">
                         {visibleWeeks.length} Active Weeks Commencing
                     </span>
                 </div>
 
                 {/* 8-Week Horizon Trajectory Chart */}
-                <div className="mb-4 p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80">
+                <div className="mb-4 p-3.5 bg-slate-50/70 dark:bg-[#08162b] rounded-xl border border-slate-200/80 dark:border-[#18365d]">
                     <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-extrabold text-slate-700 flex items-center gap-1.5">
-                            <IconTrendingUp className="w-3.5 h-3.5 text-[#005eb8]" />
+                        <span className="text-xs font-extrabold text-slate-700 dark:text-white flex items-center gap-1.5">
+                            <IconTrendingUp className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#60a5fa]" />
                             <span>8-Week Dual-Horizon Supply vs Demand Gap & Surplus Buffer</span>
                         </span>
-                        <span className="text-[10px] text-slate-500 font-semibold">
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
                             Hover points for exact weekly figures & net headroom
                         </span>
                     </div>
@@ -11681,99 +11875,105 @@ function ScenarioComparisonView({
                         baselineScenarioId={baselineScenarioId}
                         comparisonScenarioId={comparisonScenarioId}
                         metricUnit={metricUnit}
+                        isDarkMode={isDarkMode}
                     />
                 </div>
 
                 {/* Granular Table */}
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
-                        <table className="w-full text-left text-xs border-collapse">
-                            <thead>
-                                {/* Group Header Row */}
-                                <tr className="bg-slate-100/90 text-slate-600 text-[10px] font-extrabold uppercase tracking-wider border-b border-slate-200">
-                                    <th className="py-2 px-3 border-r border-slate-200">Planning Horizon</th>
-                                    <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 text-blue-700 bg-blue-50/50">Demand ({metricUnit === 'fte' ? 'FTE' : 'Hours'})</th>
-                                    <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 text-emerald-800 bg-emerald-50/50">Capacity ({metricUnit === 'fte' ? 'FTE' : 'Hours'})</th>
-                                    <th className="py-2 px-3 text-right text-emerald-700 bg-emerald-50/70">Net Variance</th>
-                                </tr>
-                                {/* Sub Header Row */}
-                                <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-[11px]">
-                                    <th className="py-2.5 px-3 border-r border-slate-200">Week Commencing</th>
-                                    <th className="py-2.5 px-3 text-slate-600">Baseline</th>
-                                    <th className="py-2.5 px-3 text-blue-700">Comp</th>
-                                    <th className="py-2.5 px-3 text-slate-500 border-r border-slate-200">Δ Demand</th>
-                                    <th className="py-2.5 px-3 text-slate-600">Baseline</th>
-                                    <th className="py-2.5 px-3 text-emerald-700">Comp</th>
-                                    <th className="py-2.5 px-3 text-slate-500 border-r border-slate-200">Δ Capacity</th>
-                                    <th className="py-2.5 px-3 text-right text-emerald-700">Delta Imbalance</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 text-slate-700">
-                                {weeklyData.map((r) => {
-                                    const dVar = r.d2 - r.d1;
-                                    const cVar = r.c2 - r.c1;
-                                    const unitSuffix = metricUnit === 'fte' ? ' FTE' : ' hrs';
-                                    const fmtVal = (val) => metricUnit === 'fte' ? (val / 37.5).toFixed(1) : val.toLocaleString();
+                <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#18365d]">
+                    <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                            {/* Group Header Row */}
+                            <tr className="bg-slate-100/90 dark:bg-[#08162b] text-slate-600 dark:text-slate-300 text-[10px] font-extrabold uppercase tracking-wider border-b border-slate-200 dark:border-[#18365d]">
+                                <th className="py-2 px-3 border-r border-slate-200 dark:border-[#18365d]">Planning Horizon</th>
+                                <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 dark:border-[#18365d] text-blue-700 dark:text-[#80c6ff] bg-blue-50/50 dark:bg-blue-950/30">Demand ({metricUnit === 'fte' ? 'FTE' : 'Hours'})</th>
+                                <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 dark:border-[#18365d] text-emerald-800 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30">Capacity ({metricUnit === 'fte' ? 'FTE' : 'Hours'})</th>
+                                <th className="py-2 px-3 text-right text-emerald-700 dark:text-emerald-400 bg-emerald-50/70 dark:bg-emerald-950/40">Net Variance</th>
+                            </tr>
+                            {/* Sub Header Row */}
+                            <tr className="bg-slate-50 dark:bg-[#0c1b31] text-slate-700 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-[#18365d] text-[11px]">
+                                <th className="py-2.5 px-3 border-r border-slate-200 dark:border-[#18365d]">Week Commencing</th>
+                                <th className="py-2.5 px-3 text-slate-600 dark:text-slate-400">Baseline</th>
+                                <th className="py-2.5 px-3 text-blue-700 dark:text-[#80c6ff]">Comp</th>
+                                <th className="py-2.5 px-3 text-slate-500 dark:text-slate-400 border-r border-slate-200 dark:border-[#18365d]">Δ Demand</th>
+                                <th className="py-2.5 px-3 text-slate-600 dark:text-slate-400">Baseline</th>
+                                <th className="py-2.5 px-3 text-emerald-700 dark:text-emerald-400">Comp</th>
+                                <th className="py-2.5 px-3 text-slate-500 dark:text-slate-400 border-r border-slate-200 dark:border-[#18365d]">Δ Capacity</th>
+                                <th className="py-2.5 px-3 text-right text-emerald-700 dark:text-emerald-400">Delta Imbalance</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-[#18365d] text-slate-700 dark:text-slate-300">
+                            {weeklyData.map((r) => {
+                                const dVar = r.d2 - r.d1;
+                                const cVar = r.c2 - r.c1;
+                                const unitSuffix = metricUnit === 'fte' ? ' FTE' : ' hrs';
+                                const fmtVal = (val) => metricUnit === 'fte' ? (val / 37.5).toFixed(1) : val.toLocaleString();
 
-                                    return (
-                                        <tr key={r.week} className="hover:bg-blue-50/30 transition">
-                                            <td className="py-2.5 px-3 font-bold text-slate-800 font-mono text-xs border-r border-slate-100">{r.week}</td>
-                                            <td className="py-2.5 px-3 text-slate-600 font-mono tabular-nums">{fmtVal(r.d1)}{unitSuffix}</td>
-                                            <td className="py-2.5 px-3 font-bold text-blue-700 font-mono tabular-nums">{fmtVal(r.d2)}{unitSuffix}</td>
-                                            <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-slate-500 border-r border-slate-100">
-                                                {dVar >= 0 ? `+${fmtVal(dVar)}` : fmtVal(dVar)}{unitSuffix}
-                                            </td>
-                                            <td className="py-2.5 px-3 text-slate-600 font-mono tabular-nums">{fmtVal(r.c1)}{unitSuffix}</td>
-                                            <td className="py-2.5 px-3 font-bold text-emerald-700 font-mono tabular-nums">{fmtVal(r.c2)}{unitSuffix}</td>
-                                            <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-emerald-600 border-r border-slate-100 font-bold">
-                                                {cVar >= 0 ? `+${fmtVal(cVar)}` : fmtVal(cVar)}{unitSuffix}
-                                            </td>
-                                            <td className="py-2.5 px-3 font-bold text-right font-mono tabular-nums">
-                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-extrabold ${
-                                                    r.delta >= 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
-                                                }`}>
-                                                    {r.delta >= 0 ? `+${fmtVal(r.delta)}` : fmtVal(r.delta)}{unitSuffix}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                            <tfoot>
-                                <tr className="bg-slate-100/90 font-black border-t-2 border-slate-300 text-slate-900 text-xs">
-                                    <td className="py-3 px-3 border-r border-slate-200 uppercase tracking-wide">Total / Summary</td>
-                                    <td className="py-3 px-3 font-mono tabular-nums text-slate-700">
-                                        {metricUnit === 'fte' ? toFte(totals.totD1) + ' FTE' : totals.totD1.toLocaleString() + ' hrs'}
-                                    </td>
-                                    <td className="py-3 px-3 font-mono tabular-nums text-blue-700">
-                                        {metricUnit === 'fte' ? toFte(totals.totD2) + ' FTE' : totals.totD2.toLocaleString() + ' hrs'}
-                                    </td>
-                                    <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-slate-600 border-r border-slate-200">
+                                return (
+                                    <tr key={r.week} className="hover:bg-blue-50/30 dark:hover:bg-[#112649] transition">
+                                        <td className="py-2.5 px-3 font-bold text-slate-800 dark:text-white font-mono text-xs border-r border-slate-100 dark:border-[#18365d]">{r.week}</td>
+                                        <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300 font-mono tabular-nums">{fmtVal(r.d1)}{unitSuffix}</td>
+                                        <td className="py-2.5 px-3 font-bold text-blue-700 dark:text-[#80c6ff] font-mono tabular-nums">{fmtVal(r.d2)}{unitSuffix}</td>
+                                        <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-slate-500 dark:text-slate-400 border-r border-slate-100 dark:border-[#18365d]">
+                                            {dVar >= 0 ? `+${fmtVal(dVar)}` : fmtVal(dVar)}{unitSuffix}
+                                        </td>
+                                        <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300 font-mono tabular-nums">{fmtVal(r.c1)}{unitSuffix}</td>
+                                        <td className="py-2.5 px-3 font-bold text-emerald-700 dark:text-emerald-400 font-mono tabular-nums">{fmtVal(r.c2)}{unitSuffix}</td>
+                                        <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-emerald-600 dark:text-emerald-400 border-r border-slate-100 dark:border-[#18365d] font-bold">
+                                            {cVar >= 0 ? `+${fmtVal(cVar)}` : fmtVal(cVar)}{unitSuffix}
+                                        </td>
+                                        <td className="py-2.5 px-3 font-bold text-right font-mono tabular-nums">
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-extrabold ${
+                                                r.delta >= 0 ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
+                                            }`}>
+                                                {r.delta >= 0 ? `+${fmtVal(r.delta)}` : fmtVal(r.delta)}{unitSuffix}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                        <tfoot>
+                            <tr className="bg-slate-100/90 dark:bg-[#08162b] font-black border-t-2 border-slate-300 dark:border-[#18365d] text-slate-900 dark:text-white text-xs">
+                                <td className="py-3 px-3 border-r border-slate-200 dark:border-[#18365d] uppercase tracking-wide">Total / Summary</td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-slate-700 dark:text-slate-300">
+                                    {metricUnit === 'fte' ? toFte(totals.totD1) + ' FTE' : totals.totD1.toLocaleString() + ' hrs'}
+                                </td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-blue-700 dark:text-[#80c6ff]">
+                                    {metricUnit === 'fte' ? toFte(totals.totD2) + ' FTE' : totals.totD2.toLocaleString() + ' hrs'}
+                                </td>
+                                <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-[#18365d]">
+                                    {metricUnit === 'fte'
+                                        ? `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${toFte(totals.totD2 - totals.totD1)} FTE`
+                                        : `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${(totals.totD2 - totals.totD1).toLocaleString()} hrs`
+                                    }
+                                </td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-slate-700 dark:text-slate-300">
+                                    {metricUnit === 'fte' ? toFte(totals.totC1) + ' FTE' : totals.totC1.toLocaleString() + ' hrs'}
+                                </td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-emerald-700 dark:text-emerald-400">
+                                    {metricUnit === 'fte' ? toFte(totals.totC2) + ' FTE' : totals.totC2.toLocaleString() + ' hrs'}
+                                </td>
+                                <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-emerald-600 dark:text-emerald-400 border-r border-slate-200 dark:border-[#18365d]">
+                                    {metricUnit === 'fte'
+                                        ? `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${toFte(totals.totC2 - totals.totC1)} FTE`
+                                        : `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${(totals.totC2 - totals.totC1).toLocaleString()} hrs`
+                                    }
+                                </td>
+                                <td className="py-3 px-3 text-right font-mono tabular-nums">
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-black ${
+                                        totals.totDelta >= 0 ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
+                                    }`}>
                                         {metricUnit === 'fte'
-                                            ? `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${toFte(totals.totD2 - totals.totD1)} FTE`
-                                            : `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${(totals.totD2 - totals.totD1).toLocaleString()} hrs`
+                                            ? `${totals.totDelta >= 0 ? '+' : ''}${toFte(totals.totDelta)} FTE`
+                                            : `${totals.totDelta >= 0 ? '+' : ''}${totals.totDelta.toLocaleString()} hrs`
                                         }
-                                    </td>
-                                    <td className="py-3 px-3 font-mono tabular-nums text-slate-700">
-                                        {metricUnit === 'fte' ? toFte(totals.totC1) + ' FTE' : totals.totC1.toLocaleString() + ' hrs'}
-                                    </td>
-                                    <td className="py-3 px-3 font-mono tabular-nums text-emerald-700">
-                                        {metricUnit === 'fte' ? toFte(totals.totC2) + ' FTE' : totals.totC2.toLocaleString() + ' hrs'}
-                                    </td>
-                                    <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-emerald-600 border-r border-slate-200">
-                                        {metricUnit === 'fte'
-                                            ? `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${toFte(totals.totC2 - totals.totC1)} FTE`
-                                            : `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${(totals.totC2 - totals.totC1).toLocaleString()} hrs`
-                                        }
-                                    </td>
-                                    <td className="py-3 px-3 text-right">
-                                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs font-mono">
-                                            {metricUnit === 'fte' ? `+${toFte(totals.totDelta)} FTE` : `+${totals.totDelta.toLocaleString()} hrs`}
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
     );

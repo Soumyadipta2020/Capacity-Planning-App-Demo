@@ -67,6 +67,21 @@ def create_modern_ui_page():
             ui.tags.link(rel="icon", type="image/x-icon", href="favicon.ico"),
             ui.tags.link(rel="shortcut icon", href="favicon.ico"),
             ui.tags.link(rel="apple-touch-icon", href="favicon.png"),
+
+            # Global JSON.parse sanitizer to prevent non-standard NaN / Infinity tokens from crashing Shiny client websocket
+            ui.tags.script("""
+                (function() {
+                    var origParse = JSON.parse;
+                    JSON.parse = function(text, reviver) {
+                        if (typeof text === 'string' && (text.indexOf('NaN') !== -1 || text.indexOf('Infinity') !== -1)) {
+                            text = text.replace(/:\\s*NaN\\b/g, ': null')
+                                       .replace(/:\\s*-Infinity\\b/g, ': null')
+                                       .replace(/:\\s*Infinity\\b/g, ': null');
+                        }
+                        return origParse.call(this, text, reviver);
+                    };
+                })();
+            """),
             
             # Google Font: Inter
             ui.tags.link(rel="preconnect", href="https://fonts.googleapis.com"),
@@ -169,6 +184,11 @@ def create_modern_ui_page():
                     padding: 0 !important;
                     overflow: hidden !important;
                     display: flex;
+                }
+
+                /* Suppress unstyled PyShiny default notification panel in Modern React UI */
+                #shiny-notification-panel {
+                    display: none !important;
                 }
 
                 /* Cluster Status Banner & Modals */
