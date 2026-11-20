@@ -3259,34 +3259,6 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
 
     return (
         <div className="space-y-3.5 w-full">
-            {/* HERO SCENARIO BANNER (COMPACT FLUID THEME) */}
-            <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-2.5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 glow-card">
-                <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 uppercase tracking-wider">
-                            {scenario.plan_type || 'LV'} Operating Scenario
-                        </span>
-                        <span className="text-[11px] font-semibold text-slate-500">
-                            Month: <strong className="text-slate-800">{scenario.month || 'OCT'}</strong> • Rev <strong className="text-slate-800">{scenario.version || '0'}</strong>
-                        </span>
-                    </div>
-                    <h2 className="text-base font-black text-slate-900 tracking-tight leading-tight">{scenario.id || "Operating Baseline"}</h2>
-                    <p className="text-xs text-slate-500 max-w-3xl truncate leading-normal">
-                        {scenario.remarks || "Approved operating plan incorporating seasonal winter demand, revised sickness downtime factor, and grounded apprentice cohorts."}
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
-                        onClick={onCompareScenario}
-                        className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg border border-slate-200/90 shadow-xs transition flex items-center gap-1.5 hover:border-blue-400 hover:text-blue-700"
-                    >
-                        <IconScale className="w-3.5 h-3.5 text-current" />
-                        <span>Compare Diff</span>
-                    </button>
-                </div>
-            </div>
-
             {/* BENTO KPI SUMMARY GRID (COMPACT GLOWING CARDS) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 {/* 1. Total Demand Card */}
@@ -3995,73 +3967,6 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         </div>
                     );
                 })()}
-            </div>
-
-            {/* AI DIAGNOSTICS & ACTIVE INPUT SUMMARY */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-                {/* Copilot Executive Takeaways */}
-                <div className="lg:col-span-2 bg-slate-50/80 p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-2 glow-card">
-                    <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-lg bg-blue-600/10 border border-blue-200/60 dark:border-blue-800/80 flex items-center justify-center text-blue-800 dark:text-blue-400 glow-icon glow-icon-blue">
-                            <IconRobot className="w-3.5 h-3.5 text-current" />
-                        </div>
-                        <h4 className="font-extrabold text-xs sm:text-sm text-blue-900">Capacity Copilot Scenario Takeaways</h4>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-0.5">
-                        <div className="bg-white/90 p-3 rounded-lg border border-blue-200/60 shadow-xs hover:border-blue-300 transition">
-                            <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                                <IconCheck className="w-3 h-3 text-emerald-600" />
-                                <span>Core Strength</span>
-                            </span>
-                            <p className="text-xs text-slate-700 leading-relaxed">
-                                Winter SLA target is achieved nationally. North and South East regions maintain comfortable buffers (+51.3 FTE combined).
-                            </p>
-                        </div>
-
-                        <div className="bg-white/90 p-3 rounded-lg border border-blue-200/60 shadow-xs hover:border-rose-300 transition">
-                            <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                                <IconAlertCircle className="w-3 h-3 text-rose-600" />
-                                <span>Localized Watchpoint</span>
-                            </span>
-                            <p className="text-xs text-slate-700 leading-relaxed">
-                                EC91 Leicester faces a -4.1 FTE gap during November boiler heating spikes. Mutual aid transfer from Altrincham recommended.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Quick Inputs Pill Card */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex flex-col justify-between glow-card">
-                    <div>
-                        <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
-                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-800">Active Input Blueprint</h4>
-                            <span className="text-[10px] font-bold text-slate-400">21 Linked Files</span>
-                        </div>
-
-                        <div className="space-y-1 mt-2 text-xs">
-                            <div className="flex items-center justify-between text-slate-600">
-                                <span className="font-medium text-[11px]">Resource Plan:</span>
-                                <span className="font-mono text-[11px] text-blue-700 font-semibold truncate max-w-[150px]">{scenario.inputs?.resource_plan || "V3_2026-07-07"}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-slate-600">
-                                <span className="font-medium text-[11px]">Demand Input:</span>
-                                <span className="font-mono text-[11px] text-blue-700 font-semibold truncate max-w-[150px]">{scenario.inputs?.demand_input || "MTP_Demand_#3"}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-slate-600">
-                                <span className="font-medium text-[11px]">Overlays (%):</span>
-                                <span className="font-mono text-[11px] text-blue-700 font-semibold truncate max-w-[150px]">{scenario.inputs?.downtime_overlays_percentage || "Overlays_Q3"}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={onConfigureInputs}
-                        className="w-full mt-2 text-center text-xs font-bold text-blue-700 hover:text-blue-900 hover:bg-blue-50 py-1.5 rounded-lg border border-blue-200 transition glow-button"
-                    >
-                        View & Modify All 21 Inputs →
-                    </button>
-                </div>
             </div>
         
             {/* Monte Carlo Simulation Modal */}

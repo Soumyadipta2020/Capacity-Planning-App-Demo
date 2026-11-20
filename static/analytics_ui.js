@@ -3,7 +3,7 @@ function AnalyticsField({
   title,
   children
 }) {
-  return <label className="block space-y-1.5"><span className="text-[11px] text-slate-500 font-semibold">{title}</span>{children}</label>;
+  return <label className="block space-y-1.5"><span className="text-[11px] text-slate-600 dark:text-[#adbed4] font-semibold">{title}</span>{children}</label>;
 }
 function AnalyticsTable({
   columns,
@@ -43,15 +43,15 @@ function AnalyticsTable({
     });
     setPage(0);
   };
-  return <div className="av-data-table"><div className="av-table-toolbar"><div><strong>{title}</strong><span>{filtered.length.toLocaleString()} records{query ? ' matching search' : ''}</span></div>{searchable && <label className="av-search-field"><AnalyticsIcon name="search" size={14} /><input aria-label={'Search ' + title.toLowerCase()} placeholder="Search these records…" value={query} onChange={e => setQuery(e.target.value)} />{query && <button onClick={() => setQuery('')} aria-label="Clear table search"><AnalyticsIcon name="close" size={12} /></button>}</label>}{onRow && <span className="av-table-hint">Select a row to investigate<AnalyticsIcon name="chevron" size={12} /></span>}</div><div className="av-table-scroll"><table><thead><tr>{columns.map(c => {
+  return <div className="av-data-table"><div className="av-table-toolbar"><div><strong>{title}</strong><span>{filtered.length.toLocaleString()} records{query ? ' matching search' : ''}</span></div>{searchable && <label className="av-search-field"><AnalyticsIcon name="search" size={14} className="text-slate-400 dark:text-[#80c6ff] flex-shrink-0" /><input aria-label={'Search ' + title.toLowerCase()} placeholder="Search these records…" value={query} onChange={e => setQuery(e.target.value)} className="text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#7d93b2]" />{query && <button onClick={() => setQuery('')} aria-label="Clear table search" className="text-slate-400 hover:text-slate-700 dark:text-[#adbed4] dark:hover:text-white cursor-pointer"><AnalyticsIcon name="close" size={12} /></button>}</label>}{onRow && <span className="av-table-hint text-slate-500 dark:text-[#adbed4]">Select a row to investigate<AnalyticsIcon name="chevron" size={12} className="text-current" /></span>}</div><div className="av-table-scroll"><table><thead><tr>{columns.map(c => {
               const sortable = rows.some(r => ['number', 'string', 'boolean'].includes(typeof r[c.key]));
-              return <th key={c.key} aria-sort={sort.key === c.key ? sort.direction === 1 ? 'ascending' : 'descending' : 'none'}>{sortable ? <button onClick={() => changeSort(c.key)} aria-label={'Sort by ' + c.label}>{c.label}<span className={sort.key === c.key ? 'av-sort-active' : ''}>{sort.key === c.key ? sort.direction === 1 ? '↑' : '↓' : '↕'}</span></button> : c.label}</th>;
+              return <th key={c.key} aria-sort={sort.key === c.key ? sort.direction === 1 ? 'ascending' : 'descending' : 'none'}>{sortable ? <button onClick={() => changeSort(c.key)} aria-label={'Sort by ' + c.label} className="text-slate-700 dark:text-white font-bold cursor-pointer">{c.label}<span className={sort.key === c.key ? 'av-sort-active text-[#005eb8] dark:text-[#80c6ff]' : 'text-slate-400 dark:text-slate-500'}>{sort.key === c.key ? sort.direction === 1 ? '↑' : '↓' : '↕'}</span></button> : c.label}</th>;
             })}</tr></thead><tbody>{filtered.slice(current * pageSize, (current + 1) * pageSize).map((r, i) => <tr key={r.id || i} onClick={() => onRow?.(r)} onKeyDown={e => {
             if (onRow && e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
               e.preventDefault();
               onRow(r);
             }
-          }} tabIndex={onRow ? 0 : undefined} className={onRow ? 'av-selectable-row' : ''}>{columns.map(c => <td key={c.key} data-negative={typeof r[c.key] === 'number' && r[c.key] < 0 ? true : undefined}>{c.render ? c.render(r) : String(r[c.key] ?? '—')}</td>)}</tr>)}</tbody></table>{!filtered.length && <AnalyticsEmpty icon="search" title={rows.length ? 'No records match this search' : 'No records in this scope'} description={rows.length ? 'Try another field or value, or clear the search.' : empty} />}</div>{filtered.length > 0 && <div className="av-browser-pagination"><span>Showing {current * pageSize + 1}–{Math.min((current + 1) * pageSize, filtered.length)} of {filtered.length.toLocaleString()}</span><div><button disabled={!current} onClick={() => setPage(current - 1)}>Previous rows</button><span>{current + 1} / {pages}</span><button disabled={current >= pages - 1} onClick={() => setPage(current + 1)}>Next rows</button></div></div>}</div>;
+          }} tabIndex={onRow ? 0 : undefined} className={onRow ? 'av-selectable-row cursor-pointer hover:bg-blue-50/70 dark:hover:bg-[#112649]' : ''}>{columns.map(c => <td key={c.key} data-negative={typeof r[c.key] === 'number' && r[c.key] < 0 ? true : undefined}>{c.render ? c.render(r) : String(r[c.key] ?? '—')}</td>)}</tr>)}</tbody></table>{!filtered.length && <AnalyticsEmpty icon="search" title={rows.length ? 'No records match this search' : 'No records in this scope'} description={rows.length ? 'Try another field or value, or clear the search.' : empty} />}</div>{filtered.length > 0 && <div className="av-browser-pagination text-slate-500 dark:text-[#adbed4]"><span>Showing {current * pageSize + 1}–{Math.min((current + 1) * pageSize, filtered.length)} of {filtered.length.toLocaleString()}</span><div className="flex items-center gap-1.5"><button disabled={!current} onClick={() => setPage(current - 1)} className="px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-[#18365d] bg-white dark:bg-[#0c1b31] text-slate-700 dark:text-[#adbed4] hover:bg-slate-50 dark:hover:bg-[#112649] hover:text-blue-600 dark:hover:text-white disabled:opacity-40 transition cursor-pointer">Previous rows</button><span className="text-xs font-bold text-slate-700 dark:text-white px-1">{current + 1} / {pages}</span><button disabled={current >= pages - 1} onClick={() => setPage(current + 1)} className="px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-[#18365d] bg-white dark:bg-[#0c1b31] text-slate-700 dark:text-[#adbed4] hover:bg-slate-50 dark:hover:bg-[#112649] hover:text-blue-600 dark:hover:text-white disabled:opacity-40 transition cursor-pointer">Next rows</button></div></div>}</div>;
 }
 function AnalyticsWorkspace({
   scenarios = {},
@@ -431,13 +431,13 @@ function AnalyticsWorkspace({
     };
     setRuns(prev => [...prev, run]);
   };
-  const button = 'px-3 py-2 rounded-lg text-xs font-semibold border border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50 transition disabled:opacity-40';
-  const select = 'w-full border border-slate-200 rounded-lg px-2.5 py-2 bg-white text-xs text-slate-700 focus:ring-2 focus:ring-blue-100';
+  const button = 'px-3 py-2 rounded-lg text-xs font-semibold border border-slate-200 dark:border-[#18365d] bg-white dark:bg-[#0c1b31] hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-[#112649] text-slate-700 dark:text-[#e2e8f0] transition disabled:opacity-40 cursor-pointer shadow-2xs';
+  const select = 'w-full border border-slate-200 dark:border-[#18365d] rounded-lg px-2.5 py-2 bg-white dark:bg-[#070e1c] text-xs text-slate-700 dark:text-white focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 dark:focus:border-blue-500 shadow-2xs';
   const panel = 'analytics-panel';
   const Table = AnalyticsTable;
   const Note = ({
     children
-  }) => <div className="text-xs leading-relaxed text-amber-900 bg-amber-50 border border-amber-100 rounded-xl p-3">{children}</div>;
+  }) => <div className="text-xs leading-relaxed text-amber-900 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl p-3 shadow-2xs">{children}</div>;
   const WaveBackground = ({ strokeColor, fillColor, id = "wave-grad" }) => (
     <svg
       className="absolute right-0 bottom-0 w-[38%] max-w-[140px] h-[65%] pointer-events-none select-none overflow-hidden"
@@ -516,83 +516,6 @@ function AnalyticsWorkspace({
     };
   };
 
-  const AnalyticsSubtabBracket = ({ activeArea, areas }) => {
-    const [coords, setCoords] = React.useState(null);
-
-    React.useEffect(() => {
-      const update = () => {
-        if (typeof document === 'undefined') return;
-        const areaNav = document.querySelector('.av-area-nav');
-        const viewNav = document.querySelector('.av-view-nav');
-        if (!areaNav || !viewNav) return;
-
-        const areaKeys = Object.keys(areas);
-        const activeIdx = Math.max(0, areaKeys.indexOf(activeArea));
-        const areaButtons = areaNav.querySelectorAll('button');
-        const activeBtn = areaButtons[activeIdx];
-        if (!activeBtn) return;
-
-        const navRect = areaNav.getBoundingClientRect();
-        const btnRect = activeBtn.getBoundingClientRect();
-        const tipX = (btnRect.left - navRect.left) + btnRect.width / 2;
-
-        const subButtons = viewNav.querySelectorAll('button');
-        if (!subButtons.length) return;
-        const firstSub = subButtons[0].getBoundingClientRect();
-        const lastSub = subButtons[subButtons.length - 1].getBoundingClientRect();
-
-        const startX = Math.max(4, firstSub.left - navRect.left);
-        const endX = Math.min(navRect.width - 4, lastSub.right - navRect.left);
-
-        setCoords({
-          start: startX,
-          end: endX,
-          tip: tipX
-        });
-      };
-
-      update();
-      const timer = setTimeout(update, 50);
-      window.addEventListener('resize', update);
-      return () => {
-        clearTimeout(timer);
-        window.removeEventListener('resize', update);
-      };
-    }, [activeArea, areas]);
-
-    const areaKeys = Object.keys(areas);
-    const activeIdx = Math.max(0, areaKeys.indexOf(activeArea));
-    const fallbackTips = [120, 370, 620, 870];
-    const fallbackEnds = [473, 440, 290, 180];
-    const tip = coords ? coords.tip : (fallbackTips[activeIdx] ?? 120);
-    const start = coords ? coords.start : 6;
-    const end = coords ? coords.end : (fallbackEnds[activeIdx] ?? 400);
-
-    const s = Math.min(start, tip - 20);
-    const e = Math.max(end, tip + 20);
-    const r = 6;
-    const yTop = 0;
-    const yBar = 7;
-    const yBottom = 14;
-
-    const pathD = `M ${s} ${yBottom} Q ${s} ${yBar} ${s + r} ${yBar} L ${e - r} ${yBar} Q ${e} ${yBar} ${e} ${yBottom} M ${tip} ${yBar} L ${tip} ${yTop}`;
-
-    return (
-      <div className="av-bracket-container relative w-full h-3.5 my-1 overflow-visible pointer-events-none" aria-hidden="true">
-        <svg className="w-full h-full overflow-visible" style={{ minHeight: '14px' }}>
-          <path
-            d={pathD}
-            fill="none"
-            className="stroke-slate-300 dark:stroke-blue-500/70"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-    );
-  };
-
   const Card = ({
     title,
     value,
@@ -634,9 +557,9 @@ function AnalyticsWorkspace({
     onRow
   }) => {
     const max = Math.max(1, ...rows.map(r => Math.abs(r[valueKey] || 0)));
-    return <div className="space-y-2">{rows.slice(0, 15).map((r, i) => <button key={i} onClick={() => onRow?.(r)} className="w-full text-left rounded-lg p-2 hover:bg-blue-50 focus:ring-2 focus:ring-blue-200"><div className="flex justify-between text-xs gap-4 mb-1"><span className="text-slate-600 truncate">{r.name}</span><span className="font-mono font-semibold">{fmt(r[valueKey])}</span></div><div className="h-2 bg-slate-100 rounded-full"><div className="h-2 bg-blue-600 rounded-full" style={{
+    return <div className="space-y-2">{rows.slice(0, 15).map((r, i) => <button key={i} onClick={() => onRow?.(r)} className="w-full text-left rounded-lg p-2 hover:bg-blue-50 dark:hover:bg-[#112649] text-slate-800 dark:text-white transition focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900 cursor-pointer"><div className="flex justify-between text-xs gap-4 mb-1"><span className="text-slate-600 dark:text-[#adbed4] truncate font-medium">{r.name}</span><span className="font-mono font-bold text-slate-900 dark:text-white">{fmt(r[valueKey])}</span></div><div className="h-2 bg-slate-100 dark:bg-[#18365d] rounded-full overflow-hidden"><div className="h-2 bg-blue-600 dark:bg-blue-500 rounded-full transition-all" style={{
             width: Math.abs(r[valueKey] || 0) / max * 100 + '%'
-          }} /></div></button>)}{!rows.length && <p className="text-sm text-slate-400 py-6">No values in the selected scope.</p>}</div>;
+          }} /></div></button>)}{!rows.length && <p className="text-sm text-slate-400 dark:text-slate-500 py-6">No values in the selected scope.</p>}</div>;
   };
   const group = (rows, key, measure) => {
     const m = new Map();
@@ -709,6 +632,7 @@ function AnalyticsWorkspace({
   const areas = {
     drivers: {
       title: 'Drivers & Evidence',
+      icon: 'trend',
       views: {
         demand: 'Demand drivers',
         capacity: 'Capacity composition',
@@ -719,6 +643,7 @@ function AnalyticsWorkspace({
     },
     readiness: {
       title: 'Commitments & Readiness',
+      icon: 'handshake',
       views: {
         deficits: 'Deficit concentration',
         recruitment: 'Recruitment readiness',
@@ -728,6 +653,7 @@ function AnalyticsWorkspace({
     },
     stress: {
       title: 'Stress & Sensitivity',
+      icon: 'shield',
       views: {
         stress: 'Combined stress tests',
         sensitivity: 'Sensitivity & breakpoints'
@@ -735,6 +661,7 @@ function AnalyticsWorkspace({
     },
     choices: {
       title: 'Intervention Choices',
+      icon: 'lightbulb',
       views: {
         actions: 'Compare interventions'
       }
@@ -1087,13 +1014,13 @@ function AnalyticsWorkspace({
           label: 'Secure support by'
         }]} empty="No modeled shortage with comparable evidence in this scope." /></section></>;
   };
-  const stressControls = <section className={panel}><h3 className="text-sm font-bold mb-1">Test assumptions</h3><p className="text-xs text-slate-400 mb-4">Deterministic changes from the selected source plan. No likelihood is implied.</p><div className="av-controls">{control('demandPct', 'Demand change %', -100, 300)}{control('absencePp', 'Additional roster absence pp', 0, 100)}{control('productivityPct', 'Roster productivity change %', -100, 100)}{control('recruitmentDelay', 'Recruitment delay weeks', 0, 52)}{control('contractorPct', 'Contractor hours change %', -100, 200)}{control('overtimePct', 'Overtime hours change %', -100, 200)}{control('extraHours', 'Additional productive h / cell / week', 0, 10000, 10)}<Field title="Target region for added hours"><select aria-label="Target region for added hours" className={select} value={shock.targetRegion} onChange={e => setShock({
+  const stressControls = <section className={panel}><h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">Test assumptions</h3><p className="text-xs text-slate-400 dark:text-[#adbed4] mb-4">Deterministic changes from the selected source plan. No likelihood is implied.</p><div className="av-controls">{control('demandPct', 'Demand change %', -100, 300)}{control('absencePp', 'Additional roster absence pp', 0, 100)}{control('productivityPct', 'Roster productivity change %', -100, 100)}{control('recruitmentDelay', 'Recruitment delay weeks', 0, 52)}{control('contractorPct', 'Contractor hours change %', -100, 200)}{control('overtimePct', 'Overtime hours change %', -100, 200)}{control('extraHours', 'Additional productive h / cell / week', 0, 10000, 10)}<Field title="Target region for added hours"><select aria-label="Target region for added hours" className={select} value={shock.targetRegion} onChange={e => setShock({
           ...shock,
           targetRegion: e.target.value
-        })}>{['All', ...regions].map(s => <option key={s}>{s}</option>)}</select></Field><Field title="Target skill for added hours"><select aria-label="Target skill for added hours" className={select} value={shock.targetSkill} onChange={e => setShock({
+        })}>{['All', ...regions].map(s => <option key={s} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{s}</option>)}</select></Field><Field title="Target skill for added hours"><select aria-label="Target skill for added hours" className={select} value={shock.targetSkill} onChange={e => setShock({
           ...shock,
           targetSkill: e.target.value
-        })}>{['All', 'HEC', 'KAC', 'EV'].map(s => <option key={s}>{s}</option>)}</select></Field></div><div className="flex flex-wrap gap-2 mt-4"><button className={button} onClick={() => setShock({
+        })}>{['All', 'HEC', 'KAC', 'EV'].map(s => <option key={s} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{s}</option>)}</select></Field></div><div className="flex flex-wrap gap-2 mt-4"><button className={button} onClick={() => setShock({
         ...shock,
         demandPct: 0,
         absencePp: 0,
@@ -1102,7 +1029,7 @@ function AnalyticsWorkspace({
         contractorPct: 0,
         overtimePct: 0,
         extraHours: 0
-      })}>Reset shocks</button><button className={button + ' text-blue-700'} onClick={saveRun}>Pin this run</button></div></section>;
+      })}>Reset shocks</button><button className={button + ' text-blue-700 dark:text-[#80c6ff]'} onClick={saveRun}>Pin this run</button></div></section>;
   const renderStressDetails = () => <>{modelNote}<div className="grid lg:grid-cols-2 gap-5"><section className={panel}><h3 className="text-sm font-bold mb-3">Source plan</h3>{modelStats(current)}</section><section className={panel}><h3 className="text-sm font-bold mb-3">Under test assumptions</h3>{modelStats(tested)}</section></div><section className={panel}><h3 className="text-sm font-bold mb-3">Pressure under the combined test</h3><Table rows={tested.rows} columns={pressureColumns} /></section>{renderRuns()}</>;
   const renderSensitivityDetails = () => {
     const tests = [['Demand +10%', {
@@ -1654,6 +1581,15 @@ function AnalyticsWorkspace({
             </span>
 
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowAssumptions(true)}
+                className="px-3 py-1 rounded-full bg-blue-50 hover:bg-blue-100 dark:bg-blue-600/20 dark:hover:bg-blue-600/30 text-[#005eb8] dark:text-[#80c6ff] border border-blue-200 dark:border-blue-500/40 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition cursor-pointer"
+                title="Open Model Assumptions & Planning Controls"
+              >
+                <AnalyticsIcon name="sliders" size={12} className="text-current" />
+                <span>Model Assumptions</span>
+              </button>
               {!isFiltersCollapsed ? (
                 <>
                   <button
@@ -1697,7 +1633,7 @@ function AnalyticsWorkspace({
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] flex-shrink-0 flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-blue-600 ring-2 ring-blue-200 dark:ring-blue-900" />
                     <span>BASELINE SCENARIO (D1)</span>
-                    <span title="Primary baseline reference scenario" className="cursor-help text-slate-400">
+                    <span title="Primary baseline reference scenario" className="cursor-help text-slate-400 dark:text-[#adbed4]">
                       <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="16" x2="12" y2="12" />
@@ -1717,9 +1653,9 @@ function AnalyticsWorkspace({
                     title={`Baseline Scenario (1): ${scenarioId} - ${scen1.remarks || 'Operating Plan Baseline'}`}
                   >
                     {Object.keys(scenarios).map(id => (
-                      <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
+                      <option key={id} value={id} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{id}</option>
                     ))}
-                    <option value="__draft" className="dark:bg-[#0c1b31]">Current draft inputs (unsaved)</option>
+                    <option value="__draft" className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">Current draft inputs (unsaved)</option>
                   </select>
                 </div>
 
@@ -1727,7 +1663,7 @@ function AnalyticsWorkspace({
                 <button
                   type="button"
                   onClick={handleSwapScenarios}
-                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50 dark:bg-[#0c1f38] dark:hover:bg-[#122b4d] text-slate-700 dark:text-white hover:text-[#005eb8] border border-slate-200 dark:border-blue-600/50 transition shadow-2xs flex-shrink-0 cursor-pointer flex items-center gap-1.5 text-xs font-bold select-none"
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50 dark:bg-[#0c1f38] dark:hover:bg-[#122b4d] text-slate-700 dark:text-white hover:text-[#005eb8] dark:hover:text-[#80c6ff] border border-slate-200 dark:border-blue-600/50 transition shadow-2xs flex-shrink-0 cursor-pointer flex items-center gap-1.5 text-xs font-bold select-none"
                   title="Swap Baseline and Comparison Scenarios"
                 >
                   <svg className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1744,7 +1680,7 @@ function AnalyticsWorkspace({
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-emerald-400 flex-shrink-0 flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 dark:ring-emerald-900" />
                     <span>COMPARISON SCENARIO (2I)</span>
-                    <span title="Secondary comparison scenario" className="cursor-help text-slate-400">
+                    <span title="Secondary comparison scenario" className="cursor-help text-slate-400 dark:text-[#adbed4]">
                       <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="16" x2="12" y2="12" />
@@ -1763,7 +1699,7 @@ function AnalyticsWorkspace({
                     title={`Comparison Scenario (2): ${baselineId} - ${scen2.remarks || 'Secondary revision'}`}
                   >
                     {Object.keys(scenarios).map(id => (
-                      <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
+                      <option key={id} value={id} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{id}</option>
                     ))}
                   </select>
                 </div>
@@ -1799,7 +1735,7 @@ function AnalyticsWorkspace({
                           </span>
                           <span>{selectedGeo.label || 'National'}</span>
                         </span>
-                        <span className="text-[10px] font-bold bg-slate-100 dark:bg-[#0c1b31] px-1.5 py-0.5 rounded border border-slate-200 dark:border-[#18365d]">
+                        <span className="text-[10px] font-bold bg-slate-100 dark:bg-[#0c1b31] text-slate-700 dark:text-[#adbed4] px-1.5 py-0.5 rounded border border-slate-200 dark:border-[#18365d]">
                           {selectedGeo.count || 18} Terr &#9662;
                         </span>
                       </div>
@@ -1833,22 +1769,22 @@ function AnalyticsWorkspace({
                           className={`px-3 h-full text-[11px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
                             isSelected
                               ? 'bg-blue-100 text-[#005eb8] dark:bg-[#1d4ed8] dark:text-white shadow-xs font-extrabold'
-                              : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
+                              : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#112649]'
                           }`}
                         >
                           {s.icon === 'users' && (
-                            <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg className="w-3 h-3 flex-shrink-0 text-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                               <circle cx="9" cy="7" r="4" />
                             </svg>
                           )}
                           {s.icon === 'bolt' && (
-                            <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg className="w-3 h-3 flex-shrink-0 text-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                             </svg>
                           )}
                           {s.icon === 'wrench' && (
-                            <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg className="w-3 h-3 flex-shrink-0 text-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
                             </svg>
                           )}
@@ -1898,10 +1834,10 @@ function AnalyticsWorkspace({
                       title="Start Week"
                     >
                       {availableWeeks.map(w => (
-                        <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
+                        <option key={w} value={w} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{w}</option>
                       ))}
                     </select>
-                    <span className="text-slate-400 text-xs font-bold select-none">&rarr;</span>
+                    <span className="text-slate-400 dark:text-[#80c6ff] text-xs font-bold select-none">&rarr;</span>
                     <select
                       aria-label="Analytics through week"
                       value={filter.end || availableWeeks[availableWeeks.length - 1] || '2026-11-16'}
@@ -1917,7 +1853,7 @@ function AnalyticsWorkspace({
                       title="End Week"
                     >
                       {availableWeeks.map(w => (
-                        <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
+                        <option key={w} value={w} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{w}</option>
                       ))}
                     </select>
                   </div>
@@ -1930,21 +1866,104 @@ function AnalyticsWorkspace({
         {showAssumptions && <AnalyticsAssumptions value={assumptions} onChange={setAssumptions} onClose={() => { setShowAssumptions(false); setIsAssumptionsOpen && setIsAssumptionsOpen(false); }} onReset={() => setAssumptions({
       ...A.defaults
     })} />}
-        <nav aria-label="Analytics areas" className="av-area-nav">{Object.entries(areas).map(([id, a], index) => <button key={id} onClick={() => {
-        setArea(id);
-        setView(Object.keys(a.views)[0]);
-        setDetail(null);
-      }} aria-current={area === id ? 'page' : undefined}><i>{String(index + 1).padStart(2, '0')}</i><span>{a.title}<small>{Object.keys(a.views).length} {Object.keys(a.views).length === 1 ? 'investigation' : 'investigations'}</small></span></button>)}</nav>
-        <AnalyticsSubtabBracket activeArea={area} areas={areas} />
-        <nav aria-label="Analytics investigations" className="av-view-nav">{Object.entries(areas[area].views).map(([id, title]) => <button key={id} onClick={() => {
-        setView(id);
-        setDetail(null);
-      }} className={`av-subtab-pill ${view === id ? 'active' : ''}`} aria-current={view === id ? 'page' : undefined}>{title}</button>)}</nav>
-        {error && <div role="alert" className="p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-sm">{error}</div>}
-        {busy && <div role="status" className={panel + ' text-sm text-slate-500 animate-pulse'}>Reading selected source versions and baseline…</div>}
-        {!busy && bundle && <><div className="flex flex-wrap justify-between items-center gap-2"><h2 className="av-section-title text-lg font-bold text-slate-900">{areas[area].views[view]}</h2><span className="text-[10px] font-semibold bg-amber-50 border border-amber-200 text-amber-800 px-2 py-1 rounded-full">Source facts + explicitly partial model</span></div>{renderers[view]()}
-            <section className={panel}><div className="flex flex-wrap justify-between items-center gap-3 mb-3"><h3 className="text-sm font-bold">Source evidence explorer</h3><div className="flex gap-2"><select aria-label="Evidence source" className={select} value={sourceChoice} onChange={e => setSourceChoice(e.target.value)}>{sourceNames.map(s => <option key={s} value={s}>{label(s)}</option>)}</select><button className={button + ' whitespace-nowrap'} onClick={() => sourceDetail(sourceChoice)}>Inspect rows</button></div></div><textarea aria-label="Decision rationale" value={rationale} onChange={e => setRationale(e.target.value)} placeholder="Decision rationale, conditions for approval, or questions for the submitting team…" className={select + ' min-h-[70px]'} /><p className="text-[10px] text-slate-400 mt-2">Rationale and pinned runs stay in memory across app tabs. Export the decision brief before reloading or closing the page.</p></section>
-        </>}
+        {/* Top: 4 Category Navigation Cards */}
+        <nav aria-label="Analytics areas" className="av-area-nav grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {Object.entries(areas).map(([id, a]) => {
+            const isSelected = area === id;
+            const subCount = Object.keys(a.views).length;
+            return (
+              <button
+                key={id}
+                onClick={() => {
+                  setArea(id);
+                  setView(Object.keys(a.views)[0]);
+                  setDetail(null);
+                }}
+                aria-current={isSelected ? 'page' : undefined}
+                className={`group relative flex items-center gap-3.5 p-3.5 rounded-xl text-left transition-all duration-150 cursor-pointer overflow-hidden ${
+                  isSelected
+                    ? 'bg-[#eff6ff] dark:bg-[#0c223f] border border-blue-400/80 dark:border-blue-500/60 shadow-sm'
+                    : 'bg-white dark:bg-[#071324] border border-slate-200/90 dark:border-[#18365d] hover:bg-slate-50 dark:hover:bg-[#0c1e36] hover:border-blue-300 dark:hover:border-[#2b5288]'
+                }`}
+              >
+                <div className={`flex-shrink-0 transition-colors ${isSelected ? 'text-[#005eb8] dark:text-[#38bdf8]' : 'text-slate-400 dark:text-[#94a3b8] group-hover:text-slate-600 dark:group-hover:text-slate-200'}`}>
+                  <AnalyticsIcon name={a.icon || 'trend'} size={21} />
+                </div>
+                <div className="min-w-0 flex-1 leading-tight">
+                  <span className={`av-card-title block text-xs sm:text-[13px] font-bold truncate ${
+                    isSelected ? 'text-[#005eb8] dark:text-white' : 'text-slate-800 dark:text-slate-200'
+                  }`}>
+                    {a.title}
+                  </span>
+                  <small className={`block text-[11px] mt-1 font-medium truncate ${
+                    isSelected ? 'text-blue-600 dark:text-[#80c6ff]' : 'text-slate-400 dark:text-[#adbed4]'
+                  }`}>
+                    {subCount} {subCount === 1 ? 'investigation' : 'investigations'}
+                  </small>
+                </div>
+                {/* Active bottom indicator line matching the image */}
+                {isSelected && (
+                  <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#005eb8] dark:bg-[#38bdf8] rounded-b-md" />
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Subtabs Row: Displayed ONLY if category has more than 1 subtab */}
+        {Object.keys(areas[area].views).length > 1 && (
+          <nav aria-label="Analytics investigations" className="av-view-nav flex items-center flex-wrap gap-y-2 border-b border-slate-200 dark:border-[#18365d]/50 mt-3 pt-1 pb-0 overflow-x-auto">
+            {Object.entries(areas[area].views).map(([id, title], idx) => {
+              const isSelected = view === id;
+              return (
+                <React.Fragment key={id}>
+                  {idx > 0 && (
+                    <span className="av-view-divider text-slate-300 dark:text-[#1c365a] select-none mx-2.5 sm:mx-3 text-xs opacity-75">
+                      |
+                    </span>
+                  )}
+                  <button
+                    onClick={() => {
+                      setView(id);
+                      setDetail(null);
+                    }}
+                    aria-current={isSelected ? 'page' : undefined}
+                    className={`av-subtab-btn relative pb-2.5 pt-1 px-1 text-xs sm:text-[13px] transition-all cursor-pointer whitespace-nowrap ${
+                      isSelected
+                        ? 'active text-[#005eb8] dark:text-white font-bold'
+                        : 'text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-white font-medium'
+                    }`}
+                  >
+                    <span>{title}</span>
+                    {isSelected && (
+                      <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#005eb8] dark:bg-[#38bdf8] rounded-full" />
+                    )}
+                  </button>
+                </React.Fragment>
+              );
+            })}
+          </nav>
+        )}
+
+        {error && <div role="alert" className="p-4 rounded-xl border border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-sm mt-3">{error}</div>}
+        {busy && <div role="status" className={panel + ' text-sm text-slate-500 dark:text-[#adbed4] animate-pulse mt-3'}>Reading selected source versions and baseline…</div>}
+        {!busy && bundle && (
+          <>
+            {/* If category has more than 1 subtab, render subtab heading; if only 1 subtab, no need to create subtab heading */}
+            <div className={`flex flex-wrap justify-between items-center gap-2 ${Object.keys(areas[area].views).length > 1 ? 'mt-4 mb-3' : 'mt-3 mb-2'}`}>
+              {Object.keys(areas[area].views).length > 1 && (
+                <h2 className="av-section-title text-lg font-bold text-slate-900 dark:text-white">
+                  {areas[area].views[view]}
+                </h2>
+              )}
+              <span className="text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 px-2.5 py-1 rounded-full ml-auto">
+                Source facts + explicitly partial model
+              </span>
+            </div>
+            {renderers[view]()}
+            <section className={panel}><div className="flex flex-wrap justify-between items-center gap-3 mb-3"><h3 className="text-sm font-bold text-slate-900 dark:text-white">Source evidence explorer</h3><div className="flex gap-2"><select aria-label="Evidence source" className={select} value={sourceChoice} onChange={e => setSourceChoice(e.target.value)}>{sourceNames.map(s => <option key={s} value={s} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{label(s)}</option>)}</select><button className={button + ' whitespace-nowrap'} onClick={() => sourceDetail(sourceChoice)}>Inspect rows</button></div></div><textarea aria-label="Decision rationale" value={rationale} onChange={e => setRationale(e.target.value)} placeholder="Decision rationale, conditions for approval, or questions for the submitting team…" className={select + ' min-h-[70px]'} /><p className="text-[10px] text-slate-400 dark:text-[#adbed4] mt-2">Rationale and pinned runs stay in memory across app tabs. Export the decision brief before reloading or closing the page.</p></section>
+          </>
+        )}
         {detail && <AnalyticsDrawer title={detail.title} eyebrow={detail.diff ? 'Scenario comparison' : detail.issues ? 'Evidence coverage' : 'Source evidence'} subtitle={detail.diff ? 'Understand exactly which source records changed.' : detail.issues ? 'Inspect the checks behind the data-coverage result.' : 'Browse original records and their selected source versions.'} onClose={() => setDetail(null)}>
           {detail.diff ? <AnalyticsDiffBrowser rows={detail.diff} comparison={detail.comparison || {}} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-record-changes.csv', rows)} /> : detail.issues ? <AnalyticsIssueBrowser issues={detail.issues} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-evidence-issues.csv', rows)} onInspect={r => sourceDetail(r.source, r.row ? (data.facts[r.source] || []).filter(x => x.row === r.row) : undefined)} /> : <AnalyticsRecordBrowser key={detail.title} rows={detailRows} columns={sourceColumns} sources={bundle?.sources || {}} sourceKey={detail.source} query={sourceSearch} onQueryChange={setSourceSearch} page={sourcePage} onPageChange={setSourcePage} onExport={rows => csv('analytics-source-evidence.csv', rows.map(r => ({
         input: r.source,

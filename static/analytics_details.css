@@ -2107,12 +2107,13 @@
   align-items: center;
   gap: 6px;
   white-space: nowrap;
-  padding: 9px 12px;
-  border-bottom: 2px solid transparent;
+  padding: 6px 12px;
   color: #64748b;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  border-radius: 6px 6px 0 0;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
   transition: all 0.15s ease;
 }
 
@@ -2123,22 +2124,33 @@
 
 .av-workbench > nav button[aria-selected="true"] {
   color: #005eb8;
-  background: #ffffff;
-  border-bottom-color: #005eb8;
+  background: #eff6ff;
+  border-color: #bfdbfe;
   font-weight: 700;
 }
 
-.av-workbench > nav button > span {
-  padding: 2px 5px;
-  border-radius: 4px;
-  background: #f1f5f9;
-  font-size: 9px;
-  color: #64748b;
-  font-weight: 600;
+.av-workbench > nav button > span.av-workbench-tab-label,
+.av-workbench > nav button > span:first-child {
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: inherit !important;
+  color: inherit !important;
 }
 
-.av-workbench > nav button[aria-selected="true"] > span {
-  background: #eff6ff;
+.av-workbench > nav button > span.av-workbench-tab-count,
+.av-workbench > nav button > span:not(:first-child) {
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  font-size: 10px;
+  color: #475569;
+  font-weight: 700;
+}
+
+.av-workbench > nav button[aria-selected="true"] > span.av-workbench-tab-count,
+.av-workbench > nav button[aria-selected="true"] > span:not(:first-child) {
+  background: #dbeafe;
   color: #005eb8;
 }
 
