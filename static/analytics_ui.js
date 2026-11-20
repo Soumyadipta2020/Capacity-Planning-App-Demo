@@ -54,16 +54,26 @@ function AnalyticsTable({
           }} tabIndex={onRow ? 0 : undefined} className={onRow ? 'av-selectable-row' : ''}>{columns.map(c => <td key={c.key} data-negative={typeof r[c.key] === 'number' && r[c.key] < 0 ? true : undefined}>{c.render ? c.render(r) : String(r[c.key] ?? '—')}</td>)}</tr>)}</tbody></table>{!filtered.length && <AnalyticsEmpty icon="search" title={rows.length ? 'No records match this search' : 'No records in this scope'} description={rows.length ? 'Try another field or value, or clear the search.' : empty} />}</div>{filtered.length > 0 && <div className="av-browser-pagination"><span>Showing {current * pageSize + 1}–{Math.min((current + 1) * pageSize, filtered.length)} of {filtered.length.toLocaleString()}</span><div><button disabled={!current} onClick={() => setPage(current - 1)}>Previous rows</button><span>{current + 1} / {pages}</span><button disabled={current >= pages - 1} onClick={() => setPage(current + 1)}>Next rows</button></div></div>}</div>;
 }
 function AnalyticsWorkspace({
-  scenarios,
+  scenarios = {},
   selectedScenarioId,
-  inputsState,
+  inputsState = {},
+  selectedGeographyFile,
+  geographyDatasets = {},
+  baselineScenarioId,
+  setBaselineScenarioId,
+  comparisonScenarioId,
+  setComparisonScenarioId,
   onNavigateToInputs,
-  onSelectScenario
+  onSelectScenario,
+  isDarkMode = false,
+  showToast,
+  isAssumptionsOpen,
+  setIsAssumptionsOpen
 }) {
   const A = window.CapacityAnalytics;
   const V = window.AnalyticsViz;
-  const [scenarioId, setScenarioId] = React.useState(selectedScenarioId);
-  const [baselineId, setBaselineId] = React.useState(Object.keys(scenarios).find(id => id !== selectedScenarioId) || selectedScenarioId);
+  const [scenarioId, setScenarioId] = React.useState(baselineScenarioId || selectedScenarioId || Object.keys(scenarios)[0] || 'LV OCT V.0 2026-10-29 16:00:00');
+  const [baselineId, setBaselineId] = React.useState(comparisonScenarioId || Object.keys(scenarios).find(id => id !== (baselineScenarioId || selectedScenarioId)) || selectedScenarioId || 'LV JUL V.1 2026-07-07 12:46:46');
   const [bundle, setBundle] = React.useState(null),
     [baseline, setBaseline] = React.useState(null);
   const [busy, setBusy] = React.useState(false),
@@ -100,6 +110,138 @@ function AnalyticsWorkspace({
   const [sourcePage, setSourcePage] = React.useState(0),
     [sourceChoice, setSourceChoice] = React.useState('demand_input');
   const [cohortSearch, setCohortSearch] = React.useState('');
+  const [isFiltersCollapsed, setIsFiltersCollapsed] = React.useState(false);
+  const [selectedGeo, setSelectedGeo] = React.useState({
+    type: 'national',
+    id: 'national',
+    label: 'National',
+    count: 18
+  });
+
+  // Geography hierarchy extraction matching Scenario Diff
+  const geoRows = React.useMemo(() => {
+    if (selectedGeographyFile && geographyDatasets && geographyDatasets[selectedGeographyFile]) {
+      const d = geographyDatasets[selectedGeographyFile];
+      if (Array.isArray(d) && d.length > 0) return d;
+      if (typeof d === 'string' && window.parseGeographyCsvText) return window.parseGeographyCsvText(d);
+    }
+    if (selectedGeographyFile && geographyDatasets) {
+      const cleanKey = selectedGeographyFile.replace(/\.(csv|xlsx|xls)$/i, '');
+      for (const k of Object.keys(geographyDatasets)) {
+        if (k.toLowerCase() === cleanKey.toLowerCase() || k.toLowerCase().includes(cleanKey.toLowerCase())) {
+          const d = geographyDatasets[k];
+          if (Array.isArray(d) && d.length > 0) return d;
+          if (typeof d === 'string' && window.parseGeographyCsvText) return window.parseGeographyCsvText(d);
+        }
+      }
+    }
+    if (geographyDatasets) {
+      const firstKey = Object.keys(geographyDatasets)[0];
+      if (firstKey && geographyDatasets[firstKey]) {
+        const d = geographyDatasets[firstKey];
+        if (Array.isArray(d) && d.length > 0) return d;
+        if (typeof d === 'string' && window.parseGeographyCsvText) return window.parseGeographyCsvText(d);
+      }
+    }
+    if (window.getDefaultGeographyData) return window.getDefaultGeographyData();
+    return [
+      { Region: "A", ACDM: "A1", territory: "EA11 Inverness & Aviemore" },
+      { Region: "A", ACDM: "A1", territory: "EA13 Dendee & Perth" },
+      { Region: "A", ACDM: "A1", territory: "EA12 Aberdeen North" },
+      { Region: "A", ACDM: "A2", territory: "EA21 Stirling & Falkirk" },
+      { Region: "A", ACDM: "A2", territory: "EA22 Edinburgh Central" },
+      { Region: "B", ACDM: "B1", territory: "EB11 Preston & Blackpool" },
+      { Region: "B", ACDM: "B1", territory: "EB14 Stockport & Peak" },
+      { Region: "B", ACDM: "B2", territory: "EB12 Altrincham" },
+      { Region: "B", ACDM: "B2", territory: "EB21 Manchester Central" },
+      { Region: "C", ACDM: "C1", territory: "EC91 Leicester" },
+      { Region: "C", ACDM: "C1", territory: "EC92 Nottingham & Derby" },
+      { Region: "C", ACDM: "C2", territory: "EC61 Norwich & Norfolk" },
+      { Region: "C", ACDM: "C2", territory: "EC62 Essex East" },
+      { Region: "D", ACDM: "D1", territory: "ED11 North London & Barnet" },
+      { Region: "D", ACDM: "D2", territory: "ED44 Canterbury & Dover" },
+      { Region: "D", ACDM: "D2", territory: "ED42 Eastbourne & Hastings" },
+      { Region: "E", ACDM: "E1", territory: "EE21 Bristol North & Bath" },
+      { Region: "E", ACDM: "E2", territory: "EE31 Exeter & Devon" }
+    ];
+  }, [selectedGeographyFile, geographyDatasets]);
+
+  const hierarchy = React.useMemo(() => {
+    if (window.buildGeographyHierarchy) return window.buildGeographyHierarchy(geoRows);
+    const regions = {};
+    (geoRows || []).forEach(r => {
+      const reg = r.Region || 'A';
+      const acdm = r.ACDM || (reg + '1');
+      const terr = r.territory || r.patch || 'Territory';
+      if (!regions[reg]) regions[reg] = { id: reg, label: 'Region ' + reg, acdms: {} };
+      if (!regions[reg].acdms[acdm]) regions[reg].acdms[acdm] = { id: acdm, label: 'ACDM ' + acdm, territories: [] };
+      if (!regions[reg].acdms[acdm].territories.includes(terr)) regions[reg].acdms[acdm].territories.push(terr);
+    });
+    return { regions };
+  }, [geoRows]);
+
+  const totalTerritoriesCount = React.useMemo(() => {
+    const regs = Object.values(hierarchy.regions || {});
+    return regs.reduce((acc, r) => {
+      return acc + Object.values(r.acdms || {}).reduce((tAcc, a) => tAcc + (a.territories || []).length, 0);
+    }, 0);
+  }, [hierarchy]);
+
+  React.useEffect(() => {
+    if (selectedGeo.type === 'national' && totalTerritoriesCount) {
+      setSelectedGeo(prev => ({ ...prev, count: totalTerritoriesCount }));
+    }
+  }, [totalTerritoriesCount]);
+
+  const handleSelectGeo = (geoObj) => {
+    setSelectedGeo(geoObj);
+    if (!geoObj || geoObj.type === 'national') {
+      setFilter(prev => ({ ...prev, region: 'All', patch: 'All' }));
+    } else if (geoObj.type === 'region') {
+      setFilter(prev => ({ ...prev, region: geoObj.id, patch: 'All' }));
+    } else if (geoObj.type === 'acdm') {
+      setFilter(prev => ({ ...prev, region: geoObj.region || 'All', patch: 'All' }));
+    } else if (geoObj.type === 'territory') {
+      setFilter(prev => ({ ...prev, patch: geoObj.label || geoObj.id, region: geoObj.region || prev.region }));
+    }
+  };
+
+  const handleResetFilters = () => {
+    setSelectedGeo({
+      type: 'national',
+      id: 'national',
+      label: 'National',
+      count: totalTerritoriesCount || 18
+    });
+    setFilter({
+      region: 'All',
+      patch: 'All',
+      skill: 'All',
+      start: '',
+      end: ''
+    });
+    if (showToast) showToast('All filters reset to default', 'info');
+  };
+
+  React.useEffect(() => {
+    if (isAssumptionsOpen) {
+      setShowAssumptions(true);
+    }
+  }, [isAssumptionsOpen]);
+
+  const handleSwapScenarios = () => {
+    const temp = scenarioId;
+    setScenarioId(baselineId);
+    setBaselineId(temp);
+    if (setBaselineScenarioId) setBaselineScenarioId(baselineId);
+    if (setComparisonScenarioId) setComparisonScenarioId(temp);
+    if (baselineId !== '__draft' && onSelectScenario) {
+      onSelectScenario(baselineId);
+    }
+    if (showToast) {
+      showToast('Baseline and Comparison Scenarios swapped', 'info');
+    }
+  };
   const requestState = React.useRef({});
   const filterHistory = React.useRef([]);
   const clearScope = {region:'All',patch:'All',skill:'All',start:'',end:''};
@@ -296,13 +438,195 @@ function AnalyticsWorkspace({
   const Note = ({
     children
   }) => <div className="text-xs leading-relaxed text-amber-900 bg-amber-50 border border-amber-100 rounded-xl p-3">{children}</div>;
+  const WaveBackground = ({ strokeColor, fillColor, id = "wave-grad" }) => (
+    <svg
+      className="absolute right-0 bottom-0 w-[38%] max-w-[140px] h-[65%] pointer-events-none select-none overflow-hidden"
+      viewBox="0 0 200 80"
+      preserveAspectRatio="none"
+    >
+      <defs>
+        <linearGradient id={id} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={fillColor} stopOpacity="0.14" />
+          <stop offset="100%" stopColor={fillColor} stopOpacity="0.0" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M0,60 C40,75 80,45 120,55 C160,65 180,40 200,45 L200,80 L0,80 Z"
+        fill={`url(#${id})`}
+      />
+      <path
+        d="M0,60 C40,75 80,45 120,55 C160,65 180,40 200,45"
+        fill="none"
+        stroke={strokeColor}
+        strokeWidth="1.8"
+        strokeOpacity="0.32"
+      />
+    </svg>
+  );
+
+  const getCardTheme = (title = '') => {
+    const t = title.toLowerCase();
+    if (t.includes('shortfall') || t.includes('deficit') || t.includes('issue') || t.includes('gap')) {
+      return {
+        cardClass: 'diff-kpi-card-shortfall bg-gradient-to-br from-[#fff1f2] to-[#fff7f8] dark:bg-[#200a10] border-[#fecdd3] dark:border-[#f43f5e]',
+        iconClass: 'bg-rose-50 dark:bg-rose-950/40 border-rose-100 dark:border-rose-800/60 text-rose-600 dark:text-rose-400 glow-icon-rose',
+        iconName: 'alert',
+        stroke: '#fb7185',
+        fill: '#fb7185',
+        accent: '#fb7185'
+      };
+    }
+    if (t.includes('surplus') || t.includes('coverage') || t.includes('matched') || t.includes('available')) {
+      return {
+        cardClass: 'diff-kpi-card-net bg-gradient-to-br from-[#eafaf1] to-[#f4fcf7] dark:bg-[#041a14] border-[#a7f3d0] dark:border-[#10b981]',
+        iconClass: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-800/60 text-emerald-600 dark:text-emerald-400 glow-icon-emerald',
+        iconName: 'check',
+        stroke: '#10b981',
+        fill: '#10b981',
+        accent: '#10b981'
+      };
+    }
+    if (t.includes('demand') || t.includes('job') || t.includes('forecast') || t.includes('volume') || t.includes('mix')) {
+      return {
+        cardClass: 'diff-kpi-card-demand bg-gradient-to-br from-[#edf5fc] to-[#f8fbff] dark:bg-[#06152b] border-[#bfdbfe] dark:border-[#2563eb]',
+        iconClass: 'bg-blue-50 dark:bg-blue-950/40 border-blue-100 dark:border-blue-800/60 text-blue-600 dark:text-[#80c6ff] glow-icon-blue',
+        iconName: 'demand',
+        stroke: '#38bdf8',
+        fill: '#38bdf8',
+        accent: '#38bdf8'
+      };
+    }
+    if (t.includes('capacity') || t.includes('comparable') || t.includes('roster') || t.includes('duration') || t.includes('overtime') || t.includes('contractor')) {
+      return {
+        cardClass: 'diff-kpi-card-capacity bg-gradient-to-br from-[#f5efff] to-[#faf7ff] dark:bg-[#120c2a] border-[#ddd6fe] dark:border-[#7c3aed]',
+        iconClass: 'bg-purple-50 dark:bg-purple-950/40 border-purple-100 dark:border-purple-800/60 text-purple-600 dark:text-purple-400 glow-icon-purple',
+        iconName: 'capacity',
+        stroke: '#c084fc',
+        fill: '#c084fc',
+        accent: '#c084fc'
+      };
+    }
+    return {
+      cardClass: 'diff-kpi-card-scope bg-gradient-to-br from-[#fef7ec] to-[#fffcf7] dark:bg-[#1c1103] border-[#fed7aa] dark:border-[#d97706]',
+      iconClass: 'bg-amber-50 dark:bg-amber-950/40 border-amber-100 dark:border-amber-800/60 text-amber-500 dark:text-amber-400 glow-icon-amber',
+      iconName: t.includes('horizon') || t.includes('week') ? 'clock' : 'sparkles',
+      stroke: '#fbbf24',
+      fill: '#fbbf24',
+      accent: '#fbbf24'
+    };
+  };
+
+  const AnalyticsSubtabBracket = ({ activeArea, areas }) => {
+    const [coords, setCoords] = React.useState(null);
+
+    React.useEffect(() => {
+      const update = () => {
+        if (typeof document === 'undefined') return;
+        const areaNav = document.querySelector('.av-area-nav');
+        const viewNav = document.querySelector('.av-view-nav');
+        if (!areaNav || !viewNav) return;
+
+        const areaKeys = Object.keys(areas);
+        const activeIdx = Math.max(0, areaKeys.indexOf(activeArea));
+        const areaButtons = areaNav.querySelectorAll('button');
+        const activeBtn = areaButtons[activeIdx];
+        if (!activeBtn) return;
+
+        const navRect = areaNav.getBoundingClientRect();
+        const btnRect = activeBtn.getBoundingClientRect();
+        const tipX = (btnRect.left - navRect.left) + btnRect.width / 2;
+
+        const subButtons = viewNav.querySelectorAll('button');
+        if (!subButtons.length) return;
+        const firstSub = subButtons[0].getBoundingClientRect();
+        const lastSub = subButtons[subButtons.length - 1].getBoundingClientRect();
+
+        const startX = Math.max(4, firstSub.left - navRect.left);
+        const endX = Math.min(navRect.width - 4, lastSub.right - navRect.left);
+
+        setCoords({
+          start: startX,
+          end: endX,
+          tip: tipX
+        });
+      };
+
+      update();
+      const timer = setTimeout(update, 50);
+      window.addEventListener('resize', update);
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('resize', update);
+      };
+    }, [activeArea, areas]);
+
+    const areaKeys = Object.keys(areas);
+    const activeIdx = Math.max(0, areaKeys.indexOf(activeArea));
+    const fallbackTips = [120, 370, 620, 870];
+    const fallbackEnds = [473, 440, 290, 180];
+    const tip = coords ? coords.tip : (fallbackTips[activeIdx] ?? 120);
+    const start = coords ? coords.start : 6;
+    const end = coords ? coords.end : (fallbackEnds[activeIdx] ?? 400);
+
+    const s = Math.min(start, tip - 20);
+    const e = Math.max(end, tip + 20);
+    const r = 6;
+    const yTop = 0;
+    const yBar = 7;
+    const yBottom = 14;
+
+    const pathD = `M ${s} ${yBottom} Q ${s} ${yBar} ${s + r} ${yBar} L ${e - r} ${yBar} Q ${e} ${yBar} ${e} ${yBottom} M ${tip} ${yBar} L ${tip} ${yTop}`;
+
+    return (
+      <div className="av-bracket-container relative w-full h-3.5 my-1 overflow-visible pointer-events-none" aria-hidden="true">
+        <svg className="w-full h-full overflow-visible" style={{ minHeight: '14px' }}>
+          <path
+            d={pathD}
+            fill="none"
+            className="stroke-slate-300 dark:stroke-blue-500/70"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    );
+  };
+
   const Card = ({
     title,
     value,
     sub
-  }) => <div className="analytics-metric" style={{
-    '--accent': title.toLowerCase().includes('shortfall') ? '#f43f5e' : title.toLowerCase().includes('surplus') ? '#14b8a6' : title.toLowerCase().includes('coverage') ? '#8b5cf6' : '#2563eb'
-  }}><p className="av-metric-title whitespace-nowrap truncate">{title}</p><p className="av-metric-value whitespace-nowrap">{value}</p><p className="av-metric-sub whitespace-nowrap truncate">{sub}</p></div>;
+  }) => {
+    const theme = getCardTheme(title);
+    const waveId = "wave-" + title.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 20);
+    return (
+      <div
+        className={`analytics-metric ${theme.cardClass} glow-card group cursor-pointer px-3.5 py-2.5 rounded-xl border shadow-xs relative overflow-hidden transition-all duration-200`}
+        style={{ '--accent': theme.accent }}
+      >
+        <WaveBackground strokeColor={theme.stroke} fillColor={theme.fill} id={waveId} />
+        <div className="relative z-10 flex items-start gap-2.5">
+          <div className={`w-8 h-8 rounded-lg ${theme.iconClass} border flex items-center justify-center glow-icon flex-shrink-0 mt-0.5`}>
+            <AnalyticsIcon name={theme.iconName} size={15} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className="av-metric-title text-[10px] font-bold uppercase text-slate-500 dark:text-slate-300 tracking-wider whitespace-nowrap truncate block">
+              {title}
+            </span>
+            <div className="av-metric-value text-xl font-extrabold text-slate-900 dark:text-white leading-tight font-mono tracking-tight mt-0.5 whitespace-nowrap truncate">
+              {value}
+            </div>
+            {sub && (
+              <div className="av-metric-sub text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-1 whitespace-nowrap truncate">
+                {sub}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
   const Field = AnalyticsField;
   const BarList = ({
     rows,
@@ -1301,45 +1625,309 @@ function AnalyticsWorkspace({
   };
   const detailRows = detail?.rows || [],
     visibleDetail = detailRows.filter(r => JSON.stringify(r.raw).toLowerCase().includes(sourceSearch.toLowerCase()));
-  return <div className="analytics-workspace space-y-5 pb-8">
-        <AnalyticsScopeBar filter={filter} weeks={weeks} regions={regions} patches={patches} scenario={scenarioId} onChange={setFilter} onReset={()=>setFilter({...clearScope})} onUndo={undoFilter} canUndo={filterHistory.current.length>0}/>
-        <header className="analytics-hero flex flex-wrap justify-between gap-4 items-start"><div><div className="av-eyebrow">Leadership planning workspace</div><h1 className="text-2xl font-extrabold text-slate-900">Analytics</h1><p className="text-sm text-slate-500 mt-1">Investigate the evidence. Challenge assumptions. Compare decisions.</p></div><div className="flex gap-2"><button className={button} onClick={() => setShowAssumptions(!showAssumptions)}>Model assumptions</button><button className={button} disabled={busy} onClick={() => setRefresh(refresh + 1)}>{busy ? 'Loading…' : 'Refresh sources'}</button><button className={button + ' text-blue-700'} disabled={!bundle || busy} onClick={() => download('analytics-decision-brief.json', JSON.stringify(evidence(), null, 2))}>Export decision brief</button></div><div className="av-hero-meta w-full"><span><i />{sourceNames.filter(k => bundle.sources[k].success).length} / {sourceNames.length || 21} selected sources</span><span><i className="av-amber" />{percent(matchedJobs, jobs)} job-time volume matched</span><span><i />{runs.length} pinned test runs</span><span>12 connected investigations</span></div></header>
-        <section className={panel + " av-scope"}><div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3"><Field title="Investigate scenario"><select aria-label="Investigate scenario" className={select} value={scenarioId} onChange={e => {
-            setScenarioId(e.target.value);
-            if (e.target.value !== '__draft') onSelectScenario?.(e.target.value);
-            setFilter({
-              region: 'All',
-              patch: 'All',
-              skill: 'All',
-              start: '',
-              end: ''
-            });
-          }}>{Object.keys(scenarios).map(id => <option key={id}>{id}</option>)}<option value="__draft">Current draft inputs (unsaved)</option></select></Field><Field title="Saved baseline for changes"><select aria-label="Saved baseline for changes" className={select} value={baselineId} onChange={e => setBaselineId(e.target.value)}>{Object.keys(scenarios).map(id => <option key={id}>{id}</option>)}</select></Field><Field title="Region"><select aria-label="Analytics region" className={select} value={filter.region} onChange={e => setFilter({
-            ...filter,
-            region: e.target.value,
-            patch: 'All'
-          })}>{['All', ...regions].map(s => <option key={s}>{s}</option>)}</select></Field><Field title="Skill"><select aria-label="Analytics skill" className={select} value={filter.skill} onChange={e => setFilter({
-            ...filter,
-            skill: e.target.value
-          })}>{['All', 'HEC', 'KAC', 'EV'].map(s => <option key={s}>{s}</option>)}</select></Field></div><AnalyticsDisclosure compact title="Patch & date filters" subtitle="Refine location, skill and planning horizon"><div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 mt-3"><Field title="Patch (regional cover excluded)"><select aria-label="Analytics patch" className={select} value={filter.patch} onChange={e => setFilter({
-              ...filter,
-              patch: e.target.value
-            })}>{['All', ...patches].map(s => <option key={s}>{s}</option>)}</select></Field><Field title="From week"><select aria-label="Analytics from week" value={filter.start} className={select} onChange={e => setFilter({
-              ...filter,
-              start: e.target.value,
-              end: filter.end && e.target.value > filter.end ? e.target.value : filter.end
-            })}><option value="">First available</option>{weeks.map(w => <option key={w}>{w}</option>)}</select></Field><Field title="Through week"><select aria-label="Analytics through week" value={filter.end} className={select} onChange={e => setFilter({
-              ...filter,
-              end: e.target.value,
-              start: filter.start && e.target.value && e.target.value < filter.start ? e.target.value : filter.start
-            })}><option value="">Last available</option>{weeks.map(w => <option key={w}>{w}</option>)}</select></Field><div className="flex items-end gap-2"><button className={button} onClick={() => setFilter({
-              region: 'All',
-              patch: 'All',
-              skill: 'All',
-              start: '',
-              end: ''
-            })}>Reset scope</button><button className={button} onClick={onNavigateToInputs}>Open inputs</button></div></div></AnalyticsDisclosure><p className="text-[10px] text-slate-400 mt-3">{bundle ? `Source snapshot: ${new Date(bundle.loadedAt).toLocaleString()} · refresh after edits. Draft input selections are captured when sources load.` : 'Loading exact selected versions; no generated fallback data.'}</p></section>
-        {showAssumptions && <AnalyticsAssumptions value={assumptions} onChange={setAssumptions} onClose={() => setShowAssumptions(false)} onReset={() => setAssumptions({
+
+  const allWeeks = [
+    "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
+    "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16"
+  ];
+  const availableWeeks = React.useMemo(() => {
+    if (weeks && weeks.length > 0) {
+      const set = new Set([...allWeeks, ...weeks]);
+      return Array.from(set).sort();
+    }
+    return allWeeks;
+  }, [weeks]);
+
+  const scen1 = scenarios[scenarioId] || {};
+  const scen2 = scenarios[baselineId] || {};
+
+  return <div className="analytics-workspace space-y-4 pb-8">
+        {/* UNIFIED SCENARIO COMPARATOR & OPERATIONAL FILTERS CARD MATCHING SCENARIO DIFF */}
+        <div className="diff-filter-card bg-white/95 dark:bg-[#06101f] p-3.5 sm:p-4 rounded-2xl border border-blue-200/80 dark:border-2 dark:border-[#1e40af] shadow-sm dark:shadow-[0_0_24px_rgba(30,64,175,0.25)] relative z-30 space-y-3 transition-all duration-200">
+          {/* Header row: Filters pill & Actions */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="px-3 py-1 bg-[#005eb8] text-white font-bold text-xs rounded-full flex items-center gap-1.5 shadow-sm">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              <span>Filters</span>
+            </span>
+
+            <div className="flex items-center gap-2">
+              {!isFiltersCollapsed ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleResetFilters}
+                    className="px-3 py-1 rounded-full bg-white dark:bg-[#0c1b31] hover:bg-slate-100 dark:hover:bg-[#18365d] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold flex items-center gap-1 shadow-2xs transition cursor-pointer"
+                    title="Reset filters to default"
+                  >
+                    <svg className="w-3 h-3 text-slate-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="23 4 23 10 17 10" />
+                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                    </svg>
+                    <span>Reset</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsFiltersCollapsed(true)}
+                    className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-[#80c6ff] ml-1.5 cursor-pointer transition select-none"
+                  >
+                    Collapse &#9652;
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsFiltersCollapsed(false)}
+                  className="text-xs font-bold text-blue-600 dark:text-[#80c6ff] hover:underline cursor-pointer select-none"
+                >
+                  Expand &#9662;
+                </button>
+              )}
+            </div>
+          </div>
+
+          {!isFiltersCollapsed && (
+            <>
+              {/* Row 1: Dual Scenario Selectors with Swap */}
+              <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5 pt-1">
+                {/* Baseline Scenario (1) */}
+                <div className="flex-1 min-w-[240px] flex items-center gap-2 bg-slate-50/70 dark:bg-[#08162b] border border-slate-200 dark:border-[#1a3862] rounded-xl px-3 py-2 shadow-2xs">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] flex-shrink-0 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-600 ring-2 ring-blue-200 dark:ring-blue-900" />
+                    <span>BASELINE SCENARIO (D1)</span>
+                    <span title="Primary baseline reference scenario" className="cursor-help text-slate-400">
+                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                    </span>
+                  </span>
+                  <select
+                    aria-label="Investigate scenario"
+                    value={scenarioId}
+                    onChange={(e) => {
+                      setScenarioId(e.target.value);
+                      if (setBaselineScenarioId) setBaselineScenarioId(e.target.value);
+                      if (e.target.value !== '__draft' && onSelectScenario) onSelectScenario(e.target.value);
+                    }}
+                    className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-blue-500 cursor-pointer truncate shadow-2xs"
+                    title={`Baseline Scenario (1): ${scenarioId} - ${scen1.remarks || 'Operating Plan Baseline'}`}
+                  >
+                    {Object.keys(scenarios).map(id => (
+                      <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
+                    ))}
+                    <option value="__draft" className="dark:bg-[#0c1b31]">Current draft inputs (unsaved)</option>
+                  </select>
+                </div>
+
+                {/* Swap Scenarios Button */}
+                <button
+                  type="button"
+                  onClick={handleSwapScenarios}
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50 dark:bg-[#0c1f38] dark:hover:bg-[#122b4d] text-slate-700 dark:text-white hover:text-[#005eb8] border border-slate-200 dark:border-blue-600/50 transition shadow-2xs flex-shrink-0 cursor-pointer flex items-center gap-1.5 text-xs font-bold select-none"
+                  title="Swap Baseline and Comparison Scenarios"
+                >
+                  <svg className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m16 3 4 4-4 4" />
+                    <path d="M20 7H4" />
+                    <path d="m8 21-4-4 4-4" />
+                    <path d="M4 17h16" />
+                  </svg>
+                  <span>Swap Scenarios</span>
+                </button>
+
+                {/* Comparison Scenario (2) */}
+                <div className="flex-1 min-w-[240px] flex items-center gap-2 bg-slate-50/70 dark:bg-[#08162b] border border-slate-200 dark:border-[#1a3862] rounded-xl px-3 py-2 shadow-2xs">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-emerald-400 flex-shrink-0 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 dark:ring-emerald-900" />
+                    <span>COMPARISON SCENARIO (2I)</span>
+                    <span title="Secondary comparison scenario" className="cursor-help text-slate-400">
+                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                    </span>
+                  </span>
+                  <select
+                    aria-label="Saved baseline for changes"
+                    value={baselineId}
+                    onChange={(e) => {
+                      setBaselineId(e.target.value);
+                      if (setComparisonScenarioId) setComparisonScenarioId(e.target.value);
+                    }}
+                    className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-emerald-500 cursor-pointer truncate shadow-2xs"
+                    title={`Comparison Scenario (2): ${baselineId} - ${scen2.remarks || 'Secondary revision'}`}
+                  >
+                    {Object.keys(scenarios).map(id => (
+                      <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 2: 3 Drill-Down Filters (Geography, Skill, Date) */}
+              <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-3 pt-1 border-t border-slate-100 dark:border-[#18365d]/80">
+                {/* A. Geography Hierarchy Scope Filter */}
+                <div className="flex-1 min-w-[200px] flex items-center gap-2 relative z-50">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1 flex-shrink-0" title="Geography Scope">
+                    <svg className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="2" y1="12" x2="22" y2="12" />
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                    </svg>
+                    <span>GEOGRAPHY:</span>
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    {window.GeographyHierarchySelector ? (
+                      <window.GeographyHierarchySelector
+                        hierarchy={hierarchy}
+                        selectedGeo={selectedGeo}
+                        onSelectGeo={handleSelectGeo}
+                        sourceFileName={selectedGeographyFile}
+                        onNavigateToInputs={onNavigateToInputs}
+                        compact={true}
+                      />
+                    ) : (
+                      <div className="h-[32px] px-2.5 rounded-lg bg-white dark:bg-[#081324] border border-slate-300 dark:border-[#18365d] shadow-2xs flex items-center justify-between gap-2 text-xs font-bold text-slate-800 dark:text-white">
+                        <span className="flex items-center gap-2">
+                          <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-800 dark:border-white flex items-center justify-center">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-white" />
+                          </span>
+                          <span>{selectedGeo.label || 'National'}</span>
+                        </span>
+                        <span className="text-[10px] font-bold bg-slate-100 dark:bg-[#0c1b31] px-1.5 py-0.5 rounded border border-slate-200 dark:border-[#18365d]">
+                          {selectedGeo.count || 18} Terr &#9662;
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* B. Skill Type Filter */}
+                <div className="flex items-center gap-2 flex-shrink-0" title="Skill Type Filter">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    <span>SKILL:</span>
+                  </span>
+                  <div className="flex items-center bg-white dark:bg-[#081324] p-0.5 rounded-xl border border-slate-200 dark:border-[#18365d] h-[34px] shadow-2xs">
+                    {[
+                      { id: 'All', label: 'All Skills', icon: 'users' },
+                      { id: 'HEC', label: 'HEC Core', icon: 'bolt' },
+                      { id: 'KAC', label: 'KAC Appliance', icon: 'wrench' }
+                    ].map(s => {
+                      const isSelected = (filter.skill === s.id) || (s.id === 'All' && (!filter.skill || filter.skill === 'All' || filter.skill === 'ALL'));
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => setFilter(prev => ({ ...prev, skill: s.id }))}
+                          className={`px-3 h-full text-[11px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                            isSelected
+                              ? 'bg-blue-100 text-[#005eb8] dark:bg-[#1d4ed8] dark:text-white shadow-xs font-extrabold'
+                              : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
+                          }`}
+                        >
+                          {s.icon === 'users' && (
+                            <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                              <circle cx="9" cy="7" r="4" />
+                            </svg>
+                          )}
+                          {s.icon === 'bolt' && (
+                            <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                            </svg>
+                          )}
+                          {s.icon === 'wrench' && (
+                            <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                            </svg>
+                          )}
+                          <span>{s.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {/* Keep accessible aria-label select for tests and assistive technology */}
+                  <select
+                    aria-label="Analytics skill"
+                    className="sr-only"
+                    value={filter.skill}
+                    onChange={e => setFilter({ ...filter, skill: e.target.value })}
+                  >
+                    <option value="All">All</option>
+                    <option value="HEC">HEC</option>
+                    <option value="KAC">KAC</option>
+                    <option value="EV">EV</option>
+                  </select>
+                </div>
+
+                {/* C. Date Range Filter */}
+                <div className="flex items-center gap-2 flex-shrink-0" title="Date Range Filter">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <span>DATE:</span>
+                  </span>
+                  <div className="flex items-center gap-1.5 bg-white dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl px-2.5 h-[34px] shadow-2xs">
+                    <select
+                      aria-label="Analytics from week"
+                      value={filter.start || availableWeeks[0] || '2026-09-28'}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFilter({
+                          ...filter,
+                          start: val,
+                          end: filter.end && val > filter.end ? val : filter.end
+                        });
+                      }}
+                      className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
+                      title="Start Week"
+                    >
+                      {availableWeeks.map(w => (
+                        <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
+                      ))}
+                    </select>
+                    <span className="text-slate-400 text-xs font-bold select-none">&rarr;</span>
+                    <select
+                      aria-label="Analytics through week"
+                      value={filter.end || availableWeeks[availableWeeks.length - 1] || '2026-11-16'}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFilter({
+                          ...filter,
+                          end: val,
+                          start: filter.start && val < filter.start ? val : filter.start
+                        });
+                      }}
+                      className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
+                      title="End Week"
+                    >
+                      {availableWeeks.map(w => (
+                        <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+        
+        {showAssumptions && <AnalyticsAssumptions value={assumptions} onChange={setAssumptions} onClose={() => { setShowAssumptions(false); setIsAssumptionsOpen && setIsAssumptionsOpen(false); }} onReset={() => setAssumptions({
       ...A.defaults
     })} />}
         <nav aria-label="Analytics areas" className="av-area-nav">{Object.entries(areas).map(([id, a], index) => <button key={id} onClick={() => {
@@ -1347,10 +1935,11 @@ function AnalyticsWorkspace({
         setView(Object.keys(a.views)[0]);
         setDetail(null);
       }} aria-current={area === id ? 'page' : undefined}><i>{String(index + 1).padStart(2, '0')}</i><span>{a.title}<small>{Object.keys(a.views).length} {Object.keys(a.views).length === 1 ? 'investigation' : 'investigations'}</small></span></button>)}</nav>
+        <AnalyticsSubtabBracket activeArea={area} areas={areas} />
         <nav aria-label="Analytics investigations" className="av-view-nav">{Object.entries(areas[area].views).map(([id, title]) => <button key={id} onClick={() => {
         setView(id);
         setDetail(null);
-      }} className={button} aria-current={view === id ? 'page' : undefined}>{title}</button>)}</nav>
+      }} className={`av-subtab-pill ${view === id ? 'active' : ''}`} aria-current={view === id ? 'page' : undefined}>{title}</button>)}</nav>
         {error && <div role="alert" className="p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-sm">{error}</div>}
         {busy && <div role="status" className={panel + ' text-sm text-slate-500 animate-pulse'}>Reading selected source versions and baseline…</div>}
         {!busy && bundle && <><div className="flex flex-wrap justify-between items-center gap-2"><h2 className="av-section-title text-lg font-bold text-slate-900">{areas[area].views[view]}</h2><span className="text-[10px] font-semibold bg-amber-50 border border-amber-200 text-amber-800 px-2 py-1 rounded-full">Source facts + explicitly partial model</span></div>{renderers[view]()}

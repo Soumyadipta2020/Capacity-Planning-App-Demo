@@ -21,7 +21,7 @@ function render(area,view,extra={}){
     vm.createContext(context);vm.runInContext(chartJsx,context);vm.runInContext(detailsJsx,context);vm.runInContext(jsx,context);
     const tree=context.window.AnalyticsWorkspace({scenarios,selectedScenarioId:bundle.scenarioId,inputsState:{}});
     const html=renderToStaticMarkup(tree);
-    assert.ok(html.includes('Leadership planning workspace'));
+    assert.ok(html.includes('Decision Studio'));
     assert.ok(!html.includes('>NaN<')&&!html.includes('>Infinity<'));
     return html;
 }
@@ -46,14 +46,13 @@ console.log(`PASS: ${count} investigations, source/diff/issue dialogs, assumptio
     let tree;const rerender=()=>{stateIndex=0;refIndex=0;tree=context.window.AnalyticsWorkspace({scenarios,selectedScenarioId:bundle.scenarioId,inputsState:{}});return tree;};
     function find(predicate,node=tree){if(!node||typeof node!=='object')return null;if(predicate(node))return node;for(const child of React.Children.toArray(node.props?.children)){const hit=find(predicate,child);if(hit)return hit;}return null;}
     rerender();find(n=>n.props?.['aria-label']==='Analytics skill').props.onChange({target:{value:'KAC'}});rerender();assert.equal(state.get(9).skill,'KAC');
-    const scope=()=>find(n=>n.type?.name==='AnalyticsScopeBar');
+    const resetBtn=()=>find(n=>n.props?.title==='Reset filters to default'||n.props?.title==='Reset all filters to defaults');
     const week=d.weeks[2];
-    find(n=>n.props?.title==='Demand trajectory').props.onSelect({key:week});rerender();assert.equal(state.get(9).start,week);assert.equal(state.get(12),null);assert.equal(scope().props.canUndo,true);
-    scope().props.onUndo();rerender();assert.equal(state.get(9).start,'');assert.equal(state.get(9).skill,'KAC');
-    find(n=>n.props?.title==='Demand trajectory').props.onSelect({key:week});rerender();find(n=>n.props?.title==='Demand trajectory').props.onSelect({key:week});rerender();assert.equal(state.get(9).start,'');assert.equal(state.get(9).skill,'KAC');
-    scope().props.onReset();rerender();assert.equal(state.get(9).skill,'All');scope().props.onUndo();rerender();assert.equal(state.get(9).skill,'KAC');
+    find(n=>n.props?.title==='Demand trajectory').props.onSelect({key:week});rerender();assert.equal(state.get(9).start,week);assert.equal(state.get(12),null);
+    resetBtn().props.onClick();rerender();assert.equal(state.get(9).start,'');assert.equal(state.get(9).skill,'All');
+    find(n=>n.props?.title==='Demand trajectory').props.onSelect({key:week});rerender();find(n=>n.props?.title==='Demand trajectory').props.onSelect({key:week});rerender();assert.equal(state.get(9).start,'');
     const workbench=find(n=>n.type?.name==='AnalyticsWorkbench'&&n.props.title==='Investigate demand');assert.equal(workbench.props.panes.length,6);
-    const weekly=workbench.props.panes.find(p=>p.id==='weekly').content;const focus=weekly.props.columns.find(c=>c.key==='focus').render(weekly.props.rows[0]);focus.props.onClick({stopPropagation(){}});rerender();assert.equal(state.get(9).start,weekly.props.rows[0].name);assert.equal(state.get(12),null);scope().props.onUndo();rerender();
+    const weekly=workbench.props.panes.find(p=>p.id==='weekly').content;const focus=weekly.props.columns.find(c=>c.key==='focus').render(weekly.props.rows[0]);focus.props.onClick({stopPropagation(){}});rerender();assert.equal(state.get(9).start,weekly.props.rows[0].name);assert.equal(state.get(12),null);resetBtn().props.onClick();rerender();
     find(n=>n.type==='button'&&n.props.children?.[1]?.props?.children?.[0]==='Stress & Sensitivity').props.onClick();rerender();assert.equal(state.get(8),'stress');
     find(n=>n.props?.['aria-label']==='Demand change %').props.onChange({target:{value:'25'}});rerender();assert.equal(state.get(11).demandPct,25);
     find(n=>n.type==='button'&&n.props.children==='Pin this run').props.onClick();rerender();assert.equal(state.get(13).length,1);assert.equal(state.get(13)[0].shock.demandPct,25);

@@ -772,11 +772,62 @@ html.dark .analytics-workspace {
     color: #e2e8f0;
 }
 
-html.dark .analytics-panel {
-    background: #0b1a30 !important;
-    background-image: none !important;
+html.dark .analytics-hero {
+    background-color: #0c1b31 !important;
+    background-image: radial-gradient(ellipse at 84% 8%, rgba(37, 91, 156, 0.3) 0, transparent 55%), linear-gradient(115deg, #0c1b31, #08162b) !important;
     border-color: #18365d !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 24px rgba(12, 27, 49, 0.4) !important;
+}
+
+html.dark .analytics-hero h1 {
+    color: #ffffff !important;
+}
+
+html.dark .analytics-hero p {
+    color: #adbed4 !important;
+}
+
+html.dark .analytics-hero .av-eyebrow {
+    color: #80c6ff !important;
+}
+
+html.dark .av-hero-meta span {
+    background: #08162b !important;
+    border-color: #18365d !important;
+    color: #adbed4 !important;
+}
+
+html.dark .av-hero-meta i {
+    background: #38bdf8 !important;
+}
+
+html.dark .analytics-workspace select,
+html.dark .analytics-workspace input[type="number"],
+html.dark .analytics-workspace input[type="text"],
+html.dark .analytics-workspace textarea {
+    background-color: #070e1c !important;
+    border-color: #18365d !important;
+    color: #ffffff !important;
+}
+
+html.dark .av-primary-button {
+    background: #2563eb !important;
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+html.dark .av-primary-button:hover {
+    background: #1d4ed8 !important;
+    border-color: #60a5fa !important;
+}
+
+html.dark .analytics-panel {
+    background-color: #071324 !important;
+    background-image: radial-gradient(ellipse at 85% 0%, rgba(37, 99, 235, 0.12) 0%, transparent 55%), linear-gradient(135deg, #0c1c33 0%, #06101d 100%) !important;
+    border-color: #18365d !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45) !important;
 }
 
 html.dark .av-area-nav>button {
@@ -792,8 +843,15 @@ html.dark .av-area-nav>button:hover {
 }
 
 html.dark .av-area-nav>button[aria-current=page] {
-    background: rgba(30, 58, 138, 0.45) !important;
-    border-color: #3b82f6 !important;
+    background: rgba(20, 41, 80, 0.75) !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 16px rgba(37, 99, 235, 0.3) !important;
+}
+
+html.dark .av-area-nav>button[aria-current=page]>i {
+    background: #1e3a8a !important;
+    border: 1px solid #3b82f6 !important;
     color: #93c5fd !important;
 }
 
@@ -811,19 +869,38 @@ html.dark .av-area-nav small {
 }
 
 html.dark .av-view-nav {
-    border-color: #18365d !important;
+    border-bottom: none !important;
+    border-color: transparent !important;
 }
 
-html.dark .av-view-nav button {
-    color: #adbed4 !important;
+html.dark .av-view-nav button,
+html.dark .av-subtab-pill {
+    color: #94a3b8 !important;
+    background: transparent !important;
+    border-radius: 9999px !important;
 }
 
-html.dark .av-view-nav button[aria-current=page] {
-    background: rgba(30, 58, 138, 0.45) !important;
-    color: #80c6ff !important;
+html.dark .av-view-nav button:hover,
+html.dark .av-subtab-pill:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
 }
 
-html.dark .analytics-metric {
+html.dark .av-view-nav button[aria-current=page],
+html.dark .av-subtab-pill[aria-current=page],
+html.dark .av-subtab-pill.active {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 0 14px rgba(37, 99, 235, 0.45) !important;
+}
+
+html.dark .av-bracket-container path {
+    stroke: #3b82f6 !important;
+    filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.5));
+}
+
+html.dark .analytics-metric:not(.glow-card) {
     background: #0b1a30 !important;
     background-image: none !important;
     border-color: #18365d !important;
@@ -1508,11 +1585,20 @@ html.dark .diff-kpi-card-scope {
     box-shadow: 0 0 16px rgba(217, 119, 6, 0.22) !important;
 }
 
+html.dark .diff-kpi-card-shortfall {
+    background-color: #200a10 !important;
+    background-image: radial-gradient(ellipse at 85% 90%, rgba(244, 63, 94, 0.22) 0%, transparent 60%), linear-gradient(145deg, #2d0e17 0%, #15060b 100%) !important;
+    border: 1px solid #f43f5e !important;
+    border-radius: 12px !important;
+    box-shadow: 0 0 16px rgba(244, 63, 94, 0.22) !important;
+}
+
 /* KPI Scorecard 4-cards base transition */
 .diff-kpi-card-net,
 .diff-kpi-card-demand,
 .diff-kpi-card-capacity,
-.diff-kpi-card-scope {
+.diff-kpi-card-scope,
+.diff-kpi-card-shortfall {
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
@@ -1541,6 +1627,12 @@ html.dark .diff-kpi-card-scope {
     transform: translateY(-2px);
 }
 
+.diff-kpi-card-shortfall:hover {
+    border-color: #f43f5e !important;
+    box-shadow: 0 10px 26px -2px rgba(244, 63, 94, 0.25), 0 4px 12px -2px rgba(0, 0, 0, 0.05) !important;
+    transform: translateY(-2px);
+}
+
 /* Dark mode card hover glowing highlights */
 html.dark .diff-kpi-card-net:hover {
     border-color: #34d399 !important;
@@ -1564,6 +1656,43 @@ html.dark .diff-kpi-card-scope:hover {
     border-color: #fbbf24 !important;
     box-shadow: 0 0 32px rgba(217, 119, 6, 0.45), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
     transform: translateY(-2px);
+}
+
+html.dark .diff-kpi-card-shortfall:hover {
+    border-color: #fb7185 !important;
+    box-shadow: 0 0 32px rgba(244, 63, 94, 0.45), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+/* Card theme left accent indicator glowing styles in dark theme */
+html.dark .diff-kpi-card-net:before,
+html.dark .analytics-metric.diff-kpi-card-net:before {
+    background: #10b981 !important;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.7) !important;
+}
+
+html.dark .diff-kpi-card-demand:before,
+html.dark .analytics-metric.diff-kpi-card-demand:before {
+    background: #38bdf8 !important;
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.7) !important;
+}
+
+html.dark .diff-kpi-card-capacity:before,
+html.dark .analytics-metric.diff-kpi-card-capacity:before {
+    background: #c084fc !important;
+    box-shadow: 0 0 8px rgba(192, 132, 252, 0.7) !important;
+}
+
+html.dark .diff-kpi-card-scope:before,
+html.dark .analytics-metric.diff-kpi-card-scope:before {
+    background: #fbbf24 !important;
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.7) !important;
+}
+
+html.dark .diff-kpi-card-shortfall:before,
+html.dark .analytics-metric.diff-kpi-card-shortfall:before {
+    background: #fb7185 !important;
+    box-shadow: 0 0 8px rgba(251, 113, 133, 0.7) !important;
 }
 
 /* Waterfall card dark surfaces */

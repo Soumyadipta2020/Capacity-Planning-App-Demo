@@ -12,24 +12,130 @@ function AnalyticsScopeBar({filter,weeks=[],regions=[],patches=[],onChange,onRes
   const active=Number(filter.region!=='All')+Number(filter.patch!=='All')+Number(filter.skill!=='All')+Number(!!filter.start||!!filter.end);
   const date=value=>{if(!value)return '';const d=new Date(value+'T00:00:00Z');return Number.isFinite(d.getTime())?d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit',timeZone:'UTC'}):value;};
   const remove=part=>onChange(part==='week'?{...filter,start:'',end:''}:part==='region'?{...filter,region:'All',patch:'All'}:{...filter,[part]:'All'});
-  const chip=(part,label)=><button key={part} className="av-scope-chip" aria-label={'Remove '+part+' filter'} onClick={()=>remove(part)}>{label}<AnalyticsIcon name="close" size={11}/></button>;
-  const field=(label,key,options,empty)=> <label><span>{label}</span><select aria-label={'Quick '+label.toLowerCase()} value={filter[key]} onChange={e=>{
+  const chip=(part,label)=><button key={part} className="av-scope-chip inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-[#80c6ff] border border-blue-200/80 dark:border-blue-700/60 hover:bg-rose-50 hover:text-rose-700 dark:hover:bg-rose-950/50 dark:hover:text-rose-300 hover:border-rose-300 transition cursor-pointer" aria-label={'Remove '+part+' filter'} onClick={()=>remove(part)}>{label}<AnalyticsIcon name="close" size={11}/></button>;
+  const field=(label,key,options,empty)=> <label className="block text-xs font-semibold text-slate-700 dark:text-[#adbed4] space-y-1"><span>{label}</span><select aria-label={'Quick '+label.toLowerCase()} className="w-full text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-2xs" value={filter[key]} onChange={e=>{
     const next={...filter,[key]:e.target.value};if(key==='region')next.patch='All';
     if(key==='start'&&next.end&&next.start>next.end)next.end=next.start;
     if(key==='end'&&next.start&&next.end&&next.end<next.start)next.start=next.end;
     onChange(next);
   }}>{empty&&<option value="">{empty}</option>}{options.map(v=><option key={v} value={v}>{/^\d{4}-/.test(v)?date(v):v}</option>)}</select></label>;
-  return <div ref={container} className="av-scope-livebar" aria-label="Persistent analytics scope"><div className="av-scope-live-title"><span><AnalyticsIcon name="sliders" size={15}/></span><div><strong>Current view</strong><small title={scenario}>{scenario||'Analytics'}</small></div></div><div className="av-scope-live-chips" aria-live="polite">{filter.region!=='All'&&chip('region','Region '+filter.region)}{filter.patch!=='All'&&chip('patch',filter.patch)}{filter.skill!=='All'&&chip('skill',filter.skill)}{(filter.start||filter.end)&&chip('week',single?'Week of '+date(filter.start):date(filter.start||weeks[0])+' – '+date(filter.end||weeks[weeks.length-1]))}{!active&&<span className="av-scope-all">All regions · all skills · full horizon</span>}</div><div className="av-scope-live-actions">{single&&<div className="av-week-stepper"><button aria-label="Previous available week" disabled={index<=0} onClick={()=>onChange({...filter,start:weeks[index-1],end:weeks[index-1]})}><span>‹</span></button><span>Week</span><button aria-label="Next available week" disabled={index<0||index>=weeks.length-1} onClick={()=>onChange({...filter,start:weeks[index+1],end:weeks[index+1]})}><span>›</span></button></div>}<button className="av-scope-undo" disabled={!canUndo} onClick={onUndo} aria-label="Undo last filter change"><span>↶</span>Undo</button><button className="av-scope-reset" disabled={!active} onClick={onReset}>Clear all</button><button className="av-scope-edit" aria-label="Edit analytics filters" aria-expanded={expanded} onClick={()=>setExpanded(!expanded)}><AnalyticsIcon name="sliders" size={13}/>Filters{active>0&&<b>{active}</b>}</button></div>{expanded&&<div className="av-scope-flyout"><header><div><strong>Refine this view</strong><p>Changes apply across the current investigation.</p></div><button aria-label="Close quick filters" onClick={()=>setExpanded(false)}><AnalyticsIcon name="close" size={15}/></button></header><div>{field('Region','region',['All',...regions])}{field('Skill','skill',['All','HEC','KAC','EV'])}{field('Patch','patch',['All',...patches])}{field('From week','start',weeks,'First available')}{field('Through week','end',weeks,'Last available')}</div><footer><span>Remove any filter using its chip.</span><button onClick={()=>setExpanded(false)}>Done</button></footer></div>}</div>;
+  return <div ref={container} className="av-scope-livebar relative flex flex-wrap items-center justify-between gap-2.5 py-1.5 text-xs" aria-label="Persistent analytics scope">
+    <div className="flex items-center gap-2 flex-wrap min-w-0">
+      <div className="av-scope-live-title flex items-center gap-1.5 font-bold text-slate-700 dark:text-[#80c6ff] pr-3 border-r border-slate-200 dark:border-[#18365d] flex-shrink-0">
+        <span className="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950/80 border border-blue-100 dark:border-blue-800/60 text-blue-600 dark:text-[#80c6ff] flex items-center justify-center flex-shrink-0">
+          <AnalyticsIcon name="sliders" size={13}/>
+        </span>
+        <div className="leading-tight">
+          <strong className="text-[11px] font-black uppercase tracking-wider block text-slate-800 dark:text-white">Scope</strong>
+          <small className="text-[10px] text-slate-400 dark:text-[#adbed4] block truncate max-w-[130px]" title={scenario}>{scenario||'Analytics'}</small>
+        </div>
+      </div>
+      <div className="av-scope-live-chips flex flex-wrap items-center gap-1.5 min-w-0" aria-live="polite">
+        {filter.region!=='All'&&chip('region','Region '+filter.region)}
+        {filter.patch!=='All'&&chip('patch',filter.patch)}
+        {filter.skill!=='All'&&chip('skill',filter.skill)}
+        {(filter.start||filter.end)&&chip('week',single?'Week of '+date(filter.start):date(filter.start||weeks[0])+' – '+date(filter.end||weeks[weeks.length-1]))}
+        {!active&&<span className="av-scope-all text-[11px] font-semibold text-slate-400 dark:text-[#adbed4]">All regions · all skills · full horizon</span>}
+      </div>
+    </div>
+    <div className="av-scope-live-actions flex items-center gap-1.5 flex-shrink-0">
+      {single&&<div className="av-week-stepper inline-flex items-center gap-1 bg-slate-50 dark:bg-[#08162b] border border-slate-200 dark:border-[#18365d] rounded-lg px-2 py-0.5">
+        <button aria-label="Previous available week" disabled={index<=0} onClick={()=>onChange({...filter,start:weeks[index-1],end:weeks[index-1]})} className="px-1 text-slate-600 dark:text-[#adbed4] hover:text-blue-600 dark:hover:text-[#80c6ff] disabled:opacity-30 font-bold cursor-pointer">
+          <span>‹</span>
+        </button>
+        <span className="text-[10px] font-black uppercase text-slate-500 dark:text-[#adbed4]">Week</span>
+        <button aria-label="Next available week" disabled={index<0||index>=weeks.length-1} onClick={()=>onChange({...filter,start:weeks[index+1],end:weeks[index+1]})} className="px-1 text-slate-600 dark:text-[#adbed4] hover:text-blue-600 dark:hover:text-[#80c6ff] disabled:opacity-30 font-bold cursor-pointer">
+          <span>›</span>
+        </button>
+      </div>}
+      <button className="av-scope-undo px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 dark:border-[#18365d] bg-white dark:bg-[#08162b] text-slate-700 dark:text-[#adbed4] hover:bg-slate-50 dark:hover:bg-[#122b4d] disabled:opacity-40 transition flex items-center gap-1 cursor-pointer shadow-2xs" disabled={!canUndo} onClick={onUndo} aria-label="Undo last filter change">
+        <span>↶</span>Undo
+      </button>
+      <button className="av-scope-reset px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 dark:border-[#18365d] bg-white dark:bg-[#08162b] text-slate-700 dark:text-[#adbed4] hover:bg-slate-50 dark:hover:bg-[#122b4d] disabled:opacity-40 transition cursor-pointer shadow-2xs" disabled={!active} onClick={onReset}>
+        Clear all
+      </button>
+      <button className="av-scope-edit px-2.5 py-1 text-xs font-bold rounded-lg border border-blue-600 dark:border-blue-500 bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-1.5 cursor-pointer shadow-xs" aria-label="Edit analytics filters" aria-expanded={expanded} onClick={()=>setExpanded(!expanded)}>
+        <AnalyticsIcon name="sliders" size={12}/>
+        <span>Filters</span>
+        {active>0&&<b className="ml-0.5 px-1.5 py-0.2 bg-white/20 text-white rounded-full text-[10px]">{active}</b>}
+      </button>
+    </div>
+    {expanded&&<div className="av-scope-flyout absolute right-0 top-full mt-2 w-80 bg-white dark:bg-[#0c1b31] border border-slate-200 dark:border-[#18365d] rounded-xl shadow-2xl p-4 z-50 space-y-3 glow-card">
+      <header className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-[#18365d]">
+        <div>
+          <strong className="text-xs font-black uppercase text-slate-900 dark:text-white">Refine Scope</strong>
+          <p className="text-[10px] text-slate-500 dark:text-[#adbed4]">Changes apply across all investigations.</p>
+        </div>
+        <button aria-label="Close quick filters" onClick={()=>setExpanded(false)} className="w-6 h-6 rounded-md hover:bg-slate-100 dark:hover:bg-[#18365d] flex items-center justify-center text-slate-500 cursor-pointer">
+          <AnalyticsIcon name="close" size={13}/>
+        </button>
+      </header>
+      <div className="space-y-2">
+        {field('Region','region',['All',...regions])}
+        {field('Skill','skill',['All','HEC','KAC','EV'])}
+        {field('Patch','patch',['All',...patches])}
+        {field('From week','start',weeks,'First available')}
+        {field('Through week','end',weeks,'Last available')}
+      </div>
+      <footer className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-[#18365d]">
+        <span className="text-[10px] text-slate-400">Click chips to remove.</span>
+        <button onClick={()=>setExpanded(false)} className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold cursor-pointer">Done</button>
+      </footer>
+    </div>}
+  </div>;
 }
 function AnalyticsWorkbench({title='Investigate the numbers',subtitle='Choose a question. All tables follow the current view.',panes=[],idPrefix='analytics-workbench'}) {
   const [active,setActive]=React.useState(panes[0]?.id);
   const pane=panes.find(p=>p.id===active)||panes[0];
   const activate=(index,event)=>{const next=(index+panes.length)%panes.length;setActive(panes[next].id);event?.currentTarget?.parentElement?.querySelectorAll('[role="tab"]')?.[next]?.focus();};
-  return <section className="analytics-panel av-workbench"><header><span><AnalyticsIcon name="table" size={20}/></span><div><h3>{title}</h3><p>{subtitle}</p></div>{pane?.onExport&&<button className="av-secondary-button" disabled={!pane.count} onClick={pane.onExport}><AnalyticsIcon name="download" size={14}/>Export table</button>}</header>{!pane?<AnalyticsEmpty title="No detailed records in this scope" description="Adjust the filters above or inspect the selected input files."/>:<><nav role="tablist" aria-label={title}>{panes.map((p,i)=><button key={p.id} role="tab" id={idPrefix+'-tab-'+p.id} aria-controls={idPrefix+'-panel-'+p.id} aria-selected={pane.id===p.id} tabIndex={pane.id===p.id?0:-1} onClick={()=>setActive(p.id)} onKeyDown={e=>{if(['ArrowRight','ArrowLeft','Home','End'].includes(e.key)){e.preventDefault();activate(e.key==='Home'?0:e.key==='End'?panes.length-1:i+(e.key==='ArrowRight'?1:-1),e);}}}>{p.label}{p.count!==undefined&&<span>{Number(p.count).toLocaleString()}</span>}</button>)}</nav><div role="tabpanel" id={idPrefix+'-panel-'+pane.id} aria-labelledby={idPrefix+'-tab-'+pane.id} tabIndex="0" className="av-workbench-panel">{pane.description&&<div className="av-workbench-explanation"><AnalyticsIcon name="info" size={14}/><p>{pane.description}</p></div>}{pane.content}</div></>}</section>;
+  return <section className="analytics-panel av-workbench bg-white dark:bg-[#0c1b31] border border-slate-200/80 dark:border-[#18365d] rounded-xl shadow-xs glow-card overflow-hidden">
+    <header className="p-3.5 bg-slate-50/70 dark:bg-[#08162b] border-b border-slate-100 dark:border-[#18365d] flex items-center justify-between gap-3 flex-wrap">
+      <div className="flex items-center gap-2.5">
+        <span className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/80 border border-blue-100 dark:border-blue-800/60 text-blue-600 dark:text-[#80c6ff] flex items-center justify-center glow-icon glow-icon-blue flex-shrink-0">
+          <AnalyticsIcon name="table" size={16}/>
+        </span>
+        <div>
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white">{title}</h3>
+          <p className="text-[11px] text-slate-500 dark:text-[#adbed4]">{subtitle}</p>
+        </div>
+      </div>
+      {pane?.onExport&&<button className="av-secondary-button px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 dark:border-[#18365d] bg-white dark:bg-[#08162b] text-slate-700 dark:text-[#adbed4] hover:text-blue-600 dark:hover:text-[#80c6ff] transition flex items-center gap-1.5 cursor-pointer shadow-2xs" disabled={!pane.count} onClick={pane.onExport}>
+        <AnalyticsIcon name="download" size={13}/>
+        <span>Export table</span>
+      </button>}
+    </header>
+    {!pane?<AnalyticsEmpty title="No detailed records in this scope" description="Adjust the filters above or inspect the selected input files."/>:<>
+      <nav role="tablist" aria-label={title} className="flex gap-1.5 p-2 bg-slate-50/40 dark:bg-[#08162b]/40 border-b border-slate-100 dark:border-[#18365d] overflow-x-auto">
+        {panes.map((p,i)=>{
+          const isSelected = pane.id === p.id;
+          return <button key={p.id} role="tab" id={idPrefix+'-tab-'+p.id} aria-controls={idPrefix+'-panel-'+p.id} aria-selected={isSelected} tabIndex={isSelected?0:-1} onClick={()=>setActive(p.id)} onKeyDown={e=>{if(['ArrowRight','ArrowLeft','Home','End'].includes(e.key)){e.preventDefault();activate(e.key==='Home'?0:e.key==='End'?panes.length-1:i+(e.key==='ArrowRight'?1:-1),e);}}} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+            isSelected
+              ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/60 dark:text-[#80c6ff] border border-blue-200 dark:border-blue-700/80 shadow-2xs'
+              : 'text-slate-600 dark:text-[#adbed4] hover:bg-slate-100 dark:hover:bg-[#122b4d]'
+          }`}>
+            <span>{p.label}</span>
+            {p.count!==undefined&&<span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              isSelected
+                ? 'bg-blue-200/60 text-blue-800 dark:bg-blue-800 dark:text-blue-200'
+                : 'bg-slate-200/70 text-slate-600 dark:bg-[#18365d] dark:text-[#adbed4]'
+            }`}>{Number(p.count).toLocaleString()}</span>}
+          </button>;
+        })}
+      </nav>
+      <div role="tabpanel" id={idPrefix+'-panel-'+pane.id} aria-labelledby={idPrefix+'-tab-'+pane.id} tabIndex="0" className="av-workbench-panel p-4">
+        {pane.description&&<div className="av-workbench-explanation mb-3.5 p-2.5 rounded-lg bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 flex items-start gap-2 text-xs text-blue-900 dark:text-[#80c6ff]">
+          <AnalyticsIcon name="info" size={14} className="mt-0.5 text-blue-600 flex-shrink-0"/>
+          <p className="leading-relaxed">{pane.description}</p>
+        </div>}
+        {pane.content}
+      </div>
+    </>}
+  </section>;
 }
 function AnalyticsIcon({
   name = 'file',
-  size = 16
+  size = 16,
+  className = ""
 }) {
   const paths = {
     file: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M8 13h8 M8 17h5',
@@ -43,9 +149,17 @@ function AnalyticsIcon({
     download: 'M12 3v12 m-5-5 5 5 5-5 M4 16v5h16v-5',
     check: 'm5 12 4 4L19 6',
     clock: 'M12 8v5l3 2 M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',
-    info: 'M12 11v6 M12 7h.01 M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0'
+    info: 'M12 11v6 M12 7h.01 M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',
+    refresh: 'M23 4v6h-6 M1 20v-6h6 M3.51 9a9 9 0 0 1 14.85-3.36L23 10 M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
+    alert: 'M12 8v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
+    demand: 'M3 3v18h18 M7 16l4-8 4 5 5-9',
+    capacity: 'M4 6h16M4 12h16M4 18h16',
+    buffer: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
+    coverage: 'M21.21 15.89A10 10 0 1 1 8 2.83 M22 12A10 10 0 0 0 12 2v10z',
+    sparkles: 'm12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z',
+    gear: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z'
   };
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name] || paths.file} /></svg>;
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={className}><path d={paths[name] || paths.file} /></svg>;
 }
 function AnalyticsDisclosure({
   title,
@@ -256,4 +370,9 @@ function AnalyticsRunCards({
   });
   const descriptions = r => [['Demand', r.shock.demandPct, '%'], ['Additional absence', r.shock.absencePp, ' pp'], ['Productivity', r.shock.productivityPct, '%'], ['Recruitment delay', r.shock.recruitmentDelay, ' weeks'], ['Contractor cover', r.shock.contractorPct, '%'], ['Overtime', r.shock.overtimePct, '%'], ['Extra hours', r.shock.extraHours, ' h/cell/week']].filter(([, v]) => v).map(([k, v, u]) => k + ' ' + (v > 0 ? '+' : '') + v + u);
   return <section className="analytics-panel av-pinned-panel"><header><span className="av-disclosure-icon"><AnalyticsIcon name="compare" /></span><div><h3>Pinned test runs</h3><p>Compare saved snapshots, or load their settings against current inputs.</p></div><button className="av-secondary-button" disabled={!runs.length} onClick={onExport}><AnalyticsIcon name="download" />Export runs</button></header>{!runs.length ? <AnalyticsEmpty icon="compare" title="Keep the alternatives worth discussing" description="Use “Pin this run” above to retain an option while you explore another. Export before reloading the page." /> : <div className="av-run-grid">{runs.map(r => <article key={r.id} className="av-run-card"><header><span><AnalyticsIcon name="compare" size={13} />{r.name}</span><button onClick={() => onRemove(r.id)} aria-label={'Remove ' + r.name}>Remove</button></header><h4>{r.scenario}</h4><p>{r.scope.region === 'All' ? 'All regions' : 'Region ' + r.scope.region} · {r.scope.skill === 'All' ? 'All skills' : r.scope.skill} · {r.scope.patch === 'All' ? 'All patches' : r.scope.patch}</p><div className="av-run-measures"><div><span>Gross shortfall</span><strong>{r.result.comparableCells ? fmt(r.result.deficit) + ' h' : 'Unavailable'}</strong></div><div><span>Coverage</span><strong>{r.result.coverage === null ? 'Unavailable' : fmt(r.result.coverage) + '%'}</strong></div></div><div className="av-run-chips">{descriptions(r).length ? descriptions(r).map(t => <span key={t}>{t}</span>) : <span>No additional shocks</span>}</div><footer><span>{r.result.comparableCells} comparable cells · snapshot</span><button onClick={() => onApply(r)}>Load test settings<AnalyticsIcon name="chevron" size={13} /></button></footer></article>)}</div>}</section>;
+}
+
+
+if (typeof window !== 'undefined') {
+  window.AnalyticsAssumptions = AnalyticsAssumptions;
 }

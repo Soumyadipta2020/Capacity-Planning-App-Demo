@@ -10,7 +10,13 @@
     subtitle,
     badge
   }) {
-    return <div className="av-chart-heading"><div><h3>{title}</h3>{subtitle && <p>{subtitle}</p>}</div>{badge && <span className="av-chart-badge">{badge}</span>}</div>;
+    return <div className="av-chart-heading flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 dark:border-[#18365d] gap-2 mb-3">
+      <div>
+        <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-1.5">{title}</h3>
+        {subtitle && <p className="text-[11px] text-slate-500 dark:text-[#adbed4] mt-0.5">{subtitle}</p>}
+      </div>
+      {badge && <span className="av-chart-badge text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/60 dark:text-[#80c6ff] border border-blue-200/60 dark:border-blue-800">{badge}</span>}
+    </div>;
   }
   function Trend({
     title,
@@ -43,7 +49,7 @@
         onSelect?.(row);
       }
     };
-    return <section className="analytics-panel av-chart"><ChartHeading title={title} subtitle={subtitle} badge={onSelect ? 'Click a week to drill down' : unit} />
+    return <section className="analytics-panel av-chart bg-white dark:bg-[#0c1b31] p-4 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card space-y-3"><ChartHeading title={title} subtitle={subtitle} badge={onSelect ? 'Click a week to drill down' : unit} />
       {!data.length ? <div className="av-empty">No observations in this scope. Reset filters or inspect source coverage.</div> : <>
       <div className="av-legend">{series.map((s, i) => <button key={s.key} aria-pressed={!hidden.includes(s.key)} onClick={() => setHidden(old => old.includes(s.key) ? old.filter(k => k !== s.key) : [...old, s.key])} style={{
             opacity: hidden.includes(s.key) ? 0.4 : 1
@@ -98,7 +104,7 @@
       radius = 71,
       circumference = 2 * Math.PI * radius;
     let offset = 0;
-    return <section className="analytics-panel av-chart"><ChartHeading title={title} subtitle={subtitle} /><div className="av-donut-layout"><div className="av-donut-graphic"><svg viewBox="0 0 190 190" role="group" aria-label={title}><circle cx="95" cy="95" r={radius} fill="none" stroke="#eef2f7" strokeWidth="17" />{segments.map((s, i) => {
+    return <section className="analytics-panel av-chart bg-white dark:bg-[#0c1b31] p-4 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card space-y-3"><ChartHeading title={title} subtitle={subtitle} /><div className="av-donut-layout"><div className="av-donut-graphic"><svg viewBox="0 0 190 190" role="group" aria-label={title}><circle cx="95" cy="95" r={radius} fill="none" stroke="#eef2f7" strokeWidth="17" />{segments.map((s, i) => {
               const length = total ? s.value / total * circumference : 0,
                 start = offset;
               offset += length;
@@ -121,7 +127,7 @@
     diverging = false
   }) {
     const max = Math.max(1, ...rows.filter(r => valid(r.value)).map(r => Math.abs(r.value)));
-    return <section className="analytics-panel av-chart"><ChartHeading title={title} subtitle={subtitle} badge={onSelect ? 'Select to investigate' : unit} /><div className="av-bars">{rows.map((r, i) => <button key={r.name} onClick={() => onSelect?.(r)} disabled={!onSelect} className="av-bar-row"><span className="av-bar-label">{r.name}</span><span className={`av-bar-track ${diverging ? 'av-diverging' : ''}`}>{diverging && <span className="av-zero" />}<span className="av-bar-fill" style={{
+    return <section className="analytics-panel av-chart bg-white dark:bg-[#0c1b31] p-4 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card space-y-3"><ChartHeading title={title} subtitle={subtitle} badge={onSelect ? 'Select to investigate' : unit} /><div className="av-bars">{rows.map((r, i) => <button key={r.name} onClick={() => onSelect?.(r)} disabled={!onSelect} className="av-bar-row"><span className="av-bar-label">{r.name}</span><span className={`av-bar-track ${diverging ? 'av-diverging' : ''}`}>{diverging && <span className="av-zero" />}<span className="av-bar-fill" style={{
               width: valid(r.value) ? `${Math.abs(r.value) / max * (diverging ? 49 : 100)}%` : '0%',
               left: diverging ? r.value < 0 ? `${50 - Math.abs(r.value) / max * 49}%` : '50%' : '0',
               background: r.color || (r.value < 0 ? '#f43f5e' : palette[i % palette.length])
@@ -138,7 +144,7 @@
       groups = [...new Set(rows.map(r => r.region + ' / ' + r.skill))].sort();
     const index = new Map(rows.map(r => [r.region + ' / ' + r.skill + '|' + r.week, r]));
     const max = Math.max(1, ...rows.filter(r => valid(r.gap)).map(r => Math.abs(r.gap)));
-    return <section className="analytics-panel av-chart"><ChartHeading title={title} subtitle={subtitle} badge="Select a cell to focus" /><div className="av-heat-legend"><span><i style={{
+    return <section className="analytics-panel av-chart bg-white dark:bg-[#0c1b31] p-4 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card space-y-3"><ChartHeading title={title} subtitle={subtitle} badge="Select a cell to focus" /><div className="av-heat-legend"><span><i style={{
             background: '#fb7185'
           }} />Shortfall</span><span><i style={{
             background: '#5eead4'
@@ -194,7 +200,7 @@
       stepW = 810 / Math.max(1, bars.length),
       y = v => T + (high - v) / span * plotH;
     const unchanged = bars.length > 1 && steps.filter(s => !s.total).every(s => valid(s.value) && Math.abs(s.value) < 1e-9) && Math.abs(bars[0].value - bars[bars.length - 1].value) < 1e-9;
-    return <section className="analytics-panel av-chart"><ChartHeading title={title} subtitle={subtitle} badge={unit} />{unchanged ? <div className="av-no-change"><span>=</span><div><strong>No change across comparable scope</strong><p>Volume, work mix and duration contributions are unchanged.</p></div><b>{format(bars[0].value)} {unit}</b></div> : !bars.length ? <div className="av-empty">No comparable contribution data.</div> : <svg className="av-waterfall-svg" viewBox={`0 0 ${W} ${H}`} role="group" aria-label={title}><line x1={L} x2={W - 15} y1={y(0)} y2={y(0)} stroke="#cbd5e1" />{bars.map((s, i) => {
+    return <section className="analytics-panel av-chart bg-white dark:bg-[#0c1b31] p-4 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card space-y-3"><ChartHeading title={title} subtitle={subtitle} badge={unit} />{unchanged ? <div className="av-no-change"><span>=</span><div><strong>No change across comparable scope</strong><p>Volume, work mix and duration contributions are unchanged.</p></div><b>{format(bars[0].value)} {unit}</b></div> : !bars.length ? <div className="av-empty">No comparable contribution data.</div> : <svg className="av-waterfall-svg" viewBox={`0 0 ${W} ${H}`} role="group" aria-label={title}><line x1={L} x2={W - 15} y1={y(0)} y2={y(0)} stroke="#cbd5e1" />{bars.map((s, i) => {
           const x = L + i * stepW + (stepW - barW) / 2;
           return <g key={s.name} role={onSelect ? 'button' : 'img'} tabIndex="0" aria-label={`${s.name}: ${format(s.value)} ${unit}`} onClick={() => onSelect?.(s)} onKeyDown={e => {
             if (e.key === 'Enter' || e.key === ' ') {

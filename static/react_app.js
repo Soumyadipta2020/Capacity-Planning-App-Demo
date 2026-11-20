@@ -711,6 +711,7 @@ function ModernCapacityApp() {
 
     // Calculation Modules Modal State (FTE, Downtime, Productivity -> Capacity; Demand -> Imbalance)
     const [isCalcModalOpen, setIsCalcModalOpen] = useState(false);
+    const [isAssumptionsOpen, setIsAssumptionsOpen] = useState(false);
     const [selectedCalcModule, setSelectedCalcModule] = useState('imbalance');
     const [calcModulesCache, setCalcModulesCache] = useState({});
     const [isCalcLoading, setIsCalcLoading] = useState(false);
@@ -1204,9 +1205,9 @@ function ModernCapacityApp() {
                         { id: 'inputs', label: 'Inputs & Parameters', icon: <IconSliders />, badge: '21 Files', hasSubmenu: true },
                         { id: 'comparison', label: 'Scenario Diff & Variance', icon: <IconScale /> },
                         { id: 'dem_cap', label: 'Dem vs Cap Matrix', icon: <IconMatrix /> },
-                        { id: 'analytics', label: 'Analytics', icon: <IconBarChart /> },
+                        { id: 'decision_studio', label: 'Decision Studio', icon: <IconBarChart /> },
                     ].map(tab => {
-                        const isActive = activeTab === tab.id;
+                        const isActive = activeTab === tab.id || (tab.id === 'decision_studio' && activeTab === 'analytics');
                         return (
                             <div key={tab.id} className="space-y-1">
                                 <button
@@ -1338,7 +1339,26 @@ function ModernCapacityApp() {
                         }`}>
                             <IconGear className="w-3.5 h-3.5 text-current" />
                         </button>
-                        {activeTab !== 'comparison' ? (
+                        {(activeTab === 'decision_studio' || activeTab === 'analytics') ? (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAssumptionsOpen(true)}
+                                    className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button ${
+                                        isDarkMode
+                                            ? 'bg-blue-600/20 text-[#80c6ff] border-blue-500/40 hover:bg-blue-600/30 hover:border-blue-400'
+                                            : 'bg-blue-50 hover:bg-blue-100 text-[#005eb8] border-blue-200 hover:border-blue-400'
+                                    }`}
+                                    title="Open Model Assumptions & Configuration"
+                                >
+                                    <IconSliders className="w-3.5 h-3.5 text-current" />
+                                    <span>Model Assumptions</span>
+                                </button>
+                                <span className={`text-[11px] font-semibold hidden md:inline ${isDarkMode ? 'text-[#adbed4]' : 'text-slate-500'}`}>
+                                    Decision Studio Workspace
+                                </span>
+                            </div>
+                        ) : activeTab !== 'comparison' ? (
                             <div className="flex items-center gap-2">
                                 <span className={`text-[11px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#80c6ff]' : 'text-slate-500'}`}>Active Scenario:</span>
                                 <div className={`flex items-center border rounded-lg px-2.5 py-1 shadow-xs transition ${
@@ -1541,13 +1561,23 @@ function ModernCapacityApp() {
                 <main className={`flex-1 overflow-y-auto px-6 py-4 space-y-3.5 transition-colors duration-300 ${
                     isDarkMode ? 'bg-[#070e1c]' : 'bg-[#fbfcfd]'
                 }`}>
-                    {activeTab === 'analytics' && (
+                    {(activeTab === 'decision_studio' || activeTab === 'analytics') && (
                         <AnalyticsWorkspace
                             scenarios={scenarios}
                             selectedScenarioId={selectedScenarioId}
                             inputsState={inputsState}
+                            selectedGeographyFile={inputsState['geography_mapping']}
+                            geographyDatasets={geographyDatasets}
+                            baselineScenarioId={diffBaselineScenarioId}
+                            setBaselineScenarioId={setDiffBaselineScenarioId}
+                            comparisonScenarioId={diffComparisonScenarioId}
+                            setComparisonScenarioId={setDiffComparisonScenarioId}
                             onSelectScenario={handleLoadScenario}
                             onNavigateToInputs={() => setActiveTab('inputs')}
+                            isDarkMode={isDarkMode}
+                            showToast={showToast}
+                            isAssumptionsOpen={isAssumptionsOpen}
+                            setIsAssumptionsOpen={setIsAssumptionsOpen}
                         />
                     )}
                     {/* TAB 1: EXECUTIVE SCENARIO INSIGHTS (HOMEPAGE) */}
@@ -8781,14 +8811,6 @@ function ExportPowerBIModal({
                                     onClick={() => {
                                         setIsSuccess(false);
                                     }}
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#005eb8] border border-blue-200 text-xs font-bold transition cursor-pointer"
-                                >
-                                    <span>Export Another</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={onClose}
-                                    className="px-5 py-2 rounded-xl bg-[#005eb8] hover:bg-[#004b87] text-white text-xs font-bold shadow-xs transition cursor-pointer"
                                 >
                                     Done
                                 </button>
@@ -10158,6 +10180,10 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
         </div>
     );
 }
+window.GeographyHierarchySelector = GeographyHierarchySelector;
+window.buildGeographyHierarchy = buildGeographyHierarchy;
+window.getDefaultGeographyData = getDefaultGeographyData;
+window.parseGeographyCsvText = parseGeographyCsvText;
 
 // ------------------------------------------------------------------------------------------------
 // 3.5 SCENARIO VARIANCE WATERFALL MODELS (CAPACITY & DEMAND BRIDGES)
