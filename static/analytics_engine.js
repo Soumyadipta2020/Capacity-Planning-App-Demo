@@ -15,6 +15,14 @@
   }, {}));
   const sum = (rows, key) => rows.reduce((a, r) => a + (num(r[key]) ?? 0), 0);
   const normalize = row => Object.fromEntries(Object.entries(row).map(([k, v]) => [k.toLowerCase().replace(/[ _]/g, ''), v]));
+  const normalizeSource = (source, row) => {
+    const n = normalize(row);
+    if (source === 'geography_mapping') {
+      n.territory = text(n.territory || n.patch);
+      n.region = reg(n.regioncode) || reg(n.region);
+    }
+    return n;
+  };
   const reg = v => {
     const s = text(v).replace(/^Region\s*/i, '');
     return /^[A-E]$/.test(s) ? s : '';
@@ -59,7 +67,7 @@
       detail
     });
     rowsOf(bundle, 'geography_mapping').forEach((r, i) => {
-      const n = normalize(r),
+      const n = normalizeSource('geography_mapping', r),
         p = text(n.territory),
         region = reg(n.region);
       if (!p || !region) issue('geography_mapping', i, 'Invalid geography', 'Territory or region missing');else if (map.has(p) && map.get(p) !== region) {
@@ -71,7 +79,7 @@
       if (!input.success) issue(source, -1, 'Unavailable input', input.error || 'Missing selected input');else if (!input.rows?.length) issue(source, -1, 'Empty input', 'Selected version has no source records');
       const duplicate = new Map();
       facts[source] = rowsOf(bundle, source).map((raw, index) => {
-        const n = normalize(raw),
+        const n = normalizeSource(source, raw),
           patch = text(n.patch || (source === 'resource_plan' ? n.wmis : ''));
         const sourceRegion = reg(n.regioncode || n.region),
           mapped = map.get(patch);
@@ -336,7 +344,7 @@
     });
     rows.forEach(c => {
       c.partial = c.unmatched > 0;
-      c.comparable = c.matchedJobs > 0 && (!c.partial || a.allowPartial) && c.roster + c.recruits + c.overtime + c.contractors + Math.max(0, c.support) + Math.max(0, c.transfers) > 0;
+      c.comparable = c.region !== 'Unmapped' && c.matchedJobs > 0 && (!c.partial || a.allowPartial) && c.roster + c.recruits + c.overtime + c.contractors + Math.max(0, c.support) + Math.max(0, c.transfers) > 0;
       c.gap = c.comparable ? c.capacity - c.demand : null;
       c.deficit = c.comparable ? Math.max(0, -c.gap) : null;
       c.surplus = c.comparable ? Math.max(0, c.gap) : null;
@@ -361,6 +369,81 @@
       comparable: comparable.length,
       total: rows.length
     };
+  }
+  function workloadOutlook(data, filter = {}, asOf = new Date().toISOString().slice(0,10), modelResult = {rows:[]}, assumptions = {}) {
+    if (!week(asOf)) throw new Error('Choose a valid planning date');
+    const day = new Date(asOf+'T00:00:00Z'), offset = (day.getUTCDay()+6)%7;
+    day.setUTCDate(day.getUTCDate()-offset);
+    const anchor = day.toISOString().slice(0,10), a = {...defaults,...assumptions};
+    const scoped = source => (data.facts[source]||[]).filter(r=>inScope(r,filter));
+    const submitted = scoped('demand_input');
+    const valid = submitted.filter(r=>r.jobs!==null && r.jobs!==undefined && r.week && !r.duplicate);
+    const future = valid.filter(r=>r.week>=anchor), totalJobs = sum(future,'jobs');
+    const aggregate = (rows, getKey) => {
+      const m = new Map();
+      rows.forEach(r=>{const name=getKey(r)||'Unspecified';m.set(name,(m.get(name)||0)+r.jobs);});
+      return [...m].map(([name,jobs])=>({name,jobs,share:totalJobs>0?100*jobs/totalJobs:null})).sort((x,y)=>y.jobs-x.jobs||x.name.localeCompare(y.name));
+    };
+    const weekly=aggregate(future,r=>r.week).sort((x,y)=>x.name.localeCompare(y.name));
+    const next4=Array.from({length:4},(_,i)=>{const w=addWeeks(anchor,i),r=weekly.find(x=>x.name===w);return {week:w,jobs:r?.jobs??null};});
+    const peak=[...weekly].sort((x,y)=>y.jobs-x.jobs||x.name.localeCompare(y.name))[0]||null;
+    const average=weekly.length?totalJobs/weekly.length:null;
+    const patches=aggregate(future,r=>r.patch), skills=aggregate(future,r=>r.skill);
+    const mapped=sum(future.filter(r=>r.region!=='Unmapped'),'jobs'), matched=sum(future.filter(r=>r.matched),'jobs');
+    const calendar=new Set((data.facts.week_to_month||[]).filter(r=>!r.duplicate&&r.week).map(r=>r.week));
+    const readiness=[
+      {source:'demand_input',title:'Upcoming forecast',ready:future.length>0,detail:future.length?`${future.length} valid rows in ${weekly.length} submitted weeks. Missing weeks remain unknown.`:'No valid demand rows on or after the planning week in this scope.'},
+      {source:'geography_mapping',title:'Location mapping',ready:totalJobs>0&&mapped===totalJobs,detail:totalJobs>0?`${totalJobs-mapped} of ${totalJobs} upcoming jobs have no authoritative region mapping.`:'No valid upcoming job volume to check.'},
+      {source:'job_time_assumptions',title:'Job durations',ready:totalJobs>0&&matched===totalJobs,detail:totalJobs>0?`${totalJobs-matched} upcoming jobs lack a unique matching duration. Model assumption: ${a.jobTimeUnit} per job.`:'No valid upcoming job volume to check.'},
+      {source:'week_to_month',title:'Week-to-month calendar',ready:weekly.length>0&&weekly.every(r=>calendar.has(r.name)),detail:`${weekly.filter(r=>calendar.has(r.name)).length} of ${weekly.length} upcoming weeks have a unique calendar match. Calendar-month demand charts can still use week-start dates; fiscal reporting needs fiscal fields too.`}
+    ];
+    let extraCoverKnown=true;
+    for(const [source,enabled,fields,title] of [
+      ['resource_plan',true,['status','payid','wmis','skill','hours','allocation'],'Staffing inputs'],
+      ['overtime',a.includeOvertime,['authorized','overtimehours','skill','weekcomm'],'Overtime inputs'],
+      ['ctr_capacity',a.includeContractors,['status','contractorhours','skill','weekcomm'],'Contractor inputs']
+    ]) {
+      if(!enabled)continue;
+      const records=scoped(source),unsupported=records.filter(r=>fields.some(k=>!(k in r.n))).length;
+      const ready=records.length>0&&unsupported===0;
+      if(source!=='resource_plan'&&!ready)extraCoverKnown=false;
+      readiness.push({source,title,ready,detail:!records.length?'Selected source is missing, empty or outside this scope.':unsupported?`${unsupported} rows do not supply the explicit fields needed by the model. Generic Values are not assumed to be hours or confirmed cover.`:'Required field names are present. Eligibility, dates and location still determine which records enter the model.'});
+    }
+    const cells=(modelResult.rows||[]).filter(r=>r.week>=anchor), assessed=cells.filter(r=>r.comparable), short=assessed.filter(r=>r.deficit>0);
+    const first=[...short].sort((x,y)=>x.week.localeCompare(y.week))[0]||null;
+    const persistent=persistence(cells).filter(r=>r.longest>=2).sort((x,y)=>y.longest-x.longest||y.deficit-x.deficit);
+    const withoutModel=extraCoverKnown&&assessed.length ? model(data,filter,assumptions,{overtimePct:-100,contractorPct:-100}) : null;
+    const withoutIndex=new Map((withoutModel?.rows||[]).map(r=>[[r.region,r.skill,r.week].join('|'),r]));
+    const withoutExtra=withoutModel ? assessed.reduce((s,r)=>s+Math.max(0,r.demand-(withoutIndex.get([r.region,r.skill,r.week].join('|'))?.capacity??0)),0) : null;
+    return {asOf,anchor,totalJobs,weekly,next4,next4Complete:next4.every(r=>r.jobs!==null),next4Jobs:sum(next4.filter(r=>r.jobs!==null),'jobs'),peak,
+      average,peakUplift:average>0?100*(peak.jobs/average-1):null,patches,skills,
+      topPatchCount:Math.min(5,patches.length),top5Share:totalJobs>0?100*sum(patches.slice(0,5),'jobs')/totalJobs:null,
+      unmappedJobs:totalJobs-mapped,unmappedPct:totalJobs>0?100*(totalJobs-mapped)/totalJobs:null,matchedJobs:matched,
+      excludedDemandRows:submitted.filter(r=>r.jobs===null||r.jobs===undefined||!r.week||r.duplicate).length,
+      readiness,extraCoverKnown,firstShortage:first?.week||null,weeksToFirst:first?Math.round((Date.parse(first.week)-Date.parse(anchor))/604800000):null,
+      assessedGroups:assessed.length,unassessedGroups:cells.length-assessed.length,persistent,
+      shortageWithoutExtra:withoutExtra,additionalShortage:withoutExtra===null?null:Math.max(0,withoutExtra-sum(assessed,'deficit')),
+      leadWeeks:{recruitment:a.recruitmentLeadWeeks+a.rampWeeks,training:a.trainingLeadWeeks,support:a.supportLeadWeeks}};
+  }
+  // Shortages remain local: spare hours in another region/skill/week cannot cover them automatically.
+  function planHealth(model, demandRows = []) {
+    const rows = model.rows || [], comparable = rows.filter(r => r.comparable);
+    const demand = sum(comparable, 'demand'), capacity = sum(comparable, 'capacity');
+    const shortage = comparable.reduce((n, r) => n + Math.max(0, r.demand - r.capacity), 0);
+    const covered = comparable.reduce((n, r) => n + Math.min(r.demand, Math.max(0, r.capacity)), 0);
+    const shortGroups = comparable.filter(r => r.capacity < r.demand);
+    const weekly = new Map();
+    shortGroups.forEach(r => weekly.set(r.week, (weekly.get(r.week) || 0) + Math.max(0, r.demand - r.capacity)));
+    const peak = [...weekly].sort((a,b) => b[1]-a[1] || String(a[0]).localeCompare(String(b[0])))[0];
+    const jobs = sum(demandRows, 'jobs'), matched = sum(demandRows.filter(r => r.matched), 'jobs');
+    const extra = sum(comparable, 'overtime') + sum(comparable, 'contractors');
+    return {demand, capacity, shortage, covered, shortGroups:shortGroups.length,
+      comparable:comparable.length, excluded:rows.length-comparable.length, total:rows.length,
+      coveredPct:demand>0 ? covered/demand*100 : null,
+      extraCoverPct:capacity>0 ? extra/capacity*100 : null,
+      matchedPct:jobs>0 ? matched/jobs*100 : null, unmatchedJobs:Math.max(0,jobs-matched),
+      peakWeek:peak?.[0] || null, peakShortage:peak?.[1] || 0,
+      worst:shortGroups.slice().sort((a,b)=>(b.demand-b.capacity)-(a.demand-a.capacity) || String(a.week).localeCompare(String(b.week)))[0] || null};
   }
   function demandBridge(before, after, filter = {}, assumptions = {}) {
     const divisor = assumptions.jobTimeUnit === 'minutes' ? 60 : 1;
@@ -477,7 +560,7 @@
           const group = rows => {
             const m = new Map();
             rows.forEach(r => {
-              const n = normalize(r),
+              const n = normalizeSource(source, r),
                 k = keys.map(s => text(n[s.toLowerCase().replace(/[ _]/g, '')])).join('|');
               if (!m.has(k)) m.set(k, []);
               m.get(k).push(r);
@@ -523,6 +606,8 @@
     inScope,
     model,
     summarize,
+    planHealth,
+    workloadOutlook,
     demandBridge,
     persistence,
     compareSources,

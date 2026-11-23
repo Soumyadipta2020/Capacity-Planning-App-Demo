@@ -53,6 +53,77 @@ function AnalyticsTable({
             }
           }} tabIndex={onRow ? 0 : undefined} className={onRow ? 'av-selectable-row cursor-pointer hover:bg-blue-50/70 dark:hover:bg-[#112649]' : ''}>{columns.map(c => <td key={c.key} data-negative={typeof r[c.key] === 'number' && r[c.key] < 0 ? true : undefined}>{c.render ? c.render(r) : String(r[c.key] ?? '—')}</td>)}</tr>)}</tbody></table>{!filtered.length && <AnalyticsEmpty icon="search" title={rows.length ? 'No records match this search' : 'No records in this scope'} description={rows.length ? 'Try another field or value, or clear the search.' : empty} />}</div>{filtered.length > 0 && <div className="av-browser-pagination text-slate-500 dark:text-[#adbed4]"><span>Showing {current * pageSize + 1}–{Math.min((current + 1) * pageSize, filtered.length)} of {filtered.length.toLocaleString()}</span><div className="flex items-center gap-1.5"><button disabled={!current} onClick={() => setPage(current - 1)} className="px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-[#18365d] bg-white dark:bg-[#0c1b31] text-slate-700 dark:text-[#adbed4] hover:bg-slate-50 dark:hover:bg-[#112649] hover:text-blue-600 dark:hover:text-white disabled:opacity-40 transition cursor-pointer">Previous rows</button><span className="text-xs font-bold text-slate-700 dark:text-white px-1">{current + 1} / {pages}</span><button disabled={current >= pages - 1} onClick={() => setPage(current + 1)} className="px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-[#18365d] bg-white dark:bg-[#0c1b31] text-slate-700 dark:text-[#adbed4] hover:bg-slate-50 dark:hover:bg-[#112649] hover:text-blue-600 dark:hover:text-white disabled:opacity-40 transition cursor-pointer">Next rows</button></div></div>}</div>;
 }
+function AnalyticsPlanSummary({model, demand, onExplore, onFocus, scenario, loadedAt, outlook}) {
+  const h = window.CapacityAnalytics.planHealth(model, demand);
+  const n = v => v === null ? 'Unavailable' : Number(v).toLocaleString('en-GB', {maximumFractionDigits:1});
+  const date = v => v ? new Date(v+'T00:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}) : 'None in assessed groups';
+  const metrics = [
+    ['Work covered', h.coveredPct===null ? null : n(h.coveredPct)+'%', 'Share of assessed work hours covered in the same region, skill and week. 100% means enough hours in every assessed group.', 'readiness','deficits'],
+    ['Hours still needed', h.comparable ? n(h.shortage)+' h' : null, 'Shortage hours added across assessed groups. Spare hours elsewhere do not cancel these gaps.', 'readiness','deficits'],
+    ['Groups needing cover', h.comparable ? h.shortGroups+' / '+h.comparable : null, 'Each group is one region, one skill and one week. Only groups with enough evidence are assessed.', 'readiness','deficits'],
+    ['Toughest week', h.comparable ? date(h.peakWeek) : null, h.peakWeek ? n(h.peakShortage)+' shortage hours in the week starting on this date.' : 'Week with the largest combined shortage. No shortage was found in assessed groups.', 'readiness','timing'],
+    ['Extra cover reliance', h.extraCoverPct===null || outlook?.extraCoverKnown===false ? null : n(h.extraCoverPct)+'%', 'Overtime and contractor hours as a share of assessed available hours. Unavailable when selected cover files do not provide explicit compatible fields.', 'readiness','support'],
+    ['Jobs with time estimates', h.matchedPct===null ? null : n(h.matchedPct)+'%', 'Share of forecast jobs with a matching job duration. Missing durations mean some work cannot be assessed.', 'drivers','quality']
+  ];
+  const Trend=window.AnalyticsViz?.Trend;
+  const weekly=[...new Set(model.rows.map(r=>r.week))].sort().map(week=>{const m=window.CapacityAnalytics.summarize(model.rows.filter(r=>r.week===week));return {key:week,label:week.slice(5),demand:m.comparable?m.demand:null,capacity:m.comparable?m.capacity:null};});
+  const names={'Work covered':'Work covered','Hours still needed':'Shortfall','Groups needing cover':'Groups short','Jobs with time estimates':'Job-time match'};
+  return <section className="av-plan-summary av-executive-dashboard" aria-label="Plan at a glance">
+    <header><div><span className="av-plan-kicker">Decision Studio</span><h2>Plan at a glance</h2></div><span className="av-plan-status" data-tone={!h.comparable?'neutral':h.shortGroups?'risk':'positive'}>{!h.comparable ? 'More data needed' : h.shortGroups ? 'Cover needed' : h.excluded || h.unmatchedJobs>0 ? 'Partial assessment' : 'Assessed groups covered'}</span></header>
+    <div className="av-snapshot-line"><span title={scenario}>{scenario==='__draft'?'Draft inputs':scenario}</span><span>{loadedAt?'Updated '+new Date(loadedAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'Snapshot unavailable'}</span></div>
+    <div className="av-executive-kpis">{[metrics[0],metrics[1],metrics[2],metrics[5]].map(([title,value,help,area,view],i)=><button key={title} type="button" onClick={()=>onExplore(area,view)} aria-label={'Explore '+title.toLowerCase()} title={help} data-tone={i===1&&h.shortage>0?'risk':i===0&&h.coveredPct===100?'positive':'neutral'}><span>{names[title]}<span className="av-kpi-info" aria-hidden="true">i</span></span><strong>{value ?? '—'}</strong><small>{value===null?'No assessable data':i===0?'Assessed work hours':i===1?'Hours needed':i===2?'Region · skill · week':'Forecast jobs with duration'}</small></button>)}</div>
+    <div className="av-secondary-stats">{[metrics[3],metrics[4]].map(([title,value,help,area,view])=><button key={title} type="button" onClick={()=>onExplore(area,view)} title={help}><span>{title}</span><strong>{value??'Unavailable'}</strong></button>)}</div>
+    <div className="av-executive-body"><div className="av-executive-trend">{Trend&&h.comparable>0?<Trend title="Demand vs available time" subtitle="Assessed groups · hours" data={weekly} unit="h" series={[{key:'demand',label:'Demand',color:'#3b82f6'},{key:'capacity',label:'Capacity',color:'#10b981'}]}/>:<div className="av-chart-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M3 17l6-6 4 3 8-10M15 4h6v6"/></svg><strong>Capacity outlook unavailable</strong><span>Complete matching demand and staffing inputs to see the trend.</span><button type="button" onClick={()=>onExplore('drivers','quality')}>Review inputs</button></div>}</div><aside className="av-decision-card"><span className="av-plan-kicker">Priority insight</span><h3>{!h.comparable?'Complete the evidence':h.shortGroups?'Close the local gaps':'Validate your cover'}</h3><p>{!h.comparable?'Demand and capacity cannot yet be compared.':h.shortGroups?`${n(h.shortage)} hours short across ${h.shortGroups} assessed groups.`:'Assessed work is covered under current assumptions.'}</p><div className="av-evidence-mini"><span>Unassessed groups<strong>{h.excluded} / {h.total}</strong></span><span>Jobs missing durations<strong>{n(h.unmatchedJobs)}</strong></span></div><div className="av-plan-actions">{h.worst&&<button className="av-primary-action" type="button" title={`${h.worst.region} · ${h.worst.skill} · ${date(h.worst.week)}`} onClick={()=>{onFocus(h.worst);onExplore('readiness','deficits');}}>Investigate largest gap: {h.worst.region} · {h.worst.skill}</button>}<button type="button" onClick={()=>onExplore('drivers','quality')}>Check missing data</button><button type="button" onClick={()=>onExplore('stress','stress')}>Test a change in demand</button></div></aside></div>
+    <p className="av-dashboard-footnote">Planning estimate · Assessed groups only · Missing evidence can hide shortages.</p>
+    <details className="av-plan-help"><summary>What do these metrics mean?</summary><div><dl className="av-metric-definitions">{metrics.map(([title,value,help])=><div key={title}><dt>{title}</dt><dd>{help}</dd></div>)}</dl><p><strong>Demand</strong> is expected work. <strong>Capacity</strong> is available working time. <strong>FTE</strong> measures full-time equivalent working time, not necessarily people. A <strong>baseline</strong> is the saved comparison plan. Recruitment is excluded unless enabled in Model Assumptions.</p></div></details>
+  </section>;
+}
+
+function AnalyticsWorkloadOutlook({report:r, planningDate, onDateChange, onExplore, onSource, mode='all'}) {
+  const n = v => v===null || v===undefined ? 'Unavailable' : Number(v).toLocaleString('en-GB',{maximumFractionDigits:1});
+  const date = v => new Date(v+'T00:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+  const checks=r.readiness.filter(x=>!x.ready).length;
+  const Trend=window.AnalyticsViz?.Trend;
+  const chartWeeks=[];r.weekly.forEach((w,i)=>{if(i&&window.CapacityAnalytics.addWeeks(r.weekly[i-1].name,1)!==w.name)chartWeeks.push({key:window.CapacityAnalytics.addWeeks(r.weekly[i-1].name,1),label:'Gap',jobs:null});chartWeeks.push({key:w.name,label:w.name.slice(5),jobs:w.jobs});});
+  const mix=(title,items,kind)=><section className="av-workload-breakdown"><h3>{title}</h3><p>Share of upcoming jobs.</p>{items.length ? <ul>{items.slice(0,kind==='patch'?5:items.length).map(x=><li key={x.name}><div><strong>{x.name}</strong><span>{n(x.jobs)} jobs · {n(x.share)}%</span></div><meter min="0" max="100" value={x.share??0} aria-label={x.name+' share of forecast jobs'}/></li>)}</ul>:<p>No valid upcoming forecast jobs in this scope.</p>}{kind==='patch'&&r.totalJobs>0&&<p><strong>The top {r.topPatchCount} of {r.patches.length} locations account for {n(r.top5Share)}% of work.</strong> High volume does not itself mean a shortage.</p>}{kind==='skill'&&<p>Source skill codes.</p>}</section>;
+  return <section className="av-plan-summary av-workload-outlook" aria-label={mode==='checks'?'Data readiness':'Upcoming workload'}>
+    <header><div><span className="av-plan-kicker">{mode==='checks'?'Input health':'Demand outlook'}</span><h2>{mode==='checks'?'Data readiness':'Upcoming workload'}</h2><p>From {date(r.anchor)} · Current filters · Full current week</p></div><label className="av-planning-date">Planning date<input type="date" aria-label="Workload planning date" value={planningDate} onChange={e=>e.target.value&&onDateChange(e.target.value)}/></label></header>
+    {mode!=='checks'&&<>
+    <div className="av-plan-metrics">
+      <button type="button" onClick={()=>onExplore('drivers','demand')}><span>Next four weeks</span><strong>{r.next4.some(x=>x.jobs!==null)?n(r.next4Jobs):'—'}</strong><small>{r.next4Complete?'Forecast jobs · 4 weeks':`${r.next4.filter(x=>x.jobs!==null).length}/4 weeks · partial total`}</small></button>
+      <button type="button" onClick={()=>onExplore('readiness','timing')} title={r.peak?'Uplift vs average of submitted upcoming weeks; demand peak, not a capacity shortage.':'No valid upcoming forecast.'}><span>Busiest demand week</span><strong>{r.peak?date(r.peak.name):'—'}</strong><small>{r.peak?`${n(r.peak.jobs)} jobs · ${n(r.peakUplift)}% above average`:'No upcoming forecast'}</small></button>
+      <button type="button" onClick={()=>onExplore('drivers','quality')}><span>Unmapped jobs</span><strong>{r.totalJobs>0?n(r.unmappedJobs):'—'}</strong><small>{r.unmappedPct===null?'No upcoming forecast':`${n(r.unmappedPct)}% without a region match`}</small></button>
+    </div>
+    {Trend&&r.weekly.length>0&&<div className="av-workload-visuals"><div className="av-workload-chart"><Trend title="Weekly job forecast" subtitle="Submitted upcoming weeks" unit="jobs" data={chartWeeks} series={[{key:'jobs',label:'Forecast jobs',color:'#3b82f6'}]}/></div>{mix('Work by skill',r.skills,'skill')}</div>}
+    <details className="av-plan-help"><summary>Location concentration</summary><div>{mix('Where work is concentrated',r.patches,'patch')}</div></details>
+    <details className="av-plan-help"><summary>Weekly detail and how this is calculated</summary><div><table className="av-outlook-table"><caption>Four calendar weeks from the planning week</caption><thead><tr><th scope="col">Week starting</th><th scope="col">Forecast jobs</th></tr></thead><tbody>{r.next4.map(w=><tr key={w.week}><td>{date(w.week)}</td><td>{w.jobs===null?'Not submitted':n(w.jobs)}</td></tr>)}</tbody></table><p>Only valid, dated, nonduplicate demand records are counted. {r.excludedDemandRows} invalid, duplicate or undated demand rows were excluded in the current filters. A missing week is unknown; an explicitly submitted zero remains zero. Date, region, patch and skill filters all apply. Peak uplift uses submitted upcoming weeks only.</p></div></details>
+    <details className="av-plan-help"><summary>When should we act? Shortages and cover withdrawal</summary><section className="av-plan-next av-capacity-next" aria-label="Capacity action outlook"><div><h3>When should we act?</h3><p>{!r.assessedGroups?'No upcoming groups can be assessed for capacity. Resolve the data checks before deciding that the plan has enough cover.':r.firstShortage?`First assessed shortage: week starting ${date(r.firstShortage)} (${r.weeksToFirst} weeks from the planning week).`:'No shortage was found in assessed upcoming groups under current assumptions.'} {r.unassessedGroups} upcoming groups remain unassessed.</p>{r.firstShortage&&<p>Assumed time to full effect: recruitment {n(r.leadWeeks.recruitment)} weeks including ramp-up; training {n(r.leadWeeks.training)} weeks; support {n(r.leadWeeks.support)} weeks. {r.weeksToFirst<r.leadWeeks.recruitment?'The first shortage arrives before the assumed recruitment ramp can finish. Review a faster response.':'Check that recruitment and other commitments can be delivered on time.'} These are planning assumptions, not confirmed commitments.</p>}<p><strong>Persistent shortages:</strong> {!r.assessedGroups?'Unavailable.':r.persistent.length?`${r.persistent.length} region/skill groups have at least two consecutive assessed shortage weeks. The longest run is ${r.persistent[0].longest} weeks in ${r.persistent[0].region} / ${r.persistent[0].skill}.`:'No consecutive shortage run found in assessed upcoming groups.'}</p><p><strong>If overtime and contractor cover disappear:</strong> {r.additionalShortage===null?'Impact is unavailable until explicit cover fields and assessable capacity are present.':`${n(r.additionalShortage)} additional shortage hours across the same ${r.assessedGroups} assessed groups. This removes modeled overtime and contractors together; it does not predict supplier failure.`}</p></div><div className="av-plan-actions"><button type="button" onClick={()=>onExplore('readiness','deficits')}>Review shortages</button><button type="button" onClick={()=>onExplore('readiness','support')}>Review extra cover</button><button type="button" onClick={()=>onExplore('choices','actions')}>Compare possible responses</button></div></section></details>
+    </>}
+    {mode!=='workload'&&<details className="av-plan-help av-readiness-checks" open={mode==='checks'}><summary>{r.readiness.length-checks}/{r.readiness.length} checks passed · {checks} to review</summary><div><p className="av-dashboard-footnote">Compatibility checks · Data accuracy and capacity are not certified.</p><ul>{r.readiness.map(c=><li key={c.source}><details className="av-check-row"><summary><span className="av-check-symbol" data-ready={c.ready}>{c.ready?'✓':'!'}</span><strong>{c.title}</strong><span className="av-check-status" data-ready={c.ready}>{c.ready?'Passed':'Review'}</span><span className="av-check-details">Details</span></summary><div><p>{c.detail}</p><button type="button" onClick={()=>onSource(c.source)}>Inspect {c.title.toLowerCase()}</button></div></details></li>)}</ul></div></details>}
+  </section>;
+}
+
+const ANALYTICS_QUESTIONS = {
+  demand:['How much work is expected?', 'Jobs are the expected tasks. Hours use only jobs with matching durations. Start by checking how much of the forecast has a time estimate.'],
+  capacity:['How much time is available?', 'See which parts of the resource plan, overtime and contractor cover contribute available hours. Review the assumptions before treating hours as confirmed.'],
+  downtime:['How much working time is lost?', 'Downtime is time unavailable for planned work. Choose one representation in Model Assumptions; the three input formats describe alternatives.'],
+  changes:['What changed between plans?', 'Compare selected input contents with the saved comparison plan. A new filename alone does not mean the data changed.'],
+  quality:['Can we trust the inputs?', 'Check missing files, unmatched job durations and flagged records first. Missing evidence means an unknown result, not zero work.'],
+  deficits:['Where do we need more cover?', 'Look for region, skill and week groups with too few hours. Spare time in another group does not automatically solve a shortage.'],
+  recruitment:['When will new starters help?', 'Review intake dates and training time. New starters contribute to the model only when recruitment is explicitly enabled.'],
+  support:['How dependent are we on extra cover?', 'Inspect overtime and contractors, then check what happens without them. Source hours are not a guarantee that cover will arrive.'],
+  timing:['When is pressure highest?', 'Find the weeks needing attention and compare them with the time needed for an intervention to take effect.'],
+  stress:['What if the plan changes?', 'Try a demand increase or capacity loss. The source plan stays unchanged; the test shows an estimate under your chosen assumptions.'],
+  sensitivity:['Which changes hurt most?', 'Compare separate tests to see which deserves attention. These are different planning scenarios, not probabilities of what will happen.'],
+  actions:['Which response could help?', 'Compare possible interventions in the same scope. Check timing, donor capacity and feasibility before committing to a response.'],
+  target:['How much extra cover would meet our target?', 'Choose a coverage target and inspect the additional productive time required. Required FTE is not automatically the number of hires.'],
+  commitments:['What if promised cover falls through?', 'Review supplier concentration and recruitment timing, then test a delay or withdrawal.'],
+  stability:['How much room does the plan have?', 'Find groups already short of time and groups with little spare cover before testing a demand increase.'],
+  jobtime:['Are job durations reasonable?', 'Compare durations for similar work. Missing or inconsistent time estimates can distort the forecast hours.'],
+  workforce:['How do staff movements affect cover?', 'Review start dates, departures and transfers. Confirm date assumptions before counting movements as available time.'],
+  reconcile:['Do the inputs agree?', 'Check overlapping or conflicting records before adding staffing, recruitment or downtime figures together.'],
+  monthly:['How does the outlook change by month?', 'Review monthly demand and shortages. Unmapped weeks stay visible so missing calendar data cannot hide work.']
+};
 function AnalyticsWorkspace({
   scenarios = {},
   selectedScenarioId,
@@ -72,8 +143,9 @@ function AnalyticsWorkspace({
 }) {
   const A = window.CapacityAnalytics;
   const V = window.AnalyticsViz;
-  const [scenarioId, setScenarioId] = React.useState(baselineScenarioId || selectedScenarioId || Object.keys(scenarios)[0] || 'LV OCT V.0 2026-10-29 16:00:00');
-  const [baselineId, setBaselineId] = React.useState(comparisonScenarioId || Object.keys(scenarios).find(id => id !== (baselineScenarioId || selectedScenarioId)) || selectedScenarioId || 'LV JUL V.1 2026-07-07 12:46:46');
+  const availableScenario = (...ids) => ids.find(id=>id==='__draft'||Object.prototype.hasOwnProperty.call(scenarios,id)) || Object.keys(scenarios)[0] || '__draft';
+  const [scenarioId, setScenarioId] = React.useState(availableScenario(baselineScenarioId,selectedScenarioId));
+  const [baselineId, setBaselineId] = React.useState(availableScenario(comparisonScenarioId,Object.keys(scenarios).find(id=>id!==scenarioId),selectedScenarioId));
   const [bundle, setBundle] = React.useState(null),
     [baseline, setBaseline] = React.useState(null);
   const [busy, setBusy] = React.useState(false),
@@ -110,13 +182,18 @@ function AnalyticsWorkspace({
   const [sourcePage, setSourcePage] = React.useState(0),
     [sourceChoice, setSourceChoice] = React.useState('demand_input');
   const [cohortSearch, setCohortSearch] = React.useState('');
-  const [isFiltersCollapsed, setIsFiltersCollapsed] = React.useState(false);
+  const [isFiltersCollapsed, setIsFiltersCollapsed] = React.useState(true);
+  const [planningDate, setPlanningDate] = React.useState(() => {
+    const now=new Date();
+    return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  });
   const [selectedGeo, setSelectedGeo] = React.useState({
     type: 'national',
     id: 'national',
     label: 'National',
     count: 18
   });
+  const [presentation, setPresentation] = React.useState('summary');
 
   // Geography hierarchy extraction matching Scenario Diff
   const geoRows = React.useMemo(() => {
@@ -244,6 +321,7 @@ function AnalyticsWorkspace({
   };
   const requestState = React.useRef({});
   const filterHistory = React.useRef([]);
+  const forecastReports = React.useRef({});
   const clearScope = {region:'All',patch:'All',skill:'All',start:'',end:''};
   const setFilter = update => {
     const next = typeof update === 'function' ? update(filter) : update;
@@ -327,13 +405,15 @@ function AnalyticsWorkspace({
       window.removeEventListener('capacity-analytics-data', receive);
     };
   }, [scenarioId, baselineId, refresh]);
-  const data = React.useMemo(() => A.extract(bundle), [bundle]);
-  const baseData = React.useMemo(() => A.extract(baseline), [baseline]);
+  const forecastBundle = value => value ? {...value,sources:Object.fromEntries(Object.entries(value.sources||{}).filter(([key])=>key!=='actuals_input'))} : null;
+  const data = React.useMemo(() => A.extract(forecastBundle(bundle)), [bundle]);
+  const baseData = React.useMemo(() => A.extract(forecastBundle(baseline)), [baseline]);
   const weeks = data.weeks;
   const current = React.useMemo(() => A.model(data, filter, assumptions), [data, filter, assumptions]);
   const tested = React.useMemo(() => A.model(data, filter, assumptions, shock), [data, filter, assumptions, shock]);
   const compared = React.useMemo(() => A.model(baseData, filter, assumptions), [baseData, filter, assumptions]);
-  const differences = React.useMemo(() => A.compareSources(baseline, bundle), [baseline, bundle]);
+  const outlook = React.useMemo(() => A.workloadOutlook(data, filter, planningDate, current, assumptions), [data, filter, planningDate, current, assumptions]);
+  const differences = React.useMemo(() => A.compareSources(forecastBundle(baseline), forecastBundle(bundle)), [baseline, bundle]);
   const demand = (data.facts.demand_input || []).filter(r => A.inScope(r, filter));
   const jobs = A.sum(demand, 'jobs'),
     matchedJobs = demand.filter(r => r.matched).reduce((v, r) => v + r.jobs, 0);
@@ -376,20 +456,23 @@ function AnalyticsWorkspace({
     scope: filter,
     assumptions,
     shock,
+    planAtAGlance: A.planHealth(current, demand),
+    upcomingWorkload: outlook,
+    forecastInvestigations: Object.values(forecastReports.current).filter(r=>r.context===JSON.stringify({scenarioId,loadedAt:bundle?.loadedAt,filter,assumptions})).map(({context,...r})=>r),
     modelStatus: 'Exploratory source-based model; not SLA or a complete workforce forecast',
     rationale,
     current: summary(current),
     tested: summary(tested),
     runs,
     issues: data.issues,
-    sources: Object.fromEntries(Object.entries(bundle?.sources || {}).map(([k, v]) => [k, {
+    sources: Object.fromEntries(Object.entries(bundle?.sources || {}).filter(([key])=>key!=='actuals_input').map(([k, v]) => [k, {
       version: v.version,
       hash: v.hash,
       rowCount: v.rowCount,
       success: v.success,
       error: v.error
     }])),
-    baselineSources: Object.fromEntries(Object.entries(baseline?.sources || {}).map(([k, v]) => [k, {
+    baselineSources: Object.fromEntries(Object.entries(baseline?.sources || {}).filter(([key])=>key!=='actuals_input').map(([k, v]) => [k, {
       version: v.version,
       hash: v.hash,
       success: v.success
@@ -427,7 +510,7 @@ function AnalyticsWorkspace({
         ...shock
       },
       result: summary(tested),
-      sourceHashes: Object.fromEntries(Object.entries(bundle.sources).map(([k, v]) => [k, v.hash || null]))
+      sourceHashes: Object.fromEntries(Object.entries(bundle.sources).filter(([key])=>key!=='actuals_input').map(([k, v]) => [k, v.hash || null]))
     };
     setRuns(prev => [...prev, run]);
   };
@@ -631,7 +714,7 @@ function AnalyticsWorkspace({
   }];
   const areas = {
     drivers: {
-      title: 'Drivers & Evidence',
+      title: 'Understand the plan',
       icon: 'trend',
       views: {
         demand: 'Demand drivers',
@@ -639,31 +722,32 @@ function AnalyticsWorkspace({
         downtime: 'Downtime',
         changes: 'Scenario changes',
         quality: 'Data coverage'
+        ,jobtime: 'Job-time review',reconcile:'Input reconciliation',monthly:'Monthly outlook'
       }
     },
     readiness: {
-      title: 'Commitments & Readiness',
+      title: 'Find gaps & risks',
       icon: 'handshake',
       views: {
         deficits: 'Deficit concentration',
         recruitment: 'Recruitment readiness',
         support: 'Support dependence',
-        timing: 'Decision timing'
+        timing: 'Peaks & decision timing',commitments:'Commitment & supplier risk',workforce:'Workforce movements'
       }
     },
     stress: {
-      title: 'Stress & Sensitivity',
+      title: 'Test what could change',
       icon: 'shield',
       views: {
         stress: 'Combined stress tests',
-        sensitivity: 'Sensitivity & breakpoints'
+        sensitivity: 'Sensitivity & breakpoints',stability:'Plan stability & headroom'
       }
     },
     choices: {
-      title: 'Intervention Choices',
+      title: 'Choose a response',
       icon: 'lightbulb',
       views: {
-        actions: 'Compare interventions'
+        actions: 'Compare interventions',target:'Target capacity planner'
       }
     }
   };
@@ -676,7 +760,7 @@ function AnalyticsWorkspace({
     })} /><div className="av-range-bounds"><span>{min}</span><span>{max}</span></div></div>;
   const modelNote = <AnalyticsDisclosure compact title="Model scope & limits" subtitle="Exploratory calculations with explicitly partial evidence"><div className="av-scope-note-grid"><section><span>Included</span><h4>Source facts and selected assumptions</h4><p>Matched demand, supplied active roster and enabled support inputs. The selected geography mapping takes precedence over conflicting region fields.</p></section><section><span>Not inferred</span><h4>A complete workforce or SLA forecast</h4><p>Unknown attrition units, unmatched ramp cohorts and overlapping deductions are not invented. Workload coverage is not observed service performance.</p></section></div></AnalyticsDisclosure>;
   const modelStats = m => <div className="grid grid-cols-2 lg:grid-cols-4 gap-3"><Card title="Comparable cells" value={`${m.comparable} / ${m.total}`} sub="Region × skill × week" /><Card title="Gross shortfall" value={m.comparable ? fmt(m.deficit) + ' h' : '—'} sub="No offset from surplus elsewhere" /><Card title="Gross surplus" value={m.comparable ? fmt(m.surplus) + ' h' : '—'} sub="Transfer feasibility not assumed" /><Card title="Matched-scope coverage" value={m.coverage === null ? '—' : fmt(m.coverage) + '%'} sub="Ratio of comparable totals" /></div>;
-  const sourceNames = Object.keys(bundle?.sources || {});
+  const sourceNames = Object.keys(bundle?.sources || {}).filter(k=>k!=='actuals_input');
   const bridge = React.useMemo(() => A.demandBridge(baseData, data, filter, assumptions), [baseData, data, filter, assumptions]);
   const renderDemandBridge = () => <section className={panel}><h3 className="font-bold text-sm mb-2">Explain the demand-hours change versus baseline</h3><p className="text-xs text-slate-500 mb-4">Same patch, skill, week and work-code scope; complete job-time matches only. Contributions average all six calculation orders so they reconcile without privileging one ordering.</p><div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4"><Card title="Comparable change" value={bridge.rows.length ? fmt(bridge.after - bridge.before) + ' h' : '—'} sub={`${bridge.rows.length} included groups · ${bridge.excluded.length} excluded`} /><Card title="Job volume effect" value={bridge.rows.length ? fmt(bridge.volume) + ' h' : '—'} sub="Change in total jobs" /><Card title="Work mix effect" value={bridge.rows.length ? fmt(bridge.mix) + ' h' : '—'} sub="Change in work-code shares" /><Card title="Task duration effect" value={bridge.rows.length ? fmt(bridge.duration) + ' h' : '—'} sub="Change in matched job times" /></div><Table rows={bridge.rows} columns={[{
       key: 'patch',
@@ -1127,7 +1211,7 @@ function AnalyticsWorkspace({
     }, {
       name: 'Current intervention test',
       m: tested
-    }, ...runs.filter(r => r.scenario === bundle.scenarioId && JSON.stringify(r.scope) === JSON.stringify(filter) && JSON.stringify(r.sourceHashes) === JSON.stringify(Object.fromEntries(Object.entries(bundle.sources).map(([k, v]) => [k, v.hash || null])))).map(r => ({
+    }, ...runs.filter(r => r.scenario === bundle.scenarioId && JSON.stringify(r.scope) === JSON.stringify(filter) && JSON.stringify(r.sourceHashes) === JSON.stringify(Object.fromEntries(Object.entries(bundle.sources).filter(([key])=>key!=='actuals_input').map(([k, v]) => [k, v.hash || null])))).map(r => ({
       name: r.name,
       m: {
         ...r.result,
@@ -1197,6 +1281,10 @@ function AnalyticsWorkspace({
     start: row.week,
     end: row.week
   });
+  const explore = (nextArea,nextView) => {
+    setPresentation('investigate');setArea(nextArea);setView(nextView);setDetail(null);
+    if(typeof document!=='undefined')setTimeout(()=>document.getElementById('analytics-investigation-heading')?.scrollIntoView({behavior:'smooth',block:'start'}),0);
+  };
   const weeklyModel = (first, second) => weeks.filter(w => (!filter.start || w >= filter.start) && (!filter.end || w <= filter.end)).map(w => {
     const x = A.summarize(first.rows.filter(r => r.week === w)),
       y = second ? A.summarize(second.rows.filter(r => r.week === w)) : null;
@@ -1536,19 +1624,25 @@ function AnalyticsWorkspace({
         start: r.key,
         end: r.key
       })} /></div><V.Heatmap title="Does the intervention move the pressure?" subtitle="Test buffers across regions and skills. Select a cell to investigate the remaining exposure." rows={tested.rows} onSelect={focusCell} />{evidenceSection('Compare alternative outcomes and pinned runs', renderActionsDetails())}</>;
+  const forecastSettingsKey = id => JSON.stringify({id,scenarioId,sources:sourceNames.map(key=>[key,bundle.sources[key].hash||bundle.sources[key].error||null])});
+  const forecastView = id => <AnalyticsForecastView key={forecastSettingsKey(id)} settingsKey={forecastSettingsKey(id)} view={id} data={data} current={current} filter={filter} assumptions={assumptions} onInspect={sourceDetail} onFocus={setFilter} onExport={(name,rows)=>csv(name,rows.map(r=>({scenario:scenarioId,scope:JSON.stringify(filter),...r})))} onReport={report=>{
+    const clean=JSON.parse(JSON.stringify(report,(key,value)=>['records','raw','n','jobTime'].includes(key)?undefined:value));
+    forecastReports.current[id]={...clean,context:JSON.stringify({scenarioId,loadedAt:bundle?.loadedAt,filter,assumptions})};
+  }}/>;
   const renderers = {
     demand: renderDemand,
     capacity: renderCapacity,
     downtime: renderDowntime,
     changes: renderChanges,
-    quality: renderQuality,
+    quality: ()=><>{forecastView('priorities')}{renderQuality()}</>,
     deficits: renderDeficits,
     recruitment: renderRecruitment,
     support: renderSupport,
-    timing: renderTiming,
+    timing: ()=><>{forecastView('peaks')}{renderTiming()}</>,
     stress: renderStress,
     sensitivity: renderSensitivity,
-    actions: renderActions
+    actions: renderActions,
+    target:()=>forecastView('target'),commitments:()=>forecastView('commitments'),stability:()=>forecastView('stability'),jobtime:()=>forecastView('jobtime'),workforce:()=>forecastView('workforce'),reconcile:()=>forecastView('reconcile'),monthly:()=>forecastView('monthly')
   };
   const detailRows = detail?.rows || [],
     visibleDetail = detailRows.filter(r => JSON.stringify(r.raw).toLowerCase().includes(sourceSearch.toLowerCase()));
@@ -1569,8 +1663,9 @@ function AnalyticsWorkspace({
   const scen2 = scenarios[baselineId] || {};
 
   return <div className="analytics-workspace space-y-4 pb-8">
+        <AnalyticsScopeBar filter={filter} weeks={weeks} regions={regions} patches={patches} scenario={scenarioId} onChange={setFilter} onReset={()=>setFilter({...clearScope})} onUndo={undoFilter} canUndo={filterHistory.current.length>0}/>
         {/* UNIFIED SCENARIO COMPARATOR & OPERATIONAL FILTERS CARD MATCHING SCENARIO DIFF */}
-        <div className="diff-filter-card bg-white/95 dark:bg-[#06101f] p-3.5 sm:p-4 rounded-2xl border border-blue-200/80 dark:border-2 dark:border-[#1e40af] shadow-sm dark:shadow-[0_0_24px_rgba(30,64,175,0.25)] relative z-30 space-y-3 transition-all duration-200">
+        {!isFiltersCollapsed && <div className="diff-filter-card bg-white/95 dark:bg-[#06101f] p-3.5 sm:p-4 rounded-2xl border border-blue-200/80 dark:border-2 dark:border-[#1e40af] shadow-sm dark:shadow-[0_0_24px_rgba(30,64,175,0.25)] relative z-30 space-y-3 transition-all duration-200">
           {/* Header row: Filters pill & Actions */}
           <div className="flex items-center justify-between gap-2">
             <span className="px-3 py-1 bg-[#005eb8] text-white font-bold text-xs rounded-full flex items-center gap-1.5 shadow-sm">
@@ -1861,11 +1956,16 @@ function AnalyticsWorkspace({
               </div>
             </>
           )}
-        </div>
-        
+        </div>}
         {showAssumptions && <AnalyticsAssumptions value={assumptions} onChange={setAssumptions} onClose={() => { setShowAssumptions(false); setIsAssumptionsOpen && setIsAssumptionsOpen(false); }} onReset={() => setAssumptions({
       ...A.defaults
     })} />}
+        <div className="av-view-toolbar"><nav className="av-presentation-nav" aria-label="Decision Studio views">{[['summary','Plan summary'],['workload','Upcoming workload'],['checks','Data readiness'],['investigate','Investigations']].map(([id,title])=><button key={id} type="button" aria-current={presentation===id?'page':undefined} aria-controls="analytics-presentation-panel" onClick={()=>{setPresentation(id);setDetail(null);}}>{title}{id==='checks'&&bundle&&!busy&&outlook.readiness.some(c=>!c.ready)&&<span>{outlook.readiness.filter(c=>!c.ready).length} to review</span>}</button>)}</nav><button type="button" className="av-scenario-toggle" aria-expanded={!isFiltersCollapsed} onClick={()=>setIsFiltersCollapsed(!isFiltersCollapsed)}>Scenario &amp; compare</button></div>
+        {!busy && bundle && presentation!=='checks' && outlook.readiness.some(c=>!c.ready) && <button type="button" className="av-readiness-alert" onClick={()=>setPresentation('checks')}>{outlook.readiness.filter(c=>!c.ready).length} input checks need review <strong>View checks</strong></button>}
+        <div id="analytics-presentation-panel">
+        {!busy && bundle && presentation==='summary' && <AnalyticsPlanSummary model={current} demand={demand} scenario={scenarioId} loadedAt={bundle.loadedAt} outlook={outlook} onFocus={focusCell} onExplore={explore}/>}
+        {!busy && bundle && ['workload','checks'].includes(presentation) && <AnalyticsWorkloadOutlook mode={presentation} report={outlook} planningDate={planningDate} onDateChange={setPlanningDate} onExplore={explore} onSource={sourceDetail}/>}
+        {presentation==='investigate'&&<>
         {/* Top: 4 Category Navigation Cards */}
         <nav aria-label="Analytics areas" className="av-area-nav grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {Object.entries(areas).map(([id, a]) => {
@@ -1874,6 +1974,7 @@ function AnalyticsWorkspace({
             return (
               <button
                 key={id}
+                aria-label={a.title}
                 onClick={() => {
                   setArea(id);
                   setView(Object.keys(a.views)[0]);
@@ -1945,10 +2046,9 @@ function AnalyticsWorkspace({
           </nav>
         )}
 
-        {error && <div role="alert" className="p-4 rounded-xl border border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-sm mt-3">{error}</div>}
-        {busy && <div role="status" className={panel + ' text-sm text-slate-500 dark:text-[#adbed4] animate-pulse mt-3'}>Reading selected source versions and baseline…</div>}
         {!busy && bundle && (
           <>
+            <details id="analytics-investigation-heading" className="av-question-guide" aria-label="About this investigation"><summary>{ANALYTICS_QUESTIONS[view]?.[0]}<span>About this view</span></summary><p>{ANALYTICS_QUESTIONS[view]?.[1]}</p></details>
             {/* If category has more than 1 subtab, render subtab heading; if only 1 subtab, no need to create subtab heading */}
             <div className={`flex flex-wrap justify-between items-center gap-2 ${Object.keys(areas[area].views).length > 1 ? 'mt-4 mb-3' : 'mt-3 mb-2'}`}>
               {Object.keys(areas[area].views).length > 1 && (
@@ -1957,13 +2057,17 @@ function AnalyticsWorkspace({
                 </h2>
               )}
               <span className="text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 px-2.5 py-1 rounded-full ml-auto">
-                Source facts + explicitly partial model
+                Estimate based on available evidence
               </span>
             </div>
             {renderers[view]()}
             <section className={panel}><div className="flex flex-wrap justify-between items-center gap-3 mb-3"><h3 className="text-sm font-bold text-slate-900 dark:text-white">Source evidence explorer</h3><div className="flex gap-2"><select aria-label="Evidence source" className={select} value={sourceChoice} onChange={e => setSourceChoice(e.target.value)}>{sourceNames.map(s => <option key={s} value={s} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{label(s)}</option>)}</select><button className={button + ' whitespace-nowrap'} onClick={() => sourceDetail(sourceChoice)}>Inspect rows</button></div></div><textarea aria-label="Decision rationale" value={rationale} onChange={e => setRationale(e.target.value)} placeholder="Decision rationale, conditions for approval, or questions for the submitting team…" className={select + ' min-h-[70px]'} /><p className="text-[10px] text-slate-400 dark:text-[#adbed4] mt-2">Rationale and pinned runs stay in memory across app tabs. Export the decision brief before reloading or closing the page.</p></section>
           </>
         )}
+        </>}
+        </div>
+        {error && <div role="alert" className="p-4 rounded-xl border border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-sm mt-3">{error}</div>}
+        {busy && <div role="status" className={panel + ' text-sm text-slate-500 dark:text-[#adbed4] animate-pulse mt-3'}>Reading selected source versions and baseline…</div>}
         {detail && <AnalyticsDrawer title={detail.title} eyebrow={detail.diff ? 'Scenario comparison' : detail.issues ? 'Evidence coverage' : 'Source evidence'} subtitle={detail.diff ? 'Understand exactly which source records changed.' : detail.issues ? 'Inspect the checks behind the data-coverage result.' : 'Browse original records and their selected source versions.'} onClose={() => setDetail(null)}>
           {detail.diff ? <AnalyticsDiffBrowser rows={detail.diff} comparison={detail.comparison || {}} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-record-changes.csv', rows)} /> : detail.issues ? <AnalyticsIssueBrowser issues={detail.issues} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-evidence-issues.csv', rows)} onInspect={r => sourceDetail(r.source, r.row ? (data.facts[r.source] || []).filter(x => x.row === r.row) : undefined)} /> : <AnalyticsRecordBrowser key={detail.title} rows={detailRows} columns={sourceColumns} sources={bundle?.sources || {}} sourceKey={detail.source} query={sourceSearch} onQueryChange={setSourceSearch} page={sourcePage} onPageChange={setSourcePage} onExport={rows => csv('analytics-source-evidence.csv', rows.map(r => ({
         input: r.source,

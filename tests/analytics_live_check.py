@@ -14,8 +14,8 @@ async def main():
         html = response.read().decode()
         assert response.status == 200
         assert 'analytics_ui.js' in html and 'analytics_engine.js' in html
-    assert all(asset in html for asset in ('analytics_charts.js','analytics_details.js','analytics_details.css','analytics.css'))
-    for asset in ('analytics_ui.js', 'analytics_engine.js', 'analytics_charts.js', 'analytics_details.js', 'analytics_details.css', 'analytics.css', 'react_app.js'):
+    assert all(asset in html for asset in ('analytics_charts.js','analytics_details.js','analytics_details.css','analytics.css','forecast_analytics_engine.js','forecast_analytics_ui.js'))
+    for asset in ('analytics_ui.js', 'analytics_engine.js', 'analytics_charts.js', 'analytics_details.js', 'analytics_details.css', 'analytics.css', 'forecast_analytics_engine.js', 'forecast_analytics_ui.js', 'react_app.js'):
         with urlopen(URL + '/' + asset, timeout=10) as response:
             assert response.status == 200 and len(response.read()) > 100
     scenarios = json.loads((ROOT / 'data/scenarios.json').read_text(encoding='utf-8'))
