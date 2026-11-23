@@ -2,7 +2,7 @@
 UI package initialization.
 """
 
-from ui.styles import CUSTOM_CSS, get_british_gas_logo_html, get_env_badge_html
+from ui.styles import CUSTOM_CSS, get_company_logo_html, get_env_badge_html
 from ui.home_tab import create_home_tab
 from ui.scenario_comparison_tab import create_scenario_comparison_tab
 from ui.visuals_tab import create_visuals_tab
@@ -17,7 +17,7 @@ from ui.modern_ui import create_modern_ui_page
 
 __all__ = [
     "CUSTOM_CSS",
-    "get_british_gas_logo_html",
+    "get_company_logo_html",
     "get_env_badge_html",
     "create_home_tab",
     "create_scenario_comparison_tab",

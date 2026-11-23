@@ -1,6 +1,6 @@
 """
 Main PyShiny Application Entry Point
-British Gas Field Capacity Planning Platform
+Field Capacity Planning Platform
 Supports Modern React 18 / Tailwind Frontend with PyShiny Backend.
 Dual Engine: PySpark on Databricks Unity Catalog (Production) vs Pandas on VS Code (Development).
 """
@@ -36,7 +36,7 @@ from ui import (
     create_modern_ui_page,
     create_scenario_comparison_tab,
     create_visuals_tab,
-    get_british_gas_logo_html,
+    get_company_logo_html,
     get_env_badge_html,
 )
 
@@ -72,7 +72,7 @@ def create_classic_ui():
                 style="font-size: 0.78rem; padding: 3px 10px; margin-left: 6px; font-weight: 700;",
             )
         ),
-        ui.nav_control(ui.HTML(get_british_gas_logo_html())),
+        ui.nav_control(ui.HTML(get_company_logo_html())),
         title="Capacity Planning",
         id="main_navbar",
         header=ui.TagList(
@@ -354,7 +354,7 @@ if __name__ == "__main__":
     # STEP 1: Verify & create tables in Databricks first if not present
     # -----------------------------------------------------------------------
     print("=" * 70)
-    print(" BRITISH GAS | FIELD CAPACITY PLANNING PLATFORM")
+    print(" FIELD CAPACITY PLANNING PLATFORM")
     print("=" * 70)
     print(" [STEP 1/2] Verifying Databricks Unity Catalog tables...")
     

@@ -31,149 +31,48 @@ def get_file_seed(cat: str, filename: str) -> int:
     return h
 
 def generate_baseline_assumptions(version_idx: int, filename: str) -> pd.DataFrame:
-    base_rows = [
-        {"Metric": "Contractual Standard Hours", "Value": 37.5, "Unit": "hrs/week", "Category": "Working Time"},
-        {"Metric": "Shift Length", "Value": 7.5, "Unit": "hrs/day", "Category": "Working Time"},
-        {"Metric": "Working Days per Week", "Value": 5, "Unit": "days", "Category": "Working Time"},
-        {"Metric": "Annual Leave Allowance", "Value": 25, "Unit": "days/year", "Category": "Leave"},
-        {"Metric": "Sickness Absence Reserve", "Value": 4.5, "Unit": "%", "Category": "Absence"},
-        {"Metric": "Overtime Pay Multiplier", "Value": 1.5, "Unit": "x", "Category": "Compensation"},
-        {"Metric": "Bank Holiday Multiplier", "Value": 2.0, "Unit": "x", "Category": "Compensation"},
-        {"Metric": "Mandatory Training Days", "Value": 10, "Unit": "days/FTE", "Category": "Training"},
-        {"Metric": "Travel Time Allowance", "Value": 42.0, "Unit": "mins/job", "Category": "Field Productivity"},
-        {"Metric": "Stand-down Safety Reserve", "Value": 2.0, "Unit": "%", "Category": "Governance"}
-    ]
-    df = pd.DataFrame(base_rows)
-    
-    if "final" in filename.lower():
-        pass
-    elif "draft" in filename.lower():
-        df.loc[df["Metric"] == "Contractual Standard Hours", "Value"] = 38.0
-        df.loc[df["Metric"] == "Shift Length", "Value"] = 7.6
-        df.loc[df["Metric"] == "Mandatory Training Days", "Value"] = 12
-        df.loc[df["Metric"] == "Travel Time Allowance", "Value"] = 45.0
-        df.loc[df["Metric"] == "Sickness Absence Reserve", "Value"] = 5.0
-    elif "q2" in filename.lower() or "v2" in filename.lower():
-        df.loc[df["Metric"] == "Overtime Pay Multiplier", "Value"] = 1.45
-        df.loc[df["Metric"] == "Bank Holiday Multiplier", "Value"] = 1.75
-        df.loc[df["Metric"] == "Travel Time Allowance", "Value"] = 40.0
-        df.loc[df["Metric"] == "Mandatory Training Days", "Value"] = 8
-        df = df.iloc[:-1].copy()
-    elif "2026-10-30" in filename:
-        df.loc[df["Metric"] == "Contractual Standard Hours", "Value"] = 37.6
-        df.loc[df["Metric"] == "Travel Time Allowance", "Value"] = 38.8
-        df.loc[df["Metric"] == "Sickness Absence Reserve", "Value"] = 4.9
-        extra = pd.DataFrame([
-            {"Metric": "First-time Fix Target Rate", "Value": 88.5, "Unit": "%", "Category": "AI Telemetry"},
-            {"Metric": "Mean Travel Mileage per Shift", "Value": 24.8, "Unit": "miles", "Category": "Route Telemetry"}
-        ])
-        df = pd.concat([df, extra], ignore_index=True)
-    elif "2026-10-29" in filename:
-        df.loc[df["Metric"] == "Contractual Standard Hours", "Value"] = 37.1
-        df.loc[df["Metric"] == "Travel Time Allowance", "Value"] = 38.2
-        df.loc[df["Metric"] == "Sickness Absence Reserve", "Value"] = 4.7
-        extra = pd.DataFrame([
-            {"Metric": "First-time Fix Target Rate", "Value": 87.2, "Unit": "%", "Category": "AI Telemetry"}
-        ])
-        df = pd.concat([df, extra], ignore_index=True)
-    else:
-        seed = get_file_seed("baseline_assumptions", filename)
-        df.loc[df["Metric"] == "Travel Time Allowance", "Value"] = round(40.0 + (seed % 10), 1)
+    df = SampleDataGenerator.get_baseline_assumptions_data()
+    seed = get_file_seed("baseline_assumptions", filename) + (version_idx * 101)
+    rng = random.Random(seed)
+    scale = 0.9 + (version_idx % 5) * 0.05
+    df["Values"] = df["Values"].apply(lambda v: round(v * scale, 8))
+    if version_idx % 2 == 1 and len(df) > 10:
+        df = df.iloc[version_idx % 4:].copy()
     return df
 
 def generate_baseline_productivity(version_idx: int, filename: str) -> pd.DataFrame:
-    base_rows = [
-        {"Skill": "HEC (Home Energy)", "Rate": 3.8, "Target": 4.0, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 5.0},
-        {"Skill": "KAC (Kitchen Appliances)", "Rate": 3.5, "Target": 3.8, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 5.0},
-        {"Skill": "EV (Charging Infrastructure)", "Rate": 2.2, "Target": 2.5, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 8.0},
-        {"Skill": "Smart Metering (SnM)", "Rate": 4.2, "Target": 4.5, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 4.0},
-        {"Skill": "Heat Pumps & Renewables", "Rate": 1.8, "Target": 2.1, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 10.0},
-        {"Skill": "Commercial Heating", "Rate": 2.8, "Target": 3.1, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 6.0},
-        {"Skill": "Apprentice HEC", "Rate": 2.1, "Target": 2.4, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 12.0}
-    ]
-    df = pd.DataFrame(base_rows)
-    
-    if "v3" in filename.lower():
-        pass
-    elif "v2" in filename.lower():
-        df["Rate"] = (df["Rate"] * 0.92).round(2)
-        df["Target"] = (df["Target"] * 0.95).round(2)
-        df["Benchmark_Year"] = 2025
-    elif "benchmark" in filename.lower() or "v1" in filename.lower():
-        df = df.iloc[:-1].copy()
-        df["Rate"] = (df["Rate"] * 0.97).round(2)
-        df["Benchmark_Year"] = 2024
-    elif "2026-10-30" in filename:
-        df["Rate"] = (df["Rate"] * 1.06).round(2)
-        df["Target"] = (df["Target"] * 1.05).round(2)
-        extra = pd.DataFrame([
-            {"Skill": "EV Rapid Charger Specialist", "Rate": 1.95, "Target": 2.30, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 7.5}
-        ])
-        df = pd.concat([df, extra], ignore_index=True)
-    elif "2026-10-29" in filename:
-        df["Rate"] = (df["Rate"] * 1.02).round(2)
-        df["Target"] = (df["Target"] * 1.03).round(2)
-        extra = pd.DataFrame([
-            {"Skill": "EV Rapid Charger Specialist", "Rate": 1.90, "Target": 2.25, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 7.5}
-        ])
-        df = pd.concat([df, extra], ignore_index=True)
-    else:
-        seed = get_file_seed("baseline_productivity", filename)
-        df["Rate"] = (df["Rate"] * (0.95 + (seed % 10) / 100.0)).round(2)
+    df = SampleDataGenerator.get_baseline_productivity_data()
+    seed = get_file_seed("baseline_productivity", filename) + (version_idx * 202)
+    rng = random.Random(seed)
+    scale = 0.88 + (version_idx % 6) * 0.04
+    df["Values"] = df["Values"].apply(lambda v: round(v * scale, 8))
+    if version_idx % 2 == 0 and len(df) > 8:
+        df = df.iloc[:-(version_idx % 4 + 1)].copy()
     return df
 
 def generate_week_to_month(version_idx: int, filename: str) -> pd.DataFrame:
-    if "calendar" in filename.lower():
-        rows = [
-            {"Weekcomm": "2026-09-14", "Calendar Month": "September", "Fiscal Month": "P09", "Fiscal Year": "FY26", "Weeks In Month": 4},
-            {"Weekcomm": "2026-09-21", "Calendar Month": "September", "Fiscal Month": "P09", "Fiscal Year": "FY26", "Weeks In Month": 4},
-            {"Weekcomm": "2026-09-28", "Calendar Month": "September", "Fiscal Month": "P09", "Fiscal Year": "FY26", "Weeks In Month": 4},
-            {"Weekcomm": "2026-10-05", "Calendar Month": "October", "Fiscal Month": "P10", "Fiscal Year": "FY26", "Weeks In Month": 5},
-            {"Weekcomm": "2026-10-12", "Calendar Month": "October", "Fiscal Month": "P10", "Fiscal Year": "FY26", "Weeks In Month": 5},
-            {"Weekcomm": "2026-10-19", "Calendar Month": "October", "Fiscal Month": "P10", "Fiscal Year": "FY26", "Weeks In Month": 5},
-            {"Weekcomm": "2026-10-26", "Calendar Month": "October", "Fiscal Month": "P10", "Fiscal Year": "FY26", "Weeks In Month": 5},
-            {"Weekcomm": "2026-11-02", "Calendar Month": "November", "Fiscal Month": "P11", "Fiscal Year": "FY26", "Weeks In Month": 4},
-            {"Weekcomm": "2026-11-09", "Calendar Month": "November", "Fiscal Month": "P11", "Fiscal Year": "FY26", "Weeks In Month": 4},
-            {"Weekcomm": "2026-11-16", "Calendar Month": "November", "Fiscal Month": "P11", "Fiscal Year": "FY26", "Weeks In Month": 4}
-        ]
-        return pd.DataFrame(rows)
-    elif "standard" in filename.lower() or "v1" in filename.lower():
-        rows = [
-            {"Weekcomm": "2026-09-28", "Calendar Month": "September", "Fiscal Month": "P09", "Fiscal Year": "FY26", "Weeks In Month": 4},
-            {"Weekcomm": "2026-10-05", "Calendar Month": "October", "Fiscal Month": "P10", "Fiscal Year": "FY26", "Weeks In Month": 4},
-            {"Weekcomm": "2026-10-12", "Calendar Month": "October", "Fiscal Month": "P10", "Fiscal Year": "FY26", "Weeks In Month": 4},
-            {"Weekcomm": "2026-10-19", "Calendar Month": "October", "Fiscal Month": "P10", "Fiscal Year": "FY26", "Weeks In Month": 4},
-            {"Weekcomm": "2026-10-26", "Calendar Month": "November", "Fiscal Month": "P11", "Fiscal Year": "FY26", "Weeks In Month": 4},
-            {"Weekcomm": "2026-11-02", "Calendar Month": "November", "Fiscal Month": "P11", "Fiscal Year": "FY26", "Weeks In Month": 4}
-        ]
-        return pd.DataFrame(rows)
-    elif "2026-10-30" in filename:
-        base = SampleDataGenerator.get_week_to_month_data()
-        extra = pd.DataFrame([
-            {"Weekcomm": "2026-11-23", "Calendar Month": "November", "Fiscal Month": "P08", "Fiscal Year": "FY26", "Weeks In Month": 4}
-        ])
-        return pd.concat([base, extra], ignore_index=True)
-    elif "2026-10-29" in filename:
-        base = SampleDataGenerator.get_week_to_month_data()
-        return base.iloc[:-1].copy()
-    else:
-        return SampleDataGenerator.get_week_to_month_data()
+    df = SampleDataGenerator.get_week_to_month_data()
+    if version_idx % 3 == 1 and len(df) > 4:
+        df = df.iloc[:-2].copy()
+    elif version_idx % 3 == 2 and len(df) > 6:
+        df = df.iloc[1:].copy()
+    return df
 
 def generate_geography_mapping(version_idx: int, filename: str) -> pd.DataFrame:
     base = SampleDataGenerator.get_geog_mapping_data()
     if "updated" in filename.lower() or "q2" in filename.lower():
-        return base.iloc[:13].copy()
+        return base.iloc[:18].copy()
     elif "2026_v1" in filename.lower() or "v1" in filename.lower():
-        return base.iloc[:9].copy()
+        return base.iloc[:14].copy()
     elif "2026-10-30" in filename:
         df = base.copy()
         extra = pd.DataFrame([
-            {"Patch": "EE11 East Midlands North", "Region": "B", "Division": "Central"},
-            {"Patch": "EE12 Lincoln Coast", "Region": "B", "Division": "Central"}
+            {"Region Code": "B", "Region": "North West", "Area Code": "EB5", "Patch": "EB51 Bolton & Bury", "Patch Name": "Bolton & Bury"},
+            {"Region Code": "B", "Region": "North West", "Area Code": "EB5", "Patch": "EB52 Wigan & Leigh", "Patch Name": "Wigan & Leigh"}
         ])
         return pd.concat([df, extra], ignore_index=True)
     elif "2026-10-29" in filename:
-        return base.iloc[:15].copy()
+        return base.iloc[:22].copy()
     else:
         return base
 
@@ -215,14 +114,14 @@ def transform_dataframe_for_version(cat: str, filename: str, version_idx: int, d
     for col in df.columns:
         col_lower = col.lower()
         if pd.api.types.is_numeric_dtype(df[col]):
-            if "year" in col_lower or "code" in col_lower or "id" in col_lower or ("week" in col_lower and not ("hours" in col_lower)):
+            if "year" in col_lower or "code" in col_lower or "id" in col_lower or col_lower in ["trainee", "cross skill", "apprentice"] or ("week" in col_lower and not ("hours" in col_lower)):
                 continue
             
-            if "ratio" in col_lower or "pct" in col_lower or "percentage" in col_lower or "factor" in col_lower:
+            if "ratio" in col_lower or "pct" in col_lower or "percentage" in col_lower or "factor" in col_lower or (cat in ["attrition", "downtime_overlays_percentage", "recruitment_config", "hec_on_kac_demand", "hec_on_ev_demand"] and col_lower == "values"):
                 def mod_ratio(val):
                     if pd.isna(val): return val
                     new_val = val * scale
-                    return round(min(0.99, max(0.05, new_val)), 3)
+                    return round(min(0.99, max(0.005, new_val)), 4)
                 df[col] = df[col].apply(mod_ratio)
             elif "hours" in col_lower or "headcount" in col_lower or "values" in col_lower or "contractors" in col_lower or "attendees" in col_lower or "fte" in col_lower:
                 def mod_num(val):

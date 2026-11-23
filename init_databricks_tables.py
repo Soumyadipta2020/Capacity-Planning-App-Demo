@@ -79,7 +79,7 @@ def main():
     stage = EnvironmentConfig.get_stage()
 
     print("=" * 80)
-    print(" BRITISH GAS | FIELD CAPACITY PLANNING PLATFORM")
+    print(" FIELD CAPACITY PLANNING PLATFORM")
     print(" DATABRICKS UNITY CATALOG PROVISIONING & APP RUNNER")
     print("=" * 80)
     print(f" Environment : {EnvironmentConfig.get_environment_name()}")
@@ -129,7 +129,7 @@ def main():
     engine_status = engine.get_engine_status()
 
     print("\n" + "=" * 80)
-    print("[STEP 2/2] Loading British Gas Capacity Planning application using verified tables...")
+    print("[STEP 2/2] Loading Capacity Planning application using verified tables...")
     print(f" UI Framework       : Modern React 18 + Tailwind CSS")
     print(f" Execution Engine   : {engine_status['engine_type']}")
     print(f" Storage Target     : {engine_status['storage_target']}")

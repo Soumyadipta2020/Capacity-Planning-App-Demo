@@ -729,10 +729,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_fte_transfer():
-        df = pd.DataFrame([
-            {"Transfer ID": "TR-101", "From Patch": "EA11 Inverness & Aviemore", "To Patch": "EA12 Aberdeen North", "Skill": "HEC", "Effective Date": "2026-11-02", "FTE Count": 2.0},
-            {"Transfer ID": "TR-102", "From Patch": "EB12 Altrincham", "To Patch": "EB14 Stockport", "Skill": "KAC", "Effective Date": "2026-11-09", "FTE Count": 1.5}
-        ])
+        df = SampleDataGenerator.get_fte_transfer_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
@@ -757,30 +754,19 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_recruitment_summary():
-        df = pd.DataFrame([
-            {"Month": "Oct 2026", "Grounded Hires (HEC)": 15, "Grounded Hires (KAC)": 8, "Ungrounded Target": 25, "Status": "On Track"},
-            {"Month": "Nov 2026", "Grounded Hires (HEC)": 20, "Grounded Hires (KAC)": 10, "Ungrounded Target": 30, "Status": "Planned"},
-            {"Month": "Dec 2026", "Grounded Hires (HEC)": 10, "Grounded Hires (KAC)": 5, "Ungrounded Target": 15, "Status": "Planned"}
-        ])
+        df = SampleDataGenerator.get_recruitment_grounded_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
     @render.data_frame
     def table_baseline_assumptions():
-        df = pd.DataFrame([
-            {"Assumption": "Standard Shift Hours", "Value": "37.5 hrs/week", "Category": "Contractual"},
-            {"Assumption": "Direct Labor Efficiency", "Value": "88.5%", "Category": "Operational"},
-            {"Assumption": "Annual Leave Allowance", "Value": "25 days", "Category": "Overlays"}
-        ])
+        df = SampleDataGenerator.get_baseline_assumptions_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
     @render.data_frame
     def table_bank_hours():
-        df = pd.DataFrame([
-            {"Patch": "ED44 Canterbury & Dover", "Bank Balance (Hrs)": 142.5, "Accrued Week": 12.0, "Used Week": 8.5},
-            {"Patch": "EB12 Altrincham", "Bank Balance (Hrs)": 210.0, "Accrued Week": 18.0, "Used Week": 15.0}
-        ])
+        df = SampleDataGenerator.get_overtime_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
@@ -792,19 +778,13 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_baseline_prod():
-        df = pd.DataFrame([
-            {"Skill": "HEC", "Jobs / Day Benchmark": 3.8, "Avg Duration (Hrs)": 1.75},
-            {"Skill": "KAC", "Jobs / Day Benchmark": 4.5, "Avg Duration (Hrs)": 1.45},
-            {"Skill": "EV", "Jobs / Day Benchmark": 2.2, "Avg Duration (Hrs)": 3.20}
-        ])
+        df = SampleDataGenerator.get_baseline_productivity_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
     @render.data_frame
     def table_training_snm():
-        df = pd.DataFrame([
-            {"Cohort ID": "SNM-2026-Q4", "Skill Target": "Dual Fuel / EV", "Trainee Headcount": 45, "Duration Weeks": 6, "Completion Date": "2026-12-15"}
-        ])
+        df = SampleDataGenerator.get_training_snm_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
@@ -816,9 +796,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_sp_commitments():
-        df = pd.DataFrame([
-            {"Commitment": "Winter SLA 98%", "Target Region": "National", "Min Available FTE": 1850, "Status": "Committed"}
-        ])
+        df = SampleDataGenerator.get_ctr_capacity_data()
         return render.DataGrid(df, selection_mode="none")
 
     # -------------------------------------------------------------------------
@@ -839,10 +817,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_recruitment_ramp():
-        df = pd.DataFrame([
-            {"Week Since Joining": f"Week {i}", "Productivity Ramp %": f"{min(20 + i*8, 100)}%", "Mentorship Hours": max(15 - i, 0)}
-            for i in range(1, 13)
-        ])
+        df = SampleDataGenerator.get_recruitment_config_data()
         return render.DataGrid(df, selection_mode="none")
 
     # -------------------------------------------------------------------------
@@ -863,18 +838,13 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_hec_on_kac():
-        df = pd.DataFrame([
-            {"Skill Group": "HEC Tier 1", "Eligible KAC Work Codes": "W01, W17", "Transfer Factor": 0.85, "Max Hours/Week": 250},
-            {"Skill Group": "HEC Tier 2", "Eligible KAC Work Codes": "W00, W01, W17, W18", "Transfer Factor": 0.95, "Max Hours/Week": 400}
-        ])
+        df = SampleDataGenerator.get_hec_on_kac_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
     @render.data_frame
     def table_hec_on_ev():
-        df = pd.DataFrame([
-            {"Certification": "EV Level 3 Assist", "Max Weekly Jobs Transfer": 35, "Productivity Ratio": 0.90}
-        ])
+        df = SampleDataGenerator.get_hec_on_ev_data()
         return render.DataGrid(df, selection_mode="none")
 
     # -------------------------------------------------------------------------

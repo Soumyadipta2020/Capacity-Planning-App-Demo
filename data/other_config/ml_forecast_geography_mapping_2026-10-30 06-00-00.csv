@@ -1,21 +1,32 @@
-Region,ACDM,territory,Patch,Division
-A,A1,EA11 Inverness & Aviemore,,
-A,A1,EA13 Dendee & Perth,,
-A,A1,EA12 Aberdeen North,,
-A,A2,EA21 Stirling & Falkirk,,
-A,A2,EA22 Edinburgh Central,,
-B,B1,EB11 Preston & Blackpool,,
-B,B1,EB14 Stockport & Peak,,
-B,B2,EB12 Altrincham,,
-B,B2,EB21 Manchester Central,,
-C,C1,EC91 Leicester,,
-C,C1,EC92 Nottingham & Derby,,
-C,C2,EC61 Norwich & Norfolk,,
-C,C2,EC62 Essex East,,
-D,D1,ED11 North London & Barnet,,
-D,D2,ED44 Canterbury & Dover,,
-D,D2,ED42 Eastbourne & Hastings,,
-E,E1,EE21 Bristol North & Bath,,
-E,E2,EE31 Exeter & Devon,,
-B,,,EE11 East Midlands North,Central
-B,,,EE12 Lincoln Coast,Central
+Region Code,Region,Area Code,Patch,Patch Name
+A,Scotland and Northern England,EA1,EA11 Inverness & Aviemore,Inverness & Aviemore
+A,Scotland and Northern England,EA1,EA12 Aberdeen North,Aberdeen North
+A,Scotland and Northern England,EA1,EA12 Aberdeen South,Aberdeen South
+A,Scotland and Northern England,EA1,EA13 Dundee & Perth,Dundee & Perth
+A,Scotland and Northern England,EA1,EA13 Fife,Fife
+A,Scotland and Northern England,EA2,EA21 Dunbartonshire & Glasgow North,Dunbartonshire & Glasgow North
+A,Scotland and Northern England,EA2,EA21 Stirling & Falkirk,Stirling & Falkirk
+A,Scotland and Northern England,EA3,EA31 Clyde Coast,Clyde Coast
+A,Scotland and Northern England,EA3,EA31 Glasgow South & Renfrewshire,Glasgow South & Renfrewshire
+A,Scotland and Northern England,EA3,EA32 South West Ayrshire,South West Ayrshire
+A,Scotland and Northern England,EA3,EA33 Dumfriesshire,Dumfriesshire
+A,Scotland and Northern England,EA4,EA41 East Lothian Coast,East Lothian Coast
+B,North West,EB1,EB12 Altrincham,Altrincham
+B,North West,EB1,EB13 Manchester Centre,Manchester Centre
+B,North West,EB1,EB14 Stockport,Stockport
+B,North West,EB2,EB24 The Wirral,The Wirral
+B,North West,EB4,EB43 Hereford & Worcs,Hereford & Worcs
+C,Midlands,EC9,EC91 Leicester,Leicester
+C,Midlands,EC6,EC62 Essex East,Essex East
+C,Midlands,EC4,EC41 Reading,Reading
+C,Midlands,EC3,EC31 New Forest,New Forest
+C,Midlands,EC2,EC22 Cheltenham & Gloucester,Cheltenham & Gloucester
+C,Midlands,EC8,EC81 Peterborough,Peterborough
+C,Midlands,EC1,EC11 Cornwall,Cornwall
+C,Midlands,EC1,EC13 Devon South,Devon South
+D,London and South East,ED1,ED11 Chiswick & City,Chiswick & City
+D,London and South East,ED2,ED22 Cobham & Heathrow,Cobham & Heathrow
+D,London and South East,ED4,ED41 Bromley & Dartford,Bromley & Dartford
+D,London and South East,ED4,ED44 Canterbury & Dover,Canterbury & Dover
+B,North West,EB5,EB51 Bolton & Bury,Bolton & Bury
+B,North West,EB5,EB52 Wigan & Leigh,Wigan & Leigh

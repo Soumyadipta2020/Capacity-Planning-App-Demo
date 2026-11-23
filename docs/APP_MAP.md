@@ -4,7 +4,7 @@ Reviewed from repository source on 2026-11-18. This describes observed implement
 
 ## Purpose and workflows
 
-British Gas / Centrica field capacity planning demo. Planners select versioned operational inputs, save those selections as scenarios, inspect demand versus capacity by geography and skill, compare scenarios, edit input tables, and export data.
+Field capacity planning demo. Planners select versioned operational inputs, save those selections as scenarios, inspect demand versus capacity by geography and skill, compare scenarios, edit input tables, and export data.
 
 The modern navigation has Executive Insights, Scenario Inputs, Scenario Comparison, and Demand vs Capacity views. Additional workflows include bulk upload with validation, template download, geography filtering, calculation module inspection, an Excel-style table editor, a Copilot drawer, and compute/session dialogs.
 

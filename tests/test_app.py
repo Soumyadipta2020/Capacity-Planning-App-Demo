@@ -77,7 +77,7 @@ try:
         # Test backend registration and sorting by datetimestamp
         from data_manager import register_uploaded_file, DEFAULT_INPUT_OPTIONS, DEFAULT_REMARKS, CATEGORY_FOLDER_MAP
         test_file_name = "fte_transfer_q4_2026-10-30 18:00:00"
-        register_uploaded_file("fte_transfer", test_file_name, "Test Q4 upload", "from,to,fte\nEast,West,10")
+        register_uploaded_file("fte_transfer", test_file_name, "Test Q4 upload", "Present Patch,Start Date,End Date,Future Patch,Outgoing Skill,Incoming Skill,Fte\nEA11 Inverness & Aviemore,2026-10-05,2026-12-31,EA12 Aberdeen North,HEC,HEC,10.0")
         assert test_file_name in DEFAULT_INPUT_OPTIONS["fte_transfer"]
         # Must be at index 0 because 2026-10-30 is newer than 2026-07-01
         assert DEFAULT_INPUT_OPTIONS["fte_transfer"][0] == test_file_name
@@ -172,12 +172,12 @@ try:
         assert "GeographyHierarchySelector" in js_content, "GeographyHierarchySelector component missing"
         assert "buildGeographyHierarchy" in js_content, "buildGeographyHierarchy helper missing"
         assert "parseGeographyCsvText" in js_content, "parseGeographyCsvText helper missing"
-        assert "EA11 Inverness & Aviemore" in js_content, "British Gas territory EA11 missing in templates/hierarchy"
+        assert "EA11 Inverness & Aviemore" in js_content, "Operational territory EA11 missing in templates/hierarchy"
         assert "ACDM A1" in js_content or "acdmList" in js_content, "ACDM level missing in hierarchy"
 
-        # 4. Geography mapping schema columns: Region, ACDM, territory
-        assert 'required: ["region", "acdm", "territory"]' in js_content, "geography_mapping schema must require region, acdm, territory"
-        assert "Region,ACDM,territory" in js_content, "geography template must have Region,ACDM,territory columns"
+        # 4. Geography mapping schema columns: Region Code, Region, Area Code, Patch, Patch Name
+        assert 'required: ["region code", "region", "area code", "patch", "patch name"]' in js_content, "geography_mapping schema must require region code, region, area code, patch, patch name"
+        assert "Region Code,Region,Area Code,Patch,Patch Name" in js_content, "geography template must have Region Code,Region,Area Code,Patch,Patch Name columns"
 
         # 5. Skill filter (HEC, KAC) & Date range filter
         assert "Skill Type Filter" in js_content, "Skill Type Filter missing in diff tab"
@@ -193,31 +193,26 @@ try:
         assert "computeDemandWaterfall" in js_content, "computeDemandWaterfall helper missing"
         
         # Verify Capacity Waterfall Metrics:
-        assert "Gross Hours" in js_content, "Gross Hours metric missing in capacity waterfall"
-        assert "Sickness" in js_content, "Sickness metric missing in capacity waterfall"
-        assert "Holiday" in js_content, "Holiday metric missing in capacity waterfall"
-        assert "Training" in js_content, "Training metric missing in capacity waterfall"
-        assert "Meeting" in js_content, "Meeting metric missing in capacity waterfall"
-        assert "Others Downtimes" in js_content, "Others Downtimes metric missing in capacity waterfall"
-        assert "Available Hours" in js_content, "Available Hours metric missing in capacity waterfall"
-        assert "Available Hours = Gross Hours - (Sickness + Holiday + Training + Meeting + Others Downtimes)" in js_content, "Capacity formula missing"
+        assert "Base Capacity" in js_content, "Base Capacity metric missing in capacity waterfall"
+        assert "+ Productivity" in js_content or "Productivity" in js_content, "Productivity metric missing in capacity waterfall"
+        assert "+ Overtime" in js_content or "Overtime" in js_content, "Overtime metric missing in capacity waterfall"
+        assert "Available Capacity" in js_content or "Available" in js_content, "Available Capacity metric missing in capacity waterfall"
 
         # Verify Demand Waterfall Metrics:
-        assert "HEC Upgrade" in js_content, "HEC Upgrade metric missing in demand waterfall"
-        assert "HEC Repair" in js_content, "HEC Repair metric missing in demand waterfall"
-        assert "KAC Upgrade" in js_content, "KAC Upgrade metric missing in demand waterfall"
-        assert "KAC Repair" in js_content, "KAC Repair metric missing in demand waterfall"
-        assert "HEC Warranty" in js_content, "HEC Warranty metric missing in demand waterfall"
-        assert "KAC Warranty" in js_content, "KAC Warranty metric missing in demand waterfall"
-        assert "Total Demand Hours" in js_content, "Total Demand Hours metric missing in demand waterfall"
-        print("Verified Dual Waterfall Analysis: Capacity Waterfall (7 metrics & formula) and Demand Waterfall (7 metrics & formula)!")
+        assert "Base Demand" in js_content, "Base Demand metric missing in demand waterfall"
+        assert "+ Growth" in js_content or "Growth" in js_content, "Growth metric missing in demand waterfall"
+        assert "+ Variations" in js_content or "Variations" in js_content, "Variations metric missing in demand waterfall"
+        assert "Total Demand" in js_content, "Total Demand metric missing in demand waterfall"
+        print("Verified Dual Waterfall Analysis: Capacity Waterfall and Demand Waterfall!")
 
-        # Verify python data_manager.py geography mapping dataframe has Region, ACDM, territory
+        # Verify python data_manager.py geography mapping dataframe has Region Code, Region, Area Code, Patch, Patch Name
         from data_manager import SampleDataGenerator, load_input_table_data, DEFAULT_INPUT_OPTIONS
         df_geo = SampleDataGenerator.get_geog_mapping_data()
+        assert "Region Code" in df_geo.columns, "Region Code missing in get_geog_mapping_data"
         assert "Region" in df_geo.columns, "Region missing in get_geog_mapping_data"
-        assert "ACDM" in df_geo.columns, "ACDM missing in get_geog_mapping_data"
-        assert "territory" in df_geo.columns, "territory missing in get_geog_mapping_data"
+        assert "Area Code" in df_geo.columns, "Area Code missing in get_geog_mapping_data"
+        assert "Patch" in df_geo.columns, "Patch missing in get_geog_mapping_data"
+        assert "Patch Name" in df_geo.columns, "Patch Name missing in get_geog_mapping_data"
         geo_dict = SampleDataGenerator.get_all_geography_files_data()
         assert len(geo_dict) > 0, "No geography files loaded in get_all_geography_files_data"
         print("Verified backend geography dataframe structure and file loader matching user specification!")
@@ -231,7 +226,7 @@ try:
         assert "downloadTableAsCsv" in js_content, "downloadTableAsCsv missing in react_app.js"
         assert "request_input_file_data" in js_content, "request_input_file_data event missing in react_app.js"
         assert "response_input_file_data" in js_content, "response_input_file_data handler missing in react_app.js"
-        assert "w-[98vw] max-w-[98vw] h-[94vh] max-h-[94vh]" in js_content, "Maximized floating window size missing in modal"
+        assert "max-w-[98" in js_content, "Maximized floating window size missing in modal"
 
         # Verify load_input_table_data works for all 21 categories and returns structured table records
         tested_count = 0

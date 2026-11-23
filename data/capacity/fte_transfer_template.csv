@@ -1,4 +1,4 @@
-From,To,FTE
-EB12 Altrincham,EC91 Leicester,2.5
-EA12 Aberdeen North,EA11 Inverness & Aviemore,1.0
-ED22 Cobham & Heathrow,ED41 Bromley & Dartford,1.5
+Present Patch,Start Date,End Date,Future Patch,Outgoing Skill,Incoming Skill,Fte
+EB12 Altrincham,2026-08-30,2099-01-01,EB12 Altrincham,KAC,EV,1.0
+EC82 Scunthorpe,2026-07-31,2099-01-01,EC82 Scunthorpe,KAC,EV,1.0
+ED42 Maidstone & Medway,2027-07-01,2099-01-01,ED42 Maidstone & Medway,KAC,EV,1.0

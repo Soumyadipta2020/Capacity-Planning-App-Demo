@@ -1,5 +1,5 @@
 /**
- * British Gas Capacity Planning Platform - Modern Fluid React Application
+ * Field Capacity Planning Platform - Modern Fluid React Application
  * Re-skinned with modern SVG icons, glowing hover effects, and 100% full-bleed edge-to-edge layout.
  */
 
@@ -1144,7 +1144,7 @@ function ModernCapacityApp() {
                 </div>
             )}
 
-            {/* WHITE & BRITISH GAS BLUE SIDEBAR (FLUSH TO LEFT EDGE: 0 MARGIN) */}
+            {/* WHITE & ENTERPRISE BLUE SIDEBAR (FLUSH TO LEFT EDGE: 0 MARGIN) */}
             <aside className={`flex flex-col transition-all duration-300 z-30 flex-shrink-0 h-full ${
                 isDarkMode 
                     ? 'bg-[#060b17] border-r border-[#18365d] shadow-[4px_0_24px_rgba(2,6,23,0.6)]' 
@@ -4025,103 +4025,103 @@ const ALL_INPUT_CATEGORIES = [
 const SCHEMA_VALIDATION_RULES = {
     resource_plan: {
         label: "Resource Plan",
-        required: ["status", "skill", "allocation"],
-        desc: "Requires Status, Skill, Allocation columns"
+        required: ["status", "pay id", "labour type", "wmis", "skill", "allocation"],
+        desc: "Requires Status, Pay Id, Labour Type, Wmis, Skill, Allocation columns"
     },
     fte_transfer: {
         label: "FTE transfer",
-        required: ["from", "to", "fte"],
-        desc: "Requires From, To, FTE columns"
+        required: ["present patch", "start date", "future patch", "outgoing skill", "incoming skill", "fte"],
+        desc: "Requires Present Patch, Start Date, Future Patch, Outgoing Skill, Incoming Skill, Fte columns"
     },
     recruitment_grounded: {
         label: "Recruitment grounded",
-        required: ["cohort", "headcount"],
-        desc: "Requires Cohort, Headcount columns"
+        required: ["discipline", "journey", "classlist", "induction date", "go live date", "area code"],
+        desc: "Requires Discipline, Journey, Classlist, Induction Date, Go Live Date, Area Code columns"
     },
     recruitment_ungrounded: {
         label: "Recruitment ungrounded",
-        required: ["cohort", "headcount"],
-        desc: "Requires Cohort, Headcount columns"
+        required: ["area code", "patch", "position", "id cohort", "start date", "fte"],
+        desc: "Requires Area Code, Patch, Position, Id Cohort, Start Date, Fte columns"
     },
     baseline_assumptions: {
         label: "Baseline assumptions",
-        required: ["metric", "value"],
-        desc: "Requires Metric, Value columns"
+        required: ["patch", "skill", "metric", "weekcomm", "values"],
+        desc: "Requires Patch, Skill, Metric, Weekcomm, Values columns"
     },
     downtime_overlays_percentage: {
         label: "Downtime Overlays Percentage",
-        required: ["patch", "skill", "values"],
-        desc: "Requires patch, skill, values columns"
+        required: ["patch", "skill", "metric", "level2", "weekcomm", "values"],
+        desc: "Requires patch, skill, metric, level2, weekcomm, values columns"
     },
     downtime_overlays_hours: {
         label: "Downtime Overlays Hours",
-        required: ["patch", "skill", "values"],
-        desc: "Requires patch, skill, values columns"
+        required: ["patch", "skill", "metric", "level2", "weekcomm", "values"],
+        desc: "Requires patch, skill, metric, level2, weekcomm, values columns"
     },
     downtime_overlays_hours_fte: {
         label: "Downtime Overlays Hours/FTE",
-        required: ["patch", "skill", "values"],
-        desc: "Requires patch, skill, values columns"
+        required: ["patch", "skill", "metric", "level2", "period", "weekcomm", "values"],
+        desc: "Requires patch, skill, metric, level2, period, weekcomm, values columns"
     },
     overtime: {
         label: "Overtime",
-        required: ["rate", "cap"],
-        desc: "Requires Rate, Cap columns"
+        required: ["patch", "skill", "weekcomm", "values"],
+        desc: "Requires Patch, Skill, Weekcomm, Values columns"
     },
     baseline_productivity: {
         label: "Baseline productivity",
-        required: ["skill", "rate"],
-        desc: "Requires Skill, Rate columns"
+        required: ["patch", "skill", "weekcomm", "values"],
+        desc: "Requires Patch, Skill, Weekcomm, Values columns"
     },
     training_snm: {
         label: "Training SNM",
-        required: ["course", "attendees"],
-        desc: "Requires Course, Attendees columns"
+        required: ["patch", "skill", "weekcomm", "values"],
+        desc: "Requires Patch, Skill, Weekcomm, Values columns"
     },
     ctr_capacity: {
         label: "CTR Capacity",
-        required: ["agency", "contractors"],
-        desc: "Requires Agency, Contractors columns"
+        required: ["patch", "skill", "sp", "utilisation", "weekcomm", "values"],
+        desc: "Requires Patch, Skill, Sp, Utilisation, Weekcomm, Values columns"
     },
     demand_input: {
         label: "Demand input",
-        required: ["patch", "skill", "work code"],
-        desc: "Requires Patch, Skill, Work Code columns"
+        required: ["region code", "area code", "patch", "skill", "type", "work code", "product", "weekcomm", "values"],
+        desc: "Requires Region Code, Area Code, Patch, Skill, Type, Work Code, Product, Weekcomm, Values columns"
     },
     job_time_assumptions: {
         label: "Job time assumptions",
-        required: ["patch", "work code", "values"],
-        desc: "Requires Patch, Work Code, Values columns"
+        required: ["patch", "work code", "skill", "weekcomm", "values"],
+        desc: "Requires Patch, Work Code, Skill, Weekcomm, Values columns"
     },
     hec_on_kac_demand: {
         label: "HEC on KAC Demand",
-        required: ["skill", "support", "ratio"],
-        desc: "Requires Skill, Support, Ratio columns"
+        required: ["patch", "weekcomm", "values"],
+        desc: "Requires Patch, Weekcomm, Values columns"
     },
     hec_on_ev_demand: {
         label: "HEC on EV Demand",
-        required: ["skill", "support", "ratio"],
-        desc: "Requires Skill, Support, Ratio columns"
+        required: ["patch", "weekcomm", "values"],
+        desc: "Requires Patch, Weekcomm, Values columns"
     },
     attrition: {
         label: "Attrition",
-        required: ["region code", "skill", "values"],
-        desc: "Requires Region Code, Skill, Values columns"
+        required: ["region code", "skill", "weekcomm", "values"],
+        desc: "Requires Region Code, Skill, Weekcomm, Values columns"
     },
     recruitment_config: {
         label: "Recruitment",
-        required: ["week", "ramp"],
-        desc: "Requires Week, Ramp columns"
+        required: ["skill", "type", "weeknum", "values"],
+        desc: "Requires Skill, Type, Weeknum, Values columns"
     },
     geography_mapping: {
         label: "Geography mapping",
-        required: ["region", "acdm", "territory"],
-        desc: "Requires Region, ACDM, territory columns"
+        required: ["region code", "region", "area code", "patch", "patch name"],
+        desc: "Requires Region Code, Region, Area Code, Patch, Patch Name columns"
     },
     week_to_month: {
         label: "Week to month",
-        required: ["weekcomm", "calendar month"],
-        desc: "Requires Weekcomm, Calendar Month columns"
+        required: ["month", "week", "day", "weekcomm", "england percentage", "scotland percentage"],
+        desc: "Requires Month, Week, Day, Weekcomm, England Percentage, Scotland Percentage columns"
     },
     actuals_input: {
         label: "Actuals input",
@@ -4707,47 +4707,47 @@ const TEMPLATE_DEFINITIONS = {
         filename: "resource_plan_template.csv",
         group: "Capacity",
         desc: "Engineer headcount, allocations, skills (HEC, KAC, EV), and employment status.",
-        requiredCols: ["status", "skill", "allocation"],
-        csvContent: "Status,Pay Id,Labour Type,Wmis,Skill,Allocation,New Starter,Left Date\nActive,EMP00124,Direct,WM01,HEC,1.0,2024-01-15,\nActive,EMP00189,Direct,WM02,KAC,1.0,2023-06-01,\nActive,EMP00245,Contractor,WM01,EV,0.8,2025-02-01,"
+        requiredCols: ["status", "pay id", "skill", "allocation"],
+        csvContent: "Status,Pay Id,Labour Type,Wmis,Skill,Allocation,New Starter,Left Date,Future Move Date,Hec Fte,Hours,Up Date\nActive,EMP00124,Direct,WM01,HEC,1.0,2024-01-15,,2026-12-01,1.0,37.5,2026-10-05\nActive,EMP00189,Direct,WM02,KAC,1.0,2023-06-01,,,1.0,37.5,2026-10-05\nActive,EMP00245,Contractor,WM01,EV,0.8,2025-02-01,,2027-01-15,0.8,30.0,2026-10-05"
     },
     fte_transfer: {
         label: "FTE transfer",
         filename: "fte_transfer_template.csv",
         group: "Capacity",
         desc: "Inter-patch mutual aid resource transfers and rebalancing adjustments.",
-        requiredCols: ["from", "to", "fte"],
-        csvContent: "From,To,FTE\nEB12 Altrincham,EC91 Leicester,2.5\nEA12 Aberdeen North,EA11 Inverness & Aviemore,1.0\nED22 Cobham & Heathrow,ED41 Bromley & Dartford,1.5"
+        requiredCols: ["present patch", "future patch", "fte"],
+        csvContent: "Present Patch,Start Date,End Date,Future Patch,Outgoing Skill,Incoming Skill,Fte\nEB12 Altrincham,2026-10-05,2026-12-31,EC91 Leicester,HEC,HEC,2.5\nEA12 Aberdeen North,2026-10-05,2027-01-15,EA11 Inverness & Aviemore,KAC,KAC,1.0\nED22 Cobham & Heathrow,2026-10-05,2026-11-30,ED41 Bromley & Dartford,EV,EV,1.5"
     },
     recruitment_grounded: {
         label: "Recruitment grounded",
         filename: "recruitment_grounded_template.csv",
         group: "Capacity",
         desc: "Committed direct hire cohorts and apprentice intakes with confirmed dates.",
-        requiredCols: ["cohort", "headcount"],
-        csvContent: "Cohort,Headcount\nCohort_2026_Q3_Direct,15\nCohort_2026_Q3_Apprentice,22\nCohort_2026_Q4_Direct,10"
+        requiredCols: ["discipline", "induction date", "go live date", "area code"],
+        csvContent: "Discipline,Journey,Classlist,Induction Date,Go Live Date,Sap Pay Number,Class List Status,Workday Status,Ward,Area Code\nHEC,Direct,CL2026_01,2026-10-05,2026-11-16,SAP9001,Confirmed,Active,W01,B1\nKAC,Apprentice,CL2026_02,2026-10-12,2026-12-01,SAP9002,Confirmed,Active,W02,C2\nEV,Direct,CL2026_03,2026-10-19,2026-12-08,SAP9003,Planned,Pending,W03,D1"
     },
     recruitment_ungrounded: {
         label: "Recruitment ungrounded",
         filename: "recruitment_ungrounded_template.csv",
         group: "Capacity",
         desc: "Uncommitted upside talent pipeline and contingent agency staffing buffers.",
-        requiredCols: ["cohort", "headcount"],
-        csvContent: "Cohort,Headcount\nPipeline_Upside_HEC,12\nPipeline_Upside_KAC,8\nPipeline_Buffer_EV,5"
+        requiredCols: ["area code", "patch", "start date", "fte"],
+        csvContent: "Area Code,Patch,Position,Pay Id,Id Cohort,Start Date,End Date,Fte,Fq,Trainee,Cross Skill,Apprentice\nB1,EB12 Altrincham,Engineer,PAY8001,COH_01,2026-10-05,2027-03-31,1.0,1.0,0,0,0\nC2,EC91 Leicester,Senior Tech,PAY8002,COH_02,2026-10-12,2027-03-31,1.0,1.0,0,1,0\nD1,ED44 Canterbury & Dover,Trainee,PAY8003,COH_03,2026-10-19,2027-03-31,1.0,0.5,1,0,1"
     },
     baseline_assumptions: {
         label: "Baseline assumptions",
         filename: "baseline_assumptions_template.csv",
         group: "Capacity",
         desc: "Core planning assumptions: contractual weekly hours, efficiency multipliers.",
-        requiredCols: ["metric", "value"],
-        csvContent: "Metric,Value\nWeekly_Contractual_Hours,37.5\nProductive_Hours_Ratio,0.885\nDirect_Labor_Efficiency,0.92\nOvertime_Cost_Multiplier,1.5"
+        requiredCols: ["patch", "skill", "metric", "weekcomm", "values"],
+        csvContent: "Patch,Skill,Metric,Weekcomm,Values\nEB12 Altrincham,HEC,Contractual_Hours,2026-10-05,37.5\nEB12 Altrincham,HEC,Direct_Labor_Efficiency,2026-10-05,0.92\nEC91 Leicester,KAC,Contractual_Hours,2026-10-05,37.5\nED44 Canterbury & Dover,EV,Contractual_Hours,2026-10-05,37.5"
     },
     downtime_overlays_percentage: {
         label: "Downtime Overlays Percentage",
         filename: "downtime_overlays_percentage_template.csv",
         group: "Capacity",
         desc: "Percentage downtime adjustments: sickness, non-productive time, meetings.",
-        requiredCols: ["patch", "skill", "values"],
+        requiredCols: ["patch", "skill", "metric", "values"],
         csvContent: "patch,skill,metric,level2,weekcomm,values\nEB12 Altrincham,HEC,Sickness,Short-term,2026-10-05,0.045\nEC91 Leicester,KAC,Training,Compliance,2026-10-05,0.030\nED44 Canterbury & Dover,EV,Annual Leave,Peak,2026-10-05,0.080"
     },
     downtime_overlays_hours: {
@@ -4755,7 +4755,7 @@ const TEMPLATE_DEFINITIONS = {
         filename: "downtime_overlays_hours_template.csv",
         group: "Capacity",
         desc: "Absolute downtime hour deductions (e.g. stand-down, national briefings).",
-        requiredCols: ["patch", "skill", "values"],
+        requiredCols: ["patch", "skill", "metric", "values"],
         csvContent: "patch,skill,metric,level2,weekcomm,values\nEB12 Altrincham,HEC,StandDown,Safety,2026-10-05,4.5\nEC91 Leicester,KAC,Technical Briefing,National,2026-10-05,2.0\nED44 Canterbury & Dover,EV,Toolbox Talk,Local,2026-10-05,1.5"
     },
     downtime_overlays_hours_fte: {
@@ -4763,47 +4763,47 @@ const TEMPLATE_DEFINITIONS = {
         filename: "downtime_overlays_hours_fte_template.csv",
         group: "Capacity",
         desc: "Per-engineer downtime overlays (e.g. SNM training, localized coaching).",
-        requiredCols: ["patch", "skill", "values"],
-        csvContent: "patch,skill,metric,level2,weekcomm,values\nEB12 Altrincham,HEC,TrainingOverlay,SNM,2026-10-05,1.8\nEC91 Leicester,KAC,TrainingOverlay,HeatPump,2026-10-05,2.2\nED44 Canterbury & Dover,EV,TrainingOverlay,ChargerInstallation,2026-10-05,1.5"
+        requiredCols: ["patch", "skill", "metric", "values"],
+        csvContent: "patch,skill,metric,level2,period,weekcomm,values\nEB12 Altrincham,HEC,TrainingOverlay,SNM,P07,2026-10-05,1.8\nEC91 Leicester,KAC,TrainingOverlay,HeatPump,P07,2026-10-05,2.2\nED44 Canterbury & Dover,EV,TrainingOverlay,ChargerInstallation,P07,2026-10-05,1.5"
     },
     overtime: {
         label: "Overtime",
         filename: "overtime_template.csv",
         group: "Capacity",
         desc: "Authorized overtime caps, hourly wage rates, and weekend multipliers.",
-        requiredCols: ["rate", "cap"],
-        csvContent: "Rate,Cap\nStandard_Overtime_Rate,1.5\nMax_Weekly_Overtime_Hours_Cap,12.0\nWeekend_Emergency_Rate,2.0"
+        requiredCols: ["patch", "skill", "weekcomm", "values"],
+        csvContent: "Patch,Skill,Weekcomm,Values\nEB12 Altrincham,HEC,2026-10-05,12.5\nEC91 Leicester,KAC,2026-10-05,10.0\nED44 Canterbury & Dover,EV,2026-10-05,8.0"
     },
     baseline_productivity: {
         label: "Baseline productivity",
         filename: "baseline_productivity_template.csv",
         group: "Capacity",
         desc: "Productivity rates by skill tier (standard completed jobs per engineer shift).",
-        requiredCols: ["skill", "rate"],
-        csvContent: "Skill,Rate\nHEC,4.2\nKAC,3.8\nEV,2.9"
+        requiredCols: ["patch", "skill", "weekcomm", "values"],
+        csvContent: "Patch,Skill,Weekcomm,Values\nEB12 Altrincham,HEC,2026-10-05,4.2\nEC91 Leicester,KAC,2026-10-05,3.8\nED44 Canterbury & Dover,EV,2026-10-05,2.9"
     },
     training_snm: {
         label: "Training SNM",
         filename: "training_snm_template.csv",
         group: "Capacity",
         desc: "Scheduled Smart Meter (SNM) and technical certification cohorts and attendees.",
-        requiredCols: ["course", "attendees"],
-        csvContent: "Course,Attendees\nSNM_Core_Safety_P07,24\nHeat_Pump_Diagnostic_Cert,18\nSmart_Meter_V3_Ramp,12"
+        requiredCols: ["patch", "skill", "weekcomm", "values"],
+        csvContent: "Patch,Skill,Weekcomm,Values\nEB12 Altrincham,HEC,2026-10-05,6.0\nEC91 Leicester,KAC,2026-10-05,4.5\nED44 Canterbury & Dover,EV,2026-10-05,5.0"
     },
     ctr_capacity: {
         label: "CTR Capacity",
         filename: "ctr_capacity_template.csv",
         group: "Capacity",
         desc: "Third-party agency and CTR contingent contractor capacity allocations.",
-        requiredCols: ["agency", "contractors"],
-        csvContent: "Agency,Contractors\nRandstad_Technical_UK,14\nAdecco_Field_Services,8\nHays_Engineering_Direct,11"
+        requiredCols: ["patch", "skill", "sp", "weekcomm", "values"],
+        csvContent: "Patch,Skill,Sp,Utilisation,Weekcomm,Values\nEB12 Altrincham,HEC,Adecco,0.85,2026-10-05,15.0\nEC91 Leicester,KAC,Randstad,0.90,2026-10-05,10.0\nED44 Canterbury & Dover,EV,Hays,0.80,2026-10-05,12.0"
     },
     demand_input: {
         label: "Demand input",
         filename: "demand_input_template.csv",
         group: "Demand",
         desc: "Forecasted workload demand volume by UK patch, work code, and week.",
-        requiredCols: ["patch", "skill", "work code"],
+        requiredCols: ["region code", "area code", "patch", "skill", "work code", "weekcomm", "values"],
         csvContent: "Region Code,Area Code,Patch,Skill,Type,Work Code,Product,Weekcomm,Values\nB,B1,EB12 Altrincham,HEC,Forecast,W00,Central Heating,2026-10-05,340.5\nC,C2,EC91 Leicester,KAC,Forecast,W17,Boiler Breakdown,2026-10-05,420.0\nD,D1,ED44 Canterbury & Dover,EV,Forecast,W31,EV Charging,2026-10-05,185.0"
     },
     job_time_assumptions: {
@@ -4811,7 +4811,7 @@ const TEMPLATE_DEFINITIONS = {
         filename: "job_time_assumptions_template.csv",
         group: "Demand",
         desc: "Standard job duration assumptions per work category and skill discipline.",
-        requiredCols: ["patch", "work code", "values"],
+        requiredCols: ["patch", "work code", "skill", "weekcomm", "values"],
         csvContent: "Patch,Work Code,Skill,Weekcomm,Values\nEB12 Altrincham,W00,HEC,2026-10-05,1.85\nEC91 Leicester,W17,KAC,2026-10-05,2.40\nED44 Canterbury & Dover,W31,EV,2026-10-05,3.10"
     },
     hec_on_kac_demand: {
@@ -4819,23 +4819,23 @@ const TEMPLATE_DEFINITIONS = {
         filename: "hec_on_kac_demand_template.csv",
         group: "Demand",
         desc: "Cross-skilling coverage ratios: HEC technicians supporting KAC work.",
-        requiredCols: ["skill", "support", "ratio"],
-        csvContent: "Skill,Support,Ratio\nHEC,KAC_Support,0.85\nHEC,KAC_Peak_Winter,0.92\nHEC,KAC_Weekend_Cover,0.75"
+        requiredCols: ["patch", "weekcomm", "values"],
+        csvContent: "Patch,Weekcomm,Values\nEB12 Altrincham,2026-10-05,0.85\nEC91 Leicester,2026-10-05,0.90\nED44 Canterbury & Dover,2026-10-05,0.75"
     },
     hec_on_ev_demand: {
         label: "HEC on EV Demand",
         filename: "hec_on_ev_demand_template.csv",
         group: "Demand",
         desc: "Cross-skilling coverage ratios: HEC engineers supporting EV charging jobs.",
-        requiredCols: ["skill", "support", "ratio"],
-        csvContent: "Skill,Support,Ratio\nHEC,EV_Commercial,0.65\nHEC,EV_Domestic_Wallbox,0.78\nHEC,EV_Urgent_Assistance,0.80"
+        requiredCols: ["patch", "weekcomm", "values"],
+        csvContent: "Patch,Weekcomm,Values\nEB12 Altrincham,2026-10-05,0.65\nEC91 Leicester,2026-10-05,0.70\nED44 Canterbury & Dover,2026-10-05,0.80"
     },
     attrition: {
         label: "Attrition",
         filename: "attrition_template.csv",
         group: "Config",
         desc: "Forecasted engineer retirement and leavers attrition rate by UK region.",
-        requiredCols: ["region code", "skill", "values"],
+        requiredCols: ["region code", "skill", "weekcomm", "values"],
         csvContent: "Region Code,Skill,Weekcomm,Values\nA,HEC,2026-10-05,0.012\nB,KAC,2026-10-05,0.018\nC,EV,2026-10-05,0.015"
     },
     recruitment_config: {
@@ -4843,24 +4843,24 @@ const TEMPLATE_DEFINITIONS = {
         filename: "recruitment_config_template.csv",
         group: "Config",
         desc: "New engineer learning curve, ramp-up timeline, and productivity ramp curve.",
-        requiredCols: ["week", "ramp"],
-        csvContent: "Week,Ramp\n1,0.25\n2,0.50\n3,0.75\n4,0.90\n5,1.00"
+        requiredCols: ["skill", "type", "weeknum", "values"],
+        csvContent: "Skill,Type,Weeknum,Values\nHEC,Direct,1,0.25\nHEC,Direct,2,0.50\nKAC,Apprentice,1,0.20\nEV,Direct,1,0.30"
     },
     geography_mapping: {
         label: "Geography mapping",
         filename: "geography_mapping_template.csv",
         group: "Config",
-        desc: "Master hierarchy mapping of British Gas territories to ACDM areas and operational Regions.",
-        requiredCols: ["region", "acdm", "territory"],
-        csvContent: "Region,ACDM,territory\nA,A1,EA11 Inverness & Aviemore\nA,A1,EA13 Dendee & Perth\nA,A2,EA21 Stirling & Falkirk\nB,B2,EB12 Altrincham\nC,C1,EC91 Leicester"
+        desc: "Master hierarchy mapping of operational territories to ACDM areas and operational Regions.",
+        requiredCols: ["region code", "region", "area code", "patch", "patch name"],
+        csvContent: "Region Code,Region,Area Code,Patch,Patch Name\nA,Scotland,A1,EA11,Inverness & Aviemore\nA,Scotland,A1,EA13,Dundee & Perth\nB,North,B1,EB12,Altrincham\nC,Midlands,C2,EC91,Leicester\nD,South,D1,ED44,Canterbury & Dover"
     },
     week_to_month: {
         label: "Week to month",
         filename: "week_to_month_template.csv",
         group: "Config",
-        desc: "Centrica financial 4-4-5 calendar mapping week commencement dates to periods.",
-        requiredCols: ["weekcomm", "calendar month"],
-        csvContent: "Weekcomm,Calendar Month,Fiscal Month,Fiscal Year,Weeks In Month\n2026-09-28,October,P07,FY26,4\n2026-10-05,October,P07,FY26,4\n2026-10-26,November,P08,FY26,4"
+        desc: "Centrica financial calendar mapping week commencement dates to months and holiday percentages.",
+        requiredCols: ["month", "week", "weekcomm", "england holiday", "scotland holiday"],
+        csvContent: "Month,Week,Day,Weekcomm,England Holiday,Scotland Holiday,England Percentage,Scotland Percentage\nOctober,1,Monday,2026-10-05,0,0,100,100\nOctober,2,Monday,2026-10-12,0,0,100,100\nOctober,3,Monday,2026-10-19,0,0,100,100"
     },
     actuals_input: {
         label: "Actuals input",
@@ -4890,7 +4890,7 @@ async function downloadAllTemplatesZip(showToast) {
     if (window.JSZip) {
         try {
             const zip = new window.JSZip();
-            const folder = zip.folder("british_gas_capacity_templates");
+            const folder = zip.folder("capacity_planning_templates");
             Object.keys(TEMPLATE_DEFINITIONS).forEach(key => {
                 const tmpl = TEMPLATE_DEFINITIONS[key];
                 folder.file(tmpl.filename, tmpl.csvContent);
@@ -4899,7 +4899,7 @@ async function downloadAllTemplatesZip(showToast) {
             const url = URL.createObjectURL(content);
             const link = document.createElement("a");
             link.href = url;
-            link.download = "British_Gas_Capacity_Templates_All_21.zip";
+            link.download = "Capacity_Planning_Templates_All_21.zip";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

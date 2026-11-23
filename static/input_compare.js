@@ -1,5 +1,5 @@
 /**
- * British Gas Capacity Planning Platform - Input File Comparison Module
+ * Field Capacity Planning Platform - Input File Comparison Module
  * Provides comprehensive tabular & graphical comparison between any two versions
  * of operational input files (User Uploaded vs ML Model Forecasts vs Governance Baselines).
  */

@@ -1,349 +1,1045 @@
-Course,Skill,Region,Weekcomm,Attendees,Hours,Location
-SNM Tier 2 Academy,HEC,A,2026-09-14,29,114.1,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,C,2026-09-14,10,38.69,Leeds Technical Academy
-SNM Tier 2 Academy,EV,B,2026-09-14,17,66.9,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,A,2026-09-14,14,52.6,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,A,2026-09-14,26,99.54,Dartford Green Hub
-EV Level 3 Fast-Track,EV,D,2026-09-14,28,109.0,Dartford Green Hub
-Heat Pump Certification,HEC,A,2026-09-14,11,42.87,Leicester Energy Hub
-Heat Pump Certification,KAC,B,2026-09-14,12,46.0,Leicester Energy Hub
-Heat Pump Certification,EV,E,2026-09-14,16,64.96,Leicester Energy Hub
-Gas Safety Refresher,HEC,A,2026-09-14,29,107.37,Edinburgh Academy
-Gas Safety Refresher,KAC,B,2026-09-14,28,101.75,Edinburgh Academy
-Gas Safety Refresher,EV,E,2026-09-14,30,109.02,Edinburgh Academy
-SNM Tier 2 Academy,HEC,B,2026-09-21,23,87.31,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,E,2026-09-21,24,92.0,Leeds Technical Academy
-SNM Tier 2 Academy,EV,A,2026-09-21,19,66.14,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,D,2026-09-21,15,58.37,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,C,2026-09-21,20,76.0,Dartford Green Hub
-EV Level 3 Fast-Track,EV,B,2026-09-21,14,54.43,Dartford Green Hub
-Heat Pump Certification,HEC,A,2026-09-21,20,73.0,Leicester Energy Hub
-Heat Pump Certification,KAC,D,2026-09-21,12,44.0,Leicester Energy Hub
-Heat Pump Certification,EV,C,2026-09-21,14,49.14,Leicester Energy Hub
-Gas Safety Refresher,HEC,E,2026-09-21,22,80.34,Edinburgh Academy
-Gas Safety Refresher,KAC,A,2026-09-21,19,66.12,Edinburgh Academy
-Gas Safety Refresher,EV,E,2026-09-21,23,90.0,Edinburgh Academy
-SNM Tier 2 Academy,HEC,D,2026-09-28,13,49.74,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,E,2026-09-28,12,45.0,Leeds Technical Academy
-SNM Tier 2 Academy,EV,E,2026-09-28,19,73.22,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,E,2026-09-28,21,79.37,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,A,2026-09-28,16,59.0,Dartford Green Hub
-EV Level 3 Fast-Track,EV,B,2026-09-28,11,40.15,Dartford Green Hub
-Heat Pump Certification,HEC,A,2026-09-28,19,70.26,Leicester Energy Hub
-Heat Pump Certification,KAC,A,2026-09-28,17,65.17,Leicester Energy Hub
-Heat Pump Certification,EV,C,2026-09-28,21,79.84,Leicester Energy Hub
-Gas Safety Refresher,HEC,C,2026-09-28,25,87.0,Edinburgh Academy
-Gas Safety Refresher,KAC,C,2026-09-28,15,56.24,Edinburgh Academy
-Gas Safety Refresher,EV,B,2026-09-28,21,76.76,Edinburgh Academy
-SNM Tier 2 Academy,HEC,A,2026-10-05,19,68.0,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,B,2026-10-05,29,111.74,Leeds Technical Academy
-SNM Tier 2 Academy,EV,B,2026-10-05,26,104.78,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,D,2026-10-05,15,55.11,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,C,2026-10-05,21,81.61,Dartford Green Hub
-EV Level 3 Fast-Track,EV,E,2026-10-05,30,114.11,Dartford Green Hub
-Heat Pump Certification,HEC,C,2026-10-05,17,62.32,Leicester Energy Hub
-Heat Pump Certification,KAC,B,2026-10-05,11,39.78,Leicester Energy Hub
-Heat Pump Certification,EV,C,2026-10-05,11,40.53,Leicester Energy Hub
-Gas Safety Refresher,HEC,C,2026-10-05,23,84.88,Edinburgh Academy
-Gas Safety Refresher,KAC,B,2026-10-05,12,46.0,Edinburgh Academy
-Gas Safety Refresher,EV,C,2026-10-05,29,102.0,Edinburgh Academy
-SNM Tier 2 Academy,HEC,D,2026-10-12,16,60.0,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,D,2026-10-12,22,84.72,Leeds Technical Academy
-SNM Tier 2 Academy,EV,C,2026-10-12,14,52.67,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,B,2026-10-12,14,51.01,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,E,2026-10-12,27,100.46,Dartford Green Hub
-EV Level 3 Fast-Track,EV,E,2026-10-12,18,68.71,Dartford Green Hub
-Heat Pump Certification,HEC,E,2026-10-12,22,87.97,Leicester Energy Hub
-Heat Pump Certification,KAC,C,2026-10-12,22,81.4,Leicester Energy Hub
-Heat Pump Certification,EV,B,2026-10-12,17,66.37,Leicester Energy Hub
-Gas Safety Refresher,HEC,D,2026-10-12,27,94.83,Edinburgh Academy
-Gas Safety Refresher,KAC,A,2026-10-12,12,46.0,Edinburgh Academy
-Gas Safety Refresher,EV,B,2026-10-12,13,50.42,Edinburgh Academy
-SNM Tier 2 Academy,HEC,B,2026-10-19,30,115.44,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,E,2026-10-19,23,89.06,Leeds Technical Academy
-SNM Tier 2 Academy,EV,D,2026-10-19,12,45.0,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,E,2026-10-19,22,81.44,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,E,2026-10-19,25,88.0,Dartford Green Hub
-EV Level 3 Fast-Track,EV,E,2026-10-19,17,66.57,Dartford Green Hub
-Heat Pump Certification,HEC,A,2026-10-19,10,36.5,Leicester Energy Hub
-Heat Pump Certification,KAC,C,2026-10-19,28,105.74,Leicester Energy Hub
-Heat Pump Certification,EV,C,2026-10-19,31,114.83,Leicester Energy Hub
-Gas Safety Refresher,HEC,C,2026-10-19,13,47.04,Edinburgh Academy
-Gas Safety Refresher,KAC,B,2026-10-19,22,89.13,Edinburgh Academy
-Gas Safety Refresher,EV,A,2026-10-19,25,91.0,Edinburgh Academy
-SNM Tier 2 Academy,HEC,E,2026-10-26,17,67.08,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,E,2026-10-26,15,55.11,Leeds Technical Academy
-SNM Tier 2 Academy,EV,C,2026-10-26,13,49.15,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,E,2026-10-26,31,112.65,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,B,2026-10-26,28,111.62,Dartford Green Hub
-EV Level 3 Fast-Track,EV,C,2026-10-26,14,54.33,Dartford Green Hub
-Heat Pump Certification,HEC,E,2026-10-26,15,57.85,Leicester Energy Hub
-Heat Pump Certification,KAC,A,2026-10-26,26,101.85,Leicester Energy Hub
-Heat Pump Certification,EV,C,2026-10-26,29,105.1,Leicester Energy Hub
-Gas Safety Refresher,HEC,A,2026-10-26,26,90.61,Edinburgh Academy
-Gas Safety Refresher,KAC,C,2026-10-26,13,49.69,Edinburgh Academy
-Gas Safety Refresher,EV,B,2026-10-26,19,71.51,Edinburgh Academy
-SNM Tier 2 Academy,HEC,B,2026-11-02,11,40.63,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,A,2026-11-02,28,105.0,Leeds Technical Academy
-SNM Tier 2 Academy,EV,D,2026-11-02,12,44.0,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,E,2026-11-02,12,46.0,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,B,2026-11-02,14,51.8,Dartford Green Hub
-EV Level 3 Fast-Track,EV,E,2026-11-02,26,98.13,Dartford Green Hub
-Heat Pump Certification,HEC,C,2026-11-02,15,57.84,Leicester Energy Hub
-Heat Pump Certification,KAC,E,2026-11-02,25,101.78,Leicester Energy Hub
-Heat Pump Certification,EV,B,2026-11-02,23,87.95,Leicester Energy Hub
-Gas Safety Refresher,HEC,B,2026-11-02,26,100.52,Edinburgh Academy
-Gas Safety Refresher,KAC,D,2026-11-02,19,71.83,Edinburgh Academy
-Gas Safety Refresher,EV,C,2026-11-02,31,114.41,Edinburgh Academy
-SNM Tier 2 Academy,HEC,E,2026-11-09,24,87.0,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,A,2026-11-09,23,90.0,Leeds Technical Academy
-SNM Tier 2 Academy,EV,B,2026-11-09,18,66.97,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,C,2026-11-09,12,46.0,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,E,2026-11-09,10,37.26,Dartford Green Hub
-EV Level 3 Fast-Track,EV,B,2026-11-09,26,105.95,Dartford Green Hub
-Heat Pump Certification,HEC,B,2026-11-09,28,109.0,Leicester Energy Hub
-Heat Pump Certification,KAC,A,2026-11-09,10,36.1,Leicester Energy Hub
-Heat Pump Certification,EV,A,2026-11-09,30,108.46,Leicester Energy Hub
-Gas Safety Refresher,HEC,A,2026-11-09,17,64.65,Edinburgh Academy
-Gas Safety Refresher,KAC,C,2026-11-09,11,41.46,Edinburgh Academy
-Gas Safety Refresher,EV,E,2026-11-09,12,46.0,Edinburgh Academy
-SNM Tier 2 Academy,HEC,C,2026-11-16,17,65.2,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,B,2026-11-16,24,93.26,Leeds Technical Academy
-SNM Tier 2 Academy,EV,B,2026-11-16,28,102.53,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,E,2026-11-16,27,110.0,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,B,2026-11-16,24,97.56,Dartford Green Hub
-EV Level 3 Fast-Track,EV,D,2026-11-16,25,98.43,Dartford Green Hub
-Heat Pump Certification,HEC,A,2026-11-16,16,58.0,Leicester Energy Hub
-Heat Pump Certification,KAC,D,2026-11-16,13,49.42,Leicester Energy Hub
-Heat Pump Certification,EV,D,2026-11-16,21,78.05,Leicester Energy Hub
-Gas Safety Refresher,HEC,D,2026-11-16,24,86.66,Edinburgh Academy
-Gas Safety Refresher,KAC,A,2026-11-16,11,40.16,Edinburgh Academy
-Gas Safety Refresher,EV,D,2026-11-16,11,40.47,Edinburgh Academy
-SNM Tier 2 Academy,HEC,A,2026-11-23,21,77.0,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,B,2026-11-23,17,61.41,Leeds Technical Academy
-SNM Tier 2 Academy,EV,E,2026-11-23,16,60.0,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,B,2026-11-23,24,88.0,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,B,2026-11-23,24,89.42,Dartford Green Hub
-EV Level 3 Fast-Track,EV,D,2026-11-23,18,68.07,Dartford Green Hub
-Heat Pump Certification,HEC,A,2026-11-23,17,61.82,Leicester Energy Hub
-Heat Pump Certification,KAC,E,2026-11-23,24,94.0,Leicester Energy Hub
-Heat Pump Certification,EV,A,2026-11-23,13,49.33,Leicester Energy Hub
-Gas Safety Refresher,HEC,E,2026-11-23,31,109.6,Edinburgh Academy
-Gas Safety Refresher,KAC,A,2026-11-23,10,39.12,Edinburgh Academy
-Gas Safety Refresher,EV,B,2026-11-23,17,61.4,Edinburgh Academy
-SNM Tier 2 Academy,HEC,D,2026-11-30,23,85.6,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,B,2026-11-30,24,96.16,Leeds Technical Academy
-SNM Tier 2 Academy,EV,A,2026-11-30,22,80.13,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,D,2026-11-30,16,56.67,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,D,2026-11-30,10,39.23,Dartford Green Hub
-EV Level 3 Fast-Track,EV,D,2026-11-30,18,68.26,Dartford Green Hub
-Heat Pump Certification,HEC,D,2026-11-30,20,74.01,Leicester Energy Hub
-Heat Pump Certification,KAC,D,2026-11-30,26,98.83,Leicester Energy Hub
-Heat Pump Certification,EV,B,2026-11-30,14,54.09,Leicester Energy Hub
-Gas Safety Refresher,HEC,B,2026-11-30,20,73.33,Edinburgh Academy
-Gas Safety Refresher,KAC,E,2026-11-30,11,42.31,Edinburgh Academy
-Gas Safety Refresher,EV,A,2026-11-30,28,97.79,Edinburgh Academy
-SNM Tier 2 Academy,HEC,A,2026-12-07,20,72.0,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,E,2026-12-07,11,40.84,Leeds Technical Academy
-SNM Tier 2 Academy,EV,E,2026-12-07,26,93.3,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,B,2026-12-07,27,95.74,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,E,2026-12-07,11,42.91,Dartford Green Hub
-EV Level 3 Fast-Track,EV,B,2026-12-07,12,44.0,Dartford Green Hub
-Heat Pump Certification,HEC,E,2026-12-07,12,46.0,Leicester Energy Hub
-Heat Pump Certification,KAC,B,2026-12-07,12,45.0,Leicester Energy Hub
-Heat Pump Certification,EV,A,2026-12-07,21,86.16,Leicester Energy Hub
-Gas Safety Refresher,HEC,B,2026-12-07,28,104.0,Edinburgh Academy
-Gas Safety Refresher,KAC,E,2026-12-07,28,107.0,Edinburgh Academy
-Gas Safety Refresher,EV,E,2026-12-07,11,41.21,Edinburgh Academy
-SNM Tier 2 Academy,HEC,D,2026-12-14,12,46.0,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,E,2026-12-14,29,106.0,Leeds Technical Academy
-SNM Tier 2 Academy,EV,C,2026-12-14,27,98.87,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,B,2026-12-14,18,68.44,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,B,2026-12-14,21,75.0,Dartford Green Hub
-EV Level 3 Fast-Track,EV,D,2026-12-14,18,67.1,Dartford Green Hub
-Heat Pump Certification,HEC,C,2026-12-14,15,54.11,Leicester Energy Hub
-Heat Pump Certification,KAC,C,2026-12-14,24,92.0,Leicester Energy Hub
-Heat Pump Certification,EV,A,2026-12-14,12,47.0,Leicester Energy Hub
-Gas Safety Refresher,HEC,E,2026-12-14,24,93.0,Edinburgh Academy
-Gas Safety Refresher,KAC,A,2026-12-14,29,105.0,Edinburgh Academy
-Gas Safety Refresher,EV,E,2026-12-14,12,47.0,Edinburgh Academy
-SNM Tier 2 Academy,HEC,E,2026-12-21,15,60.0,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,B,2026-12-21,17,66.02,Leeds Technical Academy
-SNM Tier 2 Academy,EV,A,2026-12-21,20,80.11,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,C,2026-12-21,17,66.48,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,B,2026-12-21,19,70.76,Dartford Green Hub
-EV Level 3 Fast-Track,EV,E,2026-12-21,23,89.0,Dartford Green Hub
-Heat Pump Certification,HEC,E,2026-12-21,18,69.38,Leicester Energy Hub
-Heat Pump Certification,KAC,E,2026-12-21,29,112.14,Leicester Energy Hub
-Heat Pump Certification,EV,E,2026-12-21,10,38.47,Leicester Energy Hub
-Gas Safety Refresher,HEC,A,2026-12-21,18,73.09,Edinburgh Academy
-Gas Safety Refresher,KAC,C,2026-12-21,15,51.46,Edinburgh Academy
-Gas Safety Refresher,EV,A,2026-12-21,13,47.85,Edinburgh Academy
-SNM Tier 2 Academy,HEC,B,2026-12-28,27,105.94,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,C,2026-12-28,18,69.86,Leeds Technical Academy
-SNM Tier 2 Academy,EV,B,2026-12-28,30,109.77,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,B,2026-12-28,20,77.0,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,C,2026-12-28,30,116.41,Dartford Green Hub
-EV Level 3 Fast-Track,EV,D,2026-12-28,26,101.14,Dartford Green Hub
-Heat Pump Certification,HEC,A,2026-12-28,18,65.38,Leicester Energy Hub
-Heat Pump Certification,KAC,D,2026-12-28,12,46.0,Leicester Energy Hub
-Heat Pump Certification,EV,A,2026-12-28,18,66.63,Leicester Energy Hub
-Gas Safety Refresher,HEC,C,2026-12-28,10,36.31,Edinburgh Academy
-Gas Safety Refresher,KAC,C,2026-12-28,14,53.63,Edinburgh Academy
-Gas Safety Refresher,EV,D,2026-12-28,15,58.91,Edinburgh Academy
-SNM Tier 2 Academy,HEC,D,2027-01-04,26,104.17,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,A,2027-01-04,27,102.77,Leeds Technical Academy
-SNM Tier 2 Academy,EV,A,2027-01-04,13,48.55,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,E,2027-01-04,13,51.31,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,C,2027-01-04,11,39.87,Dartford Green Hub
-EV Level 3 Fast-Track,EV,E,2027-01-04,27,110.0,Dartford Green Hub
-Heat Pump Certification,HEC,D,2027-01-04,14,53.76,Leicester Energy Hub
-Heat Pump Certification,KAC,A,2027-01-04,14,53.43,Leicester Energy Hub
-Heat Pump Certification,EV,C,2027-01-04,19,70.44,Leicester Energy Hub
-Gas Safety Refresher,HEC,C,2027-01-04,11,41.05,Edinburgh Academy
-Gas Safety Refresher,KAC,B,2027-01-04,17,61.0,Edinburgh Academy
-Gas Safety Refresher,EV,C,2027-01-04,13,50.33,Edinburgh Academy
-SNM Tier 2 Academy,HEC,D,2027-01-11,28,99.68,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,B,2027-01-11,28,109.72,Leeds Technical Academy
-SNM Tier 2 Academy,EV,B,2027-01-11,17,62.85,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,D,2027-01-11,15,59.01,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,B,2027-01-11,10,38.64,Dartford Green Hub
-EV Level 3 Fast-Track,EV,D,2027-01-11,20,73.0,Dartford Green Hub
-Heat Pump Certification,HEC,C,2027-01-11,17,63.02,Leicester Energy Hub
-Heat Pump Certification,KAC,A,2027-01-11,14,55.35,Leicester Energy Hub
-Heat Pump Certification,EV,A,2027-01-11,22,83.96,Leicester Energy Hub
-Gas Safety Refresher,HEC,B,2027-01-11,26,91.29,Edinburgh Academy
-Gas Safety Refresher,KAC,D,2027-01-11,16,59.0,Edinburgh Academy
-Gas Safety Refresher,EV,C,2027-01-11,20,77.41,Edinburgh Academy
-SNM Tier 2 Academy,HEC,B,2027-01-18,18,65.67,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,B,2027-01-18,10,37.87,Leeds Technical Academy
-SNM Tier 2 Academy,EV,C,2027-01-18,22,83.46,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,A,2027-01-18,18,70.0,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,C,2027-01-18,17,69.38,Dartford Green Hub
-EV Level 3 Fast-Track,EV,E,2027-01-18,29,114.17,Dartford Green Hub
-Heat Pump Certification,HEC,E,2027-01-18,22,83.68,Leicester Energy Hub
-Heat Pump Certification,KAC,A,2027-01-18,20,77.0,Leicester Energy Hub
-Heat Pump Certification,EV,C,2027-01-18,13,49.55,Leicester Energy Hub
-Gas Safety Refresher,HEC,E,2027-01-18,15,55.57,Edinburgh Academy
-Gas Safety Refresher,KAC,A,2027-01-18,18,68.72,Edinburgh Academy
-Gas Safety Refresher,EV,E,2027-01-18,14,50.56,Edinburgh Academy
-SNM Tier 2 Academy,HEC,C,2027-01-25,23,87.49,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,D,2027-01-25,20,78.0,Leeds Technical Academy
-SNM Tier 2 Academy,EV,E,2027-01-25,30,112.46,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,D,2027-01-25,13,49.4,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,B,2027-01-25,28,110.0,Dartford Green Hub
-EV Level 3 Fast-Track,EV,A,2027-01-25,19,69.91,Dartford Green Hub
-Heat Pump Certification,HEC,A,2027-01-25,23,88.72,Leicester Energy Hub
-Heat Pump Certification,KAC,E,2027-01-25,26,96.75,Leicester Energy Hub
-Heat Pump Certification,EV,C,2027-01-25,16,61.0,Leicester Energy Hub
-Gas Safety Refresher,HEC,A,2027-01-25,22,85.39,Edinburgh Academy
-Gas Safety Refresher,KAC,E,2027-01-25,21,77.0,Edinburgh Academy
-Gas Safety Refresher,EV,A,2027-01-25,21,75.0,Edinburgh Academy
-SNM Tier 2 Academy,HEC,E,2027-02-01,20,71.51,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,D,2027-02-01,19,73.73,Leeds Technical Academy
-SNM Tier 2 Academy,EV,D,2027-02-01,20,74.0,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,E,2027-02-01,18,74.54,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,B,2027-02-01,15,54.93,Dartford Green Hub
-EV Level 3 Fast-Track,EV,D,2027-02-01,22,83.85,Dartford Green Hub
-Heat Pump Certification,HEC,E,2027-02-01,15,56.92,Leicester Energy Hub
-Heat Pump Certification,KAC,C,2027-02-01,28,109.0,Leicester Energy Hub
-Heat Pump Certification,EV,E,2027-02-01,21,85.95,Leicester Energy Hub
-Gas Safety Refresher,HEC,C,2027-02-01,10,36.95,Edinburgh Academy
-Gas Safety Refresher,KAC,B,2027-02-01,19,73.91,Edinburgh Academy
-Gas Safety Refresher,EV,E,2027-02-01,22,90.25,Edinburgh Academy
-SNM Tier 2 Academy,HEC,C,2027-02-08,30,111.74,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,D,2027-02-08,23,92.0,Leeds Technical Academy
-SNM Tier 2 Academy,EV,B,2027-02-08,25,92.0,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,D,2027-02-08,25,93.62,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,A,2027-02-08,14,55.84,Dartford Green Hub
-EV Level 3 Fast-Track,EV,E,2027-02-08,19,73.83,Dartford Green Hub
-Heat Pump Certification,HEC,E,2027-02-08,29,111.53,Leicester Energy Hub
-Heat Pump Certification,KAC,A,2027-02-08,21,74.0,Leicester Energy Hub
-Heat Pump Certification,EV,C,2027-02-08,16,63.33,Leicester Energy Hub
-Gas Safety Refresher,HEC,B,2027-02-08,18,61.89,Edinburgh Academy
-Gas Safety Refresher,KAC,A,2027-02-08,14,52.89,Edinburgh Academy
-Gas Safety Refresher,EV,B,2027-02-08,11,41.55,Edinburgh Academy
-SNM Tier 2 Academy,HEC,E,2027-02-15,24,91.96,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,D,2027-02-15,12,46.0,Leeds Technical Academy
-SNM Tier 2 Academy,EV,E,2027-02-15,23,88.03,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,D,2027-02-15,16,58.0,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,D,2027-02-15,26,93.76,Dartford Green Hub
-EV Level 3 Fast-Track,EV,B,2027-02-15,17,62.48,Dartford Green Hub
-Heat Pump Certification,HEC,A,2027-02-15,30,116.47,Leicester Energy Hub
-Heat Pump Certification,KAC,D,2027-02-15,13,48.76,Leicester Energy Hub
-Heat Pump Certification,EV,B,2027-02-15,17,66.32,Leicester Energy Hub
-Gas Safety Refresher,HEC,D,2027-02-15,26,94.24,Edinburgh Academy
-Gas Safety Refresher,KAC,E,2027-02-15,11,39.68,Edinburgh Academy
-Gas Safety Refresher,EV,A,2027-02-15,18,61.56,Edinburgh Academy
-SNM Tier 2 Academy,HEC,B,2027-02-22,23,93.0,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,E,2027-02-22,24,91.0,Leeds Technical Academy
-SNM Tier 2 Academy,EV,E,2027-02-22,27,105.2,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,D,2027-02-22,19,76.0,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,E,2027-02-22,29,107.49,Dartford Green Hub
-EV Level 3 Fast-Track,EV,E,2027-02-22,23,85.06,Dartford Green Hub
-Heat Pump Certification,HEC,B,2027-02-22,24,93.0,Leicester Energy Hub
-Heat Pump Certification,KAC,D,2027-02-22,25,95.56,Leicester Energy Hub
-Heat Pump Certification,EV,B,2027-02-22,18,65.19,Leicester Energy Hub
-Gas Safety Refresher,HEC,C,2027-02-22,30,115.16,Edinburgh Academy
-Gas Safety Refresher,KAC,D,2027-02-22,27,101.2,Edinburgh Academy
-Gas Safety Refresher,EV,B,2027-02-22,31,116.3,Edinburgh Academy
-SNM Tier 2 Academy,HEC,D,2027-03-01,18,65.92,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,C,2027-03-01,12,44.0,Leeds Technical Academy
-SNM Tier 2 Academy,EV,C,2027-03-01,17,65.48,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,C,2027-03-01,20,76.0,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,A,2027-03-01,27,105.03,Dartford Green Hub
-EV Level 3 Fast-Track,EV,B,2027-03-01,15,53.15,Dartford Green Hub
-Heat Pump Certification,HEC,D,2027-03-01,18,65.75,Leicester Energy Hub
-Heat Pump Certification,KAC,B,2027-03-01,15,51.72,Leicester Energy Hub
-Heat Pump Certification,EV,D,2027-03-01,12,44.0,Leicester Energy Hub
-Gas Safety Refresher,HEC,C,2027-03-01,23,89.3,Edinburgh Academy
-Gas Safety Refresher,KAC,D,2027-03-01,26,101.75,Edinburgh Academy
-Gas Safety Refresher,EV,A,2027-03-01,22,84.86,Edinburgh Academy
-SNM Tier 2 Academy,HEC,D,2027-03-08,16,60.0,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,E,2027-03-08,22,85.67,Leeds Technical Academy
-SNM Tier 2 Academy,EV,E,2027-03-08,10,39.24,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,D,2027-03-08,23,79.86,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,C,2027-03-08,10,37.14,Dartford Green Hub
-EV Level 3 Fast-Track,EV,D,2027-03-08,20,71.07,Dartford Green Hub
-Heat Pump Certification,HEC,E,2027-03-08,23,87.05,Leicester Energy Hub
-Heat Pump Certification,KAC,E,2027-03-08,28,102.0,Leicester Energy Hub
-Heat Pump Certification,EV,D,2027-03-08,17,65.61,Leicester Energy Hub
-Gas Safety Refresher,HEC,C,2027-03-08,17,63.8,Edinburgh Academy
-Gas Safety Refresher,KAC,D,2027-03-08,23,87.56,Edinburgh Academy
-Gas Safety Refresher,EV,D,2027-03-08,10,37.13,Edinburgh Academy
-SNM Tier 2 Academy,HEC,D,2027-03-15,20,79.0,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,D,2027-03-15,15,58.01,Leeds Technical Academy
-SNM Tier 2 Academy,EV,E,2027-03-15,14,51.74,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,A,2027-03-15,28,100.23,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,E,2027-03-15,23,80.75,Dartford Green Hub
-EV Level 3 Fast-Track,EV,A,2027-03-15,27,109.0,Dartford Green Hub
-Heat Pump Certification,HEC,D,2027-03-15,12,44.0,Leicester Energy Hub
-Heat Pump Certification,KAC,D,2027-03-15,14,54.12,Leicester Energy Hub
-Heat Pump Certification,EV,A,2027-03-15,15,57.49,Leicester Energy Hub
-Gas Safety Refresher,HEC,D,2027-03-15,18,65.56,Edinburgh Academy
-Gas Safety Refresher,KAC,B,2027-03-15,21,78.0,Edinburgh Academy
-Gas Safety Refresher,EV,C,2027-03-15,25,94.0,Edinburgh Academy
-SNM Tier 2 Academy,HEC,D,2027-03-22,20,72.0,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,D,2027-03-22,18,69.36,Leeds Technical Academy
-SNM Tier 2 Academy,EV,A,2027-03-22,19,66.1,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,A,2027-03-22,25,95.02,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,A,2027-03-22,28,101.37,Dartford Green Hub
-EV Level 3 Fast-Track,EV,B,2027-03-22,21,78.23,Dartford Green Hub
-Heat Pump Certification,HEC,A,2027-03-22,30,116.29,Leicester Energy Hub
-Heat Pump Certification,KAC,A,2027-03-22,29,110.84,Leicester Energy Hub
-Heat Pump Certification,EV,B,2027-03-22,10,37.91,Leicester Energy Hub
-Gas Safety Refresher,HEC,A,2027-03-22,17,59.0,Edinburgh Academy
-Gas Safety Refresher,KAC,B,2027-03-22,28,105.76,Edinburgh Academy
-Gas Safety Refresher,EV,B,2027-03-22,16,64.71,Edinburgh Academy
-SNM Tier 2 Academy,HEC,A,2027-03-29,26,94.81,Leeds Technical Academy
-SNM Tier 2 Academy,KAC,B,2027-03-29,29,104.0,Leeds Technical Academy
-SNM Tier 2 Academy,EV,C,2027-03-29,24,93.0,Leeds Technical Academy
-EV Level 3 Fast-Track,HEC,B,2027-03-29,20,80.21,Dartford Green Hub
-EV Level 3 Fast-Track,KAC,E,2027-03-29,29,104.99,Dartford Green Hub
-EV Level 3 Fast-Track,EV,B,2027-03-29,13,50.35,Dartford Green Hub
-Heat Pump Certification,HEC,A,2027-03-29,20,70.86,Leicester Energy Hub
-Heat Pump Certification,KAC,A,2027-03-29,29,109.0,Leicester Energy Hub
-Heat Pump Certification,EV,E,2027-03-29,20,69.91,Leicester Energy Hub
-Gas Safety Refresher,HEC,D,2027-03-29,23,85.22,Edinburgh Academy
-Gas Safety Refresher,KAC,A,2027-03-29,16,59.0,Edinburgh Academy
-Gas Safety Refresher,EV,B,2027-03-29,29,102.0,Edinburgh Academy
+Patch,Skill,Weekcomm,Values
+ED44 Canterbury & Dover,HEC,2026-09-14,1.0
+ED44 Canterbury & Dover,KAC,2026-09-14,1.0
+ED44 Canterbury & Dover,EV,2026-09-14,2.47
+EB12 Altrincham,HEC,2026-09-14,1.0
+EB12 Altrincham,KAC,2026-09-14,1.0
+EB12 Altrincham,EV,2026-09-14,1.0
+EC62 Essex East,HEC,2026-09-14,1.0
+EC62 Essex East,KAC,2026-09-14,7.79
+EC62 Essex East,EV,2026-09-14,1.0
+EB14 Stockport,HEC,2026-09-14,7.42
+EB14 Stockport,KAC,2026-09-14,5.0
+EB14 Stockport,EV,2026-09-14,1.0
+ED22 Cobham & Heathrow,HEC,2026-09-14,1.0
+ED22 Cobham & Heathrow,KAC,2026-09-14,1.0
+ED22 Cobham & Heathrow,EV,2026-09-14,1.0
+EA62 Blackpool & Lancaster,HEC,2026-09-14,1.0
+EA62 Blackpool & Lancaster,KAC,2026-09-14,7.4
+EA62 Blackpool & Lancaster,EV,2026-09-14,7.62
+EA62 Preston & Southport,HEC,2026-09-14,1.0
+EA62 Preston & Southport,KAC,2026-09-14,7.22
+EA62 Preston & Southport,EV,2026-09-14,1.0
+EB24 The Wirral,HEC,2026-09-14,7.7
+EB24 The Wirral,KAC,2026-09-14,5.0
+EB24 The Wirral,EV,2026-09-14,1.0
+EC91 Leicester,HEC,2026-09-14,5.0
+EC91 Leicester,KAC,2026-09-14,7.73
+EC91 Leicester,EV,2026-09-14,2.54
+ED41 Bromley & Dartford,HEC,2026-09-14,1.0
+ED41 Bromley & Dartford,KAC,2026-09-14,1.0
+ED41 Bromley & Dartford,EV,2026-09-14,5.0
+EB13 Manchester Centre,HEC,2026-09-14,2.52
+EB13 Manchester Centre,KAC,2026-09-14,2.53
+EB13 Manchester Centre,EV,2026-09-14,1.0
+EB12 Lancashire South,HEC,2026-09-14,1.0
+EB12 Lancashire South,KAC,2026-09-14,2.5
+EB12 Lancashire South,EV,2026-09-14,1.0
+ED44 Canterbury & Dover,HEC,2026-09-21,1.0
+ED44 Canterbury & Dover,KAC,2026-09-21,5.0
+ED44 Canterbury & Dover,EV,2026-09-21,1.0
+EB12 Altrincham,HEC,2026-09-21,2.5
+EB12 Altrincham,KAC,2026-09-21,2.42
+EB12 Altrincham,EV,2026-09-21,7.39
+EC62 Essex East,HEC,2026-09-21,2.54
+EC62 Essex East,KAC,2026-09-21,1.0
+EC62 Essex East,EV,2026-09-21,5.0
+EB14 Stockport,HEC,2026-09-21,7.67
+EB14 Stockport,KAC,2026-09-21,1.0
+EB14 Stockport,EV,2026-09-21,5.0
+ED22 Cobham & Heathrow,HEC,2026-09-21,1.0
+ED22 Cobham & Heathrow,KAC,2026-09-21,7.34
+ED22 Cobham & Heathrow,EV,2026-09-21,2.56
+EA62 Blackpool & Lancaster,HEC,2026-09-21,7.47
+EA62 Blackpool & Lancaster,KAC,2026-09-21,2.46
+EA62 Blackpool & Lancaster,EV,2026-09-21,7.63
+EA62 Preston & Southport,HEC,2026-09-21,1.0
+EA62 Preston & Southport,KAC,2026-09-21,1.0
+EA62 Preston & Southport,EV,2026-09-21,1.0
+EB24 The Wirral,HEC,2026-09-21,1.0
+EB24 The Wirral,KAC,2026-09-21,2.55
+EB24 The Wirral,EV,2026-09-21,1.0
+EC91 Leicester,HEC,2026-09-21,1.0
+EC91 Leicester,KAC,2026-09-21,1.0
+EC91 Leicester,EV,2026-09-21,5.0
+ED41 Bromley & Dartford,HEC,2026-09-21,2.48
+ED41 Bromley & Dartford,KAC,2026-09-21,5.0
+ED41 Bromley & Dartford,EV,2026-09-21,2.41
+EB13 Manchester Centre,HEC,2026-09-21,1.0
+EB13 Manchester Centre,KAC,2026-09-21,2.55
+EB13 Manchester Centre,EV,2026-09-21,2.58
+EB12 Lancashire South,HEC,2026-09-21,1.0
+EB12 Lancashire South,KAC,2026-09-21,2.43
+EB12 Lancashire South,EV,2026-09-21,1.0
+ED44 Canterbury & Dover,HEC,2026-09-28,7.24
+ED44 Canterbury & Dover,KAC,2026-09-28,1.0
+ED44 Canterbury & Dover,EV,2026-09-28,7.51
+EB12 Altrincham,HEC,2026-09-28,1.0
+EB12 Altrincham,KAC,2026-09-28,1.0
+EB12 Altrincham,EV,2026-09-28,5.0
+EC62 Essex East,HEC,2026-09-28,5.0
+EC62 Essex East,KAC,2026-09-28,2.53
+EC62 Essex East,EV,2026-09-28,7.49
+EB14 Stockport,HEC,2026-09-28,1.0
+EB14 Stockport,KAC,2026-09-28,2.56
+EB14 Stockport,EV,2026-09-28,1.0
+ED22 Cobham & Heathrow,HEC,2026-09-28,1.0
+ED22 Cobham & Heathrow,KAC,2026-09-28,1.0
+ED22 Cobham & Heathrow,EV,2026-09-28,2.44
+EA62 Blackpool & Lancaster,HEC,2026-09-28,5.0
+EA62 Blackpool & Lancaster,KAC,2026-09-28,2.56
+EA62 Blackpool & Lancaster,EV,2026-09-28,1.0
+EA62 Preston & Southport,HEC,2026-09-28,1.0
+EA62 Preston & Southport,KAC,2026-09-28,7.23
+EA62 Preston & Southport,EV,2026-09-28,2.54
+EB24 The Wirral,HEC,2026-09-28,1.0
+EB24 The Wirral,KAC,2026-09-28,5.0
+EB24 The Wirral,EV,2026-09-28,5.0
+EC91 Leicester,HEC,2026-09-28,5.0
+EC91 Leicester,KAC,2026-09-28,1.0
+EC91 Leicester,EV,2026-09-28,2.62
+ED41 Bromley & Dartford,HEC,2026-09-28,1.0
+ED41 Bromley & Dartford,KAC,2026-09-28,1.0
+ED41 Bromley & Dartford,EV,2026-09-28,7.31
+EB13 Manchester Centre,HEC,2026-09-28,7.4
+EB13 Manchester Centre,KAC,2026-09-28,2.48
+EB13 Manchester Centre,EV,2026-09-28,7.45
+EB12 Lancashire South,HEC,2026-09-28,5.0
+EB12 Lancashire South,KAC,2026-09-28,7.54
+EB12 Lancashire South,EV,2026-09-28,5.0
+ED44 Canterbury & Dover,HEC,2026-10-05,2.43
+ED44 Canterbury & Dover,KAC,2026-10-05,1.0
+ED44 Canterbury & Dover,EV,2026-10-05,1.0
+EB12 Altrincham,HEC,2026-10-05,7.28
+EB12 Altrincham,KAC,2026-10-05,5.0
+EB12 Altrincham,EV,2026-10-05,1.0
+EC62 Essex East,HEC,2026-10-05,1.0
+EC62 Essex East,KAC,2026-10-05,1.0
+EC62 Essex East,EV,2026-10-05,1.0
+EB14 Stockport,HEC,2026-10-05,1.0
+EB14 Stockport,KAC,2026-10-05,5.0
+EB14 Stockport,EV,2026-10-05,7.55
+ED22 Cobham & Heathrow,HEC,2026-10-05,1.0
+ED22 Cobham & Heathrow,KAC,2026-10-05,5.0
+ED22 Cobham & Heathrow,EV,2026-10-05,5.0
+EA62 Blackpool & Lancaster,HEC,2026-10-05,7.5
+EA62 Blackpool & Lancaster,KAC,2026-10-05,5.0
+EA62 Blackpool & Lancaster,EV,2026-10-05,7.3
+EA62 Preston & Southport,HEC,2026-10-05,2.51
+EA62 Preston & Southport,KAC,2026-10-05,7.52
+EA62 Preston & Southport,EV,2026-10-05,1.0
+EB24 The Wirral,HEC,2026-10-05,1.0
+EB24 The Wirral,KAC,2026-10-05,7.31
+EB24 The Wirral,EV,2026-10-05,2.55
+EC91 Leicester,HEC,2026-10-05,2.54
+EC91 Leicester,KAC,2026-10-05,1.0
+EC91 Leicester,EV,2026-10-05,2.55
+ED41 Bromley & Dartford,HEC,2026-10-05,5.0
+ED41 Bromley & Dartford,KAC,2026-10-05,1.0
+ED41 Bromley & Dartford,EV,2026-10-05,5.0
+EB13 Manchester Centre,HEC,2026-10-05,1.0
+EB13 Manchester Centre,KAC,2026-10-05,2.42
+EB13 Manchester Centre,EV,2026-10-05,7.23
+EB12 Lancashire South,HEC,2026-10-05,1.0
+EB12 Lancashire South,KAC,2026-10-05,7.48
+EB12 Lancashire South,EV,2026-10-05,1.0
+ED44 Canterbury & Dover,HEC,2026-10-12,2.51
+ED44 Canterbury & Dover,KAC,2026-10-12,7.59
+ED44 Canterbury & Dover,EV,2026-10-12,7.72
+EB12 Altrincham,HEC,2026-10-12,1.0
+EB12 Altrincham,KAC,2026-10-12,1.0
+EB12 Altrincham,EV,2026-10-12,2.48
+EC62 Essex East,HEC,2026-10-12,1.0
+EC62 Essex East,KAC,2026-10-12,7.37
+EC62 Essex East,EV,2026-10-12,7.32
+EB14 Stockport,HEC,2026-10-12,1.0
+EB14 Stockport,KAC,2026-10-12,7.5
+EB14 Stockport,EV,2026-10-12,2.57
+ED22 Cobham & Heathrow,HEC,2026-10-12,5.0
+ED22 Cobham & Heathrow,KAC,2026-10-12,1.0
+ED22 Cobham & Heathrow,EV,2026-10-12,1.0
+EA62 Blackpool & Lancaster,HEC,2026-10-12,2.53
+EA62 Blackpool & Lancaster,KAC,2026-10-12,2.59
+EA62 Blackpool & Lancaster,EV,2026-10-12,1.0
+EA62 Preston & Southport,HEC,2026-10-12,1.0
+EA62 Preston & Southport,KAC,2026-10-12,1.0
+EA62 Preston & Southport,EV,2026-10-12,7.51
+EB24 The Wirral,HEC,2026-10-12,1.0
+EB24 The Wirral,KAC,2026-10-12,1.0
+EB24 The Wirral,EV,2026-10-12,5.0
+EC91 Leicester,HEC,2026-10-12,1.0
+EC91 Leicester,KAC,2026-10-12,7.25
+EC91 Leicester,EV,2026-10-12,1.0
+ED41 Bromley & Dartford,HEC,2026-10-12,1.0
+ED41 Bromley & Dartford,KAC,2026-10-12,5.0
+ED41 Bromley & Dartford,EV,2026-10-12,7.27
+EB13 Manchester Centre,HEC,2026-10-12,1.0
+EB13 Manchester Centre,KAC,2026-10-12,2.44
+EB13 Manchester Centre,EV,2026-10-12,7.67
+EB12 Lancashire South,HEC,2026-10-12,7.28
+EB12 Lancashire South,KAC,2026-10-12,5.0
+EB12 Lancashire South,EV,2026-10-12,1.0
+ED44 Canterbury & Dover,HEC,2026-10-19,7.54
+ED44 Canterbury & Dover,KAC,2026-10-19,1.0
+ED44 Canterbury & Dover,EV,2026-10-19,2.58
+EB12 Altrincham,HEC,2026-10-19,5.0
+EB12 Altrincham,KAC,2026-10-19,2.49
+EB12 Altrincham,EV,2026-10-19,5.0
+EC62 Essex East,HEC,2026-10-19,7.45
+EC62 Essex East,KAC,2026-10-19,5.0
+EC62 Essex East,EV,2026-10-19,1.0
+EB14 Stockport,HEC,2026-10-19,1.0
+EB14 Stockport,KAC,2026-10-19,1.0
+EB14 Stockport,EV,2026-10-19,1.0
+ED22 Cobham & Heathrow,HEC,2026-10-19,2.41
+ED22 Cobham & Heathrow,KAC,2026-10-19,1.0
+ED22 Cobham & Heathrow,EV,2026-10-19,7.71
+EA62 Blackpool & Lancaster,HEC,2026-10-19,7.23
+EA62 Blackpool & Lancaster,KAC,2026-10-19,1.0
+EA62 Blackpool & Lancaster,EV,2026-10-19,7.26
+EA62 Preston & Southport,HEC,2026-10-19,1.0
+EA62 Preston & Southport,KAC,2026-10-19,1.0
+EA62 Preston & Southport,EV,2026-10-19,1.0
+EB24 The Wirral,HEC,2026-10-19,1.0
+EB24 The Wirral,KAC,2026-10-19,1.0
+EB24 The Wirral,EV,2026-10-19,1.0
+EC91 Leicester,HEC,2026-10-19,1.0
+EC91 Leicester,KAC,2026-10-19,2.42
+EC91 Leicester,EV,2026-10-19,1.0
+ED41 Bromley & Dartford,HEC,2026-10-19,7.48
+ED41 Bromley & Dartford,KAC,2026-10-19,1.0
+ED41 Bromley & Dartford,EV,2026-10-19,2.44
+EB13 Manchester Centre,HEC,2026-10-19,5.0
+EB13 Manchester Centre,KAC,2026-10-19,1.0
+EB13 Manchester Centre,EV,2026-10-19,7.42
+EB12 Lancashire South,HEC,2026-10-19,1.0
+EB12 Lancashire South,KAC,2026-10-19,7.53
+EB12 Lancashire South,EV,2026-10-19,7.28
+ED44 Canterbury & Dover,HEC,2026-10-26,5.0
+ED44 Canterbury & Dover,KAC,2026-10-26,1.0
+ED44 Canterbury & Dover,EV,2026-10-26,5.0
+EB12 Altrincham,HEC,2026-10-26,5.0
+EB12 Altrincham,KAC,2026-10-26,1.0
+EB12 Altrincham,EV,2026-10-26,1.0
+EC62 Essex East,HEC,2026-10-26,1.0
+EC62 Essex East,KAC,2026-10-26,5.0
+EC62 Essex East,EV,2026-10-26,2.57
+EB14 Stockport,HEC,2026-10-26,5.0
+EB14 Stockport,KAC,2026-10-26,5.0
+EB14 Stockport,EV,2026-10-26,5.0
+ED22 Cobham & Heathrow,HEC,2026-10-26,1.0
+ED22 Cobham & Heathrow,KAC,2026-10-26,1.0
+ED22 Cobham & Heathrow,EV,2026-10-26,1.0
+EA62 Blackpool & Lancaster,HEC,2026-10-26,5.0
+EA62 Blackpool & Lancaster,KAC,2026-10-26,2.52
+EA62 Blackpool & Lancaster,EV,2026-10-26,1.0
+EA62 Preston & Southport,HEC,2026-10-26,1.0
+EA62 Preston & Southport,KAC,2026-10-26,1.0
+EA62 Preston & Southport,EV,2026-10-26,1.0
+EB24 The Wirral,HEC,2026-10-26,7.24
+EB24 The Wirral,KAC,2026-10-26,5.0
+EB24 The Wirral,EV,2026-10-26,1.0
+EC91 Leicester,HEC,2026-10-26,5.0
+EC91 Leicester,KAC,2026-10-26,1.0
+EC91 Leicester,EV,2026-10-26,2.53
+ED41 Bromley & Dartford,HEC,2026-10-26,5.0
+ED41 Bromley & Dartford,KAC,2026-10-26,1.0
+ED41 Bromley & Dartford,EV,2026-10-26,1.0
+EB13 Manchester Centre,HEC,2026-10-26,5.0
+EB13 Manchester Centre,KAC,2026-10-26,7.44
+EB13 Manchester Centre,EV,2026-10-26,1.0
+EB12 Lancashire South,HEC,2026-10-26,1.0
+EB12 Lancashire South,KAC,2026-10-26,7.44
+EB12 Lancashire South,EV,2026-10-26,1.0
+ED44 Canterbury & Dover,HEC,2026-11-02,1.0
+ED44 Canterbury & Dover,KAC,2026-11-02,1.0
+ED44 Canterbury & Dover,EV,2026-11-02,1.0
+EB12 Altrincham,HEC,2026-11-02,5.0
+EB12 Altrincham,KAC,2026-11-02,5.0
+EB12 Altrincham,EV,2026-11-02,5.0
+EC62 Essex East,HEC,2026-11-02,1.0
+EC62 Essex East,KAC,2026-11-02,5.0
+EC62 Essex East,EV,2026-11-02,1.0
+EB14 Stockport,HEC,2026-11-02,1.0
+EB14 Stockport,KAC,2026-11-02,5.0
+EB14 Stockport,EV,2026-11-02,1.0
+ED22 Cobham & Heathrow,HEC,2026-11-02,5.0
+ED22 Cobham & Heathrow,KAC,2026-11-02,2.49
+ED22 Cobham & Heathrow,EV,2026-11-02,5.0
+EA62 Blackpool & Lancaster,HEC,2026-11-02,2.51
+EA62 Blackpool & Lancaster,KAC,2026-11-02,5.0
+EA62 Blackpool & Lancaster,EV,2026-11-02,7.34
+EA62 Preston & Southport,HEC,2026-11-02,5.0
+EA62 Preston & Southport,KAC,2026-11-02,1.0
+EA62 Preston & Southport,EV,2026-11-02,1.0
+EB24 The Wirral,HEC,2026-11-02,2.5
+EB24 The Wirral,KAC,2026-11-02,1.0
+EB24 The Wirral,EV,2026-11-02,1.0
+EC91 Leicester,HEC,2026-11-02,7.2
+EC91 Leicester,KAC,2026-11-02,7.56
+EC91 Leicester,EV,2026-11-02,1.0
+ED41 Bromley & Dartford,HEC,2026-11-02,2.42
+ED41 Bromley & Dartford,KAC,2026-11-02,1.0
+ED41 Bromley & Dartford,EV,2026-11-02,1.0
+EB13 Manchester Centre,HEC,2026-11-02,7.6
+EB13 Manchester Centre,KAC,2026-11-02,5.0
+EB13 Manchester Centre,EV,2026-11-02,7.31
+EB12 Lancashire South,HEC,2026-11-02,7.51
+EB12 Lancashire South,KAC,2026-11-02,1.0
+EB12 Lancashire South,EV,2026-11-02,1.0
+ED44 Canterbury & Dover,HEC,2026-11-09,7.52
+ED44 Canterbury & Dover,KAC,2026-11-09,1.0
+ED44 Canterbury & Dover,EV,2026-11-09,1.0
+EB12 Altrincham,HEC,2026-11-09,1.0
+EB12 Altrincham,KAC,2026-11-09,7.46
+EB12 Altrincham,EV,2026-11-09,1.0
+EC62 Essex East,HEC,2026-11-09,1.0
+EC62 Essex East,KAC,2026-11-09,5.0
+EC62 Essex East,EV,2026-11-09,1.0
+EB14 Stockport,HEC,2026-11-09,7.34
+EB14 Stockport,KAC,2026-11-09,1.0
+EB14 Stockport,EV,2026-11-09,7.22
+ED22 Cobham & Heathrow,HEC,2026-11-09,7.33
+ED22 Cobham & Heathrow,KAC,2026-11-09,1.0
+ED22 Cobham & Heathrow,EV,2026-11-09,7.87
+EA62 Blackpool & Lancaster,HEC,2026-11-09,1.0
+EA62 Blackpool & Lancaster,KAC,2026-11-09,5.0
+EA62 Blackpool & Lancaster,EV,2026-11-09,7.75
+EA62 Preston & Southport,HEC,2026-11-09,7.55
+EA62 Preston & Southport,KAC,2026-11-09,7.8
+EA62 Preston & Southport,EV,2026-11-09,2.44
+EB24 The Wirral,HEC,2026-11-09,2.49
+EB24 The Wirral,KAC,2026-11-09,1.0
+EB24 The Wirral,EV,2026-11-09,2.43
+EC91 Leicester,HEC,2026-11-09,1.0
+EC91 Leicester,KAC,2026-11-09,2.47
+EC91 Leicester,EV,2026-11-09,5.0
+ED41 Bromley & Dartford,HEC,2026-11-09,1.0
+ED41 Bromley & Dartford,KAC,2026-11-09,2.57
+ED41 Bromley & Dartford,EV,2026-11-09,5.0
+EB13 Manchester Centre,HEC,2026-11-09,2.52
+EB13 Manchester Centre,KAC,2026-11-09,1.0
+EB13 Manchester Centre,EV,2026-11-09,1.0
+EB12 Lancashire South,HEC,2026-11-09,5.0
+EB12 Lancashire South,KAC,2026-11-09,7.77
+EB12 Lancashire South,EV,2026-11-09,7.79
+ED44 Canterbury & Dover,HEC,2026-11-16,1.0
+ED44 Canterbury & Dover,KAC,2026-11-16,1.0
+ED44 Canterbury & Dover,EV,2026-11-16,7.84
+EB12 Altrincham,HEC,2026-11-16,1.0
+EB12 Altrincham,KAC,2026-11-16,7.78
+EB12 Altrincham,EV,2026-11-16,2.45
+EC62 Essex East,HEC,2026-11-16,1.0
+EC62 Essex East,KAC,2026-11-16,2.43
+EC62 Essex East,EV,2026-11-16,1.0
+EB14 Stockport,HEC,2026-11-16,1.0
+EB14 Stockport,KAC,2026-11-16,2.44
+EB14 Stockport,EV,2026-11-16,2.42
+ED22 Cobham & Heathrow,HEC,2026-11-16,1.0
+ED22 Cobham & Heathrow,KAC,2026-11-16,5.0
+ED22 Cobham & Heathrow,EV,2026-11-16,7.39
+EA62 Blackpool & Lancaster,HEC,2026-11-16,2.43
+EA62 Blackpool & Lancaster,KAC,2026-11-16,7.38
+EA62 Blackpool & Lancaster,EV,2026-11-16,7.27
+EA62 Preston & Southport,HEC,2026-11-16,1.0
+EA62 Preston & Southport,KAC,2026-11-16,7.86
+EA62 Preston & Southport,EV,2026-11-16,2.61
+EB24 The Wirral,HEC,2026-11-16,1.0
+EB24 The Wirral,KAC,2026-11-16,1.0
+EB24 The Wirral,EV,2026-11-16,2.62
+EC91 Leicester,HEC,2026-11-16,1.0
+EC91 Leicester,KAC,2026-11-16,1.0
+EC91 Leicester,EV,2026-11-16,7.86
+ED41 Bromley & Dartford,HEC,2026-11-16,1.0
+ED41 Bromley & Dartford,KAC,2026-11-16,2.46
+ED41 Bromley & Dartford,EV,2026-11-16,2.6
+EB13 Manchester Centre,HEC,2026-11-16,7.8
+EB13 Manchester Centre,KAC,2026-11-16,1.0
+EB13 Manchester Centre,EV,2026-11-16,2.55
+EB12 Lancashire South,HEC,2026-11-16,1.0
+EB12 Lancashire South,KAC,2026-11-16,2.51
+EB12 Lancashire South,EV,2026-11-16,7.27
+ED44 Canterbury & Dover,HEC,2026-11-23,5.0
+ED44 Canterbury & Dover,KAC,2026-11-23,2.56
+ED44 Canterbury & Dover,EV,2026-11-23,1.0
+EB12 Altrincham,HEC,2026-11-23,1.0
+EB12 Altrincham,KAC,2026-11-23,5.0
+EB12 Altrincham,EV,2026-11-23,2.59
+EC62 Essex East,HEC,2026-11-23,1.0
+EC62 Essex East,KAC,2026-11-23,1.0
+EC62 Essex East,EV,2026-11-23,2.52
+EB14 Stockport,HEC,2026-11-23,1.0
+EB14 Stockport,KAC,2026-11-23,2.45
+EB14 Stockport,EV,2026-11-23,1.0
+ED22 Cobham & Heathrow,HEC,2026-11-23,5.0
+ED22 Cobham & Heathrow,KAC,2026-11-23,7.58
+ED22 Cobham & Heathrow,EV,2026-11-23,5.0
+EA62 Blackpool & Lancaster,HEC,2026-11-23,7.55
+EA62 Blackpool & Lancaster,KAC,2026-11-23,1.0
+EA62 Blackpool & Lancaster,EV,2026-11-23,1.0
+EA62 Preston & Southport,HEC,2026-11-23,1.0
+EA62 Preston & Southport,KAC,2026-11-23,1.0
+EA62 Preston & Southport,EV,2026-11-23,7.26
+EB24 The Wirral,HEC,2026-11-23,1.0
+EB24 The Wirral,KAC,2026-11-23,2.5
+EB24 The Wirral,EV,2026-11-23,7.31
+EC91 Leicester,HEC,2026-11-23,7.56
+EC91 Leicester,KAC,2026-11-23,1.0
+EC91 Leicester,EV,2026-11-23,5.0
+ED41 Bromley & Dartford,HEC,2026-11-23,1.0
+ED41 Bromley & Dartford,KAC,2026-11-23,1.0
+ED41 Bromley & Dartford,EV,2026-11-23,2.54
+EB13 Manchester Centre,HEC,2026-11-23,2.44
+EB13 Manchester Centre,KAC,2026-11-23,1.0
+EB13 Manchester Centre,EV,2026-11-23,2.46
+EB12 Lancashire South,HEC,2026-11-23,1.0
+EB12 Lancashire South,KAC,2026-11-23,1.0
+EB12 Lancashire South,EV,2026-11-23,1.0
+ED44 Canterbury & Dover,HEC,2026-11-30,2.49
+ED44 Canterbury & Dover,KAC,2026-11-30,7.7
+ED44 Canterbury & Dover,EV,2026-11-30,5.0
+EB12 Altrincham,HEC,2026-11-30,7.29
+EB12 Altrincham,KAC,2026-11-30,1.0
+EB12 Altrincham,EV,2026-11-30,1.0
+EC62 Essex East,HEC,2026-11-30,1.0
+EC62 Essex East,KAC,2026-11-30,1.0
+EC62 Essex East,EV,2026-11-30,5.0
+EB14 Stockport,HEC,2026-11-30,1.0
+EB14 Stockport,KAC,2026-11-30,1.0
+EB14 Stockport,EV,2026-11-30,2.58
+ED22 Cobham & Heathrow,HEC,2026-11-30,5.0
+ED22 Cobham & Heathrow,KAC,2026-11-30,1.0
+ED22 Cobham & Heathrow,EV,2026-11-30,2.53
+EA62 Blackpool & Lancaster,HEC,2026-11-30,1.0
+EA62 Blackpool & Lancaster,KAC,2026-11-30,1.0
+EA62 Blackpool & Lancaster,EV,2026-11-30,5.0
+EA62 Preston & Southport,HEC,2026-11-30,1.0
+EA62 Preston & Southport,KAC,2026-11-30,5.0
+EA62 Preston & Southport,EV,2026-11-30,1.0
+EB24 The Wirral,HEC,2026-11-30,1.0
+EB24 The Wirral,KAC,2026-11-30,5.0
+EB24 The Wirral,EV,2026-11-30,2.54
+EC91 Leicester,HEC,2026-11-30,2.48
+EC91 Leicester,KAC,2026-11-30,1.0
+EC91 Leicester,EV,2026-11-30,1.0
+ED41 Bromley & Dartford,HEC,2026-11-30,1.0
+ED41 Bromley & Dartford,KAC,2026-11-30,1.0
+ED41 Bromley & Dartford,EV,2026-11-30,5.0
+EB13 Manchester Centre,HEC,2026-11-30,2.57
+EB13 Manchester Centre,KAC,2026-11-30,2.61
+EB13 Manchester Centre,EV,2026-11-30,1.0
+EB12 Lancashire South,HEC,2026-11-30,2.41
+EB12 Lancashire South,KAC,2026-11-30,2.55
+EB12 Lancashire South,EV,2026-11-30,7.53
+ED44 Canterbury & Dover,HEC,2026-12-07,5.0
+ED44 Canterbury & Dover,KAC,2026-12-07,7.52
+ED44 Canterbury & Dover,EV,2026-12-07,2.45
+EB12 Altrincham,HEC,2026-12-07,1.0
+EB12 Altrincham,KAC,2026-12-07,1.0
+EB12 Altrincham,EV,2026-12-07,2.62
+EC62 Essex East,HEC,2026-12-07,1.0
+EC62 Essex East,KAC,2026-12-07,7.83
+EC62 Essex East,EV,2026-12-07,2.55
+EB14 Stockport,HEC,2026-12-07,1.0
+EB14 Stockport,KAC,2026-12-07,1.0
+EB14 Stockport,EV,2026-12-07,7.63
+ED22 Cobham & Heathrow,HEC,2026-12-07,5.0
+ED22 Cobham & Heathrow,KAC,2026-12-07,2.51
+ED22 Cobham & Heathrow,EV,2026-12-07,2.62
+EA62 Blackpool & Lancaster,HEC,2026-12-07,5.0
+EA62 Blackpool & Lancaster,KAC,2026-12-07,7.45
+EA62 Blackpool & Lancaster,EV,2026-12-07,7.85
+EA62 Preston & Southport,HEC,2026-12-07,1.0
+EA62 Preston & Southport,KAC,2026-12-07,5.0
+EA62 Preston & Southport,EV,2026-12-07,7.23
+EB24 The Wirral,HEC,2026-12-07,1.0
+EB24 The Wirral,KAC,2026-12-07,2.52
+EB24 The Wirral,EV,2026-12-07,1.0
+EC91 Leicester,HEC,2026-12-07,5.0
+EC91 Leicester,KAC,2026-12-07,1.0
+EC91 Leicester,EV,2026-12-07,7.6
+ED41 Bromley & Dartford,HEC,2026-12-07,7.86
+ED41 Bromley & Dartford,KAC,2026-12-07,1.0
+ED41 Bromley & Dartford,EV,2026-12-07,2.62
+EB13 Manchester Centre,HEC,2026-12-07,5.0
+EB13 Manchester Centre,KAC,2026-12-07,1.0
+EB13 Manchester Centre,EV,2026-12-07,2.48
+EB12 Lancashire South,HEC,2026-12-07,7.54
+EB12 Lancashire South,KAC,2026-12-07,2.44
+EB12 Lancashire South,EV,2026-12-07,1.0
+ED44 Canterbury & Dover,HEC,2026-12-14,2.57
+ED44 Canterbury & Dover,KAC,2026-12-14,7.22
+ED44 Canterbury & Dover,EV,2026-12-14,2.52
+EB12 Altrincham,HEC,2026-12-14,5.0
+EB12 Altrincham,KAC,2026-12-14,2.59
+EB12 Altrincham,EV,2026-12-14,5.0
+EC62 Essex East,HEC,2026-12-14,2.42
+EC62 Essex East,KAC,2026-12-14,7.84
+EC62 Essex East,EV,2026-12-14,1.0
+EB14 Stockport,HEC,2026-12-14,1.0
+EB14 Stockport,KAC,2026-12-14,5.0
+EB14 Stockport,EV,2026-12-14,5.0
+ED22 Cobham & Heathrow,HEC,2026-12-14,1.0
+ED22 Cobham & Heathrow,KAC,2026-12-14,7.69
+ED22 Cobham & Heathrow,EV,2026-12-14,7.28
+EA62 Blackpool & Lancaster,HEC,2026-12-14,2.52
+EA62 Blackpool & Lancaster,KAC,2026-12-14,5.0
+EA62 Blackpool & Lancaster,EV,2026-12-14,7.58
+EA62 Preston & Southport,HEC,2026-12-14,1.0
+EA62 Preston & Southport,KAC,2026-12-14,2.44
+EA62 Preston & Southport,EV,2026-12-14,2.58
+EB24 The Wirral,HEC,2026-12-14,1.0
+EB24 The Wirral,KAC,2026-12-14,5.0
+EB24 The Wirral,EV,2026-12-14,7.25
+EC91 Leicester,HEC,2026-12-14,7.21
+EC91 Leicester,KAC,2026-12-14,2.48
+EC91 Leicester,EV,2026-12-14,5.0
+ED41 Bromley & Dartford,HEC,2026-12-14,5.0
+ED41 Bromley & Dartford,KAC,2026-12-14,5.0
+ED41 Bromley & Dartford,EV,2026-12-14,1.0
+EB13 Manchester Centre,HEC,2026-12-14,7.7
+EB13 Manchester Centre,KAC,2026-12-14,5.0
+EB13 Manchester Centre,EV,2026-12-14,1.0
+EB12 Lancashire South,HEC,2026-12-14,1.0
+EB12 Lancashire South,KAC,2026-12-14,2.55
+EB12 Lancashire South,EV,2026-12-14,7.5
+ED44 Canterbury & Dover,HEC,2026-12-21,7.6
+ED44 Canterbury & Dover,KAC,2026-12-21,2.52
+ED44 Canterbury & Dover,EV,2026-12-21,1.0
+EB12 Altrincham,HEC,2026-12-21,1.0
+EB12 Altrincham,KAC,2026-12-21,2.51
+EB12 Altrincham,EV,2026-12-21,1.0
+EC62 Essex East,HEC,2026-12-21,1.0
+EC62 Essex East,KAC,2026-12-21,1.0
+EC62 Essex East,EV,2026-12-21,1.0
+EB14 Stockport,HEC,2026-12-21,1.0
+EB14 Stockport,KAC,2026-12-21,1.0
+EB14 Stockport,EV,2026-12-21,5.0
+ED22 Cobham & Heathrow,HEC,2026-12-21,7.55
+ED22 Cobham & Heathrow,KAC,2026-12-21,1.0
+ED22 Cobham & Heathrow,EV,2026-12-21,5.0
+EA62 Blackpool & Lancaster,HEC,2026-12-21,5.0
+EA62 Blackpool & Lancaster,KAC,2026-12-21,7.45
+EA62 Blackpool & Lancaster,EV,2026-12-21,1.0
+EA62 Preston & Southport,HEC,2026-12-21,5.0
+EA62 Preston & Southport,KAC,2026-12-21,5.0
+EA62 Preston & Southport,EV,2026-12-21,5.0
+EB24 The Wirral,HEC,2026-12-21,1.0
+EB24 The Wirral,KAC,2026-12-21,1.0
+EB24 The Wirral,EV,2026-12-21,1.0
+EC91 Leicester,HEC,2026-12-21,1.0
+EC91 Leicester,KAC,2026-12-21,5.0
+EC91 Leicester,EV,2026-12-21,1.0
+ED41 Bromley & Dartford,HEC,2026-12-21,1.0
+ED41 Bromley & Dartford,KAC,2026-12-21,7.76
+ED41 Bromley & Dartford,EV,2026-12-21,5.0
+EB13 Manchester Centre,HEC,2026-12-21,1.0
+EB13 Manchester Centre,KAC,2026-12-21,7.65
+EB13 Manchester Centre,EV,2026-12-21,1.0
+EB12 Lancashire South,HEC,2026-12-21,1.0
+EB12 Lancashire South,KAC,2026-12-21,5.0
+EB12 Lancashire South,EV,2026-12-21,1.0
+ED44 Canterbury & Dover,HEC,2026-12-28,5.0
+ED44 Canterbury & Dover,KAC,2026-12-28,7.62
+ED44 Canterbury & Dover,EV,2026-12-28,7.46
+EB12 Altrincham,HEC,2026-12-28,7.33
+EB12 Altrincham,KAC,2026-12-28,2.42
+EB12 Altrincham,EV,2026-12-28,5.0
+EC62 Essex East,HEC,2026-12-28,7.68
+EC62 Essex East,KAC,2026-12-28,7.63
+EC62 Essex East,EV,2026-12-28,5.0
+EB14 Stockport,HEC,2026-12-28,7.47
+EB14 Stockport,KAC,2026-12-28,5.0
+EB14 Stockport,EV,2026-12-28,1.0
+ED22 Cobham & Heathrow,HEC,2026-12-28,5.0
+ED22 Cobham & Heathrow,KAC,2026-12-28,5.0
+ED22 Cobham & Heathrow,EV,2026-12-28,2.46
+EA62 Blackpool & Lancaster,HEC,2026-12-28,1.0
+EA62 Blackpool & Lancaster,KAC,2026-12-28,2.58
+EA62 Blackpool & Lancaster,EV,2026-12-28,7.27
+EA62 Preston & Southport,HEC,2026-12-28,5.0
+EA62 Preston & Southport,KAC,2026-12-28,1.0
+EA62 Preston & Southport,EV,2026-12-28,2.54
+EB24 The Wirral,HEC,2026-12-28,5.0
+EB24 The Wirral,KAC,2026-12-28,1.0
+EB24 The Wirral,EV,2026-12-28,2.46
+EC91 Leicester,HEC,2026-12-28,1.0
+EC91 Leicester,KAC,2026-12-28,2.52
+EC91 Leicester,EV,2026-12-28,2.53
+ED41 Bromley & Dartford,HEC,2026-12-28,2.59
+ED41 Bromley & Dartford,KAC,2026-12-28,7.71
+ED41 Bromley & Dartford,EV,2026-12-28,1.0
+EB13 Manchester Centre,HEC,2026-12-28,1.0
+EB13 Manchester Centre,KAC,2026-12-28,1.0
+EB13 Manchester Centre,EV,2026-12-28,1.0
+EB12 Lancashire South,HEC,2026-12-28,5.0
+EB12 Lancashire South,KAC,2026-12-28,1.0
+EB12 Lancashire South,EV,2026-12-28,1.0
+ED44 Canterbury & Dover,HEC,2027-01-04,1.0
+ED44 Canterbury & Dover,KAC,2027-01-04,5.0
+ED44 Canterbury & Dover,EV,2027-01-04,5.0
+EB12 Altrincham,HEC,2027-01-04,2.53
+EB12 Altrincham,KAC,2027-01-04,7.85
+EB12 Altrincham,EV,2027-01-04,5.0
+EC62 Essex East,HEC,2027-01-04,5.0
+EC62 Essex East,KAC,2027-01-04,1.0
+EC62 Essex East,EV,2027-01-04,1.0
+EB14 Stockport,HEC,2027-01-04,5.0
+EB14 Stockport,KAC,2027-01-04,5.0
+EB14 Stockport,EV,2027-01-04,7.53
+ED22 Cobham & Heathrow,HEC,2027-01-04,1.0
+ED22 Cobham & Heathrow,KAC,2027-01-04,7.77
+ED22 Cobham & Heathrow,EV,2027-01-04,5.0
+EA62 Blackpool & Lancaster,HEC,2027-01-04,5.0
+EA62 Blackpool & Lancaster,KAC,2027-01-04,1.0
+EA62 Blackpool & Lancaster,EV,2027-01-04,2.43
+EA62 Preston & Southport,HEC,2027-01-04,2.53
+EA62 Preston & Southport,KAC,2027-01-04,5.0
+EA62 Preston & Southport,EV,2027-01-04,5.0
+EB24 The Wirral,HEC,2027-01-04,7.39
+EB24 The Wirral,KAC,2027-01-04,7.79
+EB24 The Wirral,EV,2027-01-04,7.85
+EC91 Leicester,HEC,2027-01-04,1.0
+EC91 Leicester,KAC,2027-01-04,5.0
+EC91 Leicester,EV,2027-01-04,1.0
+ED41 Bromley & Dartford,HEC,2027-01-04,2.4
+ED41 Bromley & Dartford,KAC,2027-01-04,5.0
+ED41 Bromley & Dartford,EV,2027-01-04,5.0
+EB13 Manchester Centre,HEC,2027-01-04,1.0
+EB13 Manchester Centre,KAC,2027-01-04,5.0
+EB13 Manchester Centre,EV,2027-01-04,2.48
+EB12 Lancashire South,HEC,2027-01-04,5.0
+EB12 Lancashire South,KAC,2027-01-04,1.0
+EB12 Lancashire South,EV,2027-01-04,5.0
+ED44 Canterbury & Dover,HEC,2027-01-11,1.0
+ED44 Canterbury & Dover,KAC,2027-01-11,7.64
+ED44 Canterbury & Dover,EV,2027-01-11,7.66
+EB12 Altrincham,HEC,2027-01-11,1.0
+EB12 Altrincham,KAC,2027-01-11,5.0
+EB12 Altrincham,EV,2027-01-11,7.34
+EC62 Essex East,HEC,2027-01-11,7.76
+EC62 Essex East,KAC,2027-01-11,1.0
+EC62 Essex East,EV,2027-01-11,1.0
+EB14 Stockport,HEC,2027-01-11,5.0
+EB14 Stockport,KAC,2027-01-11,1.0
+EB14 Stockport,EV,2027-01-11,5.0
+ED22 Cobham & Heathrow,HEC,2027-01-11,1.0
+ED22 Cobham & Heathrow,KAC,2027-01-11,1.0
+ED22 Cobham & Heathrow,EV,2027-01-11,2.6
+EA62 Blackpool & Lancaster,HEC,2027-01-11,5.0
+EA62 Blackpool & Lancaster,KAC,2027-01-11,2.47
+EA62 Blackpool & Lancaster,EV,2027-01-11,1.0
+EA62 Preston & Southport,HEC,2027-01-11,5.0
+EA62 Preston & Southport,KAC,2027-01-11,2.55
+EA62 Preston & Southport,EV,2027-01-11,2.41
+EB24 The Wirral,HEC,2027-01-11,5.0
+EB24 The Wirral,KAC,2027-01-11,2.59
+EB24 The Wirral,EV,2027-01-11,5.0
+EC91 Leicester,HEC,2027-01-11,2.44
+EC91 Leicester,KAC,2027-01-11,1.0
+EC91 Leicester,EV,2027-01-11,5.0
+ED41 Bromley & Dartford,HEC,2027-01-11,1.0
+ED41 Bromley & Dartford,KAC,2027-01-11,7.78
+ED41 Bromley & Dartford,EV,2027-01-11,1.0
+EB13 Manchester Centre,HEC,2027-01-11,2.58
+EB13 Manchester Centre,KAC,2027-01-11,1.0
+EB13 Manchester Centre,EV,2027-01-11,1.0
+EB12 Lancashire South,HEC,2027-01-11,1.0
+EB12 Lancashire South,KAC,2027-01-11,1.0
+EB12 Lancashire South,EV,2027-01-11,1.0
+ED44 Canterbury & Dover,HEC,2027-01-18,1.0
+ED44 Canterbury & Dover,KAC,2027-01-18,1.0
+ED44 Canterbury & Dover,EV,2027-01-18,7.85
+EB12 Altrincham,HEC,2027-01-18,1.0
+EB12 Altrincham,KAC,2027-01-18,1.0
+EB12 Altrincham,EV,2027-01-18,1.0
+EC62 Essex East,HEC,2027-01-18,5.0
+EC62 Essex East,KAC,2027-01-18,1.0
+EC62 Essex East,EV,2027-01-18,7.71
+EB14 Stockport,HEC,2027-01-18,1.0
+EB14 Stockport,KAC,2027-01-18,5.0
+EB14 Stockport,EV,2027-01-18,2.48
+ED22 Cobham & Heathrow,HEC,2027-01-18,2.62
+ED22 Cobham & Heathrow,KAC,2027-01-18,1.0
+ED22 Cobham & Heathrow,EV,2027-01-18,7.39
+EA62 Blackpool & Lancaster,HEC,2027-01-18,7.43
+EA62 Blackpool & Lancaster,KAC,2027-01-18,1.0
+EA62 Blackpool & Lancaster,EV,2027-01-18,1.0
+EA62 Preston & Southport,HEC,2027-01-18,2.46
+EA62 Preston & Southport,KAC,2027-01-18,1.0
+EA62 Preston & Southport,EV,2027-01-18,7.67
+EB24 The Wirral,HEC,2027-01-18,1.0
+EB24 The Wirral,KAC,2027-01-18,2.61
+EB24 The Wirral,EV,2027-01-18,7.81
+EC91 Leicester,HEC,2027-01-18,5.0
+EC91 Leicester,KAC,2027-01-18,5.0
+EC91 Leicester,EV,2027-01-18,1.0
+ED41 Bromley & Dartford,HEC,2027-01-18,1.0
+ED41 Bromley & Dartford,KAC,2027-01-18,7.51
+ED41 Bromley & Dartford,EV,2027-01-18,1.0
+EB13 Manchester Centre,HEC,2027-01-18,1.0
+EB13 Manchester Centre,KAC,2027-01-18,2.46
+EB13 Manchester Centre,EV,2027-01-18,7.58
+EB12 Lancashire South,HEC,2027-01-18,1.0
+EB12 Lancashire South,KAC,2027-01-18,7.29
+EB12 Lancashire South,EV,2027-01-18,1.0
+ED44 Canterbury & Dover,HEC,2027-01-25,2.53
+ED44 Canterbury & Dover,KAC,2027-01-25,7.42
+ED44 Canterbury & Dover,EV,2027-01-25,5.0
+EB12 Altrincham,HEC,2027-01-25,2.54
+EB12 Altrincham,KAC,2027-01-25,1.0
+EB12 Altrincham,EV,2027-01-25,7.74
+EC62 Essex East,HEC,2027-01-25,2.49
+EC62 Essex East,KAC,2027-01-25,1.0
+EC62 Essex East,EV,2027-01-25,5.0
+EB14 Stockport,HEC,2027-01-25,5.0
+EB14 Stockport,KAC,2027-01-25,1.0
+EB14 Stockport,EV,2027-01-25,5.0
+ED22 Cobham & Heathrow,HEC,2027-01-25,2.54
+ED22 Cobham & Heathrow,KAC,2027-01-25,5.0
+ED22 Cobham & Heathrow,EV,2027-01-25,1.0
+EA62 Blackpool & Lancaster,HEC,2027-01-25,5.0
+EA62 Blackpool & Lancaster,KAC,2027-01-25,1.0
+EA62 Blackpool & Lancaster,EV,2027-01-25,7.3
+EA62 Preston & Southport,HEC,2027-01-25,2.54
+EA62 Preston & Southport,KAC,2027-01-25,7.47
+EA62 Preston & Southport,EV,2027-01-25,7.68
+EB24 The Wirral,HEC,2027-01-25,5.0
+EB24 The Wirral,KAC,2027-01-25,5.0
+EB24 The Wirral,EV,2027-01-25,5.0
+EC91 Leicester,HEC,2027-01-25,7.52
+EC91 Leicester,KAC,2027-01-25,2.51
+EC91 Leicester,EV,2027-01-25,2.54
+ED41 Bromley & Dartford,HEC,2027-01-25,1.0
+ED41 Bromley & Dartford,KAC,2027-01-25,1.0
+ED41 Bromley & Dartford,EV,2027-01-25,2.42
+EB13 Manchester Centre,HEC,2027-01-25,5.0
+EB13 Manchester Centre,KAC,2027-01-25,1.0
+EB13 Manchester Centre,EV,2027-01-25,5.0
+EB12 Lancashire South,HEC,2027-01-25,7.47
+EB12 Lancashire South,KAC,2027-01-25,7.47
+EB12 Lancashire South,EV,2027-01-25,5.0
+ED44 Canterbury & Dover,HEC,2027-02-01,2.48
+ED44 Canterbury & Dover,KAC,2027-02-01,1.0
+ED44 Canterbury & Dover,EV,2027-02-01,5.0
+EB12 Altrincham,HEC,2027-02-01,2.52
+EB12 Altrincham,KAC,2027-02-01,1.0
+EB12 Altrincham,EV,2027-02-01,5.0
+EC62 Essex East,HEC,2027-02-01,1.0
+EC62 Essex East,KAC,2027-02-01,2.49
+EC62 Essex East,EV,2027-02-01,2.53
+EB14 Stockport,HEC,2027-02-01,2.61
+EB14 Stockport,KAC,2027-02-01,2.52
+EB14 Stockport,EV,2027-02-01,7.6
+ED22 Cobham & Heathrow,HEC,2027-02-01,2.42
+ED22 Cobham & Heathrow,KAC,2027-02-01,7.71
+ED22 Cobham & Heathrow,EV,2027-02-01,1.0
+EA62 Blackpool & Lancaster,HEC,2027-02-01,7.87
+EA62 Blackpool & Lancaster,KAC,2027-02-01,1.0
+EA62 Blackpool & Lancaster,EV,2027-02-01,1.0
+EA62 Preston & Southport,HEC,2027-02-01,1.0
+EA62 Preston & Southport,KAC,2027-02-01,5.0
+EA62 Preston & Southport,EV,2027-02-01,5.0
+EB24 The Wirral,HEC,2027-02-01,7.78
+EB24 The Wirral,KAC,2027-02-01,1.0
+EB24 The Wirral,EV,2027-02-01,5.0
+EC91 Leicester,HEC,2027-02-01,5.0
+EC91 Leicester,KAC,2027-02-01,5.0
+EC91 Leicester,EV,2027-02-01,1.0
+ED41 Bromley & Dartford,HEC,2027-02-01,1.0
+ED41 Bromley & Dartford,KAC,2027-02-01,2.57
+ED41 Bromley & Dartford,EV,2027-02-01,1.0
+EB13 Manchester Centre,HEC,2027-02-01,5.0
+EB13 Manchester Centre,KAC,2027-02-01,1.0
+EB13 Manchester Centre,EV,2027-02-01,2.57
+EB12 Lancashire South,HEC,2027-02-01,7.44
+EB12 Lancashire South,KAC,2027-02-01,2.56
+EB12 Lancashire South,EV,2027-02-01,5.0
+ED44 Canterbury & Dover,HEC,2027-02-08,7.24
+ED44 Canterbury & Dover,KAC,2027-02-08,7.65
+ED44 Canterbury & Dover,EV,2027-02-08,2.45
+EB12 Altrincham,HEC,2027-02-08,5.0
+EB12 Altrincham,KAC,2027-02-08,7.67
+EB12 Altrincham,EV,2027-02-08,2.52
+EC62 Essex East,HEC,2027-02-08,2.47
+EC62 Essex East,KAC,2027-02-08,5.0
+EC62 Essex East,EV,2027-02-08,2.49
+EB14 Stockport,HEC,2027-02-08,2.53
+EB14 Stockport,KAC,2027-02-08,2.5
+EB14 Stockport,EV,2027-02-08,1.0
+ED22 Cobham & Heathrow,HEC,2027-02-08,1.0
+ED22 Cobham & Heathrow,KAC,2027-02-08,1.0
+ED22 Cobham & Heathrow,EV,2027-02-08,2.45
+EA62 Blackpool & Lancaster,HEC,2027-02-08,1.0
+EA62 Blackpool & Lancaster,KAC,2027-02-08,7.77
+EA62 Blackpool & Lancaster,EV,2027-02-08,1.0
+EA62 Preston & Southport,HEC,2027-02-08,1.0
+EA62 Preston & Southport,KAC,2027-02-08,1.0
+EA62 Preston & Southport,EV,2027-02-08,5.0
+EB24 The Wirral,HEC,2027-02-08,2.57
+EB24 The Wirral,KAC,2027-02-08,7.46
+EB24 The Wirral,EV,2027-02-08,7.8
+EC91 Leicester,HEC,2027-02-08,7.25
+EC91 Leicester,KAC,2027-02-08,2.59
+EC91 Leicester,EV,2027-02-08,1.0
+ED41 Bromley & Dartford,HEC,2027-02-08,1.0
+ED41 Bromley & Dartford,KAC,2027-02-08,2.58
+ED41 Bromley & Dartford,EV,2027-02-08,1.0
+EB13 Manchester Centre,HEC,2027-02-08,2.41
+EB13 Manchester Centre,KAC,2027-02-08,1.0
+EB13 Manchester Centre,EV,2027-02-08,2.43
+EB12 Lancashire South,HEC,2027-02-08,1.0
+EB12 Lancashire South,KAC,2027-02-08,7.86
+EB12 Lancashire South,EV,2027-02-08,1.0
+ED44 Canterbury & Dover,HEC,2027-02-15,2.52
+ED44 Canterbury & Dover,KAC,2027-02-15,1.0
+ED44 Canterbury & Dover,EV,2027-02-15,1.0
+EB12 Altrincham,HEC,2027-02-15,7.66
+EB12 Altrincham,KAC,2027-02-15,2.41
+EB12 Altrincham,EV,2027-02-15,1.0
+EC62 Essex East,HEC,2027-02-15,5.0
+EC62 Essex East,KAC,2027-02-15,1.0
+EC62 Essex East,EV,2027-02-15,1.0
+EB14 Stockport,HEC,2027-02-15,7.52
+EB14 Stockport,KAC,2027-02-15,2.44
+EB14 Stockport,EV,2027-02-15,5.0
+ED22 Cobham & Heathrow,HEC,2027-02-15,5.0
+ED22 Cobham & Heathrow,KAC,2027-02-15,5.0
+ED22 Cobham & Heathrow,EV,2027-02-15,2.59
+EA62 Blackpool & Lancaster,HEC,2027-02-15,1.0
+EA62 Blackpool & Lancaster,KAC,2027-02-15,1.0
+EA62 Blackpool & Lancaster,EV,2027-02-15,2.44
+EA62 Preston & Southport,HEC,2027-02-15,5.0
+EA62 Preston & Southport,KAC,2027-02-15,1.0
+EA62 Preston & Southport,EV,2027-02-15,1.0
+EB24 The Wirral,HEC,2027-02-15,5.0
+EB24 The Wirral,KAC,2027-02-15,5.0
+EB24 The Wirral,EV,2027-02-15,1.0
+EC91 Leicester,HEC,2027-02-15,7.59
+EC91 Leicester,KAC,2027-02-15,1.0
+EC91 Leicester,EV,2027-02-15,1.0
+ED41 Bromley & Dartford,HEC,2027-02-15,1.0
+ED41 Bromley & Dartford,KAC,2027-02-15,7.21
+ED41 Bromley & Dartford,EV,2027-02-15,2.61
+EB13 Manchester Centre,HEC,2027-02-15,1.0
+EB13 Manchester Centre,KAC,2027-02-15,1.0
+EB13 Manchester Centre,EV,2027-02-15,1.0
+EB12 Lancashire South,HEC,2027-02-15,7.47
+EB12 Lancashire South,KAC,2027-02-15,5.0
+EB12 Lancashire South,EV,2027-02-15,7.86
+ED44 Canterbury & Dover,HEC,2027-02-22,7.37
+ED44 Canterbury & Dover,KAC,2027-02-22,7.27
+ED44 Canterbury & Dover,EV,2027-02-22,1.0
+EB12 Altrincham,HEC,2027-02-22,7.84
+EB12 Altrincham,KAC,2027-02-22,5.0
+EB12 Altrincham,EV,2027-02-22,5.0
+EC62 Essex East,HEC,2027-02-22,5.0
+EC62 Essex East,KAC,2027-02-22,2.62
+EC62 Essex East,EV,2027-02-22,7.69
+EB14 Stockport,HEC,2027-02-22,5.0
+EB14 Stockport,KAC,2027-02-22,2.41
+EB14 Stockport,EV,2027-02-22,7.59
+ED22 Cobham & Heathrow,HEC,2027-02-22,7.41
+ED22 Cobham & Heathrow,KAC,2027-02-22,1.0
+ED22 Cobham & Heathrow,EV,2027-02-22,7.41
+EA62 Blackpool & Lancaster,HEC,2027-02-22,1.0
+EA62 Blackpool & Lancaster,KAC,2027-02-22,1.0
+EA62 Blackpool & Lancaster,EV,2027-02-22,1.0
+EA62 Preston & Southport,HEC,2027-02-22,2.45
+EA62 Preston & Southport,KAC,2027-02-22,1.0
+EA62 Preston & Southport,EV,2027-02-22,1.0
+EB24 The Wirral,HEC,2027-02-22,1.0
+EB24 The Wirral,KAC,2027-02-22,1.0
+EB24 The Wirral,EV,2027-02-22,7.59
+EC91 Leicester,HEC,2027-02-22,1.0
+EC91 Leicester,KAC,2027-02-22,1.0
+EC91 Leicester,EV,2027-02-22,1.0
+ED41 Bromley & Dartford,HEC,2027-02-22,5.0
+ED41 Bromley & Dartford,KAC,2027-02-22,5.0
+ED41 Bromley & Dartford,EV,2027-02-22,7.4
+EB13 Manchester Centre,HEC,2027-02-22,5.0
+EB13 Manchester Centre,KAC,2027-02-22,2.43
+EB13 Manchester Centre,EV,2027-02-22,1.0
+EB12 Lancashire South,HEC,2027-02-22,1.0
+EB12 Lancashire South,KAC,2027-02-22,2.41
+EB12 Lancashire South,EV,2027-02-22,2.62
+ED44 Canterbury & Dover,HEC,2027-03-01,5.0
+ED44 Canterbury & Dover,KAC,2027-03-01,1.0
+ED44 Canterbury & Dover,EV,2027-03-01,1.0
+EB12 Altrincham,HEC,2027-03-01,2.48
+EB12 Altrincham,KAC,2027-03-01,7.87
+EB12 Altrincham,EV,2027-03-01,1.0
+EC62 Essex East,HEC,2027-03-01,5.0
+EC62 Essex East,KAC,2027-03-01,1.0
+EC62 Essex East,EV,2027-03-01,7.34
+EB14 Stockport,HEC,2027-03-01,1.0
+EB14 Stockport,KAC,2027-03-01,1.0
+EB14 Stockport,EV,2027-03-01,2.54
+ED22 Cobham & Heathrow,HEC,2027-03-01,1.0
+ED22 Cobham & Heathrow,KAC,2027-03-01,1.0
+ED22 Cobham & Heathrow,EV,2027-03-01,1.0
+EA62 Blackpool & Lancaster,HEC,2027-03-01,1.0
+EA62 Blackpool & Lancaster,KAC,2027-03-01,2.49
+EA62 Blackpool & Lancaster,EV,2027-03-01,7.8
+EA62 Preston & Southport,HEC,2027-03-01,7.64
+EA62 Preston & Southport,KAC,2027-03-01,2.49
+EA62 Preston & Southport,EV,2027-03-01,5.0
+EB24 The Wirral,HEC,2027-03-01,1.0
+EB24 The Wirral,KAC,2027-03-01,5.0
+EB24 The Wirral,EV,2027-03-01,2.46
+EC91 Leicester,HEC,2027-03-01,5.0
+EC91 Leicester,KAC,2027-03-01,2.49
+EC91 Leicester,EV,2027-03-01,7.62
+ED41 Bromley & Dartford,HEC,2027-03-01,7.38
+ED41 Bromley & Dartford,KAC,2027-03-01,5.0
+ED41 Bromley & Dartford,EV,2027-03-01,5.0
+EB13 Manchester Centre,HEC,2027-03-01,1.0
+EB13 Manchester Centre,KAC,2027-03-01,7.67
+EB13 Manchester Centre,EV,2027-03-01,1.0
+EB12 Lancashire South,HEC,2027-03-01,5.0
+EB12 Lancashire South,KAC,2027-03-01,2.43
+EB12 Lancashire South,EV,2027-03-01,7.41
+ED44 Canterbury & Dover,HEC,2027-03-08,2.45
+ED44 Canterbury & Dover,KAC,2027-03-08,1.0
+ED44 Canterbury & Dover,EV,2027-03-08,1.0
+EB12 Altrincham,HEC,2027-03-08,1.0
+EB12 Altrincham,KAC,2027-03-08,7.77
+EB12 Altrincham,EV,2027-03-08,7.32
+EC62 Essex East,HEC,2027-03-08,1.0
+EC62 Essex East,KAC,2027-03-08,2.55
+EC62 Essex East,EV,2027-03-08,7.79
+EB14 Stockport,HEC,2027-03-08,1.0
+EB14 Stockport,KAC,2027-03-08,1.0
+EB14 Stockport,EV,2027-03-08,5.0
+ED22 Cobham & Heathrow,HEC,2027-03-08,7.67
+ED22 Cobham & Heathrow,KAC,2027-03-08,5.0
+ED22 Cobham & Heathrow,EV,2027-03-08,2.49
+EA62 Blackpool & Lancaster,HEC,2027-03-08,1.0
+EA62 Blackpool & Lancaster,KAC,2027-03-08,7.46
+EA62 Blackpool & Lancaster,EV,2027-03-08,5.0
+EA62 Preston & Southport,HEC,2027-03-08,5.0
+EA62 Preston & Southport,KAC,2027-03-08,1.0
+EA62 Preston & Southport,EV,2027-03-08,5.0
+EB24 The Wirral,HEC,2027-03-08,2.53
+EB24 The Wirral,KAC,2027-03-08,5.0
+EB24 The Wirral,EV,2027-03-08,2.6
+EC91 Leicester,HEC,2027-03-08,2.4
+EC91 Leicester,KAC,2027-03-08,1.0
+EC91 Leicester,EV,2027-03-08,1.0
+ED41 Bromley & Dartford,HEC,2027-03-08,2.43
+ED41 Bromley & Dartford,KAC,2027-03-08,5.0
+ED41 Bromley & Dartford,EV,2027-03-08,5.0
+EB13 Manchester Centre,HEC,2027-03-08,2.56
+EB13 Manchester Centre,KAC,2027-03-08,5.0
+EB13 Manchester Centre,EV,2027-03-08,7.66
+EB12 Lancashire South,HEC,2027-03-08,1.0
+EB12 Lancashire South,KAC,2027-03-08,5.0
+EB12 Lancashire South,EV,2027-03-08,1.0
+ED44 Canterbury & Dover,HEC,2027-03-15,2.42
+ED44 Canterbury & Dover,KAC,2027-03-15,2.55
+ED44 Canterbury & Dover,EV,2027-03-15,2.4
+EB12 Altrincham,HEC,2027-03-15,1.0
+EB12 Altrincham,KAC,2027-03-15,5.0
+EB12 Altrincham,EV,2027-03-15,7.34
+EC62 Essex East,HEC,2027-03-15,1.0
+EC62 Essex East,KAC,2027-03-15,7.59
+EC62 Essex East,EV,2027-03-15,5.0
+EB14 Stockport,HEC,2027-03-15,5.0
+EB14 Stockport,KAC,2027-03-15,1.0
+EB14 Stockport,EV,2027-03-15,1.0
+ED22 Cobham & Heathrow,HEC,2027-03-15,7.28
+ED22 Cobham & Heathrow,KAC,2027-03-15,2.52
+ED22 Cobham & Heathrow,EV,2027-03-15,7.36
+EA62 Blackpool & Lancaster,HEC,2027-03-15,5.0
+EA62 Blackpool & Lancaster,KAC,2027-03-15,5.0
+EA62 Blackpool & Lancaster,EV,2027-03-15,1.0
+EA62 Preston & Southport,HEC,2027-03-15,1.0
+EA62 Preston & Southport,KAC,2027-03-15,2.55
+EA62 Preston & Southport,EV,2027-03-15,7.77
+EB24 The Wirral,HEC,2027-03-15,1.0
+EB24 The Wirral,KAC,2027-03-15,2.6
+EB24 The Wirral,EV,2027-03-15,5.0
+EC91 Leicester,HEC,2027-03-15,5.0
+EC91 Leicester,KAC,2027-03-15,1.0
+EC91 Leicester,EV,2027-03-15,1.0
+ED41 Bromley & Dartford,HEC,2027-03-15,7.8
+ED41 Bromley & Dartford,KAC,2027-03-15,1.0
+ED41 Bromley & Dartford,EV,2027-03-15,1.0
+EB13 Manchester Centre,HEC,2027-03-15,2.4
+EB13 Manchester Centre,KAC,2027-03-15,7.56
+EB13 Manchester Centre,EV,2027-03-15,1.0
+EB12 Lancashire South,HEC,2027-03-15,7.64
+EB12 Lancashire South,KAC,2027-03-15,5.0
+EB12 Lancashire South,EV,2027-03-15,1.0
+ED44 Canterbury & Dover,HEC,2027-03-22,1.0
+ED44 Canterbury & Dover,KAC,2027-03-22,1.0
+ED44 Canterbury & Dover,EV,2027-03-22,5.0
+EB12 Altrincham,HEC,2027-03-22,1.0
+EB12 Altrincham,KAC,2027-03-22,1.0
+EB12 Altrincham,EV,2027-03-22,5.0
+EC62 Essex East,HEC,2027-03-22,2.58
+EC62 Essex East,KAC,2027-03-22,7.8
+EC62 Essex East,EV,2027-03-22,2.57
+EB14 Stockport,HEC,2027-03-22,5.0
+EB14 Stockport,KAC,2027-03-22,5.0
+EB14 Stockport,EV,2027-03-22,5.0
+ED22 Cobham & Heathrow,HEC,2027-03-22,1.0
+ED22 Cobham & Heathrow,KAC,2027-03-22,5.0
+ED22 Cobham & Heathrow,EV,2027-03-22,7.71
+EA62 Blackpool & Lancaster,HEC,2027-03-22,1.0
+EA62 Blackpool & Lancaster,KAC,2027-03-22,5.0
+EA62 Blackpool & Lancaster,EV,2027-03-22,1.0
+EA62 Preston & Southport,HEC,2027-03-22,7.24
+EA62 Preston & Southport,KAC,2027-03-22,7.68
+EA62 Preston & Southport,EV,2027-03-22,1.0
+EB24 The Wirral,HEC,2027-03-22,1.0
+EB24 The Wirral,KAC,2027-03-22,2.51
+EB24 The Wirral,EV,2027-03-22,5.0
+EC91 Leicester,HEC,2027-03-22,2.45
+EC91 Leicester,KAC,2027-03-22,7.78
+EC91 Leicester,EV,2027-03-22,2.5
+ED41 Bromley & Dartford,HEC,2027-03-22,1.0
+ED41 Bromley & Dartford,KAC,2027-03-22,2.45
+ED41 Bromley & Dartford,EV,2027-03-22,2.59
+EB13 Manchester Centre,HEC,2027-03-22,7.59
+EB13 Manchester Centre,KAC,2027-03-22,7.36
+EB13 Manchester Centre,EV,2027-03-22,5.0
+EB12 Lancashire South,HEC,2027-03-22,1.0
+EB12 Lancashire South,KAC,2027-03-22,5.0
+EB12 Lancashire South,EV,2027-03-22,7.68
+ED44 Canterbury & Dover,HEC,2027-03-29,5.0
+ED44 Canterbury & Dover,KAC,2027-03-29,2.6
+ED44 Canterbury & Dover,EV,2027-03-29,2.43
+EB12 Altrincham,HEC,2027-03-29,7.71
+EB12 Altrincham,KAC,2027-03-29,7.35
+EB12 Altrincham,EV,2027-03-29,5.0
+EC62 Essex East,HEC,2027-03-29,5.0
+EC62 Essex East,KAC,2027-03-29,2.5
+EC62 Essex East,EV,2027-03-29,1.0
+EB14 Stockport,HEC,2027-03-29,1.0
+EB14 Stockport,KAC,2027-03-29,7.59
+EB14 Stockport,EV,2027-03-29,5.0
+ED22 Cobham & Heathrow,HEC,2027-03-29,1.0
+ED22 Cobham & Heathrow,KAC,2027-03-29,5.0
+ED22 Cobham & Heathrow,EV,2027-03-29,1.0
+EA62 Blackpool & Lancaster,HEC,2027-03-29,2.54
+EA62 Blackpool & Lancaster,KAC,2027-03-29,5.0
+EA62 Blackpool & Lancaster,EV,2027-03-29,5.0
+EA62 Preston & Southport,HEC,2027-03-29,5.0
+EA62 Preston & Southport,KAC,2027-03-29,1.0
+EA62 Preston & Southport,EV,2027-03-29,5.0
+EB24 The Wirral,HEC,2027-03-29,1.0
+EB24 The Wirral,KAC,2027-03-29,1.0
+EB24 The Wirral,EV,2027-03-29,7.53
+EC91 Leicester,HEC,2027-03-29,7.43
+EC91 Leicester,KAC,2027-03-29,2.46
+EC91 Leicester,EV,2027-03-29,1.0
+ED41 Bromley & Dartford,HEC,2027-03-29,5.0
+ED41 Bromley & Dartford,KAC,2027-03-29,1.0
+ED41 Bromley & Dartford,EV,2027-03-29,7.48
+EB13 Manchester Centre,HEC,2027-03-29,5.0
+EB13 Manchester Centre,KAC,2027-03-29,1.0
+EB13 Manchester Centre,EV,2027-03-29,1.0
+EB12 Lancashire South,HEC,2027-03-29,5.0
+EB12 Lancashire South,KAC,2027-03-29,1.0
+EB12 Lancashire South,EV,2027-03-29,1.0

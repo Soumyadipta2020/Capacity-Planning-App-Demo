@@ -1,9 +1,9 @@
 """
-Custom CSS styles and UI brand components matching the British Gas / Centrica Capacity Planning interface.
+Custom CSS styles and UI brand components matching the Capacity Planning interface.
 """
 
 CUSTOM_CSS = """
-/* Centrica / British Gas Capacity Planning Theme */
+/* Capacity Planning Theme */
 :root {
     --bg-primary-blue: #002D62;
     --bg-secondary-blue: #004b87;
@@ -389,14 +389,14 @@ body {
 }
 """
 
-def get_british_gas_logo_html() -> str:
-    """Returns SVG and stylized British Gas badge for the navbar."""
+def get_company_logo_html() -> str:
+    """Returns SVG and stylized brand badge for the navbar."""
     return """
     <div class="brand-logo-container">
         <svg class="brand-flame-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2C10.5 4.5 9 7.5 9 10.5c0 2.5 1.5 4.5 3 4.5s3-2 3-4.5C15 7.5 13.5 4.5 12 2zm0 13c-2.8 0-5 2.2-5 5 0 2.2 1.8 4 4 4 1.5 0 2.8-.8 3.5-2 .7 1.2 2 2 3.5 2 2.2 0 4-1.8 4-4 0-2.8-2.2-5-5-5-1.1 0-2.1.4-2.8 1-.2-.6-.7-1-1.2-1z" fill="#0072ce"/>
         </svg>
-        <span>British Gas</span>
+        <span>Capacity Planning</span>
     </div>
     """
 
