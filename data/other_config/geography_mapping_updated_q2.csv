@@ -4,7 +4,6 @@ A,A1,EA13 Dendee & Perth
 A,A1,EA12 Aberdeen North
 A,A2,EA21 Stirling & Falkirk
 A,A2,EA22 Edinburgh Central
-A,A3,EA31 Glasgow South
 B,B1,EB11 Preston & Blackpool
 B,B1,EB14 Stockport & Peak
 B,B2,EB12 Altrincham
@@ -13,8 +12,3 @@ C,C1,EC91 Leicester
 C,C1,EC92 Nottingham & Derby
 C,C2,EC61 Norwich & Norfolk
 C,C2,EC62 Essex East
-D,D1,ED11 North London & Barnet
-D,D2,ED44 Canterbury & Dover
-D,D2,ED42 Eastbourne & Hastings
-E,E1,EE21 Bristol North & Bath
-E,E2,EE31 Exeter & Devon

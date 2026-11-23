@@ -1,2 +1,8 @@
-Skill,Rate
-HEC,3.8
+Skill,Rate,Target,Benchmark_Year,Variance_Tolerance_Pct
+HEC (Home Energy),3.8,4.0,2026,5.0
+KAC (Kitchen Appliances),3.5,3.8,2026,5.0
+EV (Charging Infrastructure),2.2,2.5,2026,8.0
+Smart Metering (SnM),4.2,4.5,2026,4.0
+Heat Pumps & Renewables,1.8,2.1,2026,10.0
+Commercial Heating,2.8,3.1,2026,6.0
+Apprentice HEC,2.1,2.4,2026,12.0

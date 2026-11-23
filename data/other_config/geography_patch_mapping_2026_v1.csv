@@ -1,10 +1,10 @@
 Region,ACDM,territory
 A,A1,EA11 Inverness & Aviemore
 A,A1,EA13 Dendee & Perth
+A,A1,EA12 Aberdeen North
 A,A2,EA21 Stirling & Falkirk
+A,A2,EA22 Edinburgh Central
 B,B1,EB11 Preston & Blackpool
+B,B1,EB14 Stockport & Peak
 B,B2,EB12 Altrincham
-C,C1,EC91 Leicester
-C,C2,EC62 Essex East
-D,D2,ED44 Canterbury & Dover
-E,E1,EE21 Bristol North & Bath
+B,B2,EB21 Manchester Central

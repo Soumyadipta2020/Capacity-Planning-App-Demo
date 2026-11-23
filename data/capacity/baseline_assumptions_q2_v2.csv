@@ -1,2 +1,10 @@
-Metric,Value
-Std Hours,37.5
+Metric,Value,Unit,Category
+Contractual Standard Hours,37.5,hrs/week,Working Time
+Shift Length,7.5,hrs/day,Working Time
+Working Days per Week,5.0,days,Working Time
+Annual Leave Allowance,25.0,days/year,Leave
+Sickness Absence Reserve,4.5,%,Absence
+Overtime Pay Multiplier,1.45,x,Compensation
+Bank Holiday Multiplier,1.75,x,Compensation
+Mandatory Training Days,8.0,days/FTE,Training
+Travel Time Allowance,40.0,mins/job,Field Productivity

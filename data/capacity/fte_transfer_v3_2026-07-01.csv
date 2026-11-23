@@ -8,23 +8,23 @@ EA1,EA2,HEC,2026-09-21,1.0,Peak Winter Demand
 EB1,EB2,HEC,2026-09-21,0.5,Storm Response Deficit
 EC1,EC2,KAC,2026-09-21,2.5,Apprentice Upskilling
 ED4,ED2,HEC,2026-09-21,0.5,London South Rebalancing
-EB12 Altrincham,EB14 Stockport,EV,2026-09-21,2.5,EV Charger Install Surge
+EB12 Altrincham,EB14 Stockport,EV,2026-09-21,2.6,EV Charger Install Surge
 EA1,EA2,HEC,2026-09-28,2.0,Peak Winter Demand
 EB1,EB2,HEC,2026-09-28,0.5,Storm Response Deficit
 EC1,EC2,KAC,2026-09-28,0.5,Apprentice Upskilling
 ED4,ED2,HEC,2026-09-28,0.5,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2026-09-28,1.0,EV Charger Install Surge
 EA1,EA2,HEC,2026-10-05,1.0,Peak Winter Demand
-EB1,EB2,HEC,2026-10-05,2.5,Storm Response Deficit
+EB1,EB2,HEC,2026-10-05,2.6,Storm Response Deficit
 EC1,EC2,KAC,2026-10-05,2.5,Apprentice Upskilling
 ED4,ED2,HEC,2026-10-05,0.5,London South Rebalancing
-EB12 Altrincham,EB14 Stockport,EV,2026-10-05,2.5,EV Charger Install Surge
+EB12 Altrincham,EB14 Stockport,EV,2026-10-05,2.6,EV Charger Install Surge
 EA1,EA2,HEC,2026-10-12,1.0,Peak Winter Demand
-EB1,EB2,HEC,2026-10-12,2.5,Storm Response Deficit
+EB1,EB2,HEC,2026-10-12,2.4,Storm Response Deficit
 EC1,EC2,KAC,2026-10-12,2.0,Apprentice Upskilling
 ED4,ED2,HEC,2026-10-12,1.0,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2026-10-12,2.0,EV Charger Install Surge
-EA1,EA2,HEC,2026-10-19,2.5,Peak Winter Demand
+EA1,EA2,HEC,2026-10-19,2.6,Peak Winter Demand
 EB1,EB2,HEC,2026-10-19,1.5,Storm Response Deficit
 EC1,EC2,KAC,2026-10-19,0.5,Apprentice Upskilling
 ED4,ED2,HEC,2026-10-19,1.0,London South Rebalancing
@@ -33,31 +33,31 @@ EA1,EA2,HEC,2026-10-26,1.5,Peak Winter Demand
 EB1,EB2,HEC,2026-10-26,1.5,Storm Response Deficit
 EC1,EC2,KAC,2026-10-26,1.0,Apprentice Upskilling
 ED4,ED2,HEC,2026-10-26,1.0,London South Rebalancing
-EB12 Altrincham,EB14 Stockport,EV,2026-10-26,1.5,EV Charger Install Surge
+EB12 Altrincham,EB14 Stockport,EV,2026-10-26,1.6,EV Charger Install Surge
 EA1,EA2,HEC,2026-11-02,0.5,Peak Winter Demand
 EB1,EB2,HEC,2026-11-02,0.5,Storm Response Deficit
 EC1,EC2,KAC,2026-11-02,2.0,Apprentice Upskilling
 ED4,ED2,HEC,2026-11-02,0.5,London South Rebalancing
-EB12 Altrincham,EB14 Stockport,EV,2026-11-02,1.5,EV Charger Install Surge
+EB12 Altrincham,EB14 Stockport,EV,2026-11-02,1.4,EV Charger Install Surge
 EA1,EA2,HEC,2026-11-09,1.5,Peak Winter Demand
 EB1,EB2,HEC,2026-11-09,2.5,Storm Response Deficit
-EC1,EC2,KAC,2026-11-09,1.5,Apprentice Upskilling
+EC1,EC2,KAC,2026-11-09,1.6,Apprentice Upskilling
 ED4,ED2,HEC,2026-11-09,0.5,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2026-11-09,2.0,EV Charger Install Surge
-EA1,EA2,HEC,2026-11-16,2.5,Peak Winter Demand
+EA1,EA2,HEC,2026-11-16,2.6,Peak Winter Demand
 EB1,EB2,HEC,2026-11-16,0.5,Storm Response Deficit
 EC1,EC2,KAC,2026-11-16,2.0,Apprentice Upskilling
 ED4,ED2,HEC,2026-11-16,0.5,London South Rebalancing
-EB12 Altrincham,EB14 Stockport,EV,2026-11-16,2.5,EV Charger Install Surge
+EB12 Altrincham,EB14 Stockport,EV,2026-11-16,2.6,EV Charger Install Surge
 EA1,EA2,HEC,2026-11-23,1.5,Peak Winter Demand
 EB1,EB2,HEC,2026-11-23,2.5,Storm Response Deficit
 EC1,EC2,KAC,2026-11-23,1.5,Apprentice Upskilling
-ED4,ED2,HEC,2026-11-23,2.5,London South Rebalancing
+ED4,ED2,HEC,2026-11-23,2.6,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2026-11-23,1.0,EV Charger Install Surge
 EA1,EA2,HEC,2026-11-30,0.5,Peak Winter Demand
 EB1,EB2,HEC,2026-11-30,0.5,Storm Response Deficit
 EC1,EC2,KAC,2026-11-30,1.0,Apprentice Upskilling
-ED4,ED2,HEC,2026-11-30,1.5,London South Rebalancing
+ED4,ED2,HEC,2026-11-30,1.4,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2026-11-30,0.5,EV Charger Install Surge
 EA1,EA2,HEC,2026-12-07,1.0,Peak Winter Demand
 EB1,EB2,HEC,2026-12-07,0.5,Storm Response Deficit
@@ -67,18 +67,18 @@ EB12 Altrincham,EB14 Stockport,EV,2026-12-07,2.0,EV Charger Install Surge
 EA1,EA2,HEC,2026-12-14,1.5,Peak Winter Demand
 EB1,EB2,HEC,2026-12-14,1.0,Storm Response Deficit
 EC1,EC2,KAC,2026-12-14,1.5,Apprentice Upskilling
-ED4,ED2,HEC,2026-12-14,1.5,London South Rebalancing
+ED4,ED2,HEC,2026-12-14,1.4,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2026-12-14,1.0,EV Charger Install Surge
-EA1,EA2,HEC,2026-12-21,1.5,Peak Winter Demand
+EA1,EA2,HEC,2026-12-21,1.6,Peak Winter Demand
 EB1,EB2,HEC,2026-12-21,0.5,Storm Response Deficit
-EC1,EC2,KAC,2026-12-21,2.5,Apprentice Upskilling
+EC1,EC2,KAC,2026-12-21,2.6,Apprentice Upskilling
 ED4,ED2,HEC,2026-12-21,1.0,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2026-12-21,2.5,EV Charger Install Surge
 EA1,EA2,HEC,2026-12-28,1.0,Peak Winter Demand
 EB1,EB2,HEC,2026-12-28,1.0,Storm Response Deficit
 EC1,EC2,KAC,2026-12-28,2.0,Apprentice Upskilling
 ED4,ED2,HEC,2026-12-28,2.0,London South Rebalancing
-EB12 Altrincham,EB14 Stockport,EV,2026-12-28,1.5,EV Charger Install Surge
+EB12 Altrincham,EB14 Stockport,EV,2026-12-28,1.6,EV Charger Install Surge
 EA1,EA2,HEC,2027-01-04,2.5,Peak Winter Demand
 EB1,EB2,HEC,2027-01-04,1.0,Storm Response Deficit
 EC1,EC2,KAC,2027-01-04,1.5,Apprentice Upskilling
@@ -90,7 +90,7 @@ EC1,EC2,KAC,2027-01-11,2.0,Apprentice Upskilling
 ED4,ED2,HEC,2027-01-11,1.5,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2027-01-11,0.5,EV Charger Install Surge
 EA1,EA2,HEC,2027-01-18,1.0,Peak Winter Demand
-EB1,EB2,HEC,2027-01-18,2.5,Storm Response Deficit
+EB1,EB2,HEC,2027-01-18,2.4,Storm Response Deficit
 EC1,EC2,KAC,2027-01-18,1.5,Apprentice Upskilling
 ED4,ED2,HEC,2027-01-18,1.0,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2027-01-18,2.0,EV Charger Install Surge
@@ -100,17 +100,17 @@ EC1,EC2,KAC,2027-01-25,1.0,Apprentice Upskilling
 ED4,ED2,HEC,2027-01-25,1.5,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2027-01-25,1.0,EV Charger Install Surge
 EA1,EA2,HEC,2027-02-01,1.0,Peak Winter Demand
-EB1,EB2,HEC,2027-02-01,2.5,Storm Response Deficit
+EB1,EB2,HEC,2027-02-01,2.4,Storm Response Deficit
 EC1,EC2,KAC,2027-02-01,2.5,Apprentice Upskilling
 ED4,ED2,HEC,2027-02-01,1.5,London South Rebalancing
-EB12 Altrincham,EB14 Stockport,EV,2027-02-01,2.5,EV Charger Install Surge
+EB12 Altrincham,EB14 Stockport,EV,2027-02-01,2.6,EV Charger Install Surge
 EA1,EA2,HEC,2027-02-08,2.0,Peak Winter Demand
-EB1,EB2,HEC,2027-02-08,2.5,Storm Response Deficit
+EB1,EB2,HEC,2027-02-08,2.6,Storm Response Deficit
 EC1,EC2,KAC,2027-02-08,2.0,Apprentice Upskilling
 ED4,ED2,HEC,2027-02-08,1.5,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2027-02-08,1.0,EV Charger Install Surge
 EA1,EA2,HEC,2027-02-15,1.0,Peak Winter Demand
-EB1,EB2,HEC,2027-02-15,2.5,Storm Response Deficit
+EB1,EB2,HEC,2027-02-15,2.6,Storm Response Deficit
 EC1,EC2,KAC,2027-02-15,2.0,Apprentice Upskilling
 ED4,ED2,HEC,2027-02-15,0.5,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2027-02-15,0.5,EV Charger Install Surge
@@ -118,18 +118,18 @@ EA1,EA2,HEC,2027-02-22,0.5,Peak Winter Demand
 EB1,EB2,HEC,2027-02-22,1.0,Storm Response Deficit
 EC1,EC2,KAC,2027-02-22,1.0,Apprentice Upskilling
 ED4,ED2,HEC,2027-02-22,2.0,London South Rebalancing
-EB12 Altrincham,EB14 Stockport,EV,2027-02-22,2.5,EV Charger Install Surge
+EB12 Altrincham,EB14 Stockport,EV,2027-02-22,2.4,EV Charger Install Surge
 EA1,EA2,HEC,2027-03-01,0.5,Peak Winter Demand
 EB1,EB2,HEC,2027-03-01,2.0,Storm Response Deficit
 EC1,EC2,KAC,2027-03-01,2.0,Apprentice Upskilling
-ED4,ED2,HEC,2027-03-01,2.5,London South Rebalancing
+ED4,ED2,HEC,2027-03-01,2.6,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2027-03-01,2.0,EV Charger Install Surge
 EA1,EA2,HEC,2027-03-08,2.5,Peak Winter Demand
 EB1,EB2,HEC,2027-03-08,1.5,Storm Response Deficit
-EC1,EC2,KAC,2027-03-08,2.5,Apprentice Upskilling
+EC1,EC2,KAC,2027-03-08,2.6,Apprentice Upskilling
 ED4,ED2,HEC,2027-03-08,0.5,London South Rebalancing
 EB12 Altrincham,EB14 Stockport,EV,2027-03-08,0.5,EV Charger Install Surge
-EA1,EA2,HEC,2027-03-15,2.5,Peak Winter Demand
+EA1,EA2,HEC,2027-03-15,2.6,Peak Winter Demand
 EB1,EB2,HEC,2027-03-15,1.5,Storm Response Deficit
 EC1,EC2,KAC,2027-03-15,1.5,Apprentice Upskilling
 ED4,ED2,HEC,2027-03-15,0.5,London South Rebalancing

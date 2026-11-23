@@ -803,7 +803,7 @@ def get_weekly_synthetic_data(input_key: str) -> pd.DataFrame:
     return pd.DataFrame([{"ID": 1, "Name": input_key, "Status": "Active"}])
 
 
-def _generate_sample_df_for_category(input_key: str) -> pd.DataFrame:
+def _generate_sample_df_for_category(input_key: str, filename: str = "") -> pd.DataFrame:
     """Helper to generate sample DataFrame for an input category."""
     WEEKLY_INPUT_KEYS = [
         "fte_transfer", "recruitment_grounded", "recruitment_ungrounded",
@@ -812,30 +812,48 @@ def _generate_sample_df_for_category(input_key: str) -> pd.DataFrame:
         "demand_input", "job_time_assumptions", "hec_on_kac_demand", "hec_on_ev_demand"
     ]
     if input_key in WEEKLY_INPUT_KEYS:
-        return get_weekly_synthetic_data(input_key)
+        base_df = get_weekly_synthetic_data(input_key)
     elif input_key == "actuals_input":
-        return SampleDataGenerator.get_imbalance_data()
+        base_df = SampleDataGenerator.get_imbalance_data()
     elif input_key == "resource_plan":
-        return SampleDataGenerator.get_capacity_fte_data()
+        base_df = SampleDataGenerator.get_capacity_fte_data()
     elif input_key == "baseline_assumptions":
-        return pd.DataFrame([
-            {"Metric": "Contractual Standard Hours", "Value": 37.5, "Unit": "hrs/week"},
-            {"Metric": "Shift Length", "Value": 7.5, "Unit": "hrs/day"},
-            {"Metric": "Working Days per Week", "Value": 5, "Unit": "days"},
-            {"Metric": "Annual Leave Factor", "Value": 11.2, "Unit": "%"}
+        base_df = pd.DataFrame([
+            {"Metric": "Contractual Standard Hours", "Value": 37.5, "Unit": "hrs/week", "Category": "Working Time"},
+            {"Metric": "Shift Length", "Value": 7.5, "Unit": "hrs/day", "Category": "Working Time"},
+            {"Metric": "Working Days per Week", "Value": 5, "Unit": "days", "Category": "Working Time"},
+            {"Metric": "Annual Leave Allowance", "Value": 25, "Unit": "days/year", "Category": "Leave"},
+            {"Metric": "Sickness Absence Reserve", "Value": 4.5, "Unit": "%", "Category": "Absence"},
+            {"Metric": "Overtime Pay Multiplier", "Value": 1.5, "Unit": "x", "Category": "Compensation"},
+            {"Metric": "Bank Holiday Multiplier", "Value": 2.0, "Unit": "x", "Category": "Compensation"},
+            {"Metric": "Mandatory Training Days", "Value": 10, "Unit": "days/FTE", "Category": "Training"},
+            {"Metric": "Travel Time Allowance", "Value": 42.0, "Unit": "mins/job", "Category": "Field Productivity"},
+            {"Metric": "Stand-down Safety Reserve", "Value": 2.0, "Unit": "%", "Category": "Governance"}
         ])
     elif input_key == "baseline_productivity":
-        return pd.DataFrame([
-            {"Skill": "HEC", "Rate": 3.8, "Target": 4.0, "Benchmark Year": 2025},
-            {"Skill": "KAC", "Rate": 3.5, "Target": 3.8, "Benchmark Year": 2025},
-            {"Skill": "EV", "Rate": 2.2, "Target": 2.5, "Benchmark Year": 2026}
+        base_df = pd.DataFrame([
+            {"Skill": "HEC (Home Energy)", "Rate": 3.8, "Target": 4.0, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 5.0},
+            {"Skill": "KAC (Kitchen Appliances)", "Rate": 3.5, "Target": 3.8, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 5.0},
+            {"Skill": "EV (Charging Infrastructure)", "Rate": 2.2, "Target": 2.5, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 8.0},
+            {"Skill": "Smart Metering (SnM)", "Rate": 4.2, "Target": 4.5, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 4.0},
+            {"Skill": "Heat Pumps & Renewables", "Rate": 1.8, "Target": 2.1, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 10.0},
+            {"Skill": "Commercial Heating", "Rate": 2.8, "Target": 3.1, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 6.0},
+            {"Skill": "Apprentice HEC", "Rate": 2.1, "Target": 2.4, "Benchmark_Year": 2026, "Variance_Tolerance_Pct": 12.0}
         ])
     elif input_key == "geography_mapping":
-        return SampleDataGenerator.get_geog_mapping_data()
+        base_df = SampleDataGenerator.get_geog_mapping_data()
     elif input_key == "week_to_month":
-        return SampleDataGenerator.get_week_to_month_data()
+        base_df = SampleDataGenerator.get_week_to_month_data()
     else:
-        return pd.DataFrame([{"ID": 1, "Name": input_key, "Status": "Active"}])
+        base_df = pd.DataFrame([{"ID": 1, "Name": input_key, "Status": "Active"}])
+
+    if filename:
+        try:
+            from populate_distinct_version_data import transform_dataframe_for_version
+            return transform_dataframe_for_version(input_key, filename, 0, base_df)
+        except Exception:
+            pass
+    return base_df
 
 
 def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
@@ -903,7 +921,7 @@ def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
     # If file still doesn't exist on disk, generate sample data using the category generator
     if target_path is None:
         try:
-            df = _generate_sample_df_for_category(input_key)
+            df = _generate_sample_df_for_category(input_key, filename=filename)
             safe_name = filename.replace(":", "-")
             if not safe_name.endswith((".csv", ".xlsx", ".xls")):
                 safe_name = f"{safe_name}.csv"

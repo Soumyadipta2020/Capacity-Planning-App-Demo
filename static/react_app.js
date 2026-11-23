@@ -149,6 +149,14 @@ function IconDownload({ className = "w-4 h-4" }) {
     );
 }
 
+function IconGitCompare({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-3-3m3 3l-3 3m-8 6H4m0 0l3 3m-3-3l3-3" />
+        </svg>
+    );
+}
+
 function IconCheck({ className = "w-3.5 h-3.5" }) {
     return (
         <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1659,7 +1667,7 @@ function ModernCapacityApp() {
 
             {/* CAPACITY COPILOT SLIDE-OVER DRAWER */}
             {isCopilotOpen && (
-                <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+                <div className="fixed inset-0 z-[1000] flex justify-end bg-slate-950/95 dark:bg-[#020617]/98 backdrop-blur-md animate-fade-in">
                     <div className={`w-full max-w-md h-full shadow-2xl flex flex-col animate-slide-left transition-colors duration-200 ${
                         isDarkMode ? 'bg-slate-800 text-slate-100' : 'bg-white text-slate-800'
                     }`}>
@@ -1885,7 +1893,7 @@ function ClusterManagementModal({
                     onClose();
                 }
             }}
-            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+            className="fixed inset-0 z-[1000] floating-modal-backdrop bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
         >
             <div 
                 onClick={(e) => e.stopPropagation()}
@@ -2231,7 +2239,7 @@ function MonteCarloSimulationModal({
     const meanX = getX(meanFte);
 
     return (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
+        <div className="fixed inset-0 z-[1000] floating-modal-backdrop bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fade-in">
             <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col glow-card">
                 {/* Header */}
                 <div className="px-5 py-3.5 bg-gradient-to-r from-slate-50 via-purple-50/30 to-white dark:from-[#0c1b31] dark:via-[#112649] dark:to-[#0c1b31] border-b border-slate-200/80 dark:border-[#18365d] flex items-center justify-between">
@@ -4306,7 +4314,7 @@ function ValidationResultsModal({ isOpen, onClose, results, onConfirmOk }) {
     return (
         <div 
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in"
+            className="fixed inset-0 z-[1000] floating-modal-backdrop bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
         >
             <div 
                 onClick={(e) => e.stopPropagation()}
@@ -5070,6 +5078,14 @@ function generateClientFallbackTable(inputKey, fileName) {
     if (!columns.some(c => c.toLowerCase().includes("remark") || c.toLowerCase().includes("notes"))) columns.push("Remarks");
 
     const rows = [];
+    let nameHash = 0;
+    const str = String(fileName || inputKey);
+    for (let c = 0; c < str.length; c++) {
+        nameHash = (nameHash * 31 + str.charCodeAt(c)) & 0xffffff;
+    }
+    const rowCount = 20 + (nameHash % 12); // Between 20 and 31 rows
+    const scaleFactor = 0.85 + ((nameHash % 35) / 100); // 0.85 to 1.20
+
     const patches = [
         "EA11 Inverness & Aviemore", "EB12 Altrincham", "EC62 Essex East", 
         "ED44 Canterbury & Dover", "EC41 Reading", "EA12 Aberdeen North",
@@ -5078,24 +5094,24 @@ function generateClientFallbackTable(inputKey, fileName) {
     const skills = ["HEC", "KAC", "EV"];
     const dates = ["2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26", "2026-11-02"];
     
-    for (let i = 1; i <= 30; i++) {
+    for (let i = 1; i <= rowCount; i++) {
         const row = {};
         columns.forEach(col => {
             const lc = col.toLowerCase();
             if (lc.includes("patch") || lc.includes("territory") || lc.includes("location")) {
-                row[col] = patches[i % patches.length];
+                row[col] = patches[(i + (nameHash % 5)) % patches.length];
             } else if (lc.includes("skill")) {
-                row[col] = skills[i % skills.length];
+                row[col] = skills[(i + (nameHash % 3)) % skills.length];
             } else if (lc.includes("status")) {
-                row[col] = i % 5 === 0 ? "Leaver" : "Active";
+                row[col] = (i + (nameHash % 4)) % 5 === 0 ? "Leaver" : "Active";
             } else if (lc.includes("week") || lc.includes("date")) {
-                row[col] = dates[i % dates.length];
+                row[col] = dates[(i + (nameHash % 2)) % dates.length];
             } else if (lc.includes("val") || lc.includes("headcount") || lc.includes("fte") || lc.includes("hours") || lc.includes("ratio") || lc.includes("rate") || lc.includes("attendees") || lc.includes("contractors")) {
-                row[col] = (Math.round((i * 2.5 + 15) * 10) / 10).toString();
+                row[col] = (Math.round((i * 2.5 * scaleFactor + 14 + (nameHash % 6)) * 10) / 10).toString();
             } else if (lc.includes("work code")) {
-                row[col] = `W0${(i % 5) + 1}`;
+                row[col] = `W0${((i + (nameHash % 5)) % 5) + 1}`;
             } else if (lc.includes("region")) {
-                row[col] = ["A", "B", "C", "D", "E"][i % 5];
+                row[col] = ["A", "B", "C", "D", "E"][(i + (nameHash % 5)) % 5];
             } else if (lc.includes("acdm")) {
                 row[col] = `A${(i % 3) + 1}`;
             } else if (lc.includes("from")) {
@@ -5103,7 +5119,7 @@ function generateClientFallbackTable(inputKey, fileName) {
             } else if (lc.includes("to")) {
                 row[col] = `EA${((i + 1) % 3) + 1}`;
             } else if (lc.includes("cohort")) {
-                row[col] = `Cohort ${(i % 4) + 1} Q${((i % 4) + 1)}`;
+                row[col] = `Cohort ${((i + (nameHash % 4)) % 4) + 1} Q${((i % 4) + 1)}`;
             } else if (lc.includes("metric")) {
                 row[col] = `Metric ${i}`;
             } else if (lc.includes("course")) {
@@ -5199,13 +5215,24 @@ function InputTableViewModal({
     loading,
     error,
     showToast,
-    onSaveTableData
+    onSaveTableData,
+    initialMode = "table",
+    tableDataCache = {},
+    onRequestFileData
 }) {
+    const [modalMode, setModalMode] = useState(initialMode || 'table');
     const [searchQuery, setSearchQuery] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(100); // Default 100 rows per page to minimize scrolling!
     const [isFullscreen, setIsFullscreen] = useState(false);
+
+    // Synchronize mode when re-opened
+    useEffect(() => {
+        if (initialMode) {
+            setModalMode(initialMode);
+        }
+    }, [initialMode, isOpen]);
 
     // Excel Editing Mode, Grid State & Unified Selection Model
     const [isEditMode, setIsEditMode] = useState(false);
@@ -6629,14 +6656,14 @@ function InputTableViewModal({
 
     return (
         <div 
-            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-3 md:p-4 animate-fade-in"
+            className="fixed inset-0 z-[1000] floating-modal-backdrop bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md flex items-center justify-center p-1.5 sm:p-2 md:p-2.5 animate-fade-in"
             onClick={handleRequestClose}
         >
             <div 
                 className={`bg-white shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden transition-all duration-200 ${
                     isFullscreen 
                         ? 'w-screen h-screen max-w-none max-h-none rounded-none' 
-                        : 'w-[98vw] max-w-[98vw] h-[94vh] max-h-[94vh] rounded-2xl'
+                        : 'w-[98.5vw] max-w-[98.5vw] h-[97vh] max-h-[97vh] rounded-2xl'
                 }`}
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={handleGridKeyDown}
@@ -6654,10 +6681,34 @@ function InputTableViewModal({
                                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 truncate">
                                     {inputLabel}
                                 </h3>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#005eb8] border border-blue-200">
-                                    Table View
-                                </span>
-                                {isEditMode && (
+                                {/* Mode Switcher: Table View vs Compare Files */}
+                                <div className="inline-flex p-0.5 rounded-lg bg-slate-200/70 dark:bg-[#081324] border border-slate-300 dark:border-[#18365d]">
+                                    <button
+                                        type="button"
+                                        onClick={() => setModalMode('table')}
+                                        className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                                            modalMode === 'table'
+                                                ? 'bg-white dark:bg-[#005eb8] text-[#005eb8] dark:text-white shadow-2xs'
+                                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                        }`}
+                                    >
+                                        <IconEye className="w-3 h-3" />
+                                        <span>Table View</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setModalMode('compare')}
+                                        className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                                            modalMode === 'compare'
+                                                ? 'bg-white dark:bg-[#005eb8] text-[#005eb8] dark:text-white shadow-2xs'
+                                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                        }`}
+                                    >
+                                        <IconGitCompare className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
+                                        <span>Compare Files</span>
+                                    </button>
+                                </div>
+                                {isEditMode && modalMode === 'table' && (
                                     <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs animate-pulse">
                                         <IconEdit className="w-2.5 h-2.5 text-emerald-700" />
                                         <span>Edit Mode</span>
@@ -6671,184 +6722,195 @@ function InputTableViewModal({
                                 )}
                             </div>
 
-                            {/* Dropdown to switch file versions directly in the floating window */}
-                            <div className="flex items-center gap-2 mt-1">
-                                <span className="text-[11px] font-semibold text-slate-500 flex-shrink-0">Selected File:</span>
-                                {availableChoices && availableChoices.length > 0 ? (() => {
-                                    const isViewingML = fileName && typeof fileName === 'string' && (fileName.toLowerCase().includes('ml_forecast') || fileName.toLowerCase().includes('ml_'));
-                                    const userChoices = availableChoices.filter(c => !(c && typeof c === 'string' && (c.toLowerCase().includes('ml_forecast') || c.toLowerCase().includes('ml_'))));
-                                    const mlChoices = availableChoices.filter(c => c && typeof c === 'string' && (c.toLowerCase().includes('ml_forecast') || c.toLowerCase().includes('ml_')));
-                                    return (
-                                        <select
-                                            value={fileName}
-                                            onChange={(e) => handleRequestSelectChoice(e.target.value)}
-                                            className="text-xs font-mono font-bold text-[#005eb8] dark:text-[#80c6ff] bg-white dark:bg-[#081324] border border-blue-200 dark:border-[#18365d] rounded-md px-2 py-0.5 shadow-2xs max-w-[280px] sm:max-w-[420px] truncate cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            title={`Switch version: currently viewing ${fileName}`}
-                                        >
-                                            {isViewingML ? (
-                                                <>
-                                                    {mlChoices.length > 0 && (
-                                                        <optgroup label="ML Model Forecasts">
-                                                            {mlChoices.map(c => (
+                            {/* Dropdown to switch file versions directly in the floating window - only visible in Table View mode */}
+                            {modalMode === 'table' && (
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-[11px] font-semibold text-slate-500 flex-shrink-0">Selected File:</span>
+                                    {availableChoices && availableChoices.length > 0 ? (() => {
+                                        const isViewingML = fileName && typeof fileName === 'string' && (fileName.toLowerCase().includes('ml_forecast') || fileName.toLowerCase().includes('ml_'));
+                                        const userChoices = availableChoices.filter(c => !(c && typeof c === 'string' && (c.toLowerCase().includes('ml_forecast') || c.toLowerCase().includes('ml_'))));
+                                        const mlChoices = availableChoices.filter(c => c && typeof c === 'string' && (c.toLowerCase().includes('ml_forecast') || c.toLowerCase().includes('ml_')));
+                                        return (
+                                            <select
+                                                value={fileName}
+                                                onChange={(e) => handleRequestSelectChoice(e.target.value)}
+                                                className="text-xs font-mono font-bold text-[#005eb8] dark:text-[#80c6ff] bg-white dark:bg-[#081324] border border-blue-200 dark:border-[#18365d] rounded-md px-2 py-0.5 shadow-2xs max-w-[280px] sm:max-w-[420px] truncate cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                title={`Switch version: currently viewing ${fileName}`}
+                                            >
+                                                {isViewingML ? (
+                                                    <>
+                                                        {mlChoices.length > 0 && (
+                                                            <optgroup label="ML Model Forecasts">
+                                                                {mlChoices.map(c => (
+                                                                    <option key={c} value={c}>{c}</option>
+                                                                ))}
+                                                            </optgroup>
+                                                        )}
+                                                        {userChoices.length > 0 && (
+                                                            <optgroup label="User Uploaded & Governance Files">
+                                                                {userChoices.map(c => (
+                                                                    <option key={c} value={c}>{c}</option>
+                                                                ))}
+                                                            </optgroup>
+                                                        )}
+                                                        {mlChoices.length === 0 && userChoices.length === 0 && (
+                                                            availableChoices.map(c => (
                                                                 <option key={c} value={c}>{c}</option>
-                                                            ))}
-                                                        </optgroup>
-                                                    )}
-                                                    {userChoices.length > 0 && (
-                                                        <optgroup label="User Uploaded & Governance Files">
-                                                            {userChoices.map(c => (
-                                                                <option key={c} value={c}>{c}</option>
-                                                            ))}
-                                                        </optgroup>
-                                                    )}
-                                                    {mlChoices.length === 0 && userChoices.length === 0 && (
+                                                            ))
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    userChoices.length > 0 ? (
+                                                        userChoices.map(c => (
+                                                            <option key={c} value={c}>{c}</option>
+                                                        ))
+                                                    ) : (
                                                         availableChoices.map(c => (
                                                             <option key={c} value={c}>{c}</option>
                                                         ))
-                                                    )}
-                                                </>
-                                            ) : (
-                                                userChoices.length > 0 ? (
-                                                    userChoices.map(c => (
-                                                        <option key={c} value={c}>{c}</option>
-                                                    ))
-                                                ) : (
-                                                    availableChoices.map(c => (
-                                                        <option key={c} value={c}>{c}</option>
-                                                    ))
-                                                )
-                                            )}
-                                        </select>
-                                    );
-                                })() : (
-                                    <span className="font-mono text-xs font-bold text-[#005eb8] truncate">
-                                        {fileName}
-                                    </span>
-                                )}
-                            </div>
+                                                    )
+                                                )}
+                                            </select>
+                                        );
+                                    })() : (
+                                        <span className="font-mono text-xs font-bold text-[#005eb8] truncate">
+                                            {fileName}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Right: Edit Mode Button, Search, Rows-Per-Page, Export & Sizing Controls */}
+                    {/* Right: Controls */}
                     <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                        {/* Stats Badges */}
-                        <div className="hidden md:flex items-center gap-1.5 text-xs">
-                            <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
-                                {totalFiltered} {totalFiltered === 1 ? 'Row' : 'Rows'}
-                                {searchQuery && ` (of ${tableRows.length})`}
+                        {modalMode === 'compare' ? (
+                            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                                <IconGitCompare className="w-3.5 h-3.5" />
+                                <span>Comparison Mode</span>
                             </span>
-                            <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
-                                {columns.length} Cols
-                            </span>
-                        </div>
+                        ) : (
+                            <>
+                                {/* Stats Badges */}
+                                <div className="hidden md:flex items-center gap-1.5 text-xs">
+                                    <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
+                                        {totalFiltered} {totalFiltered === 1 ? 'Row' : 'Rows'}
+                                        {searchQuery && ` (of ${tableRows.length})`}
+                                    </span>
+                                    <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
+                                        {columns.length} Cols
+                                    </span>
+                                </div>
 
-                        {/* Search Input */}
-                        <div className="relative min-w-[140px] sm:min-w-[190px]">
-                            <IconSearch className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                            <input
-                                type="text"
-                                placeholder="Search table..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full text-xs pl-8 pr-7 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-slate-400 shadow-2xs"
-                            />
-                            {searchQuery && (
+                                {/* Search Input */}
+                                <div className="relative min-w-[140px] sm:min-w-[190px]">
+                                    <IconSearch className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search table..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full text-xs pl-8 pr-7 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-slate-400 shadow-2xs"
+                                    />
+                                    {searchQuery && (
+                                        <button
+                                            onClick={() => setSearchQuery('')}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                                            title="Clear search"
+                                        >
+                                            <IconX className="w-3.5 h-3.5" />
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* EDIT MODE TOGGLE BUTTON */}
                                 <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
-                                    title="Clear search"
+                                    type="button"
+                                    onClick={() => {
+                                        setIsEditMode(prev => {
+                                            const next = !prev;
+                                            if (next && !selectedCell && tableRows.length > 0 && columns.length > 0) {
+                                                handleSelectCell(tableRows[0].__rowId, columns[0]);
+                                            }
+                                            return next;
+                                        });
+                                    }}
+                                    className={`inline-flex items-center gap-1.5 font-bold text-xs px-3 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
+                                        isEditMode
+                                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 ring-2 ring-emerald-300'
+                                            : 'bg-white hover:bg-emerald-50 text-emerald-800 border-emerald-300 hover:border-emerald-400'
+                                    }`}
+                                    title={isEditMode ? "Exit Edit Mode" : "Switch to Edit Mode"}
                                 >
-                                    <IconX className="w-3.5 h-3.5" />
+                                    <IconEdit className="w-3.5 h-3.5" />
+                                    <span>{isEditMode ? 'Editing' : 'Edit'}</span>
+                                    {isDirty && (
+                                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                                    )}
                                 </button>
-                            )}
-                        </div>
 
-                        {/* EDIT MODE TOGGLE BUTTON */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setIsEditMode(prev => {
-                                    const next = !prev;
-                                    if (next && !selectedCell && tableRows.length > 0 && columns.length > 0) {
-                                        handleSelectCell(tableRows[0].__rowId, columns[0]);
-                                    }
-                                    return next;
-                                });
-                            }}
-                            className={`inline-flex items-center gap-1.5 font-bold text-xs px-3 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
-                                isEditMode
-                                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 ring-2 ring-emerald-300'
-                                    : 'bg-white hover:bg-emerald-50 text-emerald-800 border-emerald-300 hover:border-emerald-400'
-                            }`}
-                            title={isEditMode ? "Exit Edit Mode" : "Switch to Edit Mode"}
-                        >
-                            <IconEdit className="w-3.5 h-3.5" />
-                            <span>{isEditMode ? 'Editing' : 'Edit'}</span>
-                            {isDirty && (
-                                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                            )}
-                        </button>
+                                {/* BULK CHANGE BUTTON */}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsEditMode(true);
+                                        setShowBulkEditDrawer(prev => !prev);
+                                    }}
+                                    className={`inline-flex items-center gap-1.5 font-bold text-xs px-3 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
+                                        showBulkEditDrawer
+                                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 ring-2 ring-blue-300'
+                                            : 'bg-white hover:bg-blue-50 text-blue-800 border-blue-300 hover:border-blue-400'
+                                    }`}
+                                    title={showBulkEditDrawer ? "Close Bulk Change Drawer" : "Bulk modify data by Geography, Skill, or Date Range"}
+                                >
+                                    <IconSliders className="w-3.5 h-3.5" />
+                                    <span>Bulk Change</span>
+                                    {bulkMatchingRows.length > 0 && showBulkEditDrawer && (
+                                        <span className="text-[10px] bg-white/30 px-1.5 py-0.2 rounded-full font-bold">
+                                            {bulkMatchingRows.length}
+                                        </span>
+                                    )}
+                                </button>
 
-                        {/* BULK CHANGE BUTTON */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setIsEditMode(true);
-                                setShowBulkEditDrawer(prev => !prev);
-                            }}
-                            className={`inline-flex items-center gap-1.5 font-bold text-xs px-3 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
-                                showBulkEditDrawer
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 ring-2 ring-blue-300'
-                                    : 'bg-white hover:bg-blue-50 text-blue-800 border-blue-300 hover:border-blue-400'
-                            }`}
-                            title={showBulkEditDrawer ? "Close Bulk Change Drawer" : "Bulk modify data by Geography, Skill, or Date Range"}
-                        >
-                            <IconSliders className="w-3.5 h-3.5" />
-                            <span>Bulk Change</span>
-                            {bulkMatchingRows.length > 0 && showBulkEditDrawer && (
-                                <span className="text-[10px] bg-white/30 px-1.5 py-0.2 rounded-full font-bold">
-                                    {bulkMatchingRows.length}
-                                </span>
-                            )}
-                        </button>
+                                {/* Page Size Selector */}
+                                <div className="flex items-center gap-1">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase hidden lg:inline">Rows:</span>
+                                    <select
+                                        value={pageSize}
+                                        onChange={(e) => setPageSize(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                                        className="text-xs font-semibold bg-white dark:bg-[#081324] text-slate-700 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                                        title="Rows per page (choose 'All' to show all records without paging)"
+                                    >
+                                        <option value={25}>25</option>
+                                        <option value={50}>50</option>
+                                        <option value={100}>100</option>
+                                        <option value={250}>250</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
 
-                        {/* Page Size Selector */}
-                        <div className="flex items-center gap-1">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase hidden lg:inline">Rows:</span>
-                            <select
-                                value={pageSize}
-                                onChange={(e) => setPageSize(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                                className="text-xs font-semibold bg-white dark:bg-[#081324] text-slate-700 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
-                                title="Rows per page (choose 'All' to show all records without paging)"
-                            >
-                                <option value={25}>25</option>
-                                <option value={50}>50</option>
-                                <option value={100}>100</option>
-                                <option value={250}>250</option>
-                                <option value="all">All</option>
-                            </select>
-                        </div>
-
-                        {/* Download CSV */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                const exportRows = tableRows.map(row => {
-                                    const cleaned = {};
-                                    columns.forEach(c => {
-                                        cleaned[c] = row[c];
-                                    });
-                                    return cleaned;
-                                });
-                                downloadTableAsCsv(fileName || inputKey, columns, exportRows);
-                            }}
-                            disabled={tableRows.length === 0}
-                            className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
-                            title="Export data as CSV file"
-                        >
-                            <IconDownload className="w-3.5 h-3.5 text-current" />
-                            <span className="hidden sm:inline">Export</span>
-                        </button>
+                                {/* Download CSV */}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const exportRows = tableRows.map(row => {
+                                            const cleaned = {};
+                                            columns.forEach(c => {
+                                                cleaned[c] = row[c];
+                                            });
+                                            return cleaned;
+                                        });
+                                        downloadTableAsCsv(fileName || inputKey, columns, exportRows);
+                                    }}
+                                    disabled={tableRows.length === 0}
+                                    className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
+                                    title="Export data as CSV file"
+                                >
+                                    <IconDownload className="w-3.5 h-3.5 text-current" />
+                                    <span className="hidden sm:inline">Export</span>
+                                </button>
+                            </>
+                        )}
 
                         {/* Fullscreen Toggle */}
                         <button
@@ -6872,6 +6934,34 @@ function InputTableViewModal({
                     </div>
                 </div>
 
+                {modalMode === 'compare' ? (
+                    <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+                        {window.InputCompareSection ? (
+                            <window.InputCompareSection
+                                inputKey={inputKey}
+                                inputLabel={inputLabel}
+                                activeFileName={fileName}
+                                availableChoices={availableChoices}
+                                tableDataCache={tableDataCache}
+                                onRequestFileData={onRequestFileData}
+                                onBackToTableView={() => setModalMode('table')}
+                                showToast={showToast}
+                            />
+                        ) : typeof InputCompareSection !== 'undefined' ? (
+                            <InputCompareSection
+                                inputKey={inputKey}
+                                inputLabel={inputLabel}
+                                activeFileName={fileName}
+                                availableChoices={availableChoices}
+                                tableDataCache={tableDataCache}
+                                onRequestFileData={onRequestFileData}
+                                onBackToTableView={() => setModalMode('table')}
+                                showToast={showToast}
+                            />
+                        ) : null}
+                    </div>
+                ) : (
+                    <>
                 {/* EXCEL FORMULA & EDITING TOOLBAR (VISIBLE IN EDIT MODE OR WHEN CELL SELECTED) */}
                 {isEditMode && (
                     <div className="bg-emerald-50/70 border-b border-emerald-200/90 px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs select-none shadow-2xs flex-shrink-0 animate-fade-in">
@@ -7609,6 +7699,8 @@ function InputTableViewModal({
                         </button>
                     </div>
                 </div>
+                </>
+                )}
 
                 {/* QUICK PASTE EXCEL DATA MODAL FALLBACK */}
                 {showPasteModal && (
@@ -8003,14 +8095,14 @@ function CalculationModulesModal({
 
     return (
         <div 
-            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-3 md:p-4 animate-fade-in"
+            className="fixed inset-0 z-[1000] floating-modal-backdrop bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md flex items-center justify-center p-1.5 sm:p-2 md:p-2.5 animate-fade-in"
             onClick={onClose}
         >
             <div 
                 className={`bg-white shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden transition-all duration-200 ${
                     isFullscreen 
                         ? 'w-screen h-screen max-w-none max-h-none rounded-none' 
-                        : 'w-[98vw] max-w-[98vw] h-[94vh] max-h-[94vh] rounded-2xl'
+                        : 'w-[98.5vw] max-w-[98.5vw] h-[97vh] max-h-[97vh] rounded-2xl'
                 }`}
                 onClick={(e) => e.stopPropagation()}
             >
@@ -8601,7 +8693,7 @@ function ExportPowerBIModal({
 
     return (
         <div 
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
+            className="fixed inset-0 z-[1000] floating-modal-backdrop flex items-center justify-center p-3 sm:p-5 bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md animate-fade-in"
             onClick={() => { if (!isSubmitting) onClose(); }}
         >
             <div 
@@ -9008,9 +9100,56 @@ function ScenarioInputsStudioView({
         inputKey: '',
         inputLabel: '',
         fileName: '',
+        initialMode: 'table',
         loading: false,
         error: null
     });
+
+    // Helper to request file data asynchronously for any file version
+    const handleRequestFileData = (inputKey, targetFile) => {
+        if (!targetFile) return;
+        if (tableDataCache[targetFile] && tableDataCache[targetFile].rows) return;
+
+        if (window.Shiny && window.Shiny.setInputValue) {
+            window.Shiny.setInputValue('request_input_file_data', {
+                inputKey: inputKey,
+                fileName: targetFile,
+                requestId: Date.now()
+            }, { priority: 'event' });
+        }
+
+        // Guaranteed fallback if server connection is detached or delayed
+        setTimeout(() => {
+            if (setTableDataCache) {
+                setTableDataCache(prev => {
+                    if (prev[targetFile] && prev[targetFile].rows) return prev;
+                    const fallbackTbl = generateClientFallbackTable(inputKey, targetFile);
+                    return { ...prev, [targetFile]: fallbackTbl };
+                });
+            }
+        }, 1200);
+    };
+
+    // Helper to open the compare modal directly for any input
+    const handleOpenCompareModal = (inputKey, inputLabel, fileName) => {
+        const targetFile = fileName || (inputsState[inputKey] || (inputsChoices[inputKey] && inputsChoices[inputKey][0]) || '');
+        if (!targetFile) {
+            if (showToast) showToast(`No file version selected for ${inputLabel}`, 'warning');
+            return;
+        }
+
+        handleRequestFileData(inputKey, targetFile);
+
+        setViewModalState({
+            isOpen: true,
+            inputKey: inputKey,
+            inputLabel: inputLabel,
+            fileName: targetFile,
+            initialMode: 'compare',
+            loading: false,
+            error: null
+        });
+    };
 
     // Helper to open the floating window table view for any input
     const handleOpenViewModal = (inputKey, inputLabel, fileName) => {
@@ -9027,6 +9166,7 @@ function ScenarioInputsStudioView({
                 inputKey: inputKey,
                 inputLabel: inputLabel,
                 fileName: targetFile,
+                initialMode: 'table',
                 loading: false,
                 error: null
             });
@@ -9055,6 +9195,7 @@ function ScenarioInputsStudioView({
                 inputKey: inputKey,
                 inputLabel: inputLabel,
                 fileName: targetFile,
+                initialMode: 'table',
                 loading: false,
                 error: null
             });
@@ -9067,6 +9208,7 @@ function ScenarioInputsStudioView({
             inputKey: inputKey,
             inputLabel: inputLabel,
             fileName: targetFile,
+            initialMode: 'table',
             loading: true,
             error: null
         });
@@ -9399,6 +9541,7 @@ function ScenarioInputsStudioView({
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
                                 onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
+                                onCompare={(activeFile) => handleOpenCompareModal(item.key, item.label, activeFile)}
                             />
                         ))}
 
@@ -9413,6 +9556,7 @@ function ScenarioInputsStudioView({
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
                                 onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
+                                onCompare={(activeFile) => handleOpenCompareModal(item.key, item.label, activeFile)}
                             />
                         ))}
 
@@ -9427,6 +9571,7 @@ function ScenarioInputsStudioView({
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
                                 onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
+                                onCompare={(activeFile) => handleOpenCompareModal(item.key, item.label, activeFile)}
                             />
                         ))}
 
@@ -9441,6 +9586,7 @@ function ScenarioInputsStudioView({
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
                                 onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
+                                onCompare={(activeFile) => handleOpenCompareModal(item.key, item.label, activeFile)}
                             />
                         ))}
                     </div>
@@ -9481,6 +9627,9 @@ function ScenarioInputsStudioView({
                     error={viewModalState.error}
                     showToast={showToast}
                     onSaveTableData={handleSaveInputFileData}
+                    initialMode={viewModalState.initialMode || 'table'}
+                    tableDataCache={tableDataCache}
+                    onRequestFileData={handleRequestFileData}
                 />
             )}
         </div>
@@ -9490,7 +9639,7 @@ function ScenarioInputsStudioView({
 // ------------------------------------------------------------------------------------------------
 // REUSABLE MODERN INPUT CARD WITH DELETE, UNDO & REMARKS
 // ------------------------------------------------------------------------------------------------
-function ModernInputCard({ label, choices = [], selected, remarks, onChange, onDelete, onUndo, onView }) {
+function ModernInputCard({ label, choices = [], selected, remarks, onChange, onDelete, onUndo, onView, onCompare }) {
     // Ensure dropdown options are ordered by date timestamp descending (latest at top of dropdown)
     const sortedChoices = useMemo(() => {
         const copy = [...choices];
@@ -9630,6 +9779,17 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                 >
                     <IconEye className="w-3.5 h-3.5" />
                     <span>View</span>
+                </button>
+
+                {/* Compare button with GitCompare icon */}
+                <button
+                    type="button"
+                    onClick={() => onCompare && onCompare(activeSelected)}
+                    className="inline-flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-600 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 transition duration-150 flex-shrink-0 hover:shadow-xs active:scale-95 cursor-pointer glow-button"
+                    title={`Compare ${label} files (${activeSelected})`}
+                >
+                    <IconGitCompare className="w-3.5 h-3.5" />
+                    <span>Compare</span>
                 </button>
 
                 <button

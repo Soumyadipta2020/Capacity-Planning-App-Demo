@@ -889,6 +889,18 @@ def create_modern_ui_page():
                 }
                 html.dark [class*="sticky"] { background-color: #1e293b !important; }
 
+                /* Floating Windows & Modal Backdrop: completely conceal background elements */
+                .floating-modal-backdrop,
+                div[class*="fixed"][class*="inset-0"][class*="z-"] {
+                    background-color: rgba(2, 6, 23, 0.98) !important;
+                    backdrop-filter: blur(16px) !important;
+                    -webkit-backdrop-filter: blur(16px) !important;
+                }
+                html.dark .floating-modal-backdrop,
+                html.dark div[class*="fixed"][class*="inset-0"][class*="z-"] {
+                    background-color: rgba(2, 6, 23, 0.98) !important;
+                }
+
                 /* Modals & Dialogs */
                 html.dark .fixed .bg-white,
                 html.dark [class*="fixed"] [class*="bg-white"],
@@ -975,6 +987,7 @@ def create_modern_ui_page():
         ui.tags.script(type="text/babel", src=f"analytics_charts.js?v={cache_bust}"),
         ui.tags.script(type="text/babel", src=f"analytics_details.js?v={cache_bust}"),
         ui.tags.script(type="text/babel", src=f"analytics_ui.js?v={cache_bust}"),
+        ui.tags.script(type="text/babel", src=f"input_compare.js?v={cache_bust}"),
         # Load React application code from static with cache-buster
         ui.tags.script(
             type="text/babel",
