@@ -114,7 +114,7 @@ Decision Studio starts with Plan at a glance, calculated from selected source ve
 - Extra cover reliance: overtime plus contractor hours divided by assessed available hours. This measures dependence, not probability or service-level performance.
 - Jobs with time estimates: matched forecast job volume divided by all valid forecast job volume in current filters, including jobs outside assessed groups.
 
-Unassessed groups and unmatched jobs remain explicit. Empty or zero-denominator metrics display Unavailable. Summary actions open related investigations; the largest-gap action also applies region, skill and week filters. Summary metrics are included in decision-brief JSON exports. Every investigation has a plain-language question and reading guidance. The homepage adds a getting-started guide, planning definitions and an explicit label identifying its existing scenario-profile dashboard as illustrative, with a link to source-based Decision Studio.
+Unassessed groups and unmatched jobs remain explicit. Empty or zero-denominator metrics display Unavailable. Summary actions open related investigations; the largest-gap action also applies region, skill and week filters. Summary metrics are included in decision-brief JSON exports. Every investigation has a plain-language question and reading guidance.
 
 Validate summary calculations, unknown states and navigation with `node --test tests/plan_health_check.cjs`. Rendering checks cover 19 investigations. Visual browser verification for this revision was unavailable because the browser access host was unavailable.
 

@@ -1593,7 +1593,6 @@ function ModernCapacityApp() {
                         <ScenarioExecutiveInsightsView
                             scenario={currentScenario}
                             onConfigureInputs={() => setActiveTab('inputs')}
-                            onOpenAnalytics={() => setActiveTab('decision_studio')}
                             onCompareScenario={() => setActiveTab('comparison')}
                             imbalanceData={imbalanceData}
                             selectedTerritory={selectedTerritory}
@@ -3133,7 +3132,7 @@ function computeScenarioAnalytics(scen) {
     return res;
 }
 
-function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onOpenAnalytics, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, showToast }) {
+function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, showToast }) {
     const analytics = useMemo(() => computeScenarioAnalytics(scenario), [scenario]);
     const TRAJECTORY_WEEK_META = analytics.weeklyTrajectoryMeta;
 
@@ -3268,12 +3267,6 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onOpenAnal
 
     return (
         <div className="space-y-3.5 w-full">
-            <section className="av-start-guide" aria-label="Getting started with capacity planning">
-                <div><span className="av-plan-kicker">Welcome to capacity planning</span><h1>Will we have enough time to do the work?</h1><p>This app compares expected work with available working time. Start with a saved plan, check its inputs, then use Decision Studio to understand gaps and test changes.</p></div>
-                <div className="av-start-steps"><button type="button" onClick={onConfigureInputs}><strong>Check the inputs</strong><span>Review the selected files for demand, staff and job durations.</span></button><button type="button" onClick={onOpenAnalytics}><strong>Understand the plan</strong><span>Open source-based metrics, plain-language insights and data checks.</span></button><button type="button" onClick={onCompareScenario}><strong>Compare your options</strong><span>Compare a saved plan with another scenario before choosing a response.</span></button></div>
-                <details className="av-plan-help"><summary>Planning terms in everyday language</summary><div><p><strong>Scenario:</strong> a saved set of input choices. <strong>Demand:</strong> work expected. <strong>Capacity:</strong> time available. <strong>Buffer:</strong> available time minus required time; a negative buffer means a shortage.</p><p><strong>FTE:</strong> full-time equivalent, a measure of working time rather than a headcount. <strong>Coverage:</strong> available hours divided by required hours. 100% means the totals match; individual locations or weeks may still be short.</p></div></details>
-                <p className="av-demo-note"><strong>Illustrative dashboard:</strong> the scenario preview below uses demo profiles. For calculations from your selected input files, open <button type="button" onClick={onOpenAnalytics}>Decision Studio</button>. Coverage estimates do not measure completed jobs or service-level performance.</p>
-            </section>
             {/* BENTO KPI SUMMARY GRID (COMPACT GLOWING CARDS) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 {/* 1. Total Demand Card */}
