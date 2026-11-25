@@ -146,6 +146,10 @@ function AnalyticsIcon({
     table: 'M3 3h18v18H3z M3 9h18 M9 9v12',
     sliders: 'M4 21v-7 M4 10V3 M12 21v-9 M12 8V3 M20 21v-5 M20 12V3 M1 14h6 M9 8h6 M17 16h6',
     compare: 'M8 3 4 7l4 4 M4 7h13v6 M16 21l4-4-4-4 M20 17H7v-6',
+    filter: 'M3 4h18l-7 8v7l-4 2v-9z',
+    scale: 'M12 3v18m-4 0h8M4 7h16M5 7l-3 8h6L5 7m14 0-3 8h6z',
+    bolt: 'M13 2 4 14h7l-1 8 10-12h-8z',
+    users: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m18 0v-2a4 4 0 0 0-3-4M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zm3-4a4 4 0 0 1 0 8',
     download: 'M12 3v12 m-5-5 5 5 5-5 M4 16v5h16v-5',
     check: 'm5 12 4 4L19 6',
     clock: 'M12 8v5l3 2 M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0',
@@ -182,6 +186,7 @@ function AnalyticsDrawer({
   onClose,
   children,
   footer,
+  panelClassName = '',
   settings = false
 }) {
   const panel = React.useRef(null),
@@ -226,7 +231,7 @@ function AnalyticsDrawer({
   }, []);
   return <div className="av-drawer-backdrop" onClick={e => {
     if (e.target === e.currentTarget) onClose();
-  }}><section ref={panel} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} className={'av-drawer ' + (settings ? 'av-settings-drawer' : '')}><header className="av-drawer-header"><div className="av-drawer-title-icon"><AnalyticsIcon name={settings ? 'sliders' : 'file'} size={22} className="text-current" /></div><div className="av-drawer-heading"><p className="av-drawer-eyebrow text-[10px] font-bold uppercase tracking-wider text-[#005eb8] dark:text-[#80c6ff] m-0 mb-1">{eyebrow}</p><h2 className="text-lg font-black text-slate-900 dark:text-white leading-tight m-0">{title}</h2>{subtitle && <span className="block text-xs text-slate-500 dark:text-[#adbed4] mt-1 leading-relaxed">{subtitle}</span>}</div><button data-dialog-focus className="av-close-button cursor-pointer" onClick={onClose} aria-label={settings ? 'Close model assumptions' : 'Close evidence panel'}><AnalyticsIcon name="close" size={13} className="text-current" /><span>Close</span></button></header><div className="av-drawer-body">{children}</div><footer className="av-drawer-footer"><span className="flex items-center gap-1.5"><AnalyticsIcon name="info" size={13} className="text-[#005eb8] dark:text-[#80c6ff] flex-shrink-0" />{footer || 'Evidence is read-only. Input edits remain in Inputs & Parameters.'}</span><kbd>Esc to close</kbd></footer></section></div>;
+  }}><section ref={panel} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} className={['av-drawer',settings && 'av-settings-drawer',panelClassName].filter(Boolean).join(' ')}><header className="av-drawer-header"><div className="av-drawer-title-icon"><AnalyticsIcon name={settings ? 'sliders' : 'file'} size={22} className="text-current" /></div><div className="av-drawer-heading"><p className="av-drawer-eyebrow text-[10px] font-bold uppercase tracking-wider text-[#005eb8] dark:text-[#80c6ff] m-0 mb-1">{eyebrow}</p><h2 className="text-lg font-black text-slate-900 dark:text-white leading-tight m-0">{title}</h2>{subtitle && <span className="block text-xs text-slate-500 dark:text-[#adbed4] mt-1 leading-relaxed">{subtitle}</span>}</div><button data-dialog-focus className="av-close-button cursor-pointer" onClick={onClose} aria-label={settings ? 'Close model assumptions' : 'Close evidence panel'}><AnalyticsIcon name="close" size={13} className="text-current" /><span>Close</span></button></header><div className="av-drawer-body">{children}</div><footer className="av-drawer-footer"><span className="flex items-center gap-1.5"><AnalyticsIcon name="info" size={13} className="text-[#005eb8] dark:text-[#80c6ff] flex-shrink-0" />{footer || 'Evidence is read-only. Input edits remain in Inputs & Parameters.'}</span><kbd>Esc to close</kbd></footer></section></div>;
 }
 function AnalyticsEmpty({
   title,

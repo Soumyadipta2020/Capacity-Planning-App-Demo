@@ -59,7 +59,7 @@ function AnalyticsPlanSummary({model, demand, onExplore, onFocus, scenario, load
   const date = v => v ? new Date(v+'T00:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}) : 'None in assessed groups';
   const metrics = [
     ['Work covered', h.coveredPct===null ? null : n(h.coveredPct)+'%', 'Share of assessed work hours covered in the same region, skill and week. 100% means enough hours in every assessed group.', 'readiness','deficits'],
-    ['Hours still needed', h.comparable ? n(h.shortage)+' h' : null, 'Shortage hours added across assessed groups. Spare hours elsewhere do not cancel these gaps.', 'readiness','deficits'],
+    ['Hours still needed', h.comparable ? n(h.shortage)+' h' : null, 'Shortage hours added across assessed groups before offsetting any surplus.', 'readiness','deficits'],
     ['Groups needing cover', h.comparable ? h.shortGroups+' / '+h.comparable : null, 'Each group is one region, one skill and one week. Only groups with enough evidence are assessed.', 'readiness','deficits'],
     ['Toughest week', h.comparable ? date(h.peakWeek) : null, h.peakWeek ? n(h.peakShortage)+' shortage hours in the week starting on this date.' : 'Week with the largest combined shortage. No shortage was found in assessed groups.', 'readiness','timing'],
     ['Extra cover reliance', h.extraCoverPct===null || outlook?.extraCoverKnown===false ? null : n(h.extraCoverPct)+'%', 'Overtime and contractor hours as a share of assessed available hours. Unavailable when selected cover files do not provide explicit compatible fields.', 'readiness','support'],
@@ -106,10 +106,10 @@ function AnalyticsWorkloadOutlook({report:r, planningDate, onDateChange, onExplo
 const ANALYTICS_QUESTIONS = {
   demand:['How much work is expected?', 'Jobs are the expected tasks. Hours use only jobs with matching durations. Start by checking how much of the forecast has a time estimate.'],
   capacity:['How much time is available?', 'See which parts of the resource plan, overtime and contractor cover contribute available hours. Review the assumptions before treating hours as confirmed.'],
-  downtime:['How much working time is lost?', 'Downtime is time unavailable for planned work. Choose one representation in Model Assumptions; the three input formats describe alternatives.'],
+  downtime:['How much working time is lost?', 'Downtime is time unavailable for planned work. The three input formats describe alternative ways to record it.'],
   changes:['What changed between plans?', 'Compare selected input contents with the saved comparison plan. A new filename alone does not mean the data changed.'],
   quality:['Can we trust the inputs?', 'Check missing files, unmatched job durations and flagged records first. Missing evidence means an unknown result, not zero work.'],
-  deficits:['Where do we need more cover?', 'Look for region, skill and week groups with too few hours. Spare time in another group does not automatically solve a shortage.'],
+  deficits:['Where do we need more cover?', 'Look for shortages by region, skill and week. Each group is assessed separately.'],
   recruitment:['When will new starters help?', 'Review intake dates and training time. New starters contribute to the model only when recruitment is explicitly enabled.'],
   support:['How dependent are we on extra cover?', 'Inspect overtime and contractors, then check what happens without them. Source hours are not a guarantee that cover will arrive.'],
   timing:['When is pressure highest?', 'Find the weeks needing attention and compare them with the time needed for an intervention to take effect.'],
@@ -118,36 +118,1540 @@ const ANALYTICS_QUESTIONS = {
   actions:['Which response could help?', 'Compare possible interventions in the same scope. Check timing, donor capacity and feasibility before committing to a response.'],
   target:['How much extra cover would meet our target?', 'Choose a coverage target and inspect the additional productive time required. Required FTE is not automatically the number of hires.'],
   commitments:['What if promised cover falls through?', 'Review supplier concentration and recruitment timing, then test a delay or withdrawal.'],
-  stability:['How much room does the plan have?', 'Find groups already short of time and groups with little spare cover before testing a demand increase.'],
+  stability:['How much room does the plan have?', 'Find groups with shortages or limited capacity before testing a demand increase.'],
   jobtime:['Are job durations reasonable?', 'Compare durations for similar work. Missing or inconsistent time estimates can distort the forecast hours.'],
   workforce:['How do staff movements affect cover?', 'Review start dates, departures and transfers. Confirm date assumptions before counting movements as available time.'],
   reconcile:['Do the inputs agree?', 'Check overlapping or conflicting records before adding staffing, recruitment or downtime figures together.'],
   monthly:['How does the outlook change by month?', 'Review monthly demand and shortages. Unmapped weeks stay visible so missing calendar data cannot hide work.']
 };
+function decisionPeriodLabel(period, short = false) {
+  if (period.length===4) return period;
+  if (period.length===10) return new Date(period+'T00:00:00Z').toLocaleDateString('en-GB',{
+    day:'numeric',month:'short',year:short?'2-digit':'numeric',timeZone:'UTC'
+  });
+  if (period.includes('-Q')) return period.slice(5)+' '+(short ? period.slice(2,4) : period.slice(0,4));
+  return new Date(period+'-01T00:00:00Z').toLocaleDateString('en-GB',{
+    month:short?'short':'long',year:short?'2-digit':'numeric',timeZone:'UTC'
+  });
+}
+
+function decisionPeriods(A, weeks, interval) {
+  const observed = [...new Set(weeks)].sort();
+  if (!observed.length) return [];
+  const periods = new Set(observed.map(week=>A.calendarPeriod(week,interval)));
+  if (interval==='week') {
+    for (let week=observed[0];week<=observed.at(-1);week=A.addWeeks(week,1)) periods.add(week);
+  } else {
+    const end = observed.at(-1).slice(0,7);
+    for (let month=observed[0].slice(0,7);month<=end;) {
+      periods.add(A.calendarPeriod(month,interval));
+      const next = new Date(month+'-01T00:00:00Z');
+      next.setUTCMonth(next.getUTCMonth()+1);
+      month=next.toISOString().slice(0,7);
+    }
+  }
+  return [...periods].sort();
+}
+
+function DecisionStudioPeriodControls({A, weeks, filter, setFilter}) {
+  const months = [...new Set(weeks.map(week=>A.calendarPeriod(week)))].sort();
+  const years = [...new Set(months.map(month=>month.slice(0,4)))];
+  const startMonth = filter.start?.slice(0,7) || '';
+  const endMonth = filter.end?.slice(0,7) || '';
+  const activeYear = startMonth && endMonth && startMonth.slice(0,4)===endMonth.slice(0,4) ? startMonth.slice(0,4) : '';
+  const visibleMonths = months.filter(month=>!activeYear || month.startsWith(activeYear));
+  const setMonth = (key, month) => {
+    const next = {...filter,[key]:A.calendarBounds(month)?.[key] || ''};
+    if (next.start && next.end && next.start>next.end) Object.assign(next,A.calendarBounds(month));
+    setFilter(next);
+  };
+  const monthPicker = (label,key,value) => <label>{label}<select aria-label={label} value={value}
+    onChange={event=>setMonth(key,event.target.value)} disabled={!months.length}>
+    <option value="">{key==='start'?'First available':'Last available'}</option>
+    {[...new Set([...visibleMonths,value].filter(Boolean))].sort().map(month=><option key={month} value={month}>{decisionPeriodLabel(month)}</option>)}
+  </select></label>;
+  return <div className="ds-period-controls">
+    <label>Planning year<select aria-label="Planning year" value={activeYear} disabled={!years.length}
+      onChange={event=>setFilter({...filter,...(A.calendarBounds(event.target.value) || {start:'',end:''})})}>
+      <option value="">All years</option>
+      {[...new Set([...years,activeYear].filter(Boolean))].sort().map(year=><option key={year}>{year}</option>)}
+    </select></label>
+    {monthPicker('From month','start',startMonth)}
+    {monthPicker('Through month','end',endMonth)}
+  </div>;
+}
+
+function DecisionStudioMonthlyWorkload({A, V, data, filter, setFilter}) {
+  const groups = new Map();
+  for (const row of data.facts.demand_input || []) {
+    if (!row.week || row.jobs===null || !A.inScope(row,filter)) continue;
+    const period = A.calendarPeriod(row.week);
+    groups.set(period,(groups.get(period) || 0)+row.jobs);
+  }
+  const chart = [...groups].sort(([a],[b])=>a.localeCompare(b)).map(([key,jobs])=>({key,label:decisionPeriodLabel(key,true),jobs}));
+  return <div className="ds-overview-chart">
+    <V.Trend title="Forecast work by month" subtitle="Jobs in the selected geography, skill and planning period"
+      data={chart} series={[{key:'jobs',label:'Forecast jobs',bar:true,color:'#6595e8'}]} unit="jobs"
+      actionLabel="Select a month" onSelect={row=>setFilter({...filter,...A.calendarBounds(row.key)})}/>
+  </div>;
+}
+
+function DecisionStudioResponsiveTrend({Trend, data, measure, ...props}) {
+  const container = React.useRef(null);
+  const [width,setWidth] = React.useState(700);
+  React.useEffect(()=>{
+    const plot = container.current?.querySelector('svg.av-trend-svg');
+    if (!plot || typeof ResizeObserver==='undefined') return;
+    const observer = new ResizeObserver(([entry])=>setWidth(Math.max(240,Math.round(entry.contentRect.width))));
+    observer.observe(plot);
+    return ()=>observer.disconnect();
+  },[data.length>0]);
+  return <div className="ds-overview-chart" data-measure={measure} ref={container}>
+    <Trend data={data} plotWidth={width} {...props}/>
+  </div>;
+}
+
+function DecisionStudioDemandTrend({Trend, chart, periodSwitch, periodLabel, focusedPeriod, setFocusedPeriod}) {
+  return <DecisionStudioResponsiveTrend Trend={Trend} title="Demand and available capacity"
+      tools={periodSwitch} subtitle="Hours by planning period" actionLabel={'Select a '+periodLabel+' to filter'}
+      data={chart} selectedKey={focusedPeriod} onClearSelection={()=>setFocusedPeriod('')} series={[
+        {key:'demand',label:'Required hours',color:'var(--ds-chart-demand)',bar:true},
+        {key:'capacity',label:'Available capacity',color:'var(--ds-chart-capacity)'}
+      ]} onSelect={row=>setFocusedPeriod(old=>old===row.key?'':row.key)}/>;
+}
+
+const decisionMeasures = [
+  ['jobs','Forecast jobs','jobs'], ['demand','Required hours','h'], ['roster','Roster hours','h'],
+  ['capacity','Available capacity','h'], ['fte','Allocated FTE','FTE'], ['downtime','Downtime','h'],
+  ['shortage','Gross shortfall','h'], ['gap','Capacity imbalance','h']
+];
+const decisionMeasure = key => decisionMeasures.find(([id])=>id===key);
+const decisionValue = (key,value,format) => value==null ? 'Unavailable' : format(value)+' '+decisionMeasure(key)[2];
+const decisionSigned = (value,format) => {
+  const absolute = Math.round(Math.abs(value)*10)/10;
+  return (absolute===0 ? '' : value<0 ? '−' : '+')+format(absolute);
+};
+const decisionChange = (key,value,format) => value==null ? 'Unavailable'
+  : decisionSigned(value,format)+' '+decisionMeasure(key)[2];
+
+function moveDecisionMatrixFocus(event) {
+  const offsets = {ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[-1,0],ArrowDown:[1,0]};
+  if (!offsets[event.key] && !['Home','End'].includes(event.key)) return;
+  const cell = event.currentTarget.closest('td');
+  const row = cell.parentElement;
+  const rows = row.parentElement.rows;
+  const [vertical,horizontal] = offsets[event.key] || [0,0];
+  const targetRow = rows[row.sectionRowIndex+vertical];
+  const index = event.key==='Home' ? 1 : event.key==='End' ? row.cells.length-1 : cell.cellIndex+horizontal;
+  event.preventDefault();
+  targetRow?.cells[index]?.querySelector('button.ds-matrix-cell')?.focus();
+}
+
+function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setScenarioId, filter,
+  setFilter, clearScope, undoFilter, canUndo, assumptions, busy, onChecks, onImbalance,
+  baseline, baselineId, setBaselineId, comparisonEnabled, setComparisonEnabled, baseData, geographyChanges, presentation}) {
+  const imbalance = presentation==='imbalance';
+  const [view,setView] = React.useState(imbalance?'matrix':'table');
+  const [measure,setMeasure] = React.useState('gap');
+  const [showPlanValues,setShowPlanValues] = React.useState(false);
+  const [interval, setInterval] = React.useState('month');
+  const [locationLevel,setLocationLevel] = React.useState('auto');
+  const [periodsOnRows,setPeriodsOnRows] = React.useState(false);
+  const [drillBy,setDrillBy] = React.useState('');
+  const [matrixExpanded,setMatrixExpanded] = React.useState({});
+  const [,measureLabel,measureUnit] = decisionMeasure(measure);
+  const breakdownLabel = {downtime:'Downtime category',fte:'Skill and labour type',roster:'Skill and labour type',
+    jobs:'Skill and work code',demand:'Skill and work code',capacity:'Capacity component'}[measure];
+  const hasProduct = ['jobs','demand'].includes(measure) &&
+    [data,baseData].some(input=>input.facts.demand_input?.some(row=>row.n.product));
+  const drillOptions = {...(breakdownLabel ? {breakdown:breakdownLabel} : {}),geography:'Geography',
+    skill:interval==='week'?'Skill':'Skill and week',...(hasProduct ? {product:'Product and work code'} : {})};
+  const matrixDrill = Object.hasOwn(drillOptions,drillBy) ? drillBy : breakdownLabel?'breakdown':'geography';
+  const [groupBy, setGroupBy] = React.useState('month');
+  const [allColumns,setAllColumns] = React.useState(false);
+  const [expanded, setExpanded] = React.useState({});
+  const [focusedPeriod, setFocusedPeriod] = React.useState('');
+  const [metric, setMetric] = React.useState(null);
+  const [filtersOpen, setFiltersOpen] = React.useState(true);
+  const [shortfallsOnly, setShortfallsOnly] = React.useState(false);
+  const model = React.useMemo(() => A.model(data, filter, assumptions, {}, true), [data, filter, assumptions]);
+  const baselineRows = React.useMemo(() => comparisonEnabled && baseline && baselineId!==scenarioId
+    ? A.model(baseData, filter, assumptions, {}, true).rows : null,
+    [comparisonEnabled, baseline, baselineId, scenarioId, baseData, filter, assumptions]);
+  const inFocus = React.useCallback(row => !focusedPeriod || A.calendarPeriod(row.week,interval)===focusedPeriod,
+    [A,focusedPeriod,interval]);
+  const beforeRows = React.useMemo(()=>baselineRows?.filter(inFocus),[baselineRows,inFocus]);
+  React.useEffect(() => {setFocusedPeriod('');setExpanded({});setMetric(null);}, [filter, scenarioId]);
+  React.useEffect(() => {
+    setView(imbalance?'matrix':'table');
+    setMeasure('gap');
+    setShowPlanValues(false);
+    setFocusedPeriod('');
+    setShortfallsOnly(false);
+    setMetric(null);
+  }, [presentation]);
+  React.useEffect(()=>setShowPlanValues(false),[scenarioId,baselineId]);
+  const format = value => value == null ? 'Unavailable' : new Intl.NumberFormat('en-GB',{maximumFractionDigits:1}).format(value);
+  const signedHours = value => value==null ? '—' : decisionSigned(value,format);
+  const gapLabel = gap => {
+    if (gap == null) return 'Unavailable';
+    if (Math.abs(gap) < 1e-8) return 'Balanced';
+    return (gap < 0 ? 'Short ' : '+') + format(Math.abs(gap)) + ' h';
+  };
+  const tableMeasures = allColumns ? decisionMeasures : ['fte','downtime','capacity','demand','gap'].map(decisionMeasure);
+  const metrics = tableMeasures.map(([key,label,unit])=>[
+    key,key==='gap'?'Gap (h)':key==='capacity'?'Available (h)':key==='demand'?'Required (h)':unit==='h'?label+' (h)':label
+  ]);
+  const selected = key => filter[key] && filter[key] !== 'All';
+  const scopeLevel = selected('patch') ? 'patch' : selected('area') ? 'area' : 'region';
+  const rows = React.useMemo(()=>model.rows.filter(inFocus),[model,inFocus]);
+  const scopedTotals = React.useMemo(()=>A.planningSummary(rows,scopeLevel,assumptions),[A,rows,scopeLevel,assumptions]);
+  const patchAssessment = scopeLevel!=='patch' && !scopedTotals.comparable && rows.some(row=>row.patch && row.comparable);
+  const level = patchAssessment ? 'patch' : scopeLevel;
+  const summary = cells => A.planningSummary(cells,level,assumptions);
+  const totals = React.useMemo(()=>patchAssessment ? A.planningSummary(rows,'patch',assumptions) : scopedTotals,
+    [A,rows,assumptions,patchAssessment,scopedTotals]);
+  const geography = [...data.geography.values()];
+  const options = values => [...new Set(values.filter(Boolean))].sort();
+  const regions = options(geography.map(row=>row.region).concat(model.rows.map(row=>row.region)));
+  const locations = geography.filter(row=>!selected('region') || row.region===filter.region);
+  const areas = options(locations.map(row=>row.area));
+  const patches = options(locations.filter(row=>!selected('area') || row.area===filter.area).map(row=>row.patch));
+  const skills = options(Object.values(data.facts).flat().filter(row=>A.inScope(row,{...filter,skill:'All',start:'',end:''})).map(row=>row.skill));
+  const change = (key, value) => {
+    const next = {...filter, [key]:value};
+    if (key === 'region') Object.assign(next,{area:'All',patch:'All',skill:'All'});
+    if (key === 'area') Object.assign(next,{patch:'All',skill:'All'});
+    if (key === 'patch') next.skill = 'All';
+    if (key === 'start' && next.end && next.end < value) next.end = value;
+    if (key === 'end' && next.start && next.start > value) next.start = value;
+    setFilter(next);
+  };
+  const choose = (label,key,values) => <label>{label}<select aria-label={label} value={filter[key] || 'All'} onChange={e=>change(key,e.target.value)}>
+    <option value="All">All {key==='patch'?'patches':key+'s'}</option>{values.map(v=><option key={v}>{v}</option>)}
+  </select></label>;
+  const rowValue = (row,key) => ['month','quarter','year'].includes(key)
+    ? A.calendarPeriod(row.week,key) : row[key] || '';
+  const split = (cells,key) => {
+    const groups = new Map();
+    for (const cell of cells) {
+      const value = rowValue(cell,key);
+      if (!groups.has(value)) groups.set(value,[]);
+      groups.get(value).push(cell);
+    }
+    return [...groups.entries()].sort(([a],[b])=>a.localeCompare(b));
+  };
+  const visibleRows = [];
+  function addRows(cells, baselineCells, key, parent = '', depth = 0) {
+    const planGroups = new Map(split(cells,key));
+    const baselineGroups = new Map(split(baselineCells || [],key));
+    const keys = [...new Set([...planGroups.keys(),...baselineGroups.keys()])].sort((a,b)=>a.localeCompare(b));
+    for (const value of keys) {
+      const group = planGroups.get(value) || [];
+      const previous = baselineGroups.get(value) || [];
+      const combined = [...group,...previous];
+      const id = JSON.stringify([parent,key,value]);
+      const title = ['month','quarter'].includes(key) ? decisionPeriodLabel(value)
+        : key==='region' ? (value==='Unmapped' ? value : 'Region '+value)
+        : value || (key==='area' ? 'Area unavailable / regional inputs' : 'Patch unavailable / unallocated');
+      const childKey = key==='quarter' ? 'month' : key==='month' ? 'week'
+        : key==='region' ? (combined.some(row=>row.area) ? 'area' : 'patch') : key==='area' ? 'patch' : null;
+      const children = childKey && combined.some(row=>rowValue(row,childKey));
+      const assessment = ['region','area','patch'].includes(key) ? key : level;
+      visibleRows.push({id,title,depth,children,report:A.planningSummary(group,assessment,assumptions),
+        removed:!group.length && !!previous.length,
+        before:baselineCells ? A.planningSummary(previous,assessment,assumptions) : null});
+      if (children && expanded[id]) addRows(group,baselineCells ? previous : null,childKey,id,depth+1);
+    }
+  }
+  if (view==='table') addRows(rows,beforeRows,groupBy==='geography' ? level : groupBy);
+  const planningWeeks = React.useMemo(()=>[...new Set([...data.weeks,...(baselineRows ? baseData.weeks : [])])].sort(),
+    [data.weeks,baselineRows,baseData.weeks]);
+  const periodList = React.useMemo(()=>{
+    const observed = planningWeeks.filter(week=>(!filter.start || week>=filter.start)&&(!filter.end || week<=filter.end));
+    return decisionPeriods(A,observed,interval).map(key=>({key,label:decisionPeriodLabel(key,true)}));
+  },[A,filter.start,filter.end,interval,planningWeeks]);
+  const visiblePeriods = React.useMemo(()=>periodList.filter(period=>!focusedPeriod || period.key===focusedPeriod),
+    [periodList,focusedPeriod]);
+  const chart = React.useMemo(()=>{
+    if (imbalance) return [];
+    const byPeriod = new Map(split(model.rows,interval));
+    return periodList.map(period=>{
+      const result = A.planningSummary(byPeriod.get(period.key) || [],level,assumptions);
+      return {...period,capacity:result.capacity,demand:result.demand};
+    });
+  },[A,imbalance,periodList,model,interval,level,assumptions]);
+  const trend = view==='trend' ? visiblePeriods.map(period=>{
+    const matches = row=>A.calendarPeriod(row.week,interval)===period.key;
+    const report = summary(model.rows.filter(matches));
+    const before = baselineRows ? summary(baselineRows.filter(matches)) : null;
+    return {...period,report,before,plan:A.planningMeasures(report)[measure],
+      baseline:before ? A.planningMeasures(before)[measure] : null};
+  }) : [];
+  const defaultPlace = selected('patch') || selected('area') || (selected('region') && !areas.length) ? 'patch'
+    : selected('region') ? 'area' : 'region';
+  const placeKey = locationLevel==='auto'
+    ? (patchAssessment && ['gap','shortage'].includes(measure) ? 'patch' : defaultPlace)
+    : locationLevel;
+  const placeLabel = {region:'Region',area:'Area',patch:'Patch'}[placeKey];
+  const periodLabel = {week:'Week commencing',month:'Month',quarter:'Quarter',year:'Year'}[interval];
+  const patchGaps = A.planningSummary(rows.filter(row=>row.patch),'patch',assumptions).assessed.filter(group=>group.gap<0);
+  const priorityLevel = patchGaps.length ? 'patch' : level;
+  const shortages = patchGaps.length ? patchGaps : totals.assessed.filter(group=>group.gap<0);
+  const priorities = shortages.sort((a,b)=>a.gap-b.gap || a.week.localeCompare(b.week)).slice(0,3);
+  const openMetric = (key, report, title, before,detail,matrixChange,sourceBundle) =>
+    setMetric({key,title,report,before,detail,matrixChange,sourceBundle,scope:[
+      selected('region') && 'Region '+filter.region, selected('area') && filter.area,
+      selected('patch') && filter.patch, selected('skill') && filter.skill, filter.start,filter.end
+    ].filter(Boolean).join(' · '),
+    impact:before && key==='gap' ? A.planningImpact(before,report,geographyChanges,assumptions) : null});
+  const periodSwitch = label => <div className="ds-period-switch" role="group" aria-label={label}>
+    {Object.entries({week:'Weekly',month:'Monthly',quarter:'Quarterly',year:'Yearly'}).map(([unit,name])=>
+      <button key={unit} type="button" aria-pressed={interval===unit}
+        onClick={()=>{setInterval(unit);setFocusedPeriod('');}}>{name}</button>)}
+  </div>;
+  const scopeNote = [
+    selected('region') && 'Region '+filter.region, selected('area') && 'Area '+filter.area,
+    selected('patch') && 'Patch '+filter.patch,
+    selected('skill') && 'Skill '+filter.skill, comparisonEnabled && baselineId!==scenarioId && 'Compared with '+baselineId,
+    bundle && !areas.length && 'Area mapping unavailable',
+    (filter.start || filter.end) && [filter.start || 'First date',filter.end || 'Last date'].join(' → ')
+  ].filter(Boolean).join(' · ');
+  const periodTitle = focusedPeriod ? decisionPeriodLabel(focusedPeriod) : 'Planning horizon';
+  const priorityList = <section className="ds-panel ds-priorities" aria-label="Where cover is needed">
+    <h2><span className="ds-chart-icon"><AnalyticsIcon name="alert" size={15}/></span>Where cover is needed</h2>
+    {priorities.length ? <>
+      <p className="ds-context">Largest weekly shortages by {priorityLevel} and skill</p>
+      <ul>{priorities.map(group=>{
+        const place = priorityLevel==='patch' ? group.patch : priorityLevel==='area' ? group.area : 'Region '+group.region;
+        const date = new Date(group.week+'T00:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+        return <li key={group.id}><button type="button" onClick={()=>{
+          const before = beforeRows?.filter(row=>row.week===group.week && row.region===group.region && row.skill===group.skill &&
+            (priorityLevel==='region' || row.area===group.area) && (priorityLevel!=='patch' || row.patch===group.patch));
+          openMetric('gap',A.planningSummary(group.cells,priorityLevel,assumptions),
+            [place,group.skill,'Week of '+date].join(' · '),before && A.planningSummary(before,priorityLevel,assumptions));
+        }}>
+          <span><strong>{place} · {group.skill}</strong><small>Week of {date}</small></span>
+          <b>{format(-group.gap)} h short</b><AnalyticsIcon name="chevron" size={15}/>
+        </button></li>;
+      })}</ul>
+    </> : <p className="ds-context">{totals.comparable ? 'No shortage found in the assessed weeks.' : 'Available and required hours could not be compared for these weeks.'}</p>}
+    {!imbalance && <button type="button" className="ds-all-locations" onClick={onImbalance}>View imbalance by location <AnalyticsIcon name="chevron" size={14}/></button>}
+  </section>;
+  const matrixPeriods = visiblePeriods;
+  const showMatrixChange = !!beforeRows;
+  const [focusedCell, setFocusedCell] = React.useState(null);
+  const matrixRows = React.useMemo(()=>{
+    const matrixRows = [];
+    if (view!=='matrix') return matrixRows;
+    const openRow = id => !!matrixExpanded[id];
+    const locationValues = (cells, key) => {
+      if (key==='region') return [cells.region];
+      if (key==='area') return [cells.region,cells.area];
+      return [cells.region,cells.area,cells.patch];
+    };
+    const bucket = (plan, baselineCells, getKey) => {
+      const groups = new Map();
+      for (const [side,cells] of [['plan',plan],['baseline',baselineCells]]) {
+        for (const cell of cells) {
+          const keys = getKey(cell);
+          const id = JSON.stringify(keys);
+          if (!groups.has(id)) groups.set(id,{id,label:keys.at(-1),plan:[],baseline:[]});
+          groups.get(id)[side].push(cell);
+        }
+      }
+      return [...groups.values()].sort((a,b)=>(a.label || '').localeCompare(b.label || ''));
+    };
+    const byPeriod = cells => {
+      const result = new Map();
+      for (const cell of cells) {
+        const key = A.calendarPeriod(cell.week,interval);
+        if (!result.has(key)) result.set(key,[]);
+        result.get(key).push(cell);
+      }
+      return result;
+    };
+    function appendBreakdown(parent, depth, path, periods) {
+      const paths = new Map();
+      for (const cell of periods) for (const groups of [cell.planParts,cell.baseParts]) {
+        for (const [id,group] of groups) {
+          if (group.path.length===path.length+1 && path.every((label,index)=>label===group.path[index])) paths.set(id,group.path);
+        }
+      }
+      for (const [key,labels] of [...paths].sort((a,b)=>a[1].at(-1).localeCompare(b[1].at(-1)))) {
+        const label = labels.at(-1);
+        const id = parent.id+'/'+key;
+        const hasChildren = periods.some(({planParts,baseParts})=>[planParts,baseParts].some(groups=>
+          [...groups.values()].some(group=>group.path.length>labels.length && labels.every((text,index)=>text===group.path[index]))));
+        const title = parent.title+' · '+label;
+        const cells = periods.map(cell=>{
+          const plan = cell.planParts.get(key), baselinePart = cell.baseParts.get(key);
+          const componentValue = (report,part) => part ? part.value
+            : report && A.planningMeasures(report)[measure]!=null ? 0 : null;
+          const planValue = componentValue(cell.report,plan);
+          const baseValue = componentValue(cell.before,baselinePart);
+          const value = showMatrixChange
+            ? (cell.value==null || planValue==null || baseValue==null ? null : planValue-baseValue)
+            : planValue;
+          return {...cell,title:title+' · '+decisionPeriodLabel(cell.period.key),value,detail:{
+            planValue,baseValue,value,title,planEvidence:plan?.evidence || [],baselineEvidence:baselinePart?.evidence || []
+          }};
+        });
+        const row = {id,label,title,depth,hasChildren,cells};
+        matrixRows.push(row);
+        if (hasChildren && openRow(id)) appendBreakdown(row,depth+1,labels,periods);
+      }
+    }
+    function appendLocation(group, assessment, label, title, id, depth, next, parentCells) {
+      const plan = byPeriod(group.plan), baselineByPeriod = byPeriod(group.baseline);
+      const cells = matrixPeriods.map((period,index)=>{
+        const parent = measure==='fte' ? parentCells?.[index] : null;
+        const report = A.planningSummary(plan.get(period.key) || [],assessment,assumptions,parent?.report.fteWeeks);
+        const before = beforeRows ? A.planningSummary(baselineByPeriod.get(period.key) || [],assessment,assumptions,parent?.before?.fteWeeks) : null;
+        const comparison = before && measure==='gap' ? A.planningImpact(before,report,geographyChanges,assumptions,false) : null;
+        return {report,before,period,comparison,title:title+' · '+decisionPeriodLabel(period.key),
+          value:showMatrixChange ? (comparison ? comparison.delta : A.planningMeasureChange(before,report,measure,geographyChanges,assumptions))
+            : A.planningMeasures(report)[measure]};
+      });
+      if (measure==='gap' && shortfallsOnly && !cells.some(({report,before})=>
+        report.grossShortfall>0 || before?.grossShortfall>0)) return;
+      const allCells = [...group.plan,...group.baseline];
+      const breakdown = next==='breakdown';
+      const hasChildren = breakdown ? cells.some(({report,before})=>A.hasPlanningBreakdown(report,measure) ||
+        (before && A.hasPlanningBreakdown(before,measure)))
+        : !!next && allCells.some(cell=>next==='week' ? interval!=='week' : !!cell[next]);
+      const row = {id,label,title,depth,hasChildren,cells};
+      matrixRows.push(row);
+      if (!hasChildren || !openRow(id)) return;
+      if (breakdown) {
+        appendBreakdown(row,depth+1,[],cells.map(cell=>({...cell,
+          planParts:A.planningBreakdown(cell.report,measure,matrixDrill,assumptions),
+          baseParts:cell.before ? A.planningBreakdown(cell.before,measure,matrixDrill,assumptions) : new Map()
+        })));
+        return;
+      }
+      const groupKeys = cell=>['area','patch'].includes(next) ? locationValues(cell,next) : [cell[next]];
+      for (const child of bucket(group.plan,group.baseline,groupKeys)) {
+        const geography = ['area','patch'].includes(next);
+        const childLevel = geography && child.label ? next : assessment;
+        const hasPatches = next==='area' && [...child.plan,...child.baseline].some(cell=>cell.patch);
+        const childLabel = next==='week' ? decisionPeriodLabel(child.label) : child.label || (hasPatches?'Area unavailable':geography
+          ? (assessment==='region'?'Region only':'Area only') : 'Unspecified skill');
+        const following = {area:'patch',patch:'skill',skill:'week'}[next];
+        appendLocation(child,childLevel,childLabel,title+' · '+childLabel,id+'/'+child.id,depth+1,
+          geography && !child.label && next==='patch' ? 'skill' : following,cells);
+      }
+    }
+    for (const group of bucket(rows,beforeRows || [],cell=>locationValues(cell,placeKey))) {
+      const label = placeKey==='region' && group.label && group.label!=='Unmapped' ? 'Region '+group.label
+        : group.label || 'Held at parent level';
+      const next = matrixDrill==='geography' ? ({region:'area',area:'patch',patch:'skill'}[placeKey])
+        : matrixDrill==='skill' ? 'skill' : 'breakdown';
+      appendLocation(group,group.label ? placeKey : (placeKey==='area'?'region':'area'),label,label,
+        [measure,matrixDrill,placeKey,group.id].join('/'),0,next);
+    }
+    return matrixRows;
+  },[A,view,matrixExpanded,interval,measure,matrixDrill,matrixPeriods,assumptions,beforeRows,rows,
+    showMatrixChange,geographyChanges,shortfallsOnly,placeKey]);
+  const openRow = id => !!matrixExpanded[id];
+  const matrixValues = matrixRows.map(row=>row.cells);
+  const matrixMax = matrixValues.reduce((max,row)=>row.reduce((largest,cell)=>Math.max(largest,Math.abs(cell.value ?? 0)),max),1);
+  function matrixHeading(row, transpose = false) {
+    return <span className="ds-matrix-heading" style={{paddingInlineStart:row.depth*12}}>
+      {row.hasChildren && <button type="button" className="ds-expand" aria-expanded={openRow(row.id)}
+        aria-label={(openRow(row.id)?'Collapse ':'Expand ')+row.title}
+        onClick={()=>setMatrixExpanded(old=>({...old,[row.id]:!old[row.id]}))}>{openRow(row.id)?'−':'+'}</button>}
+      {transpose ? row.title : row.label}
+    </span>;
+  }
+  const matrixHeaders = periodsOnRows ? matrixRows.map(row=>({key:row.id,label:matrixHeading(row,true)})) : matrixPeriods;
+  const matrixRecords = periodsOnRows ? matrixPeriods.map((period,index)=>({
+    key:period.key,label:period.label,cells:matrixValues.map(row=>row[index])
+  })) : matrixRows.map((row,index)=>({key:row.id,label:matrixHeading(row),cells:matrixValues[index]}));
+  const matrixCellId = (row,index) => JSON.stringify([row.key,matrixHeaders[index].key]);
+  const activeMatrixCell = focusedCell && matrixRecords.some(row=>row.cells.some((_,index)=>matrixCellId(row,index)===focusedCell))
+    ? focusedCell : matrixRecords[0]?.cells.length ? matrixCellId(matrixRecords[0],0) : null;
+  function renderMatrixCell({report,before,value,title,detail,comparison},id) {
+    const gross = measure==='gap' && !showMatrixChange && report.grossShortfall;
+    const risk = gross>0 && (value==null || Math.abs(gross+value)>1e-8);
+    const adverse = measure==='gap' ? value<0 : measure==='shortage' && value>0;
+    const favourable = measure==='gap' ? value>0 : measure==='shortage' && showMatrixChange && value<0;
+    const tone = value==null?'unavailable':adverse?'short':favourable?'spare':value>0?'higher':value<0?'lower':'neutral';
+    const display = showMatrixChange || measure==='gap' ? signedHours(value) : value==null ? '—' : format(value);
+    const partial = report.partialByMeasure[measure] || (showMatrixChange &&
+      (before?.partialByMeasure[measure] || comparison?.baselineCoverage.groups>0 || comparison?.revisedCoverage.groups>0));
+    const planValues = showMatrixChange && showPlanValues && [
+      'Baseline '+decisionValue(measure,detail ? detail.baseValue : measure==='gap' ? comparison.gapBefore : A.planningMeasures(before)[measure],format),
+      'Plan '+decisionValue(measure,detail ? detail.planValue : measure==='gap' ? comparison.gapAfter : A.planningMeasures(report)[measure],format)
+    ];
+    return <button type="button" className="ds-matrix-cell" data-tone={tone}
+      tabIndex={activeMatrixCell===id ? 0 : -1} onFocus={()=>setFocusedCell(id)} onKeyDown={moveDecisionMatrixFocus}
+      style={{'--ds-cell-weight':Math.abs(value ?? 0)/matrixMax}}
+      aria-label={[title,measureLabel,showMatrixChange?'Change vs baseline':null,value==null?'Unavailable':display+' '+measureUnit,
+        ...(planValues || []),risk?format(gross)+' hours gross shortfall':null,partial?'Partial assessment':null].filter(Boolean).join(' · ')}
+      onClick={()=>openMetric(measure,report,title,before,detail,showMatrixChange ? {value} : null)}>
+      <strong>{display}<AnalyticsIcon name="chevron" size={11}/></strong>
+      {planValues && <span className="ds-matrix-plan-values">{planValues.map(label=><span key={label}>{label}</span>)}</span>}
+      {(risk || partial) && <span className="ds-gap-detail" aria-hidden="true">
+        {risk && <span className="ds-gap-risk"><AnalyticsIcon name="alert" size={11}/>{format(gross)}</span>}
+        {partial && <AnalyticsIcon name="info" size={11}/>}
+      </span>}
+    </button>;
+  }
+  const rowMarkup = ({id,title,depth=0,children,report,before,removed}, total=false) => {
+    const heading = <th scope="row"><span style={{paddingInlineStart:depth*14}}>{children && <button type="button" className="ds-expand"
+        aria-label={(expanded[id]?'Collapse ':'Expand ')+title} aria-expanded={!!expanded[id]}
+        onClick={()=>setExpanded(old=>({...old,[id]:!old[id]}))}>{expanded[id]?'−':'+'}</button>} {title}</span></th>;
+    if (removed) return <tr key={id}>{heading}
+      <td colSpan={metrics.length}><button type="button" className="ds-metric-link"
+        onClick={()=>openMetric('gap',before,title+' · Baseline only',null,null,null,baseline)}>
+        Removed from selected plan · View baseline records <AnalyticsIcon name="chevron" size={11}/>
+      </button></td>
+    </tr>;
+    const impact = before ? A.planningImpact(before,report,geographyChanges,assumptions,false) : null;
+    const gross = report.grossShortfall;
+    const values = A.planningMeasures(report);
+    const showGross = gross>0 && (report.gap==null || Math.abs(gross+report.gap)>1e-8);
+    const gapText = [
+      gapLabel(report.gap), showGross && format(gross)+' hours gross shortfall',
+      impact && (impact.delta==null ? 'Baseline change unavailable' : 'Baseline change '+signedHours(impact.delta)+' hours'),
+      report.partial && 'Partial assessment'
+    ].filter(Boolean).join('. ');
+    return <tr key={id} className={total?'ds-total':undefined}>
+    {heading}
+    {metrics.map(([key,label])=><td key={key} className={'ds-'+key}>
+      {key==='gap' ? <button type="button" className="ds-gap-value" aria-label={title+' · '+gapText} title={gapText}
+        onClick={()=>openMetric(key,report,title,before)}>
+        <span className={report.gap<0?'ds-short':report.gap>0?'ds-spare':'ds-neutral'}>
+          {signedHours(report.gap)}<AnalyticsIcon name="chevron" size={11}/>
+        </span>
+        {(impact || showGross || report.partial) && <span className="ds-gap-detail" aria-hidden="true">
+          {showGross && <span className="ds-gap-risk"><AnalyticsIcon name="alert" size={11}/>{format(gross)}</span>}
+          {impact && <span data-tone={impact.delta>0?'positive':impact.delta<0?'negative':undefined}>Δ {signedHours(impact.delta)}</span>}
+          {report.partial && <span className="ds-gap-partial"><AnalyticsIcon name="info" size={12}/></span>}
+        </span>}
+      </button> : <button type="button" className="ds-metric-link" data-available={values[key]!=null} aria-label={title+' · '+label+' · '+format(values[key])+
+        (report.partialByMeasure[key]?' · Partial assessment':'')}
+        onClick={()=>openMetric(key,report,title,before)}>{format(values[key])}
+        {report.partialByMeasure[key] && <span title="Partial assessment" aria-hidden="true"><AnalyticsIcon name="info" size={11}/></span>}
+      </button>}
+    </td>)}
+  </tr>;
+  };
+  return <>
+    <section className="ds-panel ds-controls diff-filter-card" aria-label="Planning filters">
+      <div className="ds-filter-header">
+        <span className="ds-filter-pill"><AnalyticsIcon name="filter" size={14}/>Filters</span>
+        <div className="ds-filter-actions">
+          {filtersOpen && <>
+            {canUndo && <button type="button" onClick={undoFilter}>Undo</button>}
+            <button type="button" onClick={()=>setFilter(clearScope)}><AnalyticsIcon name="refresh" size={13}/>Reset</button>
+          </>}
+          <button type="button" className="ds-filter-toggle" aria-expanded={filtersOpen} aria-controls="ds-planning-filters"
+            onClick={()=>setFiltersOpen(open=>!open)}>
+            {filtersOpen?'Collapse':'Expand'} <AnalyticsIcon name="chevron" size={13}/>
+          </button>
+        </div>
+      </div>
+      <div className="ds-filter-body" id="ds-planning-filters" hidden={!filtersOpen}>
+        <div className="ds-filter-main">
+          <div className="ds-plan-fields">
+            <label>Plan<select aria-label="Plan" value={scenarioId} onChange={e=>setScenarioId(e.target.value)}>
+              <option value="__draft">Draft inputs</option>{Object.keys(scenarios).map(id=><option key={id}>{id}</option>)}
+            </select></label>
+            {choose('Area','area',areas)}
+          </div>
+          <DecisionStudioPeriodControls A={A} weeks={planningWeeks} filter={filter} setFilter={setFilter}/>
+        </div>
+        {scopeNote && <p className="ds-context ds-scope-note">{scopeNote}</p>}
+        {focusedPeriod && <button type="button" className="ds-drill-link" onClick={()=>setFocusedPeriod('')}>
+          Clear period focus · {decisionPeriodLabel(focusedPeriod)}</button>}
+        <div className="ds-filter-fields">
+          {choose('Region','region',regions)}{choose('Patch','patch',patches)}{choose('Skill','skill',skills)}
+          <label>Compare with<select aria-label="Compare with" value={comparisonEnabled && baselineId!==scenarioId ? baselineId : ''}
+            onChange={e=>{setMetric(null);setComparisonEnabled(!!e.target.value);if(e.target.value)setBaselineId(e.target.value);}}>
+            <option value="">No baseline</option>{Object.keys(scenarios).filter(id=>id!==scenarioId).map(id=><option key={id}>{id}</option>)}
+          </select></label>
+          <details className="ds-date-detail"><summary>Exact dates</summary><div>
+            {['start','end'].map(key=><label key={key}>{key==='start'?'From date':'Through date'}
+              <input type="date" value={filter[key]||''} onChange={e=>change(key,e.target.value)}/></label>)}
+          </div></details>
+        </div>
+      </div>
+    </section>
+    {bundle && !busy && !imbalance && model.rows.length>0 && <>
+        <section className="ds-outlook-metrics" aria-label="Planning horizon totals">
+          {[
+            ['gap','Net capacity gap',gapLabel(totals.gap),[
+              totals.grossShortfall>Math.max(0,-(totals.gap ?? 0)) && format(totals.grossShortfall)+' h gross shortfall',
+              totals.partial && totals.comparable+' of '+totals.assessed.length+' groups assessed'
+            ].filter(Boolean).join(' · ') || periodTitle],
+            ['demand','Required hours',format(totals.demand),totals.partialByMeasure.demand?'Some job durations are missing':'Forecast work'],
+            ['capacity','Available capacity',format(totals.capacity),totals.partialByMeasure.capacity
+              ? (totals.capacity!=null?'Assessed locations only':'Downtime could not be assessed'):'After downtime and cover'],
+            ['fte','Allocated FTE',format(totals.fte),'Average per roster week']
+          ].map(([key,label,value,note])=><button type="button" className="ds-outlook-metric" key={key} data-measure={key}
+            data-available={totals[key]!=null}
+            data-tone={key==='gap' ? (totals.gap<0?'short':totals.gap>0?'spare':'neutral') : key}
+            onClick={()=>openMetric(key,totals,periodTitle,beforeRows ? summary(beforeRows) : null)}>
+            <span className="ds-kpi-icon"><AnalyticsIcon name={{gap:'scale',demand:'demand',capacity:'bolt',fte:'users'}[key]} size={16}/></span>
+            <span className="ds-kpi-content">
+              <span className="ds-metric-title">{label}</span>
+              <strong>{value}{['capacity','demand'].includes(key) && totals[key]!=null && <small> h</small>}</strong>
+              <span className="ds-kpi-note">{note}</span>
+            </span>
+            <AnalyticsIcon name="chevron" size={13} className="ds-kpi-chevron"/>
+          </button>)}
+        </section>
+        <div className="ds-outlook-grid">
+          <DecisionStudioDemandTrend Trend={V.Trend} chart={chart} periodSwitch={periodSwitch('Outlook period')}
+            periodLabel={interval} focusedPeriod={focusedPeriod} setFocusedPeriod={setFocusedPeriod}/>
+          {priorityList}
+        </div>
+    </>}
+    {bundle && !busy && <section className="ds-panel ds-plan-views">
+      <div className="ds-heading ds-plan-heading"><h2>{imbalance?'Capacity imbalance':'Capacity plan'}</h2>
+        {data.issues.length>0 && <button type="button" className="ds-issues" onClick={onChecks}>Input completeness</button>}
+        <div className="ds-period-switch" role="group" aria-label="Capacity plan view">
+          {[['table','Table'],['trend','Trend'],['matrix','Matrix']].map(([id,label])=><button type="button" key={id}
+            aria-pressed={view===id} onClick={()=>setView(id)}>{label}</button>)}
+        </div>
+      </div>
+      {patchAssessment && <p className="ds-context">
+        Capacity imbalance uses assessed patches. Some regional and area totals have gaps in demand, roster or downtime coverage.
+      </p>}
+      {view!=='table' && <div className="ds-plan-view-controls">
+        <label>Measure<select aria-label="Planning measure" value={measure} onChange={e=>setMeasure(e.target.value)}>
+          {decisionMeasures.map(([id,label])=><option key={id} value={id}>{label}</option>)}
+        </select></label>
+        {periodSwitch('Capacity plan period')}
+        {view==='matrix' && <>
+          <label>Location<select aria-label="Matrix location level" value={locationLevel} onChange={e=>setLocationLevel(e.target.value)}>
+          <option value="auto">Auto ({placeLabel})</option><option value="region">Region</option>
+            <option value="area">Area</option><option value="patch">Patch</option>
+          </select></label>
+          <label>Drill by<select aria-label="Matrix drill by" value={matrixDrill} onChange={e=>setDrillBy(e.target.value)}>
+            {Object.entries(drillOptions).map(([id,label])=><option key={id} value={id}>{label}</option>)}
+          </select></label>
+          <button type="button" className="ds-drill-link" onClick={()=>setPeriodsOnRows(!periodsOnRows)}>
+            Swap rows and columns</button>
+          {showMatrixChange && <label><input type="checkbox" checked={showPlanValues}
+            onChange={event=>setShowPlanValues(event.target.checked)}/> Show plan values</label>}
+        </>}
+        {view==='matrix' && measure==='gap' && <label className="ds-shortfalls-toggle"><input type="checkbox" checked={shortfallsOnly}
+          onChange={event=>setShortfallsOnly(event.target.checked)}/> {showMatrixChange?'Shortfall in either plan':'Shortfalls only'}</label>}
+      </div>}
+      {view==='trend' && <DecisionStudioResponsiveTrend Trend={V.Trend} key={measure} measure={measure} title={measureLabel+' by period'}
+          data={trend} unit={measureUnit} signed={measure==='gap'} actionLabel="Select a period"
+          series={[{key:'plan',label:'Selected plan',color:'var(--ds-measure-accent, var(--ds-chart-plan))'},
+            ...(beforeRows ? [{key:'baseline',label:'Baseline',color:'var(--ds-chart-baseline, var(--ds-chart-capacity))',dash:'6 4'}] : [])]}
+          onSelect={row=>openMetric(measure,row.report,decisionPeriodLabel(row.key),row.before)}/>}
+      {view==='matrix' && <>
+        <p className="ds-context">{measureLabel} ({measureUnit}) by {placeKey} and period.</p>
+        {measure==='fte' && matrixDrill==='breakdown' && <p className="ds-context">Skill and labour type show their contribution to the location’s average weekly FTE.</p>}
+        {measure==='gap' && rows.length>0 && (!showMatrixChange || showPlanValues) && <div className="ds-imbalance-summary">
+          <button type="button" onClick={()=>openMetric('gap',totals,periodTitle,beforeRows && summary(beforeRows))}>
+            Net position <strong data-tone={totals.gap>0?'positive':undefined}>{gapLabel(totals.gap)}</strong><AnalyticsIcon name="chevron" size={12}/>
+          </button>
+          <button type="button" onClick={()=>openMetric('shortage',totals,periodTitle,beforeRows && summary(beforeRows))}>
+            Gross shortfall <strong>{decisionValue('shortage',totals.grossShortfall,format)}</strong><AnalyticsIcon name="chevron" size={12}/>
+          </button>
+        </div>}
+        <div className="ds-gap-key">{measure==='gap' && !showMatrixChange && <><span><b>−</b> Shortfall</span><span><b>+</b> Surplus</span>
+          <span><AnalyticsIcon name="alert" size={12}/> Gross shortfall</span></>}
+          {showMatrixChange && <span>{measure==='gap'?'Δ Change in matched groups':'Δ Selected plan minus baseline'}</span>}
+          {showMatrixChange && (measure==='gap' || measure==='shortage'
+            ? <span>Red = worse · Green = better</span>
+            : <span>Blue = increase · Purple = decrease</span>)}
+          <span><b>—</b> Unavailable</span></div>
+        {showMatrixChange && matrixRows.length>0 && !matrixRows.some(row=>row.cells.some(cell=>cell.value!=null)) &&
+          <p className="ds-context">The plans have no comparable values for this measure and scope.
+            {' '}Choose No baseline to review the selected plan figures.</p>}
+        {matrixRows.length && matrixPeriods.length ? <div className="ds-scroll ds-imbalance-matrix" tabIndex="0"
+          data-measure={measure} data-show-delta={showMatrixChange}
+          aria-label={measureLabel+' matrix'} aria-describedby="ds-matrix-keyboard-help">
+          <span className="sr-only" id="ds-matrix-keyboard-help">Use arrow keys to move between values and Enter to open details.</span>
+          <table><thead><tr><th scope="col">{periodsOnRows?periodLabel:placeLabel}</th>
+            {matrixHeaders.map(header=><th scope="col" key={header.key}>{header.label}</th>)}
+          </tr></thead><tbody>{matrixRecords.map(row=><tr key={row.key}><th scope="row">{row.label}</th>
+            {row.cells.map((cell,index)=><td key={matrixHeaders[index].key}>{renderMatrixCell(cell,matrixCellId(row,index))}</td>)}
+          </tr>)}</tbody></table>
+        </div> : <p className="ds-context">{measure==='gap' && shortfallsOnly?'No assessed shortfalls in this scope.':'No planning periods in this scope.'}</p>}
+      </>}
+      {view==='table' && <>
+        <div className="ds-plan-view-controls"><label>Group by <select aria-label="Group by" value={groupBy} onChange={e=>setGroupBy(e.target.value)}>
+          <option value="month">Month</option><option value="quarter">Quarter</option><option value="geography">Geography</option>
+          <option value="skill">Skill</option><option value="week">Week</option>
+        </select></label>
+          <label className="ds-shortfalls-toggle"><input type="checkbox" checked={allColumns}
+            onChange={event=>setAllColumns(event.target.checked)}/> All 8 measures</label>
+        </div>
+        {visibleRows.length ? <>
+          <div className="ds-gap-key" aria-label="Gap column key">
+            <span><b>−</b> Shortfall</span><span><b>+</b> Surplus</span>
+            <span><AnalyticsIcon name="alert" size={12}/> Gross shortfall</span>
+            {beforeRows && <span><b>Δ</b> vs baseline</span>}
+            <span><AnalyticsIcon name="info" size={12}/> Partial</span>
+          </div>
+          <div className="ds-scroll ds-planning-table" tabIndex="0" aria-label="Capacity plan table"><table>
+          <thead><tr><th scope="col">{{month:'Month',quarter:'Quarter',geography:'Location',skill:'Skill',week:'Week commencing'}[groupBy]}</th>{metrics.map(([key,label])=><th scope="col" key={key} className={'ds-'+key}>{label}</th>)}</tr></thead>
+          <tbody>{visibleRows.map(row=>rowMarkup(row))}{rowMarkup({id:'total',title:'Net position',report:totals,
+            before:beforeRows ? summary(beforeRows) : null},true)}</tbody>
+        </table></div></> : <p className="ds-context">{data.weeks.length?'No planning rows match these filters.':'This plan has no forecast weeks. Select a plan or draft with demand and staffing inputs.'}</p>}
+      </>}
+      {totals.unallocated!==0 && <p className="ds-context">{format(totals.unallocated)} h of capacity adjustments held at region level.</p>}
+      {comparisonEnabled && baselineId!==scenarioId && !baseline && <p className="ds-context">Baseline unavailable. Showing the selected plan.</p>}
+      {view==='table' && beforeRows && <p className="ds-context">Gap change compares matching assessed groups. Direction is selected plan minus baseline.</p>}
+    </section>}
+    {bundle && !busy && imbalance && model.rows.length>0 && priorityList}
+    {metric && (metric.detail ? <DecisionStudioBreakdownEvidence key={metric.title} A={A} V={V} metric={metric} format={format}
+      bundle={bundle} baseline={baseline} assumptions={assumptions} onClose={()=>setMetric(null)}/>
+      : <DecisionStudioEvidence key={metric.key+metric.title} A={A} geographyChanges={geographyChanges} metric={metric} format={format} gapLabel={gapLabel}
+        assumptions={assumptions} bundle={metric.sourceBundle || bundle} baseline={baseline} V={V} onClose={()=>setMetric(null)}
+        productivity={(metric.sourceBundle ? baseData : data).facts.baseline_productivity}
+        baselineProductivity={baseData.facts.baseline_productivity}
+        onSimulate={(group,driver,amount,level)=>A.simulatePlanningChange(data,filter,assumptions,group,level,driver,amount)}/>)}
+  </>;
+}
+
+function DecisionStudioImpact({impact, format, V, baseline, revised}) {
+  const [driver, setDriver] = React.useState(null);
+  if (impact.delta === null) return <p>No comparable groups in these plans. Outside the bridge:
+    {' '}{impact.baselineCoverage.groups} baseline groups and {impact.revisedCoverage.groups} selected-plan groups.
+    Check input completeness and geography.</p>;
+  const signed = value => (value > 0 ? '+' : '')+format(value);
+  const changed = impact.components.filter(row => Math.abs(row.delta)>1e-8);
+  const residual = Math.abs(impact.residual)>1e-8
+    ? [{name:'Other adjustments',value:impact.residual}] : [];
+  const steps = [{name:'Baseline gap',value:impact.gapBefore,total:true},
+    ...changed,...residual,{name:'Selected plan gap',value:impact.gapAfter,total:true}];
+  const rows = [
+    ...impact.components.filter(row=>row.before || row.after).filter(row=>row.key!=='demand'),
+    {name:'Available capacity',before:impact.capacityBefore,after:impact.capacityAfter,delta:impact.capacityAfter-impact.capacityBefore},
+    impact.components.find(row=>row.key==='demand'),
+    {name:'Capacity gap',before:impact.gapBefore,after:impact.gapAfter,delta:impact.delta}
+  ];
+  const sources = {
+    roster:['resource_plan'], appliedDowntime:['downtime_overlays_hours','downtime_overlays_percentage','downtime_overlays_hours_fte'],
+    recruits:['recruitment_grounded','recruitment_ungrounded'], overtime:['overtime'], contractors:['ctr_capacity'],
+    transfers:['fte_transfer'], support:['hec_on_kac_demand','hec_on_ev_demand'], demand:['demand_input']
+  };
+  const ranked = [...changed].sort((a,b)=>Math.abs(b.value)-Math.abs(a.value)).slice(0,3);
+  const remove = impact.baselineCoverage, add = impact.revisedCoverage;
+  const sourceTable = (entries, bundle, label) => {
+    const records = new Map();
+    for (const {row} of entries) {
+      if (!sources[driver]?.includes(row.source)) continue;
+      for (const original of [row,row.jobTime].filter(Boolean)) records.set(original.source+':'+original.row,original);
+    }
+    const values = [...records.values()].map(row=>({
+      ...row.raw, Source:row.source, Version:bundle?.sources?.[row.source]?.version, 'Source row':row.row
+    }));
+    const fields = [...new Set(['Source','Version','Source row',...values.flatMap(Object.keys)])];
+    return <AnalyticsTable title={label} rows={values} pageSize={12}
+      columns={fields.map(key=>({key,label:key}))}/>;
+  };
+  const roster = entries => {
+    const totals = new Map();
+    for (const {row,hours} of entries) {
+      if (row.source!=='resource_plan' || !row.n.payid) continue;
+      if (!totals.has(row.n.payid)) totals.set(row.n.payid,{row,allocated:0});
+      totals.get(row.n.payid).allocated += hours;
+    }
+    return totals;
+  };
+  const rosterChanges = () => {
+    const before = roster(impact.beforeEvidence), after = roster(impact.afterEvidence);
+    return [...new Set([...before.keys(),...after.keys()])].flatMap(id=>{
+      const start = before.get(id), end = after.get(id);
+      const display = key => [start?.row.n[key],end?.row.n[key]].map(value=>value ?? '—').join(' → ');
+      if (start && end && start.allocated===end.allocated &&
+          ['hours','allocation','wmis','skill','status'].every(key=>start.row.n[key]===end.row.n[key])) return [];
+      return [{id, hours:display('hours'), allocation:display('allocation'), location:display('wmis'),
+        skill:display('skill'), change:format((end?.allocated || 0)-(start?.allocated || 0)),
+        status:!start?'Added to assessed roster':!end?'Removed from assessed roster':'Changed'}];
+    });
+  };
+  return <section className="ds-impact ds-gap-bridge">
+    <div className="ds-impact-heading"><h3>Why the gap changed</h3>
+      <span data-tone={impact.delta<0?'short':impact.delta>0?'spare':undefined}>
+        {signed(impact.delta)} h vs baseline
+      </span>
+    </div>
+    <p className="ds-context">{baseline?.scenarioId} → {revised?.scenarioId} · {impact.pairs.length} matching assessed groups</p>
+    <p>{impact.delta===0 ? 'The net gap is unchanged.' : 'The gap is '+format(Math.abs(impact.delta))+' h '+(impact.delta<0?'worse.':'better.')}
+      {ranked.length>0 && ' Largest contributors were '+ranked.map(row=>row.name.toLowerCase()+' ('+signed(row.value)+' h)').join(', ')+'.'}</p>
+    <div className="ds-impact-grid">
+      {changed.length || residual.length ? <V.Waterfall title="Impact on gap" steps={steps} onSelect={row=>row.key&&setDriver(row.key)}/>
+        : <p>No component changes across comparable groups.</p>}
+      <div className="ds-scroll"><table><thead><tr><th scope="col">Hours</th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Change</th></tr></thead>
+        <tbody>{rows.map(row=><tr key={row.name}><th scope="row">{row.key ?
+          <button type="button" className="ds-issues" aria-pressed={driver===row.key}
+            onClick={()=>setDriver(driver===row.key?null:row.key)}>{row.name}</button> : row.name}</th>
+          <td>{format(row.before)}</td><td>{format(row.after)}</td><td>{signed(row.delta)}</td></tr>)}</tbody></table></div>
+    </div>
+    {(remove.groups>0 || add.groups>0) && <p className="ds-context">
+      Outside the bridge: {remove.groups} baseline groups ({signed(remove.hours)} h assessed gap) and {add.groups} selected-plan groups
+      ({signed(add.hours)} h assessed gap). Includes missing evidence or changed geography.</p>}
+    {driver==='demand' && <p className="ds-context">For {impact.demandBridge.rows.length} matched work-code groups,
+      volume {signed(impact.demandBridge.volume)} h · mix {signed(impact.demandBridge.mix)} h · duration {signed(impact.demandBridge.duration)} h.
+      {impact.demandBridge.excluded.length ? ' '+impact.demandBridge.excluded.length+' groups are outside this decomposition.' : ''}</p>}
+    {driver==='roster' && <AnalyticsTable title="Roster changes by Pay ID" rows={rosterChanges()} columns={[
+      {key:'id',label:'Pay ID'},{key:'status',label:'Plan change'},{key:'hours',label:'Working hours'},
+      {key:'allocation',label:'Allocation %'},{key:'location',label:'Location'},{key:'skill',label:'Skill'},
+      {key:'change',label:'Allocated hours change'}
+    ]}/>}
+    {driver && <div className="ds-impact-grid">
+      {sourceTable(impact.beforeEvidence,baseline,'Baseline source records')}
+      {sourceTable(impact.afterEvidence,revised,'Selected plan source records')}
+    </div>}
+  </section>;
+}
+
+function DecisionStudioResponse({groups, focused, level, format, gapLabel, onSimulate}) {
+  const [targetId, setTargetId] = React.useState(() => groups.find(group=>group.id===focused?.id)?.id || groups[0]?.id);
+  const [driver, setDriver] = React.useState('overtime');
+  const [amount, setAmount] = React.useState('');
+  const group = groups.find(row=>row.id===targetId) || groups[0];
+  const trial = React.useMemo(() => amount.trim() && group ? onSimulate(group,driver,Number(amount),level) : null,
+    [group,driver,amount,level,onSimulate]);
+  if (!group) return null;
+  return <section className="ds-impact ds-response" aria-label="Test a planning change">
+    <h3>Test a change</h3>
+    <p className="ds-context">Hypothetical result for one skill and week. Demand inputs stay fixed.</p>
+    <div className="ds-response-controls">
+      <label>Shortfall group<select value={group.id} onChange={e=>{setTargetId(e.target.value);setAmount('');}}>
+        {groups.map(row=><option key={row.id} value={row.id}>{[
+          row.region,level!=='region' && row.area,level==='patch' && row.patch,row.skill,row.week
+        ].filter(Boolean).join(' · ')}</option>)}</select></label>
+      <label>Change<select value={driver} onChange={e=>{setDriver(e.target.value);setAmount('');}}>
+        <option value="overtime">Add overtime</option><option value="roster">Change allocated roster hours</option>
+        <option value="fte">Change allocated FTE</option><option value="downtime">Reduce applied downtime</option>
+      </select></label>
+      <label>{driver==='fte'?'FTE change':'Hours in selected week'}<input type="number" step="any"
+        min={['overtime','downtime'].includes(driver)?0:undefined} value={amount} onChange={e=>setAmount(e.target.value)}/></label>
+      <button type="button" onClick={()=>setAmount('')}>Reset</button>
+    </div>
+    {driver==='fte' || driver==='roster' ? <p className="ds-context">Use a signed value. The change is spread across the group’s allocated roster in proportion to existing hours.</p> : null}
+    {amount.trim() && !trial && <p role="status">Enter a change supported by the group’s roster or downtime.</p>}
+    {trial?.gap!=null && <p className="ds-trial-result" aria-live="polite">
+      <span>Hypothetical gap · {group.skill} · Week of {decisionPeriodLabel(group.week)}</span>
+      <strong data-tone={trial.gap>0?'positive':undefined}>{gapLabel(trial.gap)}</strong>
+      <small>{(trial.gap-group.gap)>=0?'+':''}{format(trial.gap-group.gap)} h vs selected plan</small>
+    </p>}
+    <div className="ds-scroll"><table><thead><tr><th scope="col">Measure</th><th scope="col">Selected plan</th><th scope="col">Hypothetical</th></tr></thead>
+      <tbody><tr><th scope="row">Available hours</th><td>{format(group.capacity)}</td><td>{format(trial?.capacity ?? group.capacity)}</td></tr>
+      <tr><th scope="row">Required hours</th><td>{format(group.demand)}</td><td>{format(trial?.demand ?? group.demand)}</td></tr>
+      <tr><th scope="row">Capacity gap</th><td>{gapLabel(group.gap)}</td><td data-tone={trial?.gap>0?'positive':undefined}
+        aria-live="polite">{gapLabel(trial ? trial.gap : group.gap)}</td></tr></tbody></table></div>
+  </section>;
+}
+
+function DecisionStudioBreakdownEvidence({A,V,metric,format,bundle,baseline,assumptions,onClose}) {
+  const [side,setSide] = React.useState('plan');
+  const [selectedWeek,setSelectedWeek] = React.useState('');
+  const {key,title,detail,before} = metric;
+  const [,label,unit] = decisionMeasure(key);
+  const entries = side==='plan' ? detail.planEvidence : detail.baselineEvidence;
+  const timeline = React.useMemo(()=>{
+    const plan = new Map(), base = new Map();
+    for (const [evidence,weeks] of [[detail.planEvidence,plan],[detail.baselineEvidence,base]]) {
+      for (const entry of evidence) {
+        const week = entry.cell.week;
+        if (!weeks.has(week)) weeks.set(week,0);
+        const total = weeks.get(week);
+        weeks.set(week,total==null || entry.contribution==null ? null : total+entry.contribution);
+      }
+    }
+    return decisionPeriods(A,[...plan.keys(),...base.keys()],'week').map(key=>({
+      key,label:decisionPeriodLabel(key,true),plan:plan.get(key) ?? null,baseline:base.get(key) ?? null
+    }));
+  },[A,detail]);
+  const groups = new Map();
+  for (const entry of entries) {
+    if (selectedWeek && entry.cell.week!==selectedWeek) continue;
+    const source = entry.row.source;
+    if (!groups.has(source)) groups.set(source,[]);
+    groups.get(source).push({
+      'Source row':entry.row.row, 'Modeled week':entry.cell.week,
+      ...entry.row.raw, ...(entry.row.jobTime && {['Matched duration ('+assumptions.jobTimeUnit+')']:entry.row.jobTime.value}),
+      ['Contribution ('+unit+')']:format(entry.contribution)
+    });
+  }
+  const selectedPlan = side==='plan' ? bundle : baseline;
+  const change = decisionChange(key,detail.value,format);
+  return <AnalyticsDrawer title={label+' breakdown'} subtitle={title} eyebrow="Decision Studio" panelClassName="ds-planning-drawer"
+    onClose={onClose}>
+    <section className="ds-drill-hero" data-measure={key}>
+      <p className="ds-drill-scope">{bundle?.scenarioId}{before && ' vs '+baseline?.scenarioId}</p>
+      <strong className="ds-drill-result">{before ? change : decisionValue(key,detail.planValue,format)}</strong>
+      {before && <dl>
+        <div><dt>Baseline</dt><dd>{decisionValue(key,detail.baseValue,format)}</dd></div>
+        <div><dt>Selected plan</dt><dd>{decisionValue(key,detail.planValue,format)}</dd></div>
+      </dl>}
+    </section>
+    {before && <div className="ds-drill-nav" role="group" aria-label="Source plan">
+      <button type="button" aria-pressed={side==='plan'} onClick={()=>setSide('plan')}>Selected plan records</button>
+      <button type="button" aria-pressed={side==='baseline'} onClick={()=>setSide('baseline')}>Baseline records</button>
+    </div>}
+    <div className="ds-drill-body">
+      {timeline.length>1 && timeline.some(row=>row.plan!=null || row.baseline!=null) &&
+        <DecisionStudioResponsiveTrend Trend={V.Trend} title={label+' contribution by week'} measure={key}
+          subtitle={key==='fte'?'Weekly contributions to the selected period’s average FTE. Select a week to filter records.'
+            : 'Select a week to filter records.'}
+          data={timeline} unit={unit} signed={timeline.some(row=>row.plan<0 || row.baseline<0)}
+          series={[{key:'plan',label:'Selected plan',color:'var(--ds-measure-accent, var(--ds-chart-plan))'},
+            ...(before ? [{key:'baseline',label:'Baseline',color:'var(--ds-chart-baseline, #9c6644)',dash:'6 4'}] : [])]}
+          selectedKey={selectedWeek} onSelect={row=>setSelectedWeek(current=>current===row.key?'':row.key)}
+          actionLabel="Select a week" onClearSelection={()=>setSelectedWeek('')}/>}
+      {[...groups].map(([source,records])=><AnalyticsTable key={side+source}
+        title={selectedPlan?.sources?.[source]?.version || source.replaceAll('_',' ')}
+        rows={records} columns={[...new Set(records.flatMap(Object.keys))].map(key=>({key,label:key}))}/>)}
+      {!groups.size && <p className="ds-context">{detail.title.endsWith('Other modeled adjustments')
+        ? 'This figure reconciles modeled capacity with its source components.' : 'No source records for this breakdown in the selected plan.'}</p>}
+    </div>
+  </AnalyticsDrawer>;
+}
+
+function DecisionStudioMetricTimeline({A,V,report,before,measure,assumptions,geographyChanges,format,onSelect}) {
+  const [requestedInterval,setInterval] = React.useState('');
+  const [view,setView] = React.useState('working');
+  const [showBoth,setShowBoth] = React.useState(false);
+  const weeks = [...new Set([...report.assessed,...(before?.assessed || [])].map(group=>group.week))];
+  const timeScales = [['week','Weekly'],['month','Monthly'],['quarter','Quarterly'],['year','Yearly']]
+    .filter(([id])=>new Set(weeks.map(week=>A.calendarPeriod(week,id))).size>1);
+  const interval = requestedInterval || (timeScales.some(([id])=>id==='month') ? 'month' : 'week');
+  const rosterView = measure==='downtime' && view==='working';
+  const rosterComparison = !!before && ['fte','roster'].includes(measure);
+  const deltaView = rosterComparison && !showBoth;
+  const [,label,unit] = decisionMeasure(measure);
+  const rows = React.useMemo(()=>{
+    const byPeriod = source => {
+      const groups = new Map();
+      for (const group of source?.assessed || []) {
+        const key = A.calendarPeriod(group.week,interval);
+        if (!groups.has(key)) groups.set(key,[]);
+        groups.get(key).push(...group.cells);
+      }
+      return groups;
+    };
+    const selected = byPeriod(report), baseline = byPeriod(before);
+    const rosterHours = summary => summary?.downtime!=null ? summary.assessedRoster : null;
+    const workingHours = summary => summary?.downtime!=null ? summary.assessedRoster-summary.downtime : null;
+    return decisionPeriods(A,weeks,interval).map(key=>{
+      const plan = A.planningSummary(selected.get(key) || [],report.level,assumptions);
+      const base = before && A.planningSummary(baseline.get(key) || [],before.level,assumptions);
+      const matched = base && measure==='gap' ? A.planningImpact(base,plan,geographyChanges,assumptions,false) : null;
+      const selectedValue = matched ? matched.gapAfter : A.planningMeasures(plan)[measure];
+      const gross = measure==='gap' && selectedValue!=null
+        ? matched ? A.planningSummary(matched.pairs.flatMap(pair=>pair.after.cells),plan.level,assumptions).grossShortfall
+          : plan.grossShortfall
+        : null;
+      return {
+        key,label:decisionPeriodLabel(key,true),report:plan,before:base,
+        selected:selectedValue,grossMarker:gross>Math.max(0,-selectedValue)+1e-8 ? -gross : null,
+        baseline:matched ? matched.gapBefore : base ? A.planningMeasures(base)[measure] : null,
+        change:matched ? matched.delta : A.planningMeasureChange(base,plan,measure,geographyChanges,assumptions),
+        pairs:matched?.pairs,
+        core:rosterHours(plan), working:workingHours(plan),
+        baselineCore:rosterHours(base), baselineWorking:workingHours(base)
+      };
+    });
+  },[A,report,before,interval,assumptions,geographyChanges,measure]);
+  if (!timeScales.length) return null;
+  if (!rows.some(row=>row.selected!=null || row.baseline!=null || rosterView && (row.core!=null || row.baselineCore!=null))) {
+    return <p className="ds-context">{measure==='gap' && before
+      ? 'No matching groups have an assessed gap in this period range.' : 'No assessed figures are available for this timeline.'}</p>;
+  }
+  const series = deltaView ? [{key:'change',label:'Change vs baseline',color:'var(--ds-measure-accent, var(--ds-chart-plan))'}]
+    : rosterView ? [
+    {key:'working',label:'After downtime',color:'var(--ds-chart-capacity)',bar:true},
+    {key:'core',label:'Assessed roster',color:'var(--ds-chart-demand)'},
+    ...(before ? [
+      {key:'baselineWorking',label:'Baseline after downtime',color:'var(--ds-chart-baseline, #9c6644)',bar:true},
+      {key:'baselineCore',label:'Baseline roster',color:'var(--ds-chart-fte, #7c3aed)',dash:'6 4'}
+    ] : [])
+  ] : [
+    {key:'selected',label:measure==='gap'?'Net gap':'Selected plan',color:'var(--ds-measure-accent, var(--ds-chart-plan))',
+      bar:measure==='gap',signedColors:measure==='gap'},
+    ...(before ? [{key:'baseline',label:'Baseline',color:'var(--ds-chart-baseline, #9c6644)',dash:'6 4'}] : []),
+    ...(measure==='gap' && rows.some(row=>row.grossMarker!=null) ? [
+      {key:'grossMarker',label:'Gross shortfall',color:'var(--ds-shortfall-marker)',marker:true,absolute:true}
+    ] : [])
+  ];
+  const open = row=>onSelect({...row,label:decisionPeriodLabel(row.key),includeRoster:rosterView},
+    (rosterView ? row.core : row.selected)==null && (rosterView ? row.baselineCore : row.baseline)!=null ? 'baseline' : 'plan');
+  return <section className="ds-metric-history">
+    <DecisionStudioResponsiveTrend Trend={V.Trend} data={rows} measure={rosterView?'capacity':measure}
+      title={rosterView?'Roster hours and availability':deltaView?label+' change by period':label+' timeline'}
+      subtitle={rosterView?'Assessed hours before and after downtime. Select a period to see its records.'
+        : measure==='gap' && before?'Matched groups only. Select a period to see its records.'
+        : measure==='fte'?'Average FTE per roster week. Select a period to see its records.'
+        : 'Select a period to see its records.'}
+      tools={<div className="ds-history-controls">
+        {timeScales.length>1 && <div className="ds-period-switch" role="group" aria-label="Breakdown period">
+          {timeScales.map(([id,name])=><button key={id} type="button" aria-pressed={interval===id}
+            onClick={()=>setInterval(id)}>{name}</button>)}
+        </div>}
+        {measure==='downtime' && <div className="ds-period-switch" role="group" aria-label="Downtime timeline measure">
+          {[['working','Roster hours'],['measure','Downtime']].map(([id,name])=>
+            <button key={id} type="button" aria-pressed={view===id} onClick={()=>setView(id)}>{name}</button>)}
+        </div>}
+        {rosterComparison && <label className="ds-history-toggle">
+          <input type="checkbox" checked={showBoth} onChange={event=>setShowBoth(event.target.checked)}/> Show both plans
+        </label>}
+      </div>}
+      unit={unit} signed={measure==='gap' || deltaView} series={series} onSelect={open}
+      actionLabel={rosterComparison?'Select a period to see its workforce breakdown.':'Select a period to open records.'}/>
+    {deltaView && !rows.some(row=>row.change!=null) &&
+      <p className="ds-context">No periods have matching assessed scope. Use Show both plans to review their figures.</p>}
+    <details className="ds-drill-section"><summary>{label} figures by period</summary>
+      <div className="ds-scroll" tabIndex="0" aria-label={label+' figures by period'}>
+        <table><thead><tr><th scope="col">Period</th><th scope="col">Selected plan</th>
+          {before && <><th scope="col">Baseline</th><th scope="col">Change</th></>}
+          {rosterView && <><th scope="col">Assessed roster</th><th scope="col">After downtime</th><th scope="col">Availability</th></>}
+        </tr></thead><tbody>{rows.map(row=><tr key={row.key}><th scope="row">
+          <button type="button" className="ds-drill-link" onClick={()=>open(row)}>
+            {row.label} <AnalyticsIcon name="chevron" size={11}/></button></th>
+          <td>{decisionValue(measure,row.selected,format)}</td>
+          {before && <><td>{decisionValue(measure,row.baseline,format)}</td>
+            <td>{decisionChange(measure,row.change,format)}</td></>}
+          {rosterView && <><td>{decisionValue('roster',row.core,format)}</td>
+            <td>{decisionValue('roster',row.working,format)}</td>
+            <td>{row.report.downtimeRate==null?'Unavailable':format(100-row.report.downtimeRate)+'%'}</td></>}
+        </tr>)}</tbody></table>
+      </div>
+    </details>
+  </section>;
+}
+
+function DecisionStudioComparisonBars({rows,measure,format,onSelect,bullet=false,active}) {
+  const scale = Math.max(1,...rows.map(row=>bullet ? Math.max(row.plan ?? 0,row.change!=null ? row.baseline ?? 0 : 0)
+    : Math.abs(row.change ?? 0)));
+  return <ul className="ds-comparison-bars">
+    {rows.map(row=>{
+      const value = bullet ? row.plan : row.change;
+      const width = 100*Math.abs(value ?? 0)/scale*(bullet?1:.5);
+      const tone = row.change==null || row.change===0?'neutral'
+        : (bullet ? row.change>0 : row.change<0)?'worse':'better';
+      return <li key={row.id}>
+        <button type="button" className="ds-compare-row" aria-expanded={bullet ? active===row.id : undefined}
+          onClick={()=>onSelect(row)}>
+          <span className="ds-compare-label"><strong>{row.name}</strong>
+            <small>{bullet
+              ? 'Plan '+decisionValue(measure,row.plan,format)+' · Baseline '+decisionValue(measure,row.baseline,format)
+              : 'Plan '+decisionValue(measure,row.plan,format)+(row.share==null?'':' · '+format(row.share)+'% share')}</small>
+          </span>
+          <span className="ds-compare-track" data-centred={!bullet} aria-hidden="true">
+            {value!=null && <span className="ds-compare-fill" data-tone={tone}
+              style={{width:width+'%',left:bullet?'0%':(value<0 ? 50-width : 50)+'%'}}/>}
+            {bullet && row.change!=null && <span className="ds-baseline-marker"
+              style={{left:100*row.baseline/scale+'%'}}/>}
+          </span>
+          <strong className="ds-compare-value" data-tone={tone}>{decisionChange(measure,row.change,format)}</strong>
+          <AnalyticsIcon name="chevron" size={13}/>
+        </button>
+      </li>;
+    })}
+  </ul>;
+}
+
+const decisionLocationKey = (cell,fields) => JSON.stringify(fields.map(key=>cell[key] || ''));
+function decisionCapacityDimensions(report,before) {
+  const cells = [...report.capacityRows,...(before?.capacityRows || [])];
+  return [['region'],['region','area'],['region','area','patch']]
+    .filter(fields=>new Set(cells.map(cell=>decisionLocationKey(cell,fields))).size>1);
+}
+
+function DecisionStudioCapacityDistribution({A,V,report,before,assumptions,geographyChanges,onSelect,format}) {
+  const [side,setSide] = React.useState(before ? 'change' : 'plan');
+  const [groupBy,setGroupBy] = React.useState('');
+  const availableDimensions = decisionCapacityDimensions(report,before);
+  const dimensions = availableDimensions.find(fields=>fields.at(-1)===groupBy) || availableDimensions[0];
+  if (!dimensions) return null;
+  const level = dimensions.at(-1);
+  const grouped = summary => {
+    const groups = new Map();
+    for (const cell of summary?.capacityRows || []) {
+      const id = decisionLocationKey(cell,dimensions);
+      if (!groups.has(id)) {
+        const name = ['Region '+cell.region,...dimensions.slice(1).map(key=>cell[key] || 'Held at parent level')].join(' / ');
+        groups.set(id,{id,name,value:0,cells:[]});
+      }
+      const group = groups.get(id);
+      group.value += cell.capacity;
+      group.cells.push(cell);
+    }
+    return groups;
+  };
+  const plan = grouped(report), baseline = grouped(before);
+  const scoped = (summary,group) => group && A.planningSummary(group.cells,summary.level,assumptions);
+  const shareEnabled = report.capacity>0 && [...plan.values()].every(group=>group.value>=0);
+  const changes = side==='change' ? [...new Set([...plan.keys(),...baseline.keys()])].map(id=>{
+    const current = plan.get(id), previous = baseline.get(id);
+    return {
+      id,name:(current || previous).name,plan:current?.value,baseline:previous?.value,
+      share:shareEnabled && current ? 100*current.value/report.capacity : null,
+      change:A.planningMeasureChange(scoped(before,previous),scoped(report,current),'capacity',geographyChanges,assumptions)
+    };
+  }).sort((a,b)=>(b.change==null?-1:Math.abs(b.change))-(a.change==null?-1:Math.abs(a.change))
+    || a.name.localeCompare(b.name)) : [];
+  const source = side==='baseline' ? before : report;
+  const segments = [...(side==='baseline' ? baseline : plan).values()].sort((a,b)=>b.value-a.value);
+  const title = 'Available capacity by '+level;
+  const open = selected=>onSelect({
+    label:selected.name,report:scoped(report,plan.get(selected.id)),before:scoped(before,baseline.get(selected.id))
+  },side==='baseline' || !plan.has(selected.id) ? 'baseline' : 'plan');
+  return <section className="ds-capacity-distribution">
+    {(before || availableDimensions.length>1) && <div className="ds-history-controls">
+      {before && <div className="ds-period-switch" role="group" aria-label="Capacity distribution plan">
+        {[['change','Change'],['plan','Selected plan'],['baseline','Baseline']].map(([id,label])=>
+          <button key={id} type="button" aria-pressed={side===id} onClick={()=>setSide(id)}>{label}</button>)}
+      </div>}
+      {availableDimensions.length>1 && <label className="ds-distribution-level">Group by
+        <select value={level} onChange={event=>setGroupBy(event.target.value)}>
+          {availableDimensions.map(fields=>{
+            const key = fields.at(-1);
+            return <option key={key} value={key}>{key[0].toUpperCase()+key.slice(1)}</option>;
+          })}
+        </select>
+      </label>}
+    </div>}
+    {side==='change' ? <div className="ds-drill-section">
+      <h3>Capacity change by {level}</h3>
+      <p className="ds-context">Largest changes first. Select a location for its records.</p>
+      {changes.every(row=>row.change==null) && <p className="ds-context">No locations have matching assessed scope. Review the plans separately using the controls above.</p>}
+      <DecisionStudioComparisonBars rows={changes} measure="capacity" format={format} onSelect={open}/>
+    </div> : segments.length>1 && segments.length<=6 && segments.every(segment=>segment.value>0)
+      ? <V.Donut title={title} subtitle="Select a location to see its capacity records." segments={segments}
+        center={format(source.capacity)} caption="available hours" onSelect={open}/>
+      : segments.length ? <V.Bars title={title} subtitle="Select a location to see its capacity records." rows={segments}
+        showDrilldown diverging={segments.some(segment=>segment.value<0)} onSelect={open}/>
+      : <p className="ds-context">No assessed capacity for this plan in the selected scope.</p>}
+  </section>;
+}
+
+function DecisionStudioProductivity({A,report,before,productivity,baselineProductivity,format}) {
+  const rates = (summary,facts) => {
+    const skills = new Set((summary?.assessed || []).map(group=>group.skill));
+    const values = new Map();
+    for (const row of facts || []) {
+      const value = A.num(row.n.jobsperday);
+      if (skills.has(row.skill) && !row.duplicate && value!=null && value>=0) values.set(row.skill,value);
+    }
+    return values;
+  };
+  const selected = rates(report,productivity), baseline = rates(before,baselineProductivity);
+  const skills = [...new Set([...selected.keys(),...baseline.keys()])].sort();
+  if (!skills.length) return null;
+  const value = rate=>rate==null?'Unavailable':format(rate);
+  return <details className="ds-drill-section"><summary>Productivity rates by skill</summary>
+    <p className="ds-context">Configured jobs per day from the plan inputs.</p>
+    <div className="ds-scroll" tabIndex="0" aria-label="Productivity rates by skill">
+      <table><thead><tr><th scope="col">Skill</th><th scope="col">Selected plan</th>
+        {before && <th scope="col">Baseline</th>}
+      </tr></thead><tbody>{skills.map(skill=><tr key={skill}>
+        <th scope="row">{skill}</th><td>{value(selected.get(skill))}</td>
+        {before && <td>{value(baseline.get(skill))}</td>}
+      </tr>)}</tbody></table>
+    </div>
+  </details>;
+}
+
+function DecisionStudioDowntimeCategories({V,report,before,plan,baseline,comparable,format,category,onCategory,onRecords}) {
+  const value = (parts,summary,id) => {
+    const part = parts.get(id);
+    return summary?.downtime==null ? null : part ? part.value : 0;
+  };
+  const categories = [...new Map([...plan,...baseline])].filter(([,part])=>part.path.length===1)
+    .map(([id,part])=>{
+      const selected = value(plan,report,id), base = value(baseline,before,id);
+      return {id,name:part.path[0],plan:selected,baseline:base,
+        change:comparable && selected!=null && base!=null ? selected-base : null};
+    }).sort((a,b)=>(b.change==null ? b.plan ?? -1 : Math.abs(b.change))-(a.change==null ? a.plan ?? -1 : Math.abs(a.change)));
+  const id = JSON.stringify([category]);
+  const side = plan.has(id) ? 'plan' : 'baseline';
+  const types = [...(side==='plan' ? plan : baseline).values()].filter(part=>part.path.length===2 && part.path[0]===category);
+  const select = row=>onCategory(row.name===category ? null : row.name);
+  return <div className="ds-downtime-breakdown">
+    {before ? <section className="ds-drill-section">
+      <h3>Downtime by category</h3>
+      <p className="ds-context">The bar shows selected-plan hours. The marker shows baseline hours on matching assessed scope.</p>
+      <DecisionStudioComparisonBars rows={categories} measure="downtime" format={format}
+        onSelect={select} bullet active={id}/>
+    </section> : <V.Bars title="Downtime by category" subtitle="Select a category to see its types and records."
+      rows={categories.map(row=>({...row,value:row.plan}))} showDrilldown onSelect={select}/>}
+    {category && <section className="ds-drill-section"><h3>{category} · {side==='plan'?'Selected plan':'Baseline'}</h3>
+      <dl className="ds-component-list">{types.map(({path,value})=><div key={path[1]}><dt>
+        <button type="button" className="ds-drill-link" onClick={()=>onRecords(path[1],side)}>
+          {path[1]} <AnalyticsIcon name="chevron" size={11}/></button></dt>
+        <dd>{decisionValue('downtime',value,format)}</dd></div>)}</dl>
+      <button type="button" className="ds-drill-link" onClick={()=>onRecords(null,side)}>
+        Open category records <AnalyticsIcon name="chevron" size={13}/></button>
+      <button type="button" className="ds-drill-link" onClick={()=>onCategory(null)}>Clear category</button>
+    </section>}
+  </div>;
+}
+
+function DecisionStudioEvidence({A, geographyChanges, metric, format, gapLabel, assumptions, bundle, baseline, V,
+  productivity, baselineProductivity, onClose, onSimulate}) {
+  const [focus, setFocus] = React.useState(null);
+  const [recordScope, setRecordScope] = React.useState(null);
+  const [category, setCategory] = React.useState(null);
+  const [downtimeType, setDowntimeType] = React.useState(null);
+  const [rosterPath, setRosterPath] = React.useState(null);
+  const [recordSide, setRecordSide] = React.useState('plan');
+  const [stage, setStage] = React.useState(metric.sourceBundle ? 'records' : 'breakdown');
+  const [chartView,setChartView] = React.useState('');
+  const {report,before,key,title,impact,matrixChange} = metric;
+  const measures = A.planningMeasures(report);
+  const baselineMeasures = before && A.planningMeasures(before);
+  const comparisonFor = id => id==='gap' ? {
+    baseline:gapImpact.gapBefore, selected:gapImpact.gapAfter, change:gapImpact.delta
+  } : {
+    baseline:baselineMeasures[id], selected:measures[id],
+    change:A.planningMeasureChange(before,report,id,geographyChanges,assumptions)
+  };
+  const gapImpact = before && (impact || A.planningImpact(before,report,geographyChanges,assumptions,false));
+  const comparison = before && comparisonFor(key);
+  const filteredComparison = key==='gap' && matrixChange && gapImpact.delta!=null;
+  const recordReport = recordSide==='baseline' ? (recordScope ? recordScope.before : before)
+    : (recordScope ? recordScope.report : report);
+  const recordBundle = recordSide==='baseline' ? baseline : bundle;
+  const isShortfallMeasure = key==='gap' || key==='shortage';
+  const hours = value => value==null?'Unavailable':format(value)+' h';
+  const heatRows = report.assessed.map(row => ({...row,region:[row.region, report.level==='area' && row.area,
+    report.level==='patch' && row.patch].filter(Boolean).join(' / '),coverage:row.comparable && row.demand > 0 ? 100*row.capacity/row.demand : null}));
+  const showHeatmap = new Set(heatRows.map(row=>row.skill)).size>1 && new Set(heatRows.map(row=>row.week)).size>1;
+  const shortage = report.assessed.filter(row=>row.gap<0).sort((a,b)=>a.gap-b.gap || a.week.localeCompare(b.week));
+  const recordPairs = recordScope ? recordScope.pairs : filteredComparison ? gapImpact.pairs : null;
+  const evidenceCells = focus ? focus.cells : recordPairs ? recordPairs.flatMap(pair=>
+    (recordSide==='baseline' ? pair.before : pair.after).cells) : null;
+  const entries = stage==='records'
+    ? (evidenceCells ? evidenceCells.flatMap(cell=>cell.evidence.map(entry=>({...entry,cell}))) : (recordReport?.evidence || []))
+    : report.evidence;
+  const evidenceReport = stage==='records' ? recordReport : report;
+  const assessedCells = new Set(key==='capacity' ? evidenceReport?.capacityRows : evidenceReport?.downtimeRows);
+  const relevant = entries.filter(entry=>['fte','roster'].includes(key) ? entry.row.source==='resource_plan'
+    : key==='downtime' ? (entry.downtime || stage==='records' && recordScope?.includeRoster && entry.row.source==='resource_plan')
+      && assessedCells.has(entry.cell)
+    : ['demand','jobs'].includes(key) ? entry.row.source==='demand_input'
+    : key==='capacity' ? entry.row.source!=='demand_input' && assessedCells.has(entry.cell) : true);
+  const sources = new Map();
+  const show = (row, contribution) => {
+    if (!sources.has(row.source)) sources.set(row.source,new Map());
+    const records = sources.get(row.source);
+    if (!records.has(row.row)) records.set(row.row,{row,hours:0,known:false});
+    const total = records.get(row.row);
+    if (contribution != null) {total.hours+=contribution;total.known=true;}
+  };
+  const rosterMeasure = ['fte','roster'].includes(key);
+  const rosterParts = rosterMeasure && stage==='breakdown' ? A.planningBreakdown(report,key,'breakdown',assumptions) : new Map();
+  const baselineRosterParts = rosterMeasure && before && stage==='breakdown'
+    ? A.planningBreakdown(before,key,'breakdown',assumptions) : new Map();
+  for (const entry of relevant) {
+    const applied = entry.downtime && entry.hours!==null
+      ? entry.hours * (entry.cell?.downtime ? entry.cell.appliedDowntime/entry.cell.downtime : 0) : entry.hours;
+    const matchesCategory = !category || (entry.row.category || 'Uncategorised') === category;
+    const matchesType = !downtimeType || (entry.row.n.level2 || 'Unspecified type')===downtimeType;
+    const matchesRoster = !rosterPath || (entry.cell.skill || 'Unspecified skill')===rosterPath[0] &&
+      (entry.row.n.labourtype || 'Unspecified labour type')===rosterPath[1];
+    if (matchesCategory && matchesType && matchesRoster) {
+      show(entry.row,applied);
+      if (entry.row.jobTime) show(entry.row.jobTime,null);
+    }
+  }
+  const names = {downtime:'Applied downtime',resource_plan:'Roster hours',overtime:'Overtime',ctr_capacity:'Contractors',
+    recruitment_grounded:'Grounded recruitment',recruitment_ungrounded:'Ungrounded recruitment',fte_transfer:'Transfers',
+    hec_on_kac_demand:'KAC support',hec_on_ev_demand:'EV support'};
+  const capacityParts = key==='capacity' && stage==='breakdown'
+    ? [...A.planningBreakdown(report,key,'breakdown',assumptions).values()].filter(part=>part.path.length===1)
+    : [];
+  const planDowntime = key==='downtime' && stage==='breakdown' ? A.planningBreakdown(report,key,'breakdown',assumptions) : new Map();
+  const baselineDowntime = key==='downtime' && before && stage==='breakdown' ? A.planningBreakdown(before,key,'breakdown',assumptions) : new Map();
+  const rankedDemand = [...relevant.filter(entry=>entry.row.source==='demand_input')]
+    .sort((a,b)=>(b.hours??-1)-(a.hours??-1));
+  const local = report.assessed.flatMap(row=>row.cells).filter(row=>row.patch && row.gap<0);
+  const localGroups = isShortfallMeasure ? A.planningSummary(local,'patch',assumptions).assessed : [];
+  const useLocal = !shortage.length || localGroups.some(group=>group.id===focus?.id);
+  const responseLevel = useLocal ? 'patch' : report.level;
+  const responseGroups = metric.sourceBundle ? [] : useLocal ? localGroups : shortage;
+  const metricTitle = decisionMeasure(key)[1];
+  const gross = report.grossShortfall;
+  const weeklyShortfalls = new Map();
+  if (isShortfallMeasure) for (const group of report.assessed) {
+    if (!weeklyShortfalls.has(group.week)) weeklyShortfalls.set(group.week,[]);
+    weeklyShortfalls.get(group.week).push(...group.cells);
+  }
+  const shortfallWeeks = [...weeklyShortfalls].map(([week,cells])=>({
+    week,gross:A.planningSummary(cells,report.level,assumptions).grossShortfall
+  })).filter(item=>item.gross>0).sort((a,b)=>a.week.localeCompare(b.week));
+  const firstWeek = shortfallWeeks[0];
+  const worstWeek = shortfallWeeks.reduce((worst,item)=>item.gross>worst.gross?item:worst,firstWeek);
+  const singleShortage = shortage.length===1 && report.assessed.length===1;
+  const hasRosterBreakdown = singleShortage && !report.partial && report.rosterWeeks && report.downtime!=null;
+  const figures = {
+    gap:[['Required',hours(report.assessedDemand)],['Available',hours(report.assessedCapacity)],['Gross shortfall',hours(gross)]],
+    shortage:[['Net imbalance',gapLabel(report.gap)]],
+    fte:[['Allocated roster hours',hours(report.rosterWeeks ? report.roster : null)],['Eligible people',format(report.headcount)],
+      ['Weeks used for FTE',format(report.fteWeeks)]],
+    roster:[['Average allocated FTE',format(report.fte)],['Weeks in roster',format(report.rosterWeeks)]],
+    downtime:[['Assessed roster',hours(report.downtime!=null ? report.assessedRoster : null)],
+      ['Roster availability',report.downtimeRate==null?'Unavailable':format(100-report.downtimeRate)+'%'],
+      ['Downtime share',report.downtimeRate==null?'Unavailable':format(report.downtimeRate)+'%']],
+    capacity:[['Roster',hours(report.rosterWeeks ? report.roster : null)],['Downtime',hours(report.downtime)]],
+    demand:[['Matched hours',hours(report.demand)],['Unmatched job rows',format(relevant.filter(entry=>entry.hours===null).length)]]
+  }[key] || [];
+  if (firstWeek) figures.push(['First short week',firstWeek.week],['Worst short week',worstWeek.week+' · '+hours(worstWeek.gross)]);
+  const explanation = {
+    gap:report.gap==null ? 'Demand and capacity could not be paired for this selection.'
+      : 'Available hours minus required hours in the same assessed planning groups.',
+    fte:'Allocated roster hours divided by '+format(assumptions.standardHours)+' standard hours per FTE per week.',
+    downtime:'Hours deducted from the roster using '+({hours:'fixed hours',percent:'a percentage of roster hours',perFte:'hours per FTE'}[assumptions.downtime] || 'the selected downtime method')+'. Availability uses assessed roster hours before additional cover.',
+    capacity:'Roster hours after downtime, plus any eligible cover and transfers.',
+    demand:'Forecast jobs multiplied by their matching job duration.',
+    jobs:'Submitted forecast jobs in this scope.',
+    roster:'Allocated working hours before downtime and other adjustments.',
+    shortage:'Shortages in assessed groups before available surplus offsets the net position.'
+  }[key];
+  const sourceNames = {
+    ...names,demand_input:'Forecast demand',job_time_assumptions:'Job durations',resource_plan:'Resource plan',
+    downtime_overlays_hours:'Downtime in hours',downtime_overlays_percentage:'Downtime percentages',downtime_overlays_hours_fte:'Downtime hours per FTE'
+  };
+  const tabs = [
+    ['breakdown','Breakdown','trend'],['records','Source records','file'],
+    ...(responseGroups.length && isShortfallMeasure ? [['test','Test a change','sliders']] : [])
+  ];
+  const openRecords = group => {setRecordScope(null);setFocus(group);setRecordSide('plan');setStage('records');};
+  const openScopedRecords = (scope,side) => {
+    setFocus(null);
+    setCategory(null);
+    setDowntimeType(null);
+    setRosterPath(null);
+    setRecordScope(scope);
+    setRecordSide(side);
+    setStage('records');
+  };
+  const compareCapacity = key==='capacity' && !!before;
+  const hasLocations = key==='capacity' && decisionCapacityDimensions(report,before).length>0;
+  const hasTimeline = new Set([...report.assessed,...(before?.assessed || [])].map(group=>group.week)).size>1
+    && (measures[key]!=null || baselineMeasures?.[key]!=null);
+  const chartViews = [
+    ...(key==='downtime' && planDowntime.size+baselineDowntime.size ? [['categories','By category']] : []),
+    ...(hasLocations && compareCapacity ? [['locations','By location']] : []),
+    ...(hasTimeline ? [['trend','Trend']] : []),
+    ...(hasLocations && !compareCapacity ? [['locations','By location']] : []),
+    ...(key==='capacity' && report.capacity!=null && capacityParts.length ? [['components','Capacity components']] : []),
+    ...(isShortfallMeasure && metric.impact ? [['drivers','Change drivers']] : []),
+    ...(isShortfallMeasure && showHeatmap ? [['heatmap','Heatmap']] : [])
+  ];
+  const activeChart = chartViews.find(([id])=>id===chartView)?.[0] || chartViews[0]?.[0];
+  const scopedRoster = stage==='records' && recordScope && rosterMeasure && recordReport
+    ? [...A.planningBreakdown(recordReport,key,'breakdown',assumptions).values()].filter(part=>part.path.length===2)
+    : [];
+  function groupList(groups, heading, localList = false) {
+    if (!groups.length) return null;
+    return <section className="ds-drill-section">
+      <h3>{heading}</h3>
+      <p className="ds-context">Select a group to open its contributing records.</p>
+      <div className="ds-drill-groups">{groups.map(group=><button type="button" key={group.id} onClick={()=>openRecords(group)}>
+        <span><strong>{(localList ? group.patch : [group.region,report.level!=='region' && group.area,report.level==='patch' && group.patch].filter(Boolean).join(' / '))+' · '+group.skill}</strong>
+          <small>Week of {group.week}</small></span>
+        <b>{gapLabel(group.gap)}</b><AnalyticsIcon name="chevron" size={14}/>
+      </button>)}</div>
+    </section>;
+  }
+  return <AnalyticsDrawer title={metricTitle} subtitle={bundle?.scenarioId} eyebrow="Decision Studio" panelClassName="ds-planning-drawer"
+    footer="Source records are read-only. What-if changes stay in this panel." onClose={onClose}>
+    <section className="ds-drill-hero" data-measure={key} data-tone={key==='shortage'
+      ? (matrixChange ? (matrixChange.value>0?'short':matrixChange.value<0?'spare':undefined) : gross>0?'short':undefined)
+      : key==='gap' && (matrixChange ? matrixChange.value : report.gap)<0?'short'
+      : key==='gap' && (matrixChange ? matrixChange.value : report.gap)>0?'spare':undefined}>
+      <p className="ds-drill-scope">{[...new Set([title,metric.scope].filter(Boolean).join(' · ').split(' · '))].join(' · ')}</p>
+      <strong className="ds-drill-result">{matrixChange ? decisionChange(key,matrixChange.value,format)
+        : key==='gap' ? gapLabel(report.gap) : decisionValue(key,measures[key],format)}</strong>
+      {comparison && <dl aria-label={key==='gap'?'Matched groups':'Comparison'}>
+        <div><dt>{key==='gap'?'Matched baseline':'Baseline'}</dt><dd>{decisionValue(key,comparison.baseline,format)}</dd></div>
+        <div><dt>{key==='gap'?'Matched selected plan':'Selected plan'}</dt><dd>{decisionValue(key,comparison.selected,format)}</dd></div>
+        {!matrixChange && <div><dt>Change</dt><dd>{decisionChange(key,comparison.change,format)}</dd></div>}
+      </dl>}
+      <p>{explanation}</p>
+      {(report.partialByMeasure[key] || (matrixChange && before?.partialByMeasure[key])) &&
+        <span className="ds-drill-coverage"><AnalyticsIcon name="info" size={13}/> Partial assessment</span>}
+      {figures.length>0 && <dl aria-label="Selected plan figures">{figures.map(([text,value])=>
+        <div key={text}><dt>{matrixChange ? 'Selected plan '+text.toLowerCase() : text}</dt><dd>{value}</dd></div>)}</dl>}
+    </section>
+    <div className="ds-drill-nav" role="group" aria-label="Metric details">
+      {tabs.map(([id,text,icon])=><button key={id} type="button" aria-pressed={stage===id}
+        onClick={()=>{if (id!=='records') setRecordScope(null);setStage(id);}}><AnalyticsIcon name={icon} size={15}/>{text}{id==='records'&&sources.size>0&&<small>{sources.size}</small>}</button>)}
+    </div>
+    {stage==='breakdown' && <div className="ds-drill-body">
+      {activeChart && <div className="ds-detail-chart">
+        {chartViews.length>1 && <div className="ds-period-switch" role="group" aria-label="Detail chart view">
+          {chartViews.map(([id,label])=><button key={id} type="button" aria-pressed={activeChart===id}
+            onClick={()=>setChartView(id)}>{label}</button>)}
+        </div>}
+        {activeChart==='trend' && <DecisionStudioMetricTimeline A={A} V={V} report={report} before={before} measure={key}
+          assumptions={assumptions} geographyChanges={geographyChanges} format={format} onSelect={openScopedRecords}/>}
+        {activeChart==='locations' && <DecisionStudioCapacityDistribution A={A} V={V} report={report} before={before}
+          assumptions={assumptions} geographyChanges={geographyChanges} format={format} onSelect={openScopedRecords}/>}
+        {activeChart==='categories' && <DecisionStudioDowntimeCategories V={V} report={report} before={before}
+          plan={planDowntime} baseline={baselineDowntime} comparable={comparison?.change!=null}
+          format={format} category={category} onCategory={setCategory}
+          onRecords={(type,side)=>{setDowntimeType(type);setRecordSide(side);setStage('records');}}/>}
+        {activeChart==='components' && <V.Waterfall title="From roster to available hours"
+          steps={capacityParts.map(({path,value})=>({name:path[0],value}))
+            .concat([{name:'Available hours',value:report.capacity,total:true}])}/>}
+        {activeChart==='drivers' && <DecisionStudioImpact impact={metric.impact} format={format} V={V} baseline={baseline} revised={bundle}/>}
+        {activeChart==='heatmap' && <V.Heatmap title="Gap by skill and week" rows={heatRows} onSelect={openRecords}/>}
+      </div>}
+      {['fte','roster'].includes(key) && <section className="ds-drill-section"><h3>{key==='fte'?'How FTE is calculated':'How roster hours are calculated'}</h3>
+        <p>Weekly working hours are adjusted by each worker’s allocation. {key==='fte'?'The selected period is shown as an average per roster week.':'The selected period includes allocated hours across its roster weeks.'}</p>
+        {key==='fte' && report.fteWeeks!==report.rosterWeeks &&
+          <p className="ds-context">This location contributes to the parent’s {report.fteWeeks}-week FTE average.</p>}
+        {rosterParts.size+baselineRosterParts.size>0 && <div className="ds-scroll" tabIndex="0" aria-label="Roster contributions">
+          <table><thead><tr><th scope="col">Skill · Labour type</th><th scope="col">Selected plan</th>
+            {before && <th scope="col">Change</th>}</tr></thead>
+            <tbody>{[...new Map([...rosterParts,...baselineRosterParts])].filter(([,part])=>part.path.length===2)
+              .map(([id,{path}])=>{
+                const planValue = rosterParts.get(id)?.value ?? (measures[key]!=null ? 0 : null);
+                const baseValue = baselineRosterParts.get(id)?.value ?? (baselineMeasures?.[key]!=null ? 0 : null);
+                return <tr key={id}><th scope="row"><button type="button" className="ds-drill-link" onClick={()=>{
+                  setRosterPath(path);setRecordSide(rosterParts.has(id)?'plan':'baseline');setStage('records');
+                }}>{path.join(' · ')} <AnalyticsIcon name="chevron" size={11}/></button></th>
+                  <td>{decisionValue(key,planValue,format)}</td>
+                  {before && <td>{decisionChange(key,comparison.change==null ? null : planValue-baseValue,format)}</td>}
+                </tr>;
+              })}</tbody></table>
+        </div>}
+        <button type="button" className="ds-drill-link" onClick={()=>{setRosterPath(null);setStage('records');}}>
+          Open resource plan <AnalyticsIcon name="chevron" size={13}/></button>
+      </section>}
+      {key==='capacity' && <>
+        {report.unallocated!==0 && <p className="ds-context">{hours(report.unallocated)} held at region level.</p>}
+        <DecisionStudioProductivity A={A} report={report} before={before} productivity={productivity}
+          baselineProductivity={baselineProductivity} format={format}/>
+      </>}
+      {['demand','jobs'].includes(key) && <AnalyticsTable title="Forecast work by job code and week" rows={rankedDemand.map(({row,hours})=>({
+        patch:row.patch,week:row.week,code:row.workCode,jobs:row.jobs,duration:row.jobTime?.value,hours
+      }))} searchable={false} pageSize={12} columns={[
+        {key:'patch',label:'Patch'},{key:'week',label:'Week'},{key:'code',label:'Work code'},{key:'jobs',label:'Jobs'},
+        {key:'duration',label:'Duration ('+assumptions.jobTimeUnit+')'},{key:'hours',label:'Required hours',render:row=>format(row.hours)}
+      ]}/>}
+      {isShortfallMeasure && <>
+        {singleShortage ? <section className="ds-drill-section">
+          <h3>What makes up this week’s capacity?</h3>
+          {hasRosterBreakdown ? <dl className="ds-component-list">
+            <div><dt>Allocated roster · {format(report.fte)} FTE</dt><dd>{hours(report.roster)}</dd></div>
+            <div><dt>Downtime deducted</dt><dd>{hours(-report.downtime)}</dd></div>
+            {Math.abs(report.assessedCapacity-report.roster+report.downtime)>1e-8 && <div>
+              <dt>Net cover and adjustments</dt><dd>{hours(report.assessedCapacity-report.roster+report.downtime)}</dd></div>}
+            <div><dt>Available for work</dt><dd>{hours(report.assessedCapacity)}</dd></div>
+          </dl> : <p className="ds-context">The contributing inputs show which working hours and demand could be assessed.</p>}
+          <button type="button" className="ds-evidence-action" onClick={()=>openRecords(shortage[0])}>
+            View supporting records <AnalyticsIcon name="chevron" size={15}/></button>
+        </section> : groupList(shortage,'Shortfalls by skill and week')}
+        {report.level!=='patch' && localGroups.length>0 && <details className="ds-drill-section">
+          <summary>Shortfalls within patches · {localGroups.length} groups</summary>
+          {groupList(localGroups,'Patch detail',true)}
+        </details>}
+        {!shortage.length && !localGroups.length && report.comparable>0 && <p>No assessed groups are short in this selection.</p>}
+      </>}
+      {report.assessed.some(group=>group.cells.some(cell=>cell.unresolvedDowntime)) &&
+        <p className="ds-drill-coverage">Some downtime records have no eligible roster for the same location and week.</p>}
+      {before && <details className="ds-source"><summary><strong>All metrics</strong><AnalyticsIcon name="chevron" size={13}/></summary>
+        <div className="ds-scroll ds-operational-comparison" tabIndex="0" aria-label="Operational comparison"><table>
+          <thead><tr><th scope="col">Measure</th><th scope="col">Baseline</th><th scope="col">Selected plan</th><th scope="col">Change</th></tr></thead>
+          <tbody>{decisionMeasures.map(([id,name])=>{
+            const {baseline,selected,change} = comparisonFor(id);
+            return <tr key={id}><th scope="row">{name}{id==='gap' && ' (matched groups)'}</th>
+              <td>{decisionValue(id,baseline,format)}</td>
+              <td>{decisionValue(id,selected,format)}</td>
+              <td>{decisionChange(id,change,format)}</td>
+            </tr>;
+          })}</tbody>
+        </table></div>
+        {(gapImpact.baselineCoverage.groups>0 || gapImpact.revisedCoverage.groups>0) &&
+          <p className="ds-context">Outside the matched gap comparison · Baseline {gapImpact.baselineCoverage.groups} groups,
+            {' '}{decisionValue('gap',gapImpact.baselineCoverage.hours,format)} assessed gap · Selected plan {gapImpact.revisedCoverage.groups} groups,
+            {' '}{decisionValue('gap',gapImpact.revisedCoverage.hours,format)} assessed gap.</p>}
+      </details>}
+    </div>}
+    {stage==='records' && <div className="ds-drill-body">
+      {before && <div className="ds-drill-nav" role="group" aria-label="Source plan">
+        {['plan','baseline'].map(side=><button type="button" key={side} aria-pressed={recordSide===side}
+          onClick={()=>{setRecordSide(side);setFocus(null);}}>{side==='plan'?'Selected plan records':'Baseline records'}</button>)}
+      </div>}
+      <section className="ds-drill-section"><h3>{metric.sourceBundle || recordSide==='baseline'?'Baseline records':'Supporting records'}</h3>
+        <p className="ds-context">{focus ? [focus.patch || focus.area || focus.region,focus.skill,focus.week].filter(Boolean).join(' · ')
+          : recordScope?.label || [category,downtimeType].filter(Boolean).join(' · ') || rosterPath?.join(' · ') ||
+            (filteredComparison?'Records from the groups used in the gap comparison.':'Records used for the selected figure.')}</p>
+        {(focus || recordScope || category || rosterPath) && <button type="button" className="ds-drill-link" onClick={()=>{
+          setFocus(null);setRecordScope(null);setCategory(null);setDowntimeType(null);setRosterPath(null);
+        }}>Show all records in this selection</button>}
+      </section>
+      {scopedRoster.length>0 && <details className="ds-source" open>
+        <summary><strong>Skill and labour type in this period</strong><AnalyticsIcon name="chevron" size={13}/></summary>
+        <dl className="ds-component-list">{scopedRoster.map(({path,value})=><div key={JSON.stringify(path)}>
+          <dt><button type="button" className="ds-drill-link" aria-pressed={rosterPath?.[0]===path[0] && rosterPath[1]===path[1]}
+            onClick={()=>setRosterPath(current=>current?.[0]===path[0] && current[1]===path[1] ? null : path)}>
+            {path.join(' · ')} <AnalyticsIcon name="chevron" size={11}/>
+          </button></dt><dd>{decisionValue(key,value,format)}</dd>
+        </div>)}</dl>
+      </details>}
+      {!sources.size && <p>No contributing source records for this selection.</p>}
+      {[...sources].map(([source, records])=><details key={source} open={sources.size===1} className="ds-source">
+        <summary><AnalyticsIcon name="file" size={16}/><strong>{sourceNames[source] || source.replace(/_/g,' ')}</strong>
+          <span>{records.size} {records.size===1?'record':'records'}</span><AnalyticsIcon name="chevron" size={13}/></summary>
+        <p className="ds-context ds-source-version">{recordBundle?.sources?.[source]?.version}</p>
+        <AnalyticsTable title="Source records" rows={[...records.values()].map(({row,hours,known})=>({
+          ...row.raw,'Source row':row.row,...(known?{'Modeled hours':format(hours)}:{})
+        }))} pageSize={12} columns={[...new Set(['Source row',...[...records.values()].flatMap(({row,known})=>
+          [...Object.keys(row.raw),...(known?['Modeled hours']:[])])])].map(name=>({key:name,label:name}))}/>
+      </details>)}
+    </div>}
+    {stage==='test' && <div className="ds-drill-body"><DecisionStudioResponse groups={responseGroups} focused={focus} level={responseLevel}
+      format={format} gapLabel={gapLabel} onSimulate={onSimulate}/></div>}
+  </AnalyticsDrawer>;
+}
+
+function DecisionStudioNavigation({presentation, onNavigate}) {
+  if (presentation==='summary') return null;
+  const heading = {investigate:'Investigations',workload:'Upcoming workload',checks:'Data readiness'}[presentation];
+  return <header className="ds-nav">
+    <div className="ds-view-heading">
+      <button type="button" className="ds-return" onClick={()=>onNavigate('summary')}>Back to capacity plan</button>
+      {heading && <h1>{heading}</h1>}
+    </div>
+  </header>;
+}
+
 function AnalyticsWorkspace({
   scenarios = {},
   selectedScenarioId,
   inputsState = {},
-  selectedGeographyFile,
-  geographyDatasets = {},
   baselineScenarioId,
-  setBaselineScenarioId,
   comparisonScenarioId,
-  setComparisonScenarioId,
-  onNavigateToInputs,
-  onSelectScenario,
-  isDarkMode = false,
-  showToast,
-  isAssumptionsOpen,
-  setIsAssumptionsOpen
+  presentation:activePresentation,
+  onPresentationChange
 }) {
   const A = window.CapacityAnalytics;
   const V = window.AnalyticsViz;
-  const availableScenario = (...ids) => ids.find(id=>id==='__draft'||Object.prototype.hasOwnProperty.call(scenarios,id)) || Object.keys(scenarios)[0] || '__draft';
-  const [scenarioId, setScenarioId] = React.useState(availableScenario(baselineScenarioId,selectedScenarioId));
-  const [baselineId, setBaselineId] = React.useState(availableScenario(comparisonScenarioId,Object.keys(scenarios).find(id=>id!==scenarioId),selectedScenarioId));
-  const [bundle, setBundle] = React.useState(null),
-    [baseline, setBaseline] = React.useState(null);
+  const savedIds = Object.keys(scenarios);
+  const draftHasInputs = Object.values(inputsState).some(Boolean);
+  const activeSavedPlan = savedIds.includes(selectedScenarioId);
+  const savedPlanHasInputs = Object.values(scenarios[selectedScenarioId]?.inputs || {}).some(Boolean);
+  const activePlan = activeSavedPlan && (savedPlanHasInputs || !draftHasInputs) ? selectedScenarioId
+    : selectedScenarioId==='__draft' || draftHasInputs ? '__draft'
+    : [baselineScenarioId,...savedIds].find(id=>savedIds.includes(id)) || '__draft';
+  const defaultBaseline = [baselineScenarioId,comparisonScenarioId,...savedIds]
+    .find(id=>id!==activePlan && savedIds.includes(id)) || '';
+  const [scenarioId, setScenarioId] = React.useState(activePlan);
+  const [baselineId, setBaselineId] = React.useState(defaultBaseline);
+  const [loadedPlan, setBundle] = React.useState(null),
+    [loadedBaseline, setBaseline] = React.useState(null);
+  const bundle = loadedPlan?.scenarioId === (scenarioId==='__draft' ? 'Draft inputs' : scenarioId) ? loadedPlan : null;
+  const baseline = loadedBaseline?.scenarioId === baselineId ? loadedBaseline : null;
   const [busy, setBusy] = React.useState(false),
     [error, setError] = React.useState(''),
     [refresh, setRefresh] = React.useState(0);
@@ -155,6 +1659,7 @@ function AnalyticsWorkspace({
     [view, setView] = React.useState('demand');
   const [filter, setFilterState] = React.useState({
     region: 'All',
+    area: 'All',
     patch: 'All',
     skill: 'All',
     start: '',
@@ -177,152 +1682,31 @@ function AnalyticsWorkspace({
   const [detail, setDetail] = React.useState(null),
     [runs, setRuns] = React.useState(() => window.CAPACITY_ANALYTICS_SESSION?.runs || []),
     [rationale, setRationale] = React.useState(() => window.CAPACITY_ANALYTICS_SESSION?.rationale || '');
-  const [showAssumptions, setShowAssumptions] = React.useState(false),
-    [sourceSearch, setSourceSearch] = React.useState('');
+  const [sourceSearch, setSourceSearch] = React.useState('');
   const [sourcePage, setSourcePage] = React.useState(0),
     [sourceChoice, setSourceChoice] = React.useState('demand_input');
   const [cohortSearch, setCohortSearch] = React.useState('');
-  const [isFiltersCollapsed, setIsFiltersCollapsed] = React.useState(true);
   const [planningDate, setPlanningDate] = React.useState(() => {
     const now=new Date();
     return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   });
-  const [selectedGeo, setSelectedGeo] = React.useState({
-    type: 'national',
-    id: 'national',
-    label: 'National',
-    count: 18
-  });
-  const [presentation, setPresentation] = React.useState('summary');
-
-  // Geography hierarchy extraction matching Scenario Diff
-  const geoRows = React.useMemo(() => {
-    if (selectedGeographyFile && geographyDatasets && geographyDatasets[selectedGeographyFile]) {
-      const d = geographyDatasets[selectedGeographyFile];
-      if (Array.isArray(d) && d.length > 0) return d;
-      if (typeof d === 'string' && window.parseGeographyCsvText) return window.parseGeographyCsvText(d);
-    }
-    if (selectedGeographyFile && geographyDatasets) {
-      const cleanKey = selectedGeographyFile.replace(/\.(csv|xlsx|xls)$/i, '');
-      for (const k of Object.keys(geographyDatasets)) {
-        if (k.toLowerCase() === cleanKey.toLowerCase() || k.toLowerCase().includes(cleanKey.toLowerCase())) {
-          const d = geographyDatasets[k];
-          if (Array.isArray(d) && d.length > 0) return d;
-          if (typeof d === 'string' && window.parseGeographyCsvText) return window.parseGeographyCsvText(d);
-        }
-      }
-    }
-    if (geographyDatasets) {
-      const firstKey = Object.keys(geographyDatasets)[0];
-      if (firstKey && geographyDatasets[firstKey]) {
-        const d = geographyDatasets[firstKey];
-        if (Array.isArray(d) && d.length > 0) return d;
-        if (typeof d === 'string' && window.parseGeographyCsvText) return window.parseGeographyCsvText(d);
-      }
-    }
-    if (window.getDefaultGeographyData) return window.getDefaultGeographyData();
-    return [
-      { Region: "A", ACDM: "A1", territory: "EA11 Inverness & Aviemore" },
-      { Region: "A", ACDM: "A1", territory: "EA13 Dendee & Perth" },
-      { Region: "A", ACDM: "A1", territory: "EA12 Aberdeen North" },
-      { Region: "A", ACDM: "A2", territory: "EA21 Stirling & Falkirk" },
-      { Region: "A", ACDM: "A2", territory: "EA22 Edinburgh Central" },
-      { Region: "B", ACDM: "B1", territory: "EB11 Preston & Blackpool" },
-      { Region: "B", ACDM: "B1", territory: "EB14 Stockport & Peak" },
-      { Region: "B", ACDM: "B2", territory: "EB12 Altrincham" },
-      { Region: "B", ACDM: "B2", territory: "EB21 Manchester Central" },
-      { Region: "C", ACDM: "C1", territory: "EC91 Leicester" },
-      { Region: "C", ACDM: "C1", territory: "EC92 Nottingham & Derby" },
-      { Region: "C", ACDM: "C2", territory: "EC61 Norwich & Norfolk" },
-      { Region: "C", ACDM: "C2", territory: "EC62 Essex East" },
-      { Region: "D", ACDM: "D1", territory: "ED11 North London & Barnet" },
-      { Region: "D", ACDM: "D2", territory: "ED44 Canterbury & Dover" },
-      { Region: "D", ACDM: "D2", territory: "ED42 Eastbourne & Hastings" },
-      { Region: "E", ACDM: "E1", territory: "EE21 Bristol North & Bath" },
-      { Region: "E", ACDM: "E2", territory: "EE31 Exeter & Devon" }
-    ];
-  }, [selectedGeographyFile, geographyDatasets]);
-
-  const hierarchy = React.useMemo(() => {
-    if (window.buildGeographyHierarchy) return window.buildGeographyHierarchy(geoRows);
-    const regions = {};
-    (geoRows || []).forEach(r => {
-      const reg = r.Region || 'A';
-      const acdm = r.ACDM || (reg + '1');
-      const terr = r.territory || r.patch || 'Territory';
-      if (!regions[reg]) regions[reg] = { id: reg, label: 'Region ' + reg, acdms: {} };
-      if (!regions[reg].acdms[acdm]) regions[reg].acdms[acdm] = { id: acdm, label: 'ACDM ' + acdm, territories: [] };
-      if (!regions[reg].acdms[acdm].territories.includes(terr)) regions[reg].acdms[acdm].territories.push(terr);
-    });
-    return { regions };
-  }, [geoRows]);
-
-  const totalTerritoriesCount = React.useMemo(() => {
-    const regs = Object.values(hierarchy.regions || {});
-    return regs.reduce((acc, r) => {
-      return acc + Object.values(r.acdms || {}).reduce((tAcc, a) => tAcc + (a.territories || []).length, 0);
-    }, 0);
-  }, [hierarchy]);
-
-  React.useEffect(() => {
-    if (selectedGeo.type === 'national' && totalTerritoriesCount) {
-      setSelectedGeo(prev => ({ ...prev, count: totalTerritoriesCount }));
-    }
-  }, [totalTerritoriesCount]);
-
-  const handleSelectGeo = (geoObj) => {
-    setSelectedGeo(geoObj);
-    if (!geoObj || geoObj.type === 'national') {
-      setFilter(prev => ({ ...prev, region: 'All', patch: 'All' }));
-    } else if (geoObj.type === 'region') {
-      setFilter(prev => ({ ...prev, region: geoObj.id, patch: 'All' }));
-    } else if (geoObj.type === 'acdm') {
-      setFilter(prev => ({ ...prev, region: geoObj.region || 'All', patch: 'All' }));
-    } else if (geoObj.type === 'territory') {
-      setFilter(prev => ({ ...prev, patch: geoObj.label || geoObj.id, region: geoObj.region || prev.region }));
-    }
+  const [localPresentation, setLocalPresentation] = React.useState('summary');
+  const presentation = activePresentation ?? localPresentation;
+  const setPresentation = onPresentationChange ?? setLocalPresentation;
+  const navigate = destination => {
+    setDetail(null);
+    setPresentation(destination);
   };
+  const [comparisonEnabled, setComparisonEnabled] = React.useState(false);
+  const planningView = presentation==='summary' || presentation==='imbalance';
 
-  const handleResetFilters = () => {
-    setSelectedGeo({
-      type: 'national',
-      id: 'national',
-      label: 'National',
-      count: totalTerritoriesCount || 18
-    });
-    setFilter({
-      region: 'All',
-      patch: 'All',
-      skill: 'All',
-      start: '',
-      end: ''
-    });
-    if (showToast) showToast('All filters reset to default', 'info');
-  };
-
-  React.useEffect(() => {
-    if (isAssumptionsOpen) {
-      setShowAssumptions(true);
-    }
-  }, [isAssumptionsOpen]);
-
-  const handleSwapScenarios = () => {
-    const temp = scenarioId;
-    setScenarioId(baselineId);
-    setBaselineId(temp);
-    if (setBaselineScenarioId) setBaselineScenarioId(baselineId);
-    if (setComparisonScenarioId) setComparisonScenarioId(temp);
-    if (baselineId !== '__draft' && onSelectScenario) {
-      onSelectScenario(baselineId);
-    }
-    if (showToast) {
-      showToast('Baseline and Comparison Scenarios swapped', 'info');
-    }
-  };
+  const forecastBundle = value => value ? {...value,sources:Object.fromEntries(Object.entries(value.sources||{}).filter(([key])=>key!=='actuals_input'))} : null;
+  const data = React.useMemo(() => A.extract(forecastBundle(bundle)), [bundle]);
+  const baseData = React.useMemo(() => A.extract(forecastBundle(baseline)), [baseline]);
   const requestState = React.useRef({});
   const filterHistory = React.useRef([]);
   const forecastReports = React.useRef({});
-  const clearScope = {region:'All',patch:'All',skill:'All',start:'',end:''};
+  const clearScope = {region:'All',area:'All',patch:'All',skill:'All',start:'',end:''};
   const setFilter = update => {
     const next = typeof update === 'function' ? update(filter) : update;
     if (JSON.stringify(next) === JSON.stringify(filter)) return;
@@ -341,8 +1725,15 @@ function AnalyticsWorkspace({
     };
   }, [runs, rationale]);
   React.useEffect(() => {
-    setScenarioId(selectedScenarioId);
-  }, [selectedScenarioId]);
+    setScenarioId(activePlan);
+  }, [activePlan]);
+  React.useEffect(() => {
+    setBaselineId(defaultBaseline);
+  }, [defaultBaseline]);
+  const baselineToLoad = comparisonEnabled && baselineId!==scenarioId ? baselineId : '';
+  const draftInputVersions = scenarioId==='__draft' ? JSON.stringify(inputsState) : null;
+  const planInputVersions = JSON.stringify(scenarios[scenarioId]?.inputs);
+  const baselineInputVersions = JSON.stringify(scenarios[baselineToLoad]?.inputs);
   React.useEffect(() => {
     let disposed = false,
       timer,
@@ -356,24 +1747,23 @@ function AnalyticsWorkspace({
       setBaseline(null);
       setDetail(null);
       const stamp = `analytics-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const requests = {
-        [stamp + '-current']: 'current',
-        [stamp + '-baseline']: 'baseline'
-      };
+      const loadBaseline = !!baselineToLoad;
+      const requests = {[stamp + '-current']: 'current'};
+      if (loadBaseline) requests[stamp + '-baseline'] = 'baseline';
       requestState.current = requests;
       window.Shiny.setInputValue('request_analytics_bundle', {
         requestId: stamp + '-current',
         scenarioId,
         draft: scenarioId === '__draft',
-        inputs: scenarioId === '__draft' ? inputsState : undefined
+        inputs: draftInputVersions==null ? undefined : JSON.parse(draftInputVersions)
       }, {
         priority: 'event'
       });
       // Yield separate Shiny events so the second request cannot coalesce with the first.
-      timeout = setTimeout(() => {
+      if (loadBaseline) timeout = setTimeout(() => {
         if (!disposed) window.Shiny.setInputValue('request_analytics_bundle', {
           requestId: stamp + '-baseline',
-          scenarioId: baselineId
+          scenarioId: baselineToLoad
         }, {
           priority: 'event'
         });
@@ -384,8 +1774,11 @@ function AnalyticsWorkspace({
         role = requestState.current[data?.requestId];
       if (!role || disposed) return;
       delete requestState.current[data.requestId];
-      if (!data.success) setError(prev => [prev, `${role}: ${data.error || 'Unable to load selected sources'}`].filter(Boolean).join(' · '));else if (role === 'current') setBundle(data);else setBaseline(data);
-      if (!Object.keys(requestState.current).length) setBusy(false);
+      if (!data.success) setError(prev => [prev, `${role}: ${data.error || 'Unable to load selected sources'}`].filter(Boolean).join(' · '));
+      else if (role === 'current') {
+        setBundle(data);
+      } else setBaseline(data);
+      if (role === 'current') setBusy(false);
     };
     window.addEventListener('capacity-analytics-data', receive);
     timer = setInterval(load, 250);
@@ -404,15 +1797,13 @@ function AnalyticsWorkspace({
       requestState.current = {};
       window.removeEventListener('capacity-analytics-data', receive);
     };
-  }, [scenarioId, baselineId, refresh]);
-  const forecastBundle = value => value ? {...value,sources:Object.fromEntries(Object.entries(value.sources||{}).filter(([key])=>key!=='actuals_input'))} : null;
-  const data = React.useMemo(() => A.extract(forecastBundle(bundle)), [bundle]);
-  const baseData = React.useMemo(() => A.extract(forecastBundle(baseline)), [baseline]);
+  }, [scenarioId,baselineToLoad,refresh,draftInputVersions,planInputVersions,baselineInputVersions]);
   const weeks = data.weeks;
   const current = React.useMemo(() => A.model(data, filter, assumptions), [data, filter, assumptions]);
   const tested = React.useMemo(() => A.model(data, filter, assumptions, shock), [data, filter, assumptions, shock]);
   const compared = React.useMemo(() => A.model(baseData, filter, assumptions), [baseData, filter, assumptions]);
   const outlook = React.useMemo(() => A.workloadOutlook(data, filter, planningDate, current, assumptions), [data, filter, planningDate, current, assumptions]);
+  const geographyChanges = React.useMemo(() => baseline && bundle ? A.geographyChanges(baseData,data) : [], [baseline,bundle,baseData,data]);
   const differences = React.useMemo(() => A.compareSources(forecastBundle(baseline), forecastBundle(bundle)), [baseline, bundle]);
   const demand = (data.facts.demand_input || []).filter(r => A.inScope(r, filter));
   const jobs = A.sum(demand, 'jobs'),
@@ -872,7 +2263,9 @@ function AnalyticsWorkspace({
           render: r => r.n.hours
         }]} rows={sourceRows('training_snm')} onRow={r => sourceDetail('training_snm', [r])} /></section></>;
   };
-  const renderChangesDetails = () => <>{!baseline && <Note>Select an available saved baseline to compare input contents.</Note>}<section className={panel}><h3 className="font-bold text-sm mb-3">Selected-version content comparison · click a row</h3><Table rows={differences} columns={[{
+  const renderChangesDetails = () => <>{geographyChanges.length>0 && <Table title="Changed geography assignments" rows={geographyChanges} columns={[
+      {key:'patch',label:'Patch'},{key:'before',label:'Baseline'},{key:'after',label:'Selected plan'}
+    ]}/>} {!baseline && <Note>Select an available saved baseline to compare input contents.</Note>}<section className={panel}><h3 className="font-bold text-sm mb-3">Selected-version content comparison · click a row</h3><Table rows={differences} columns={[{
         key: 'source',
         label: 'Input',
         render: r => label(r.source)
@@ -1647,324 +3040,25 @@ function AnalyticsWorkspace({
   const detailRows = detail?.rows || [],
     visibleDetail = detailRows.filter(r => JSON.stringify(r.raw).toLowerCase().includes(sourceSearch.toLowerCase()));
 
-  const allWeeks = [
-    "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
-    "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16"
-  ];
-  const availableWeeks = React.useMemo(() => {
-    if (weeks && weeks.length > 0) {
-      const set = new Set([...allWeeks, ...weeks]);
-      return Array.from(set).sort();
-    }
-    return allWeeks;
-  }, [weeks]);
-
-  const scen1 = scenarios[scenarioId] || {};
-  const scen2 = scenarios[baselineId] || {};
-
-  return <div className="analytics-workspace space-y-4 pb-8">
-        <AnalyticsScopeBar filter={filter} weeks={weeks} regions={regions} patches={patches} scenario={scenarioId} onChange={setFilter} onReset={()=>setFilter({...clearScope})} onUndo={undoFilter} canUndo={filterHistory.current.length>0}/>
-        {/* UNIFIED SCENARIO COMPARATOR & OPERATIONAL FILTERS CARD MATCHING SCENARIO DIFF */}
-        {!isFiltersCollapsed && <div className="diff-filter-card bg-white/95 dark:bg-[#06101f] p-3.5 sm:p-4 rounded-2xl border border-blue-200/80 dark:border-2 dark:border-[#1e40af] shadow-sm dark:shadow-[0_0_24px_rgba(30,64,175,0.25)] relative z-30 space-y-3 transition-all duration-200">
-          {/* Header row: Filters pill & Actions */}
-          <div className="flex items-center justify-between gap-2">
-            <span className="px-3 py-1 bg-[#005eb8] text-white font-bold text-xs rounded-full flex items-center gap-1.5 shadow-sm">
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-              </svg>
-              <span>Filters</span>
-            </span>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowAssumptions(true)}
-                className="px-3 py-1 rounded-full bg-blue-50 hover:bg-blue-100 dark:bg-blue-600/20 dark:hover:bg-blue-600/30 text-[#005eb8] dark:text-[#80c6ff] border border-blue-200 dark:border-blue-500/40 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition cursor-pointer"
-                title="Open Model Assumptions & Planning Controls"
-              >
-                <AnalyticsIcon name="sliders" size={12} className="text-current" />
-                <span>Model Assumptions</span>
-              </button>
-              {!isFiltersCollapsed ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleResetFilters}
-                    className="px-3 py-1 rounded-full bg-white dark:bg-[#0c1b31] hover:bg-slate-100 dark:hover:bg-[#18365d] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold flex items-center gap-1 shadow-2xs transition cursor-pointer"
-                    title="Reset filters to default"
-                  >
-                    <svg className="w-3 h-3 text-slate-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="23 4 23 10 17 10" />
-                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-                    </svg>
-                    <span>Reset</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsFiltersCollapsed(true)}
-                    className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-[#80c6ff] ml-1.5 cursor-pointer transition select-none"
-                  >
-                    Collapse &#9652;
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setIsFiltersCollapsed(false)}
-                  className="text-xs font-bold text-blue-600 dark:text-[#80c6ff] hover:underline cursor-pointer select-none"
-                >
-                  Expand &#9662;
-                </button>
-              )}
-            </div>
-          </div>
-
-          {!isFiltersCollapsed && (
-            <>
-              {/* Row 1: Dual Scenario Selectors with Swap */}
-              <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5 pt-1">
-                {/* Baseline Scenario (1) */}
-                <div className="flex-1 min-w-[240px] flex items-center gap-2 bg-slate-50/70 dark:bg-[#08162b] border border-slate-200 dark:border-[#1a3862] rounded-xl px-3 py-2 shadow-2xs">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] flex-shrink-0 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue-600 ring-2 ring-blue-200 dark:ring-blue-900" />
-                    <span>BASELINE SCENARIO (D1)</span>
-                    <span title="Primary baseline reference scenario" className="cursor-help text-slate-400 dark:text-[#adbed4]">
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="16" x2="12" y2="12" />
-                        <line x1="12" y1="8" x2="12.01" y2="8" />
-                      </svg>
-                    </span>
-                  </span>
-                  <select
-                    aria-label="Investigate scenario"
-                    value={scenarioId}
-                    onChange={(e) => {
-                      setScenarioId(e.target.value);
-                      if (setBaselineScenarioId) setBaselineScenarioId(e.target.value);
-                      if (e.target.value !== '__draft' && onSelectScenario) onSelectScenario(e.target.value);
-                    }}
-                    className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-blue-500 cursor-pointer truncate shadow-2xs"
-                    title={`Baseline Scenario (1): ${scenarioId} - ${scen1.remarks || 'Operating Plan Baseline'}`}
-                  >
-                    {Object.keys(scenarios).map(id => (
-                      <option key={id} value={id} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{id}</option>
-                    ))}
-                    <option value="__draft" className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">Current draft inputs (unsaved)</option>
-                  </select>
-                </div>
-
-                {/* Swap Scenarios Button */}
-                <button
-                  type="button"
-                  onClick={handleSwapScenarios}
-                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50 dark:bg-[#0c1f38] dark:hover:bg-[#122b4d] text-slate-700 dark:text-white hover:text-[#005eb8] dark:hover:text-[#80c6ff] border border-slate-200 dark:border-blue-600/50 transition shadow-2xs flex-shrink-0 cursor-pointer flex items-center gap-1.5 text-xs font-bold select-none"
-                  title="Swap Baseline and Comparison Scenarios"
-                >
-                  <svg className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m16 3 4 4-4 4" />
-                    <path d="M20 7H4" />
-                    <path d="m8 21-4-4 4-4" />
-                    <path d="M4 17h16" />
-                  </svg>
-                  <span>Swap Scenarios</span>
-                </button>
-
-                {/* Comparison Scenario (2) */}
-                <div className="flex-1 min-w-[240px] flex items-center gap-2 bg-slate-50/70 dark:bg-[#08162b] border border-slate-200 dark:border-[#1a3862] rounded-xl px-3 py-2 shadow-2xs">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-emerald-400 flex-shrink-0 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 dark:ring-emerald-900" />
-                    <span>COMPARISON SCENARIO (2I)</span>
-                    <span title="Secondary comparison scenario" className="cursor-help text-slate-400 dark:text-[#adbed4]">
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="16" x2="12" y2="12" />
-                        <line x1="12" y1="8" x2="12.01" y2="8" />
-                      </svg>
-                    </span>
-                  </span>
-                  <select
-                    aria-label="Saved baseline for changes"
-                    value={baselineId}
-                    onChange={(e) => {
-                      setBaselineId(e.target.value);
-                      if (setComparisonScenarioId) setComparisonScenarioId(e.target.value);
-                    }}
-                    className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-emerald-500 cursor-pointer truncate shadow-2xs"
-                    title={`Comparison Scenario (2): ${baselineId} - ${scen2.remarks || 'Secondary revision'}`}
-                  >
-                    {Object.keys(scenarios).map(id => (
-                      <option key={id} value={id} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{id}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Row 2: 3 Drill-Down Filters (Geography, Skill, Date) */}
-              <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-3 pt-1 border-t border-slate-100 dark:border-[#18365d]/80">
-                {/* A. Geography Hierarchy Scope Filter */}
-                <div className="flex-1 min-w-[200px] flex items-center gap-2 relative z-50">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1 flex-shrink-0" title="Geography Scope">
-                    <svg className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="2" y1="12" x2="22" y2="12" />
-                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                    </svg>
-                    <span>GEOGRAPHY:</span>
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    {window.GeographyHierarchySelector ? (
-                      <window.GeographyHierarchySelector
-                        hierarchy={hierarchy}
-                        selectedGeo={selectedGeo}
-                        onSelectGeo={handleSelectGeo}
-                        sourceFileName={selectedGeographyFile}
-                        onNavigateToInputs={onNavigateToInputs}
-                        compact={true}
-                      />
-                    ) : (
-                      <div className="h-[32px] px-2.5 rounded-lg bg-white dark:bg-[#081324] border border-slate-300 dark:border-[#18365d] shadow-2xs flex items-center justify-between gap-2 text-xs font-bold text-slate-800 dark:text-white">
-                        <span className="flex items-center gap-2">
-                          <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-800 dark:border-white flex items-center justify-center">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-white" />
-                          </span>
-                          <span>{selectedGeo.label || 'National'}</span>
-                        </span>
-                        <span className="text-[10px] font-bold bg-slate-100 dark:bg-[#0c1b31] text-slate-700 dark:text-[#adbed4] px-1.5 py-0.5 rounded border border-slate-200 dark:border-[#18365d]">
-                          {selectedGeo.count || 18} Terr &#9662;
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* B. Skill Type Filter */}
-                <div className="flex items-center gap-2 flex-shrink-0" title="Skill Type Filter">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                      <circle cx="9" cy="7" r="4" />
-                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                    <span>SKILL:</span>
-                  </span>
-                  <div className="flex items-center bg-white dark:bg-[#081324] p-0.5 rounded-xl border border-slate-200 dark:border-[#18365d] h-[34px] shadow-2xs">
-                    {[
-                      { id: 'All', label: 'All Skills', icon: 'users' },
-                      { id: 'HEC', label: 'HEC Core', icon: 'bolt' },
-                      { id: 'KAC', label: 'KAC Appliance', icon: 'wrench' }
-                    ].map(s => {
-                      const isSelected = (filter.skill === s.id) || (s.id === 'All' && (!filter.skill || filter.skill === 'All' || filter.skill === 'ALL'));
-                      return (
-                        <button
-                          key={s.id}
-                          type="button"
-                          onClick={() => setFilter(prev => ({ ...prev, skill: s.id }))}
-                          className={`px-3 h-full text-[11px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
-                            isSelected
-                              ? 'bg-blue-100 text-[#005eb8] dark:bg-[#1d4ed8] dark:text-white shadow-xs font-extrabold'
-                              : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#112649]'
-                          }`}
-                        >
-                          {s.icon === 'users' && (
-                            <svg className="w-3 h-3 flex-shrink-0 text-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                              <circle cx="9" cy="7" r="4" />
-                            </svg>
-                          )}
-                          {s.icon === 'bolt' && (
-                            <svg className="w-3 h-3 flex-shrink-0 text-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                            </svg>
-                          )}
-                          {s.icon === 'wrench' && (
-                            <svg className="w-3 h-3 flex-shrink-0 text-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                            </svg>
-                          )}
-                          <span>{s.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {/* Keep accessible aria-label select for tests and assistive technology */}
-                  <select
-                    aria-label="Analytics skill"
-                    className="sr-only"
-                    value={filter.skill}
-                    onChange={e => setFilter({ ...filter, skill: e.target.value })}
-                  >
-                    <option value="All">All</option>
-                    <option value="HEC">HEC</option>
-                    <option value="KAC">KAC</option>
-                    <option value="EV">EV</option>
-                  </select>
-                </div>
-
-                {/* C. Date Range Filter */}
-                <div className="flex items-center gap-2 flex-shrink-0" title="Date Range Filter">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                    <span>DATE:</span>
-                  </span>
-                  <div className="flex items-center gap-1.5 bg-white dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl px-2.5 h-[34px] shadow-2xs">
-                    <select
-                      aria-label="Analytics from week"
-                      value={filter.start || availableWeeks[0] || '2026-09-28'}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFilter({
-                          ...filter,
-                          start: val,
-                          end: filter.end && val > filter.end ? val : filter.end
-                        });
-                      }}
-                      className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
-                      title="Start Week"
-                    >
-                      {availableWeeks.map(w => (
-                        <option key={w} value={w} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{w}</option>
-                      ))}
-                    </select>
-                    <span className="text-slate-400 dark:text-[#80c6ff] text-xs font-bold select-none">&rarr;</span>
-                    <select
-                      aria-label="Analytics through week"
-                      value={filter.end || availableWeeks[availableWeeks.length - 1] || '2026-11-16'}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFilter({
-                          ...filter,
-                          end: val,
-                          start: filter.start && val < filter.start ? val : filter.start
-                        });
-                      }}
-                      className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
-                      title="End Week"
-                    >
-                      {availableWeeks.map(w => (
-                        <option key={w} value={w} className="bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white">{w}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </div>}
-        {showAssumptions && <AnalyticsAssumptions value={assumptions} onChange={setAssumptions} onClose={() => { setShowAssumptions(false); setIsAssumptionsOpen && setIsAssumptionsOpen(false); }} onReset={() => setAssumptions({
-      ...A.defaults
-    })} />}
-        <div className="av-view-toolbar"><nav className="av-presentation-nav" aria-label="Decision Studio views">{[['summary','Plan summary'],['workload','Upcoming workload'],['checks','Data readiness'],['investigate','Investigations']].map(([id,title])=><button key={id} type="button" aria-current={presentation===id?'page':undefined} aria-controls="analytics-presentation-panel" onClick={()=>{setPresentation(id);setDetail(null);}}>{title}{id==='checks'&&bundle&&!busy&&outlook.readiness.some(c=>!c.ready)&&<span>{outlook.readiness.filter(c=>!c.ready).length} to review</span>}</button>)}</nav><button type="button" className="av-scenario-toggle" aria-expanded={!isFiltersCollapsed} onClick={()=>setIsFiltersCollapsed(!isFiltersCollapsed)}>Scenario &amp; compare</button></div>
-        {!busy && bundle && presentation!=='checks' && outlook.readiness.some(c=>!c.ready) && <button type="button" className="av-readiness-alert" onClick={()=>setPresentation('checks')}>{outlook.readiness.filter(c=>!c.ready).length} input checks need review <strong>View checks</strong></button>}
+  return <div className="analytics-workspace ds-workspace pb-8">
+        <DecisionStudioNavigation presentation={presentation} onNavigate={navigate}/>
         <div id="analytics-presentation-panel">
-        {!busy && bundle && presentation==='summary' && <AnalyticsPlanSummary model={current} demand={demand} scenario={scenarioId} loadedAt={bundle.loadedAt} outlook={outlook} onFocus={focusCell} onExplore={explore}/>}
-        {!busy && bundle && ['workload','checks'].includes(presentation) && <AnalyticsWorkloadOutlook mode={presentation} report={outlook} planningDate={planningDate} onDateChange={setPlanningDate} onExplore={explore} onSource={sourceDetail}/>}
+        {planningView && <DecisionStudioOverview A={A} V={V} data={data} bundle={bundle} scenarios={scenarios}
+          presentation={presentation}
+          scenarioId={scenarioId} setScenarioId={setScenarioId} filter={filter} setFilter={setFilter} clearScope={clearScope}
+          baseline={baseline} baselineId={baselineId} setBaselineId={setBaselineId} baseData={baseData} geographyChanges={geographyChanges}
+          comparisonEnabled={comparisonEnabled} setComparisonEnabled={setComparisonEnabled}
+          undoFilter={undoFilter} canUndo={filterHistory.current.length>0} assumptions={assumptions} busy={busy}
+          onImbalance={()=>navigate('imbalance')}
+          onChecks={()=>navigate('checks')}/>}
+        {!busy && bundle && presentation==='workload' && <>
+          <DecisionStudioMonthlyWorkload A={A} V={V} data={data} filter={filter} setFilter={setFilter}/>
+          <details className="ds-panel ds-workload-detail"><summary>Weekly workload and decisions</summary>
+            <AnalyticsWorkloadOutlook mode="workload" report={outlook} planningDate={planningDate} onDateChange={setPlanningDate} onExplore={explore} onSource={sourceDetail}/>
+          </details>
+        </>}
+        {!busy && bundle && presentation==='checks' && <AnalyticsWorkloadOutlook mode="checks" report={outlook}
+          planningDate={planningDate} onDateChange={setPlanningDate} onExplore={explore} onSource={sourceDetail}/>}
         {presentation==='investigate'&&<>
         {/* Top: 4 Category Navigation Cards */}
         <nav aria-label="Analytics areas" className="av-area-nav grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">

@@ -646,7 +646,10 @@ function buildGeographyHierarchy(rows) {
 function ModernCapacityApp() {
     const [activeTab, setActiveTab] = useState('insights');
     const [studioSubTab, setStudioSubTab] = useState('inputs_selection');
+    const [decisionStudioView, setDecisionStudioView] = useState('summary');
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [decisionNavOpen, setDecisionNavOpen] = useState(false);
+    const inDecisionStudio = activeTab === 'decision_studio' || activeTab === 'analytics';
     const [isCopilotOpen, setIsCopilotOpen] = useState(false);
     
     // Dark Theme State (persisted to localStorage)
@@ -719,7 +722,6 @@ function ModernCapacityApp() {
 
     // Calculation Modules Modal State (FTE, Downtime, Productivity -> Capacity; Demand -> Imbalance)
     const [isCalcModalOpen, setIsCalcModalOpen] = useState(false);
-    const [isAssumptionsOpen, setIsAssumptionsOpen] = useState(false);
     const [selectedCalcModule, setSelectedCalcModule] = useState('imbalance');
     const [calcModulesCache, setCalcModulesCache] = useState({});
     const [isCalcLoading, setIsCalcLoading] = useState(false);
@@ -1145,7 +1147,7 @@ function ModernCapacityApp() {
             )}
 
             {/* WHITE & ENTERPRISE BLUE SIDEBAR (FLUSH TO LEFT EDGE: 0 MARGIN) */}
-            <aside className={`flex flex-col transition-all duration-300 z-30 flex-shrink-0 h-full ${
+            <aside id="capacity-app-navigation" onClickCapture={inDecisionStudio && decisionNavOpen ? () => setDecisionNavOpen(false) : undefined} className={`${inDecisionStudio ? 'ds-sidebar ' + (decisionNavOpen ? 'ds-sidebar-open' : '') : ''} flex flex-col transition-all duration-300 z-30 flex-shrink-0 h-full ${
                 isDarkMode 
                     ? 'bg-[#060b17] border-r border-[#18365d] shadow-[4px_0_24px_rgba(2,6,23,0.6)]' 
                     : 'bg-white border-r border-slate-200/90 shadow-[2px_0_12px_rgba(0,0,0,0.02)]'
@@ -1213,13 +1215,28 @@ function ModernCapacityApp() {
                         { id: 'inputs', label: 'Inputs & Parameters', icon: <IconSliders />, badge: '21 Files', hasSubmenu: true },
                         { id: 'comparison', label: 'Scenario Diff & Variance', icon: <IconScale /> },
                         { id: 'dem_cap', label: 'Dem vs Cap Matrix', icon: <IconMatrix /> },
-                        { id: 'decision_studio', label: 'Decision Studio', icon: <IconBarChart /> },
+                        { id: 'decision_studio', label: 'Decision Studio', icon: <IconBarChart />, hasSubmenu: true },
                     ].map(tab => {
                         const isActive = activeTab === tab.id || (tab.id === 'decision_studio' && activeTab === 'analytics');
+                        const submenuOpen = tab.hasSubmenu && isActive && !isSidebarCollapsed;
+                        const submenuId = `capacity-navigation-${tab.id}`;
+                        const subItems = tab.id === 'inputs' ? [
+                            { id: 'inputs_selection', label: 'Scenario & Input Selection', shortLabel: 'Scenario & Inputs', icon: <IconSliders className="w-3.5 h-3.5 flex-shrink-0" />, badge: '21' },
+                            { id: 'bulk_upload', label: 'Bulk Upload', shortLabel: 'Bulk Upload', icon: <IconUpload className="w-3.5 h-3.5 flex-shrink-0" />, badge: 'Ingest' },
+                            { id: 'download_templates', label: 'Download Templates', shortLabel: 'Download Templates', icon: <IconDownload className="w-3.5 h-3.5 flex-shrink-0" />, badge: '21 Ready' },
+                        ] : tab.id === 'decision_studio' ? [
+                            { id: 'imbalance', label: 'Capacity Imbalance', icon: <IconScale className="w-3.5 h-3.5 flex-shrink-0" /> },
+                        ] : [];
                         return (
                             <div key={tab.id} className="space-y-1">
                                 <button
-                                    onClick={() => setActiveTab(tab.id)}
+                                    onClick={() => {
+                                        setActiveTab(tab.id);
+                                        if (tab.id === 'decision_studio') setDecisionStudioView('summary');
+                                    }}
+                                    aria-expanded={tab.hasSubmenu ? submenuOpen : undefined}
+                                    aria-controls={submenuOpen ? submenuId : undefined}
+                                    aria-current={tab.id==='decision_studio' && isActive && decisionStudioView==='summary' ? 'page' : undefined}
                                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium text-xs transition-all group ${
                                         isActive
                                             ? isDarkMode 
@@ -1258,24 +1275,21 @@ function ModernCapacityApp() {
                                     )}
                                 </button>
 
-                                {/* SUBMENUS: Inputs & Parameters */}
-                                {tab.id === 'inputs' && isActive && !isSidebarCollapsed && (
-                                    <div className="ml-3 pl-2.5 my-1 border-l-2 border-blue-500/30 dark:border-blue-500/40 space-y-1">
-                                        {[
-                                            { id: 'inputs_selection', label: 'Scenario & Input Selection', shortLabel: 'Scenario & Inputs', icon: <IconSliders className="w-3.5 h-3.5 flex-shrink-0" />, badge: '21' },
-                                            { id: 'bulk_upload', label: 'Bulk Upload', shortLabel: 'Bulk Upload', icon: <IconUpload className="w-3.5 h-3.5 flex-shrink-0" />, badge: 'Ingest' },
-                                            { id: 'download_templates', label: 'Download Templates', shortLabel: 'Download Templates', icon: <IconDownload className="w-3.5 h-3.5 flex-shrink-0" />, badge: '21 Ready' },
-                                        ].map(sub => {
-                                            const isSubActive = studioSubTab === sub.id;
+                                {submenuOpen && (
+                                    <div id={submenuId} role="group" aria-label={tab.label} className="ml-3 pl-2.5 my-1 border-l-2 border-blue-500/30 dark:border-blue-500/40 space-y-1">
+                                        {subItems.map(sub => {
+                                            const isSubActive = (tab.id === 'inputs' ? studioSubTab : decisionStudioView) === sub.id;
                                             return (
                                                 <button
                                                     key={sub.id}
                                                     type="button"
-                                                    title={`${sub.label} (${sub.badge})`}
+                                                    title={sub.badge ? `${sub.label} (${sub.badge})` : sub.label}
+                                                    aria-current={isSubActive ? 'page' : undefined}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        setActiveTab('inputs');
-                                                        setStudioSubTab(sub.id);
+                                                        setActiveTab(tab.id);
+                                                        if (tab.id === 'inputs') setStudioSubTab(sub.id);
+                                                        else setDecisionStudioView(sub.id);
                                                     }}
                                                     className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all select-none cursor-pointer ${
                                                         isSubActive
@@ -1291,15 +1305,15 @@ function ModernCapacityApp() {
                                                         <span className={isSubActive ? (isDarkMode ? 'text-[#80c6ff]' : 'text-white') : (isDarkMode ? 'text-[#7d93b2]' : 'text-blue-600')}>
                                                             {sub.icon}
                                                         </span>
-                                                        <span className="truncate text-[11px]">{sub.shortLabel}</span>
+                                                        <span className="truncate text-[11px]">{sub.shortLabel || sub.label}</span>
                                                     </div>
-                                                    <span className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded-md flex-shrink-0 ml-1.5 ${
+                                                    {sub.badge && <span className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded-md flex-shrink-0 ml-1.5 ${
                                                         isSubActive
                                                             ? isDarkMode ? 'bg-[#081528] text-[#80c6ff] border border-[#18365d]' : 'bg-white/20 text-white'
                                                             : isDarkMode ? 'bg-[#081528] text-[#7d93b2] border border-[#18365d]' : 'bg-slate-200/80 text-slate-600'
                                                     }`}>
                                                         {sub.badge}
-                                                    </span>
+                                                    </span>}
                                                 </button>
                                             );
                                         })}
@@ -1333,12 +1347,15 @@ function ModernCapacityApp() {
             {/* MAIN APP SHELL (FULL-BLEED FLUID) */}
             <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
                 {/* TOP HEADER (COMPACT 56PX HEIGHT) */}
-                <header className={`h-14 px-6 flex items-center justify-between z-20 flex-shrink-0 border-b transition-colors duration-300 ${
+                <header className={`${inDecisionStudio ? 'ds-app-header' : ''} h-14 px-6 flex items-center justify-between z-20 flex-shrink-0 border-b transition-colors duration-300 ${
                     isDarkMode 
                         ? 'bg-[#081224]/95 border-[#18365d] shadow-sm backdrop-blur-md' 
                         : 'bg-white border-slate-200/80'
                 }`}>
                     {/* Scenario Quick Selector Pill */}
+                    {inDecisionStudio && <button type="button" className="ds-mobile-nav"
+                        aria-controls="capacity-app-navigation" aria-expanded={decisionNavOpen}
+                        onClick={() => setDecisionNavOpen(value => !value)}>{decisionNavOpen ? 'Close menu' : 'Menu'}</button>}
                     <div className="flex items-center gap-2.5 min-w-0">
                         <button className={`w-8 h-8 rounded-lg border flex items-center justify-center transition shadow-xs flex-shrink-0 ${
                             isDarkMode 
@@ -1347,26 +1364,7 @@ function ModernCapacityApp() {
                         }`}>
                             <IconGear className="w-3.5 h-3.5 text-current" />
                         </button>
-                        {(activeTab === 'decision_studio' || activeTab === 'analytics') ? (
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsAssumptionsOpen(true)}
-                                    className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button ${
-                                        isDarkMode
-                                            ? 'bg-blue-600/20 text-[#80c6ff] border-blue-500/40 hover:bg-blue-600/30 hover:border-blue-400'
-                                            : 'bg-blue-50 hover:bg-blue-100 text-[#005eb8] border-blue-200 hover:border-blue-400'
-                                    }`}
-                                    title="Open Model Assumptions & Configuration"
-                                >
-                                    <IconSliders className="w-3.5 h-3.5 text-current" />
-                                    <span>Model Assumptions</span>
-                                </button>
-                                <span className={`text-[11px] font-semibold hidden md:inline ${isDarkMode ? 'text-[#adbed4]' : 'text-slate-500'}`}>
-                                    Decision Studio Workspace
-                                </span>
-                            </div>
-                        ) : activeTab !== 'comparison' ? (
+                        {(activeTab === 'decision_studio' || activeTab === 'analytics') ? null : activeTab !== 'comparison' ? (
                             <div className="flex items-center gap-2">
                                 <span className={`text-[11px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#80c6ff]' : 'text-slate-500'}`}>Active Scenario:</span>
                                 <div className={`flex items-center border rounded-lg px-2.5 py-1 shadow-xs transition ${
@@ -1566,7 +1564,7 @@ function ModernCapacityApp() {
                 )}
 
                 {/* TAB CONTENT AREA (FLUID SCROLLABLE MAIN WITH TIGHT SPACING) */}
-                <main className={`flex-1 overflow-y-auto px-6 py-4 space-y-3.5 transition-colors duration-300 ${
+                <main className={`${inDecisionStudio ? 'ds-app-main' : ''} flex-1 overflow-y-auto px-6 py-4 space-y-3.5 transition-colors duration-300 ${
                     isDarkMode ? 'bg-[#070e1c]' : 'bg-[#fbfcfd]'
                 }`}>
                     {(activeTab === 'decision_studio' || activeTab === 'analytics') && (
@@ -1574,18 +1572,10 @@ function ModernCapacityApp() {
                             scenarios={scenarios}
                             selectedScenarioId={selectedScenarioId}
                             inputsState={inputsState}
-                            selectedGeographyFile={inputsState['geography_mapping']}
-                            geographyDatasets={geographyDatasets}
                             baselineScenarioId={diffBaselineScenarioId}
-                            setBaselineScenarioId={setDiffBaselineScenarioId}
                             comparisonScenarioId={diffComparisonScenarioId}
-                            setComparisonScenarioId={setDiffComparisonScenarioId}
-                            onSelectScenario={handleLoadScenario}
-                            onNavigateToInputs={() => setActiveTab('inputs')}
-                            isDarkMode={isDarkMode}
-                            showToast={showToast}
-                            isAssumptionsOpen={isAssumptionsOpen}
-                            setIsAssumptionsOpen={setIsAssumptionsOpen}
+                            presentation={decisionStudioView}
+                            onPresentationChange={setDecisionStudioView}
                         />
                     )}
                     {/* TAB 1: EXECUTIVE SCENARIO INSIGHTS (HOMEPAGE) */}
