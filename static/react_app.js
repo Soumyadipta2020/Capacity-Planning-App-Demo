@@ -701,17 +701,21 @@ function ModernCapacityApp() {
 
     // Scenario State
     const [scenarios, setScenarios] = useState({});
-    const [selectedScenarioId, setSelectedScenarioId] = useState("LV OCT V.0 2026-10-29 16:00:00");
-    const [comparisonScenarioId, setComparisonScenarioId] = useState("LV JUL V.1 2026-07-07 12:46:46");
-    const [diffBaselineScenarioId, setDiffBaselineScenarioId] = useState("LV OCT V.0 2026-10-29 16:00:00");
-    const [diffComparisonScenarioId, setDiffComparisonScenarioId] = useState("LV JUL V.1 2026-07-07 12:46:46");
+    const [scenarioLog, setScenarioLog] = useState([]);
+    const [scenarioDiffCache, setScenarioDiffCache] = useState({});
+    const [finalBundleCache, setFinalBundleCache] = useState({});
+    const [selectedScenarioId, setSelectedScenarioId] = useState("LV NOV V.1 2026");
+    const [comparisonScenarioId, setComparisonScenarioId] = useState("LV NOV V.2 2026");
+    const [diffBaselineScenarioId, setDiffBaselineScenarioId] = useState("LV NOV V.1 2026");
+    const [diffComparisonScenarioId, setDiffComparisonScenarioId] = useState("LV NOV V.2 2026");
     const [geographyDatasets, setGeographyDatasets] = useState({});
     
     // Scenario form metadata
     const [planType, setPlanType] = useState("LV");
-    const [month, setMonth] = useState("OCT");
-    const [version, setVersion] = useState("0");
-    const [remarks, setRemarks] = useState("October Operating Plan baseline");
+    const [month, setMonth] = useState("NOV");
+    const [version, setVersion] = useState("1");
+    const [scenarioYear, setScenarioYear] = useState("2026");
+    const [remarks, setRemarks] = useState("November LV Baseline Operating Plan (Nov 2026 - Dec 2027)");
 
     // All 21 Input Selections & History
     const [inputsState, setInputsState] = useState({});
@@ -760,7 +764,26 @@ function ModernCapacityApp() {
                     setClusterInfo(init.envInfo.cluster_info);
                 }
             }
-            if (init.scenarios) setScenarios(init.scenarios);
+            if (init.scenarios) {
+                setScenarios(init.scenarios);
+                const ids = Object.keys(init.scenarios);
+                if (ids.length > 0) {
+                    setSelectedScenarioId(ids[0]);
+                    setDiffBaselineScenarioId(ids[0]);
+                    const second = ids[1] || ids[0];
+                    setComparisonScenarioId(second);
+                    setDiffComparisonScenarioId(second);
+                }
+            }
+            if (init.scenarioLog) setScenarioLog(init.scenarioLog);
+            if (init.initialFinalBundle && init.initialFinalBundle.success && init.initialFinalBundle.scenarioId) {
+                setFinalBundleCache(prev => ({ ...prev, [init.initialFinalBundle.scenarioId]: init.initialFinalBundle }));
+            }
+            if (init.initialScenarioDiffData && init.initialScenarioDiffData.success) {
+                const diffInit = init.initialScenarioDiffData;
+                const cacheKey = `${diffInit.baselineVersion}||${diffInit.comparisonVersion}`;
+                setScenarioDiffCache(prev => ({ ...prev, [cacheKey]: diffInit }));
+            }
             if (init.inputOptions) {
                 setInputsChoices(init.inputOptions);
                 const initialSelections = {};
@@ -782,11 +805,37 @@ function ModernCapacityApp() {
 
         if (window.Shiny && window.Shiny.addCustomMessageHandler) {
             window.Shiny.addCustomMessageHandler('response_analytics_bundle', function(data) {
+                if (data && data.success && data.scenarioId && data.finalData) {
+                    setFinalBundleCache(prev => ({ ...prev, [data.scenarioId]: data }));
+                }
                 window.dispatchEvent(new CustomEvent('capacity-analytics-data', {detail: data}));
+            });
+            window.Shiny.addCustomMessageHandler('response_scenario_diff_data', function(data) {
+                if (data && data.success && data.baselineVersion && data.comparisonVersion) {
+                    const cacheKey = `${data.baselineVersion}||${data.comparisonVersion}`;
+                    setScenarioDiffCache(prev => ({ ...prev, [cacheKey]: data }));
+                }
+                window.dispatchEvent(new CustomEvent('capacity-scenario-diff-data', { detail: data }));
             });
             window.Shiny.addCustomMessageHandler('update_scenario_data', function(data) {
                 if (data.scenarios) setScenarios(data.scenarios);
-                if (data.selectedScenarioId) setSelectedScenarioId(data.selectedScenarioId);
+                if (data.scenarioLog) setScenarioLog(data.scenarioLog);
+                if (data.selectedScenarioId) {
+                    setSelectedScenarioId(data.selectedScenarioId);
+                    // Invalidate cached diff/final entries referencing updated scenario
+                    setFinalBundleCache(prev => {
+                        const next = { ...prev };
+                        delete next[data.selectedScenarioId];
+                        return next;
+                    });
+                    setScenarioDiffCache(prev => {
+                        const next = {};
+                        Object.entries(prev).forEach(([k, v]) => {
+                            if (!k.includes(data.selectedScenarioId)) next[k] = v;
+                        });
+                        return next;
+                    });
+                }
                 if (data.inputsState) setInputsState(data.inputsState);
                 if (data.imbalanceData) setImbalanceData(data.imbalanceData);
                 if (data.envInfo) setEnvInfo(data.envInfo);
@@ -858,6 +907,32 @@ function ModernCapacityApp() {
             });
         }
     }, []);
+
+    // Fetch final scenario data bundle for Executive Insights when selected scenario changes
+    useEffect(() => {
+        if (!selectedScenarioId || finalBundleCache[selectedScenarioId]) return;
+        let disposed = false;
+        let timer = null;
+        const attempt = () => {
+            if (disposed || !window.Shiny?.setInputValue) return;
+            clearInterval(timer);
+            const reqId = `insights-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            window.Shiny.setInputValue('request_analytics_bundle', {
+                requestId: reqId,
+                scenarioId: selectedScenarioId,
+                draft: false
+            }, { priority: 'event' });
+        };
+        if (window.Shiny?.setInputValue) {
+            attempt();
+        } else {
+            timer = setInterval(attempt, 300);
+        }
+        return () => {
+            disposed = true;
+            if (timer) clearInterval(timer);
+        };
+    }, [selectedScenarioId, finalBundleCache]);
 
     // Handle Scenario Export to Power BI (Private / Public with Custom Name)
     const handleExportPowerBIScenario = (scenarioId, exportTarget, exportName, description) => {
@@ -1049,13 +1124,14 @@ function ModernCapacityApp() {
 
     // Save Scenario
     const handleSaveScenario = () => {
-        const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
-        const newId = `${planType} ${month} V.${version} ${now}`;
+        const now = new Date().toISOString().replace(/\.\d{3}Z$/, '.000+00:00');
+        const newId = `${planType} ${month} V.${version} ${scenarioYear}`;
         const newScenario = {
             id: newId,
             plan_type: planType,
             month: month,
             version: version,
+            year: scenarioYear,
             remarks: remarks,
             created_at: now,
             inputs: { ...inputsState }
@@ -1063,13 +1139,21 @@ function ModernCapacityApp() {
 
         setScenarios(prev => ({ ...prev, [newId]: newScenario }));
         setSelectedScenarioId(newId);
-        showToast(`Scenario '${newId}' saved!`, 'success');
+        setScenarioDiffCache(prev => {
+            const next = {};
+            Object.entries(prev).forEach(([k, v]) => {
+                if (!k.includes(newId)) next[k] = v;
+            });
+            return next;
+        });
+        showToast(`Saving scenario '${newId}' & generating final data...`, 'info');
 
         if (window.Shiny && window.Shiny.setInputValue) {
             window.Shiny.setInputValue('save_scenario_event', {
                 plan_type: planType,
                 month: month,
                 version: version,
+                year: scenarioYear,
                 remarks: remarks,
                 inputs: inputsState
             }, { priority: 'event' });
@@ -1082,8 +1166,10 @@ function ModernCapacityApp() {
         if (!scen) return;
         setSelectedScenarioId(scenarioId);
         setPlanType(scen.plan_type || "LV");
-        setMonth(scen.month || "OCT");
-        setVersion(scen.version || "0");
+        setMonth(scen.month || "NOV");
+        setVersion(scen.version || "1");
+        const parsedYear = scen.year || (String(scenarioId).match(/\b(20\d{2})\b/)?.[1]) || "2026";
+        setScenarioYear(parsedYear);
         setRemarks(scen.remarks || "");
         if (scen.inputs) {
             setInputsState({ ...scen.inputs });
@@ -1225,18 +1311,20 @@ function ModernCapacityApp() {
                             { id: 'bulk_upload', label: 'Bulk Upload', shortLabel: 'Bulk Upload', icon: <IconUpload className="w-3.5 h-3.5 flex-shrink-0" />, badge: 'Ingest' },
                             { id: 'download_templates', label: 'Download Templates', shortLabel: 'Download Templates', icon: <IconDownload className="w-3.5 h-3.5 flex-shrink-0" />, badge: '21 Ready' },
                         ] : tab.id === 'decision_studio' ? [
-                            { id: 'imbalance', label: 'Capacity Imbalance', icon: <IconScale className="w-3.5 h-3.5 flex-shrink-0" /> },
+                            { id: 'summary', label: 'Capacity Drilldown', shortLabel: 'Capacity Drilldown', icon: <IconBarChart className="w-3.5 h-3.5 flex-shrink-0" /> },
+                            { id: 'imbalance', label: 'Imbalances', shortLabel: 'Imbalances', icon: <IconScale className="w-3.5 h-3.5 flex-shrink-0" /> },
                         ] : [];
                         return (
                             <div key={tab.id} className="space-y-1">
                                 <button
                                     onClick={() => {
                                         setActiveTab(tab.id);
-                                        if (tab.id === 'decision_studio') setDecisionStudioView('summary');
+                                        if (tab.id === 'decision_studio' && activeTab !== 'decision_studio') {
+                                            setDecisionStudioView('summary');
+                                        }
                                     }}
                                     aria-expanded={tab.hasSubmenu ? submenuOpen : undefined}
                                     aria-controls={submenuOpen ? submenuId : undefined}
-                                    aria-current={tab.id==='decision_studio' && isActive && decisionStudioView==='summary' ? 'page' : undefined}
                                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium text-xs transition-all group ${
                                         isActive
                                             ? isDarkMode 
@@ -1278,7 +1366,9 @@ function ModernCapacityApp() {
                                 {submenuOpen && (
                                     <div id={submenuId} role="group" aria-label={tab.label} className="ml-3 pl-2.5 my-1 border-l-2 border-blue-500/30 dark:border-blue-500/40 space-y-1">
                                         {subItems.map(sub => {
-                                            const isSubActive = (tab.id === 'inputs' ? studioSubTab : decisionStudioView) === sub.id;
+                                            const isSubActive = tab.id === 'inputs'
+                                                ? studioSubTab === sub.id
+                                                : (sub.id === 'imbalance' ? decisionStudioView === 'imbalance' : decisionStudioView !== 'imbalance');
                                             return (
                                                 <button
                                                     key={sub.id}
@@ -1364,7 +1454,19 @@ function ModernCapacityApp() {
                         }`}>
                             <IconGear className="w-3.5 h-3.5 text-current" />
                         </button>
-                        {(activeTab === 'decision_studio' || activeTab === 'analytics') ? null : activeTab !== 'comparison' ? (
+                        {(activeTab === 'decision_studio' || activeTab === 'analytics') ? (
+                            <div className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-semibold shadow-xs border ${
+                                isDarkMode ? 'bg-[#0c1b31] border-[#18365d] text-[#80c6ff]' : 'bg-blue-50/80 border-blue-200 text-[#005eb8]'
+                            }`}>
+                                {decisionStudioView === 'imbalance' ? <IconScale className="w-3.5 h-3.5 text-current" /> : <IconBarChart className="w-3.5 h-3.5 text-current" />}
+                                <span>
+                                    Decision Studio: {decisionStudioView === 'imbalance' ? 'Imbalances' : decisionStudioView === 'checks' ? 'Data Readiness' : decisionStudioView === 'workload' ? 'Upcoming Workload' : decisionStudioView === 'investigate' ? 'Investigations' : 'Capacity Drilldown'}
+                                </span>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold ${
+                                    isDarkMode ? 'text-white bg-[#081324] border-[#18365d]' : 'text-blue-700 bg-white border-blue-200'
+                                }`}>Final Scenario Data</span>
+                            </div>
+                        ) : activeTab !== 'comparison' ? (
                             <div className="flex items-center gap-2">
                                 <span className={`text-[11px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#80c6ff]' : 'text-slate-500'}`}>Active Scenario:</span>
                                 <div className={`flex items-center border rounded-lg px-2.5 py-1 shadow-xs transition ${
@@ -1398,7 +1500,7 @@ function ModernCapacityApp() {
                                 isDarkMode ? 'bg-[#0c1b31] border-[#18365d] text-[#80c6ff]' : 'bg-blue-50/80 border-blue-200 text-[#005eb8]'
                             }`}>
                                 <IconScale className="w-3.5 h-3.5 text-current" />
-                                <span>Scenario Diff Mode: Dual Scenario Comparison</span>
+                                <span>Scenario Diff Mode: Baseline vs Final</span>
                                 <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold ${
                                     isDarkMode ? 'text-white bg-[#081324] border-[#18365d]' : 'text-blue-700 bg-white border-blue-200'
                                 }`}>Independent Selectors</span>
@@ -1582,6 +1684,7 @@ function ModernCapacityApp() {
                     {activeTab === 'insights' && (
                         <ScenarioExecutiveInsightsView
                             scenario={currentScenario}
+                            finalBundle={finalBundleCache[selectedScenarioId] || null}
                             onConfigureInputs={() => setActiveTab('inputs')}
                             onCompareScenario={() => setActiveTab('comparison')}
                             imbalanceData={imbalanceData}
@@ -1602,6 +1705,8 @@ function ModernCapacityApp() {
                             setMonth={setMonth}
                             version={version}
                             setVersion={setVersion}
+                            scenarioYear={scenarioYear}
+                            setScenarioYear={setScenarioYear}
                             remarks={remarks}
                             setRemarks={setRemarks}
                             onSave={handleSaveScenario}
@@ -1623,6 +1728,8 @@ function ModernCapacityApp() {
                     {activeTab === 'comparison' && (
                         <ScenarioComparisonView
                             scenarios={scenarios}
+                            scenarioLog={scenarioLog}
+                            scenarioDiffCache={scenarioDiffCache}
                             baselineScenarioId={diffBaselineScenarioId}
                             setBaselineScenarioId={setDiffBaselineScenarioId}
                             comparisonScenarioId={diffComparisonScenarioId}
@@ -3122,19 +3229,298 @@ function computeScenarioAnalytics(scen) {
     return res;
 }
 
-function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, showToast }) {
-    const analytics = useMemo(() => computeScenarioAnalytics(scenario), [scenario]);
-    const TRAJECTORY_WEEK_META = analytics.weeklyTrajectoryMeta;
+function formatWeekShortLabel(isoDate) {
+    if (!isoDate || typeof isoDate !== 'string') return '';
+    const dt = new Date(`${isoDate}T00:00:00Z`);
+    if (Number.isNaN(dt.getTime())) return isoDate.slice(5);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const dd = String(dt.getUTCDate()).padStart(2, '0');
+    return `${months[dt.getUTCMonth()]} ${dd}`;
+}
 
-    // Date range filter state for Weekly Trajectory Envelope card (Default: Sep 28 to Dec 14)
-    const [trajectoryStartDate, setTrajectoryStartDate] = useState("2026-09-28");
-    const [trajectoryEndDate, setTrajectoryEndDate] = useState("2026-12-14");
+function getIsoWeekNumber(isoDate) {
+    if (!isoDate || typeof isoDate !== 'string') return 1;
+    const d = new Date(`${isoDate}T00:00:00Z`);
+    if (Number.isNaN(d.getTime())) return 1;
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function ScenarioExecutiveInsightsView({ scenario, finalBundle = null, onConfigureInputs, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, showToast }) {
+    const fallbackAnalytics = useMemo(() => computeScenarioAnalytics(scenario), [scenario]);
+    const finalRows = useMemo(() => unpackFinalScenarioData(finalBundle?.finalData), [finalBundle]);
+    const isFinalReady = finalRows.length > 0;
+
+    // Derive full weekly horizon (e.g., 2026-11-02 to 2027-12-27) from es_powerbi_model_checker_plan
+    const horizonWeeks = useMemo(() => {
+        if (!isFinalReady) return TRAJECTORY_HORIZON_WEEKS;
+        const set = new Set();
+        for (const r of finalRows) {
+            if (r.period === 'W' && r.weekcomm) set.add(r.weekcomm);
+        }
+        const sorted = Array.from(set).sort();
+        return sorted.length > 0 ? sorted : TRAJECTORY_HORIZON_WEEKS;
+    }, [finalRows, isFinalReady]);
+
+    const [trajectoryStartDate, setTrajectoryStartDate] = useState("2026-11-02");
+    const [trajectoryEndDate, setTrajectoryEndDate] = useState("2027-12-27");
     const [trajectoryHoveredIdx, setTrajectoryHoveredIdx] = useState(null);
 
+    useEffect(() => {
+        if (!horizonWeeks.length) return;
+        const first = horizonWeeks[0];
+        const last = horizonWeeks[horizonWeeks.length - 1];
+        setTrajectoryStartDate(prev => (prev && prev >= first && prev <= last) ? prev : first);
+        setTrajectoryEndDate(prev => (prev && prev >= first && prev <= last) ? prev : last);
+    }, [horizonWeeks]);
+
     const visibleTrajectoryWeeks = useMemo(() => {
-        const filtered = TRAJECTORY_HORIZON_WEEKS.filter(w => w >= trajectoryStartDate && w <= trajectoryEndDate);
-        return filtered.length > 0 ? filtered : ["2026-09-28"];
-    }, [trajectoryStartDate, trajectoryEndDate]);
+        const filtered = horizonWeeks.filter(w => w >= trajectoryStartDate && w <= trajectoryEndDate);
+        return filtered.length > 0 ? filtered : [horizonWeeks[0] || "2026-11-02"];
+    }, [horizonWeeks, trajectoryStartDate, trajectoryEndDate]);
+
+    const analytics = useMemo(() => {
+        if (!isFinalReady) return fallbackAnalytics;
+
+        const weekMap = new Map();
+        horizonWeeks.forEach(w => {
+            weekMap.set(w, {
+                demand: 0,
+                capacity: 0,
+                grossHrs: 0,
+                downtime: 0,
+                fte: 0,
+                weekNum: getIsoWeekNumber(w),
+                label: formatWeekShortLabel(w)
+            });
+        });
+
+        const availLossMetrics = new Set(['Holiday', 'Sickness', 'Training', 'Meeting', 'Other']);
+        const visibleSet = new Set(visibleTrajectoryWeeks);
+        const regionStats = new Map();
+        const patchStats = new Map();
+        const areaSet = new Set();
+
+        let totalDemand = 0;
+        let totalCapacity = 0;
+        let totalGross = 0;
+        let totalDowntime = 0;
+
+        for (let i = 0; i < finalRows.length; i++) {
+            const r = finalRows[i];
+            if (r.period !== 'W' || !r.weekcomm) continue;
+            const wm = weekMap.get(r.weekcomm);
+            if (!wm) continue;
+            const val = Number(r.value) || 0;
+            const isCoreSkill = r.skill === 'HEC' || r.skill === 'KAC';
+
+            if (r.flag === 'Demand Hours' && isCoreSkill) {
+                wm.demand += val;
+            } else if (r.flag === 'Capacity Hours' && isCoreSkill) {
+                wm.capacity += val;
+            } else if (r.flag === 'Available Hours' && r.metric === 'Gross Hrs' && isCoreSkill) {
+                wm.grossHrs += val;
+            } else if (r.flag === 'FTE' && isCoreSkill) {
+                wm.fte += val;
+            } else if (
+                r.flag === 'Downtime Overlay Hours' ||
+                (r.flag === 'Available Hours' && availLossMetrics.has(r.metric))
+            ) {
+                wm.downtime += val;
+            }
+
+            if (!visibleSet.has(r.weekcomm) || !isCoreSkill) continue;
+
+            if (r.area_code) areaSet.add(r.area_code);
+            const regName = r.region || 'Unmapped';
+            if (!regionStats.has(regName)) {
+                regionStats.set(regName, { demand: 0, capacity: 0, areas: new Set() });
+            }
+            const rSt = regionStats.get(regName);
+            if (r.area_code) rSt.areas.add(r.area_code);
+
+            const pName = r.patch || 'Unknown';
+            if (!patchStats.has(pName)) {
+                patchStats.set(pName, { demand: 0, capacity: 0 });
+            }
+            const pSt = patchStats.get(pName);
+
+            if (r.flag === 'Demand Hours') {
+                totalDemand += val;
+                rSt.demand += val;
+                pSt.demand += val;
+            } else if (r.flag === 'Capacity Hours') {
+                totalCapacity += val;
+                rSt.capacity += val;
+                pSt.capacity += val;
+            } else if (r.flag === 'Available Hours' && r.metric === 'Gross Hrs') {
+                totalGross += val;
+            } else if (
+                r.flag === 'Downtime Overlay Hours' ||
+                (r.flag === 'Available Hours' && availLossMetrics.has(r.metric))
+            ) {
+                totalDowntime += val;
+            }
+        }
+
+        const nWeeks = Math.max(1, visibleTrajectoryWeeks.length);
+        const weeklyTrajectoryMeta = {};
+        for (const w of horizonWeeks) {
+            const m = weekMap.get(w);
+            const eff = m.grossHrs > 0 ? Number(((m.capacity / m.grossHrs) * 100).toFixed(1)) : 88.0;
+            const imbFte = Number(((m.capacity - m.demand) / 37.5).toFixed(1));
+            weeklyTrajectoryMeta[w] = {
+                demand: Math.round(m.demand),
+                capacity: Math.round(m.capacity),
+                grossHrs: Math.round(m.grossHrs),
+                downtime: Math.round(m.downtime),
+                fte: Number(m.fte.toFixed(1)),
+                efficiency: eff,
+                imbalanceFte: imbFte,
+                weekNum: m.weekNum,
+                label: m.label
+            };
+        }
+
+        const totDemRound = Math.round(totalDemand);
+        const netCapRound = Math.round(totalCapacity);
+        const netHrs = netCapRound - totDemRound;
+        const netBufferFte = Number((netHrs / (37.5 * nWeeks)).toFixed(1));
+        const effRatePct = totalGross > 0 ? ((totalCapacity / totalGross) * 100).toFixed(1) : '88.0';
+        const covRatio = totalDemand > 0 ? Number(((totalCapacity / totalDemand) * 100).toFixed(1)) : 100.0;
+        const isMet = netBufferFte >= 0;
+
+        // Horizon trend comparison (last half vs first half of visible horizon)
+        const midIdx = Math.max(1, Math.floor(nWeeks / 2));
+        let firstDem = 0, secondDem = 0;
+        visibleTrajectoryWeeks.forEach((w, idx) => {
+            const d = weekMap.get(w)?.demand || 0;
+            if (idx < midIdx) firstDem += d;
+            if (idx >= nWeeks - midIdx) secondDem += d;
+        });
+        const demDiffPct = firstDem > 0 ? ((secondDem - firstDem) / firstDem) * 100 : 0;
+        const demandTrend = `${demDiffPct >= 0 ? '↑ +' : '↓ '}${demDiffPct.toFixed(1)}%`;
+
+        // Real Deficit Patches from es_powerbi_model_checker_plan
+        const deficitPatchList = [];
+        patchStats.forEach((st, pName) => {
+            const pFte = Number(((st.capacity - st.demand) / (37.5 * nWeeks)).toFixed(1));
+            if (pFte < 0) deficitPatchList.push({ patch: pName, fte: pFte });
+        });
+        deficitPatchList.sort((a, b) => a.fte - b.fte);
+        const deficitCount = deficitPatchList.length;
+        const deficitPatchesText = deficitCount === 0
+            ? '0 Deficit Patches'
+            : `${deficitCount} Deficit Patch${deficitCount > 1 ? 'es' : ''}`;
+        const deficitPatchDetail = deficitCount === 0
+            ? 'All Patches Healthy'
+            : deficitPatchList.slice(0, 2).map(d => `${d.patch.replace(/^E[A-Z0-9]+\s+/, '')} (${d.fte.toFixed(1)})`).join(', ');
+
+        // Real Region Health Status from es_powerbi_model_checker_plan `region` & `area_code`
+        const territoryDivisions = Array.from(regionStats.entries()).map(([regName, st]) => {
+            const regFte = Number(((st.capacity - st.demand) / (37.5 * nWeeks)).toFixed(1));
+            const regCov = st.demand > 0 ? (st.capacity / st.demand) * 100 : 100;
+            const isSurplus = regFte >= 0;
+            return {
+                name: `${regName} (${st.areas.size} Area${st.areas.size === 1 ? '' : 's'})`,
+                buffer: `${isSurplus ? '+' : ''}${regFte.toFixed(1)} FTE`,
+                status: isSurplus ? 'Surplus' : 'Deficit',
+                pct: Math.min(100, Math.max(18, Math.round(regCov * 0.9))),
+                color: isSurplus ? 'bg-emerald-500' : 'bg-rose-500',
+                text: isSurplus ? 'text-emerald-700' : 'text-rose-600',
+                rawFte: regFte
+            };
+        }).sort((a, b) => b.rawFte - a.rawFte);
+
+        // Risk metrics derived from plan coverage & deficit tension
+        const risk = Number(Math.max(1.2, Math.min(45.0, (106.5 - covRatio) * 1.9 + deficitCount * 1.4 + 2.1)).toFixed(1));
+        const conf = Number((100 - risk).toFixed(1));
+        const p95 = Number((netBufferFte >= 0 ? -(risk * 0.48 + deficitCount * 0.6) : netBufferFte * 0.35 - 2.0).toFixed(1));
+
+        // Real Operational Trajectory Trends (Latest vs Prior Week in visible horizon)
+        const lastW = visibleTrajectoryWeeks[visibleTrajectoryWeeks.length - 1];
+        const prevW = visibleTrajectoryWeeks[Math.max(0, visibleTrajectoryWeeks.length - 2)];
+        const mLast = weeklyTrajectoryMeta[lastW] || {};
+        const mPrev = weeklyTrajectoryMeta[prevW] || mLast;
+
+        const wowTrend = (curr, prev, positiveWhenUp = true) => {
+            const base = Math.abs(prev) > 0.001 ? prev : 1;
+            const pct = ((curr - prev) / base) * 100;
+            const up = pct >= 0;
+            return {
+                trend: `${up ? '↑' : '↓'} ${Math.abs(pct).toFixed(1)}% WoW`,
+                isPos: positiveWhenUp ? up : !up
+            };
+        };
+
+        const fteReqLast = (mLast.demand || 0) / 37.5;
+        const fteReqPrev = (mPrev.demand || 0) / 37.5;
+        const imbLast = mLast.imbalanceFte || 0;
+        const imbPrev = mPrev.imbalanceFte || 0;
+
+        return {
+            totalDemand: totDemRound,
+            totalDemandFormatted: totDemRound.toLocaleString(),
+            demandTrend,
+            isDemandTrendUp: demDiffPct >= 0,
+            netCapacity: netCapRound,
+            netCapacityFormatted: netCapRound.toLocaleString(),
+            efficiencyRate: `${effRatePct}%`,
+            netBufferFte,
+            netBufferFormatted: (netBufferFte >= 0 ? '+' : '') + netBufferFte.toFixed(1),
+            isSlaMet: isMet,
+            slaStatusText: isMet ? 'SLA Met' : 'Deficit Alert',
+            slaSubtext: isMet ? 'Final Plan Healthy' : 'Regional Deficit Risk',
+            coverageRatio: covRatio,
+            coverageRatioFormatted: `${covRatio.toFixed(1)}%`,
+            targetRatio: 105,
+            deficitPatchesCount: deficitCount,
+            deficitPatchesText,
+            deficitPatchDetail,
+            divisionBadge: `${regionStats.size} Regions • ${areaSet.size} Areas`,
+            simData: {
+                runs: 10000,
+                riskPct: risk,
+                slaConfidence: conf,
+                p95VarFte: p95,
+                meanBufferFte: Number((netBufferFte * 0.96).toFixed(1)),
+                targetCompliancePct: Number(Math.max(10, conf - 2.8).toFixed(1)),
+                lastRunTime: (finalBundle?.createDatestamp || '').slice(11, 19) || '16:00:00'
+            },
+            demandScale: 1.0,
+            capacityScale: 1.0,
+            territoryDivisions,
+            trendKPIs: {
+                fteRequired: {
+                    val: Math.round(fteReqLast).toLocaleString(),
+                    ...wowTrend(fteReqLast, fteReqPrev, true)
+                },
+                grossHours: {
+                    val: (mLast.grossHrs || 0).toLocaleString(),
+                    ...wowTrend(mLast.grossHrs || 0, mPrev.grossHrs || 0, true)
+                },
+                totalDowntime: {
+                    val: (mLast.downtime || 0).toLocaleString(),
+                    ...wowTrend(mLast.downtime || 0, mPrev.downtime || 0, false)
+                },
+                productivity: {
+                    val: `${(mLast.efficiency || 88.0).toFixed(1)}%`,
+                    ...wowTrend(mLast.efficiency || 88.0, mPrev.efficiency || 88.0, true)
+                },
+                imbalance: {
+                    val: (imbLast >= 0 ? '+' : '') + imbLast.toFixed(1),
+                    unit: imbLast >= 0 ? 'FTE Buffer' : 'Deficit Buffer',
+                    trend: `${imbLast >= imbPrev ? '↑' : '↓'} ${Math.abs(imbLast - imbPrev).toFixed(1)}F WoW`,
+                    isPos: imbLast >= 0
+                }
+            },
+            weeklyTrajectoryMeta
+        };
+    }, [isFinalReady, fallbackAnalytics, finalRows, horizonWeeks, visibleTrajectoryWeeks, finalBundle]);
+
+    const TRAJECTORY_WEEK_META = analytics.weeklyTrajectoryMeta;
 
     const handleTrajectoryStartChange = (val) => {
         setTrajectoryStartDate(val);
@@ -3156,7 +3542,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
             const m = TRAJECTORY_WEEK_META[w] || { demand: 4700, capacity: 5000, weekNum: 40, label: w.slice(5) };
             const netHrs = m.capacity - m.demand;
             const netFte = Number((netHrs / 37.5).toFixed(1));
-            const covRatio = Number(((m.capacity / m.demand) * 100).toFixed(1));
+            const covRatio = m.demand > 0 ? Number(((m.capacity / m.demand) * 100).toFixed(1)) : 100;
             return {
                 week: w,
                 label: m.label,
@@ -3177,14 +3563,15 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
         const yMin = Math.max(0, Math.floor((minVal - 150) / 250) * 250);
         const yMax = Math.ceil((maxVal + 60) / 200) * 200;
 
-        const step = (yMax - yMin) <= 1200 ? 250 : 500;
+        const span = Math.max(250, yMax - yMin);
+        const step = span <= 1200 ? 250 : span <= 4000 ? 500 : Math.ceil(span / 6 / 500) * 500;
         const ticks = [];
         for (let t = yMin; t <= yMax; t += step) {
             ticks.push(t);
         }
 
         return { data, yMin, yMax, ticks };
-    }, [visibleTrajectoryWeeks]);
+    }, [visibleTrajectoryWeeks, TRAJECTORY_WEEK_META]);
 
     const weeks = visibleTrajectoryWeeks;
 
@@ -3418,13 +3805,14 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                     className="bg-transparent font-bold text-slate-700 dark:text-white text-xs focus:outline-none cursor-pointer border-0 p-0 m-0"
                                     title="Start Week Commencing (with Year)"
                                 >
-                                    {TRAJECTORY_HORIZON_WEEKS.map(w => {
+                                    {horizonWeeks.map(w => {
                                         const meta = TRAJECTORY_WEEK_META[w];
                                         const year = w.split('-')[0];
-                                        const lbl = meta?.label || w.slice(5);
+                                        const lbl = meta?.label || formatWeekShortLabel(w);
+                                        const wkNum = meta?.weekNum ?? getIsoWeekNumber(w);
                                         return (
                                             <option key={w} value={w} className="bg-white dark:bg-[#081324] text-slate-800 dark:text-white">
-                                                {lbl}, {year} (Wk {meta?.weekNum})
+                                                {lbl}, {year} (Wk {wkNum})
                                             </option>
                                         );
                                     })}
@@ -3436,13 +3824,14 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                     className="bg-transparent font-bold text-slate-700 dark:text-white text-xs focus:outline-none cursor-pointer border-0 p-0 m-0"
                                     title="End Week Commencing (with Year)"
                                 >
-                                    {TRAJECTORY_HORIZON_WEEKS.map(w => {
+                                    {horizonWeeks.map(w => {
                                         const meta = TRAJECTORY_WEEK_META[w];
                                         const year = w.split('-')[0];
-                                        const lbl = meta?.label || w.slice(5);
+                                        const lbl = meta?.label || formatWeekShortLabel(w);
+                                        const wkNum = meta?.weekNum ?? getIsoWeekNumber(w);
                                         return (
                                             <option key={w} value={w} className="bg-white dark:bg-[#081324] text-slate-800 dark:text-white">
-                                                {lbl}, {year} (Wk {meta?.weekNum})
+                                                {lbl}, {year} (Wk {wkNum})
                                             </option>
                                         );
                                     })}
@@ -3481,7 +3870,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                             const barW = Math.min(32, Math.max(6, slotW * 0.44));
 
                             // Calculate dynamic interval so X-axis labels have comfortable gaps and never overlap
-                            const labelInterval = N <= 7 ? 1 : N <= 14 ? 2 : N <= 21 ? 3 : 4;
+                            const labelInterval = N <= 7 ? 1 : N <= 14 ? 2 : N <= 28 ? 4 : Math.max(5, Math.ceil(N / 10));
 
                             const getY = (val) => {
                                 const clamped = Math.max(trajectoryChartMetrics.yMin, Math.min(trajectoryChartMetrics.yMax, val));
@@ -3752,7 +4141,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                 <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-2 glow-card">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                         <h3 className="font-extrabold text-xs sm:text-sm text-slate-800">Territory Health Status</h3>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">5 Divisions</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{analytics.divisionBadge || `${analytics.territoryDivisions.length} Regions`}</span>
                     </div>
 
                     <div className="space-y-1">
@@ -3820,32 +4209,40 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         return { linePath, areaPath, lastPoint: points[points.length - 1] };
                     }
 
-                    // Series across visible trajectory weeks
-                    const fteVals = visibleTrajectoryWeeks.map((w, idx) => {
-                        const dem = TRAJECTORY_WEEK_META[w]?.demand || 4700;
-                        return Number((dem / 4.65).toFixed(1));
+                    // Series across visible trajectory weeks (using real es_powerbi_model_checker_plan values when loaded)
+                    const fteVals = visibleTrajectoryWeeks.map((w) => {
+                        const m = TRAJECTORY_WEEK_META[w];
+                        if (m?.demand !== undefined) return Number((m.demand / 37.5).toFixed(1));
+                        return 1000;
                     });
 
-                    const grossVals = visibleTrajectoryWeeks.map((w, idx) => {
-                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
-                        return Math.round(cap * 8.24);
+                    const grossVals = visibleTrajectoryWeeks.map((w) => {
+                        const m = TRAJECTORY_WEEK_META[w];
+                        if (m?.grossHrs !== undefined) return Math.round(m.grossHrs);
+                        return Math.round((m?.capacity || 5000) * 8.24);
                     });
 
                     const downtimeVals = visibleTrajectoryWeeks.map((w, idx) => {
-                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
+                        const m = TRAJECTORY_WEEK_META[w];
+                        if (m?.downtime !== undefined) return Math.round(m.downtime);
+                        const cap = m?.capacity || 5000;
                         const factor = 0.125 + (((idx % 5) - 2) * 0.005);
                         return Math.round(cap * factor * 8.24);
                     });
 
                     const prodVals = visibleTrajectoryWeeks.map((w, idx) => {
-                        const dem = TRAJECTORY_WEEK_META[w]?.demand || 4700;
-                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
+                        const m = TRAJECTORY_WEEK_META[w];
+                        if (m?.efficiency !== undefined) return m.efficiency;
+                        const dem = m?.demand || 4700;
+                        const cap = m?.capacity || 5000;
                         return Number((86.0 + ((cap / dem) * 2.4) + ((idx % 3) * 0.2)).toFixed(1));
                     });
 
-                    const imbVals = visibleTrajectoryWeeks.map((w, idx) => {
-                        const dem = TRAJECTORY_WEEK_META[w]?.demand || 4700;
-                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
+                    const imbVals = visibleTrajectoryWeeks.map((w) => {
+                        const m = TRAJECTORY_WEEK_META[w];
+                        if (m?.imbalanceFte !== undefined) return m.imbalanceFte;
+                        const dem = m?.demand || 4700;
+                        const cap = m?.capacity || 5000;
                         return Number(((cap - dem) / 37.5).toFixed(1));
                     });
 
@@ -9061,6 +9458,7 @@ function ScenarioInputsStudioView({
     planType, setPlanType,
     month, setMonth,
     version, setVersion,
+    scenarioYear = "2026", setScenarioYear,
     remarks, setRemarks,
     onSave,
     inputsState,
@@ -9423,6 +9821,7 @@ function ScenarioInputsStudioView({
                                 >
                                     <option value="LV">LV (Standard Operating Plan)</option>
                                     <option value="HV">HV (Surge Volume Plan)</option>
+                                    <option value="GFF2">GFF2 (Framework Plan)</option>
                                     <option value="Combined">Combined FY26 Plan</option>
                                 </select>
                             </div>
@@ -9449,6 +9848,19 @@ function ScenarioInputsStudioView({
                                     onChange={(e) => setVersion(e.target.value)}
                                     className="w-full text-xs bg-slate-50 dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl p-2.5 font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"
                                 />
+                            </div>
+
+                            <div className="w-full md:w-24 flex-shrink-0">
+                                <label className="text-[11px] font-bold text-slate-600 dark:text-[#adbed4] block mb-1">Year</label>
+                                <select
+                                    value={scenarioYear}
+                                    onChange={(e) => setScenarioYear && setScenarioYear(e.target.value)}
+                                    className="w-full text-xs bg-slate-50 dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl p-2.5 font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 cursor-pointer text-center"
+                                >
+                                    {["2025", "2026", "2027", "2028"].map(yr => (
+                                        <option key={yr} value={yr}>{yr}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div className="w-full md:flex-1 min-w-[140px]">
@@ -10291,10 +10703,142 @@ function WaveBackground({ strokeColor, fillColor, id = "wave-grad" }) {
     );
 }
 
-function computeCapacityWaterfall(totC1, totC2) {
-    // Capacity Waterfall (Available Hours Bridge)
-    // Shows how different factors impact available capacity versus demand
-    // Columns: Base Capacity, + Productivity, + Overtime, + RDS, + Other, = Available Capacity
+// Unpacks compact final scenario payload from es_powerbi_model_checker_plan
+function unpackFinalScenarioData(packed) {
+    if (!packed || !Array.isArray(packed.rows)) return [];
+    const { regions = [], areaCodes = [], patches = [], combos = [], periods = [], weeks = [], rows = [], version = '', create_datestamp = '' } = packed;
+    const out = new Array(rows.length);
+    for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        const c = combos[r[1]] || [];
+        out[i] = {
+            region: r.length > 5 ? (regions[r[5]] || '') : '',
+            area_code: r.length > 6 ? (areaCodes[r[6]] || '') : '',
+            patch: patches[r[0]] || '',
+            skill: c[0] || '',
+            group: c[1] || '',
+            metric: c[2] || '',
+            level2: c[3] || '',
+            flag: c[4] || '',
+            period: periods[r[2]] || 'W',
+            weekcomm: weeks[r[3]] || '',
+            value: Number(r[4]) || 0,
+            version,
+            create_datestamp
+        };
+    }
+    return out;
+}
+if (typeof window !== 'undefined') {
+    window.unpackFinalScenarioData = unpackFinalScenarioData;
+}
+
+function computeCapacityWaterfall(totC1, totC2, bridge = null) {
+    // Capacity Waterfall built from real es_powerbi_model_checker_plan Available Hours components:
+    // Available Hrs = Gross Core Hrs - (Sickness + Holiday + Training + Meeting + Others) + Overtime
+    if (bridge && bridge.base && bridge.comp) {
+        const b = bridge.base;
+        const c = bridge.comp;
+        const startVal = Math.round(b.available);
+        const endVal = Math.round(c.available);
+
+        const rawComponents = [
+            { key: 'core_hrs', label: 'Core Hours', shortLabel: 'Core Hrs', line1: 'Core', line2: 'Hours', raw1: b.gross, raw2: c.gross, rawImpact: c.gross - b.gross },
+            { key: 'sickness', label: 'Sickness', shortLabel: 'Sickness', line1: 'Sickness', line2: '', raw1: b.sickness, raw2: c.sickness, rawImpact: -(c.sickness - b.sickness) },
+            { key: 'holiday', label: 'Holiday', shortLabel: 'Holiday', line1: 'Holiday', line2: '', raw1: b.holiday, raw2: c.holiday, rawImpact: -(c.holiday - b.holiday) },
+            { key: 'training', label: 'Training', shortLabel: 'Training', line1: 'Training', line2: '', raw1: b.training, raw2: c.training, rawImpact: -(c.training - b.training) },
+            { key: 'meeting', label: 'Meeting', shortLabel: 'Meeting', line1: 'Meeting', line2: '', raw1: b.meeting, raw2: c.meeting, rawImpact: -(c.meeting - b.meeting) },
+            { key: 'others', label: 'Others', shortLabel: 'Others', line1: 'Others', line2: '', raw1: b.other, raw2: c.other, rawImpact: -(c.other - b.other) },
+            { key: 'overtime', label: 'Overtime', shortLabel: 'Overtime', line1: 'Overtime', line2: '', raw1: b.overtime, raw2: c.overtime, rawImpact: c.overtime - b.overtime }
+        ];
+
+        const impacts = rawComponents.map(cmp => Math.round(cmp.rawImpact));
+        const intRemainder = (endVal - startVal) - impacts.reduce((acc, v) => acc + v, 0);
+        if (intRemainder !== 0) {
+            let maxIdx = 0;
+            let maxMag = -1;
+            impacts.forEach((v, idx) => {
+                if (Math.abs(v) > maxMag) {
+                    maxMag = Math.abs(v);
+                    maxIdx = idx;
+                }
+            });
+            impacts[maxIdx] += intRemainder;
+        }
+
+        const steps = [
+            {
+                key: 'base_available',
+                label: 'Baseline',
+                shortLabel: 'Baseline',
+                line1: 'Baseline',
+                line2: '',
+                type: 'total',
+                val: startVal,
+                color: '#0066cc',
+                darkColor: '#2563eb',
+                rawVal1: startVal,
+                rawVal2: startVal,
+                diff: 0
+            },
+            ...rawComponents.map((cmp, idx) => {
+                const imp = impacts[idx];
+                return {
+                    key: cmp.key,
+                    label: cmp.label,
+                    shortLabel: cmp.shortLabel,
+                    line1: cmp.line1,
+                    line2: cmp.line2,
+                    type: 'delta',
+                    impact: imp,
+                    color: imp >= 0 ? '#10b981' : '#ef4444',
+                    darkColor: imp >= 0 ? '#22c55e' : '#f87171',
+                    rawVal1: Math.round(cmp.raw1),
+                    rawVal2: Math.round(cmp.raw2),
+                    diff: imp
+                };
+            }),
+            {
+                key: 'final_available',
+                label: 'Final',
+                shortLabel: 'Final',
+                line1: 'Final',
+                line2: '',
+                type: 'total',
+                val: endVal,
+                color: '#4a148c',
+                darkColor: '#8b5cf6',
+                rawVal1: startVal,
+                rawVal2: endVal,
+                diff: endVal - startVal
+            }
+        ];
+
+        let running = startVal;
+        for (let i = 1; i < steps.length - 1; i++) {
+            const s = steps[i];
+            const startY = running;
+            const endY = running + s.impact;
+            s.baseVal = Math.min(startY, endY);
+            s.barVal = Math.abs(s.impact);
+            s.val = s.impact;
+            s.startLevel = startY;
+            s.endLevel = endY;
+            running = endY;
+        }
+        steps[0].startLevel = 0;
+        steps[0].endLevel = startVal;
+        steps[steps.length - 1].startLevel = 0;
+        steps[steps.length - 1].endLevel = endVal;
+
+        return {
+            baseline: { gross: Math.round(b.gross), sickness: Math.round(b.sickness), holiday: Math.round(b.holiday), training: Math.round(b.training), meeting: Math.round(b.meeting), others: Math.round(b.other), available: startVal },
+            comparison: { gross: Math.round(c.gross), sickness: Math.round(c.sickness), holiday: Math.round(c.holiday), training: Math.round(c.training), meeting: Math.round(c.meeting), others: Math.round(c.other), available: endVal },
+            steps
+        };
+    }
+
+    // Fallback bridge when no packed final data is supplied yet
     const baseC = Math.round(totC2 * (38240 / 37860));
     const prod = Math.round(totC2 * (472 / 37860));
     const ot = Math.round(totC2 * (118 / 37860));
@@ -10414,10 +10958,203 @@ function computeCapacityWaterfall(totC1, totC2) {
     };
 }
 
-function computeDemandWaterfall(totD1, totD2, skillFilter) {
-    // Demand Waterfall (Total Demand Hours Bridge)
-    // Shows NECB & other adjustments (pool, growth, variations) for total demand
-    // Columns: Base Demand, + Growth, + Variations, + Other, = Total Demand
+// Demand work_code -> category lookup from uploaded work_code/category/bu table (excluding EV categories)
+const DEMAND_CATEGORY_META = [
+    { key: 'HEC Jobs', line1: 'HEC', line2: 'Jobs', skill: 'HEC', color: '#2563eb' },
+    { key: 'HEC Growth', line1: 'HEC', line2: 'Growth', skill: 'HEC', color: '#0ea5e9' },
+    { key: 'HEC Upgrades', line1: 'HEC', line2: 'Upgrades', skill: 'HEC', color: '#0284c7' },
+    { key: 'HEC Other', line1: 'HEC', line2: 'Other', skill: 'HEC', color: '#60a5fa' },
+    { key: 'KAC Jobs', line1: 'KAC', line2: 'Jobs', skill: 'KAC', color: '#7c3aed' },
+    { key: 'KAC Growth', line1: 'KAC', line2: 'Growth', skill: 'KAC', color: '#8b5cf6' },
+    { key: 'KAC Other', line1: 'KAC', line2: 'Other', skill: 'KAC', color: '#a78bfa' }
+];
+
+const WORK_CODE_TO_DEMAND_CATEGORY = {
+    W01: 'KAC Jobs',
+    W02: 'HEC Jobs',
+    W03: 'HEC Jobs',
+    W04: 'KAC Other',
+    W05: 'HEC Other',
+    W06: 'HEC Other',
+    W07: 'KAC Other',
+    W08: 'EV Warranties',
+    W09: 'KAC Growth',
+    W10: 'HEC Growth',
+    W11: 'HEC Upgrades',
+    W12: 'HEC Other',
+    W13: 'EV',
+    W14: 'HEC Growth',
+    W15: 'HEC Other',
+    W16: 'HEC Jobs',
+    W17: 'HEC Other',
+    W18: 'HEC Other',
+    W19: 'HEC Upgrades',
+    W20: 'HEC Other',
+    W21: 'HEC Other',
+    W22: 'KAC Other',
+    W23: 'HEC Other',
+    W24: 'HEC Upgrades',
+    W25: 'HEC Other',
+    W26: 'EV',
+    W27: 'KAC Other',
+    W28: 'HEC Jobs',
+    W29: 'KAC Other',
+    W30: 'HEC Other',
+    W31: 'KAC Growth',
+    W32: 'HEC Other',
+    W33: 'HEC Other',
+    W00: 'EV',
+    W98: 'KAC Other',
+    W99: 'HEC Other'
+};
+
+function isEvDemandCategory(workCode, metricCategory) {
+    const wc = String(workCode || '').trim().toUpperCase();
+    const cat = String(metricCategory || '').trim().toUpperCase();
+    if (cat === 'EV' || cat.startsWith('EV ')) return true;
+    if (wc === 'W00' || wc === 'W08' || wc === 'W13' || wc === 'W26') return true;
+    if (wc.startsWith('EV ') || wc.startsWith('EV-')) return true;
+    return false;
+}
+
+function getDemandWaterfallCategory(workCode, skill) {
+    const wc = String(workCode || '').trim();
+    const mapped = WORK_CODE_TO_DEMAND_CATEGORY[wc] || WORK_CODE_TO_DEMAND_CATEGORY[wc.toUpperCase()] || '';
+    if (isEvDemandCategory(wc, mapped)) return null;
+    if (mapped) return mapped;
+    return String(skill || '').toUpperCase() === 'KAC' ? 'KAC Other' : 'HEC Other';
+}
+
+function computeDemandWaterfall(totD1, totD2, skillFilter, bridge = null) {
+    // Demand Waterfall built from es_powerbi_model_checker_plan non-EV categories matching the category lookup table
+    if (bridge && bridge.base && bridge.comp) {
+        const bCats = bridge.base.demandCategories || {};
+        const cCats = bridge.comp.demandCategories || {};
+
+        const activeDefs = DEMAND_CATEGORY_META.filter(def => {
+            if (skillFilter === 'HEC') return def.skill === 'HEC';
+            if (skillFilter === 'KAC') return def.skill === 'KAC';
+            return true;
+        });
+
+        // Compute non-EV baseline and comparison totals from the included categories so the waterfall reconciles exactly
+        let rawStart = 0;
+        let rawEnd = 0;
+        const catDeltas = activeDefs.map(def => {
+            const v1 = Number(bCats[def.key] || 0);
+            const v2 = Number(cCats[def.key] || 0);
+            rawStart += v1;
+            rawEnd += v2;
+            return {
+                def,
+                raw1: v1,
+                raw2: v2,
+                rawDiff: v2 - v1
+            };
+        });
+
+        const startVal = Math.round(rawStart);
+        const endVal = Math.round(rawEnd);
+        const roundedDeltas = catDeltas.map(item => Math.round(item.rawDiff));
+        const deltaSum = roundedDeltas.reduce((acc, v) => acc + v, 0);
+        const intRemainder = (endVal - startVal) - deltaSum;
+        if (intRemainder !== 0 && roundedDeltas.length > 0) {
+            // Absorb tiny +/- integer rounding discrepancy into the largest non-EV category
+            let maxIdx = 0;
+            let maxMag = -1;
+            roundedDeltas.forEach((d, idx) => {
+                if (Math.abs(d) > maxMag) {
+                    maxMag = Math.abs(d);
+                    maxIdx = idx;
+                }
+            });
+            roundedDeltas[maxIdx] += intRemainder;
+        }
+
+        const steps = [
+            {
+                key: 'base_demand',
+                label: 'Baseline',
+                shortLabel: 'Baseline',
+                line1: 'Baseline',
+                line2: '',
+                type: 'total',
+                val: startVal,
+                color: '#0066cc',
+                darkColor: '#2563eb',
+                rawVal1: startVal,
+                rawVal2: startVal,
+                diff: 0
+            },
+            ...catDeltas.map((item, idx) => {
+                const diff = roundedDeltas[idx];
+                return {
+                    key: item.def.key.toLowerCase().replace(/\s+/g, '_'),
+                    label: item.def.key,
+                    shortLabel: item.def.key,
+                    line1: item.def.line1,
+                    line2: item.def.line2,
+                    type: 'delta',
+                    impact: diff,
+                    color: diff >= 0 ? '#10b981' : '#ef4444',
+                    darkColor: diff >= 0 ? '#22c55e' : '#f87171',
+                    rawVal1: Math.round(item.raw1),
+                    rawVal2: Math.round(item.raw2),
+                    diff
+                };
+            }),
+            {
+                key: 'total_demand',
+                label: 'Final',
+                shortLabel: 'Final',
+                line1: 'Final',
+                line2: '',
+                type: 'total',
+                val: endVal,
+                color: '#4a148c',
+                darkColor: '#8b5cf6',
+                rawVal1: startVal,
+                rawVal2: endVal,
+                diff: endVal - startVal
+            }
+        ];
+
+        let running = startVal;
+        for (let i = 1; i < steps.length - 1; i++) {
+            const s = steps[i];
+            const startY = running;
+            const endY = running + s.impact;
+            s.baseVal = Math.min(startY, endY);
+            s.barVal = Math.abs(s.impact);
+            s.val = s.impact;
+            s.startLevel = startY;
+            s.endLevel = endY;
+            running = endY;
+        }
+        steps[0].startLevel = 0;
+        steps[0].endLevel = startVal;
+        steps[steps.length - 1].startLevel = 0;
+        steps[steps.length - 1].endLevel = endVal;
+
+        const rebalanceStreams = catDeltas.map(item => ({
+            key: item.def.key.toLowerCase().replace(/\s+/g, '_'),
+            label: item.def.key,
+            bVal: Math.round(item.raw1),
+            cVal: Math.round(item.raw2),
+            delta: Math.round(item.raw2) - Math.round(item.raw1),
+            color: item.def.color,
+            tag: item.def.skill
+        }));
+
+        return {
+            baseline: { total: startVal, base: startVal },
+            comparison: { total: endVal, base: startVal },
+            rebalanceStreams,
+            steps
+        };
+    }
+
+    // Fallback bridge when no packed final data is supplied yet
     const baseD = Math.round(totD1 * (36360 / 35660));
     const growth = Math.round(totD1 * (435 / 35660));
     const variations = Math.round(totD1 * (-1345 / 35660));
@@ -10582,27 +11319,27 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
     const padLeft = 44;
     const padRight = 16;
     const padTop = 24;
-    const padBottom = 44;
+    const padBottom = 50;
     const plotW = Math.max(100, width - padLeft - padRight);
     const plotH = height - padTop - padBottom;
 
     const allLevels = steps.flatMap(s => s.type === 'total' ? [s.val] : [s.startLevel, s.endLevel]);
-    const minVal = Math.min(...allLevels);
-    const maxVal = Math.max(...allLevels);
+    const minVal = allLevels.length ? Math.min(...allLevels) : 0;
+    const maxVal = allLevels.length ? Math.max(...allLevels) : 40000;
 
-    // Default baseline scale 0k - 40k matching user design screenshots
-    const yMin = useFocusedScale ? Math.max(0, Math.floor((minVal - 600) / 500) * 500) : 0;
-    const yMax = useFocusedScale ? Math.ceil((maxVal + 600) / 500) * 500 : 40000;
+    // Dynamic vertical scaling supporting large multi-week totals as well as focused zoom
+    const defaultYMax = maxVal <= 40000 ? 40000 : Math.ceil((maxVal * 1.1) / 5000) * 5000;
+    const focusMargin = Math.max(600, Math.round((maxVal - minVal) * 0.25));
+    const yMin = useFocusedScale ? Math.max(0, Math.floor((minVal - focusMargin) / 500) * 500) : 0;
+    const yMax = useFocusedScale ? Math.ceil((maxVal + focusMargin) / 500) * 500 : defaultYMax;
     const yRange = (yMax - yMin) || 1;
 
     const getY = (val) => padTop + plotH - ((val - yMin) / yRange) * plotH;
 
     const slotW = plotW / (steps.length || 1);
-    const barW = Math.min(54, Math.max(34, Math.round(slotW * 0.52)));
+    const barW = Math.min(54, Math.max(20, Math.round(slotW * 0.56)));
 
-    const gridTicks = useFocusedScale
-        ? [0, 0.25, 0.5, 0.75, 1.0].map(pct => Math.round(yMin + pct * yRange))
-        : [0, 10000, 20000, 30000, 40000];
+    const gridTicks = [0, 0.25, 0.5, 0.75, 1.0].map(pct => Math.round(yMin + pct * yRange));
 
     const isCap = idPrefix.includes('cap');
 
@@ -10775,39 +11512,25 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                             );
                         })}
 
-                        {/* Dashed Reference & Connector Lines */}
-                        {isCap ? (
-                            /* Capacity Waterfall: Reference dashed line across floating bars connecting to Available Capacity */
-                            <line
-                                x1={padLeft + (slotW - barW) / 2 + barW}
-                                y1={getY(steps[steps.length - 1]?.val || 37860)}
-                                x2={padLeft + (steps.length - 1) * slotW + (slotW - barW) / 2}
-                                y2={getY(steps[steps.length - 1]?.val || 37860)}
-                                stroke={isDark ? "#475569" : "#94a3b8"}
-                                strokeWidth="1.25"
-                                strokeDasharray="3 3"
-                            />
-                        ) : (
-                            /* Demand Waterfall: Stepped connector line tracking cumulative reconciliations */
-                            steps.map((step, idx) => {
-                                if (idx >= steps.length - 1) return null;
-                                const curX = padLeft + idx * slotW + (slotW - barW) / 2 + barW;
-                                const nextX = padLeft + (idx + 1) * slotW + (slotW - barW) / 2;
-                                const levelY = getY(step.endLevel !== undefined ? step.endLevel : step.val);
-                                return (
-                                    <line
-                                        key={`conn-${idx}`}
-                                        x1={curX}
-                                        y1={levelY}
-                                        x2={nextX}
-                                        y2={levelY}
-                                        stroke={isDark ? "#475569" : "#94a3b8"}
-                                        strokeWidth="1.25"
-                                        strokeDasharray="3 3"
-                                    />
-                                );
-                            })
-                        )}
+                        {/* Stepped Connector Lines tracking cumulative bridge */}
+                        {steps.map((step, idx) => {
+                            if (idx >= steps.length - 1) return null;
+                            const curX = padLeft + idx * slotW + (slotW - barW) / 2 + barW;
+                            const nextX = padLeft + (idx + 1) * slotW + (slotW - barW) / 2;
+                            const levelY = getY(step.endLevel !== undefined ? step.endLevel : step.val);
+                            return (
+                                <line
+                                    key={`conn-${idx}`}
+                                    x1={curX}
+                                    y1={levelY}
+                                    x2={nextX}
+                                    y2={levelY}
+                                    stroke={isDark ? "#475569" : "#94a3b8"}
+                                    strokeWidth="1.25"
+                                    strokeDasharray="3 3"
+                                />
+                            );
+                        })}
 
                         {/* Waterfall Bars */}
                         {steps.map((step, idx) => {
@@ -10817,11 +11540,9 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                             if (step.type === 'total') {
                                 topY = getY(step.val);
                                 barH = Math.max(3, getY(yMin) - topY);
-                                if (isCap) {
-                                    fillGrad = idx === 0 ? `url(#${idPrefix}-cap-base)` : `url(#${idPrefix}-cap-avail)`;
-                                } else {
-                                    fillGrad = idx === 0 ? `url(#${idPrefix}-dem-base)` : `url(#${idPrefix}-dem-total)`;
-                                }
+                                // Starting bar uses capacity baseline gradient (#0066cc -> #0052a3),
+                                // ending bar uses demand final gradient (#4a148c -> #311b92) in both waterfalls.
+                                fillGrad = idx === 0 ? `url(#${idPrefix}-cap-base)` : `url(#${idPrefix}-dem-total)`;
                             } else {
                                 const high = Math.max(step.startLevel, step.endLevel);
                                 const low = Math.min(step.startLevel, step.endLevel);
@@ -10835,9 +11556,17 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                             const labelColor = isDark
                                 ? (step.type === 'total' ? '#ffffff' : (step.impact >= 0 ? '#34d399' : '#f87171'))
                                 : (step.type === 'total' ? '#0f172a' : (step.impact >= 0 ? '#059669' : '#dc2626'));
-                            const valText = step.type === 'total' 
-                                ? step.val.toLocaleString() 
-                                : (step.impact >= 0 ? `+${step.impact.toLocaleString()}` : `${step.impact.toLocaleString()}`);
+                            const compactFmt = (v) => {
+                                const absV = Math.abs(v);
+                                if (steps.length >= 8 && absV >= 10000) {
+                                    const k = (v / 1000).toFixed(absV >= 100000 ? 0 : 1);
+                                    return `${k}k`;
+                                }
+                                return v.toLocaleString();
+                            };
+                            const valText = step.type === 'total'
+                                ? compactFmt(step.val)
+                                : (step.impact >= 0 ? `+${compactFmt(step.impact)}` : compactFmt(step.impact));
 
                             return (
                                 <g
@@ -10862,7 +11591,7 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                                         x={barX + barW / 2}
                                         y={labelY}
                                         textAnchor="middle"
-                                        fontSize="10.5"
+                                        fontSize={steps.length >= 8 ? "9" : "10.5"}
                                         fontFamily="monospace, ui-sans-serif, system-ui"
                                         fontWeight="800"
                                         fill={labelColor}
@@ -10870,17 +11599,29 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                                         {valText}
                                     </text>
 
-                                    {/* X-axis label */}
+                                    {/* X-axis label (supports 2-line category labels) */}
                                     <text
                                         x={barX + barW / 2}
-                                        y={padTop + plotH + 18}
+                                        y={padTop + plotH + 16}
                                         textAnchor="middle"
-                                        fontSize="9.5"
+                                        fontSize={steps.length >= 8 ? "8.5" : "9.5"}
                                         fontWeight={step.type === 'total' ? '800' : '600'}
                                         fill={isDark ? (step.type === 'total' ? '#ffffff' : '#94a3b8') : (step.type === 'total' ? '#0f172a' : '#475569')}
                                     >
                                         {step.line1}
                                     </text>
+                                    {step.line2 && (
+                                        <text
+                                            x={barX + barW / 2}
+                                            y={padTop + plotH + 27}
+                                            textAnchor="middle"
+                                            fontSize={steps.length >= 8 ? "8" : "9"}
+                                            fontWeight={step.type === 'total' ? '800' : '600'}
+                                            fill={isDark ? (step.type === 'total' ? '#ffffff' : '#94a3b8') : (step.type === 'total' ? '#0f172a' : '#475569')}
+                                        >
+                                            {step.line2}
+                                        </text>
+                                    )}
                                 </g>
                             );
                         })}
@@ -10917,7 +11658,7 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                                 <th className="py-2.5 px-3">Metric Component</th>
                                 <th className="py-2.5 px-3">Type</th>
                                 <th className="py-2.5 px-3">Baseline</th>
-                                <th className="py-2.5 px-3">Comparison</th>
+                                <th className="py-2.5 px-3">Final</th>
                                 <th className="py-2.5 px-3 text-right">Impact</th>
                             </tr>
                         </thead>
@@ -10959,13 +11700,13 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
 // WORK STREAM REBALANCING (DIVERGING BAR / TORNADO MIX-SHIFT VISUAL)
 // ------------------------------------------------------------------------------------------------
 function WorkStreamRebalanceChart({ demData, unit = "hrs" }) {
-    const streams = [
-        { key: 'hec_upgrade', label: 'HEC Upgrade', bVal: demData.baseline.hecU, cVal: demData.comparison.hecU, delta: demData.comparison.hecU - demData.baseline.hecU, color: '#3b82f6', tag: 'HEC' },
-        { key: 'hec_repair', label: 'HEC Repair', bVal: demData.baseline.hecR, cVal: demData.comparison.hecR, delta: demData.comparison.hecR - demData.baseline.hecR, color: '#0284c7', tag: 'HEC' },
-        { key: 'kac_upgrade', label: 'KAC Upgrade', bVal: demData.baseline.kacU, cVal: demData.comparison.kacU, delta: demData.comparison.kacU - demData.baseline.kacU, color: '#8b5cf6', tag: 'KAC' },
-        { key: 'kac_repair', label: 'KAC Repair', bVal: demData.baseline.kacR, cVal: demData.comparison.kacR, delta: demData.comparison.kacR - demData.baseline.kacR, color: '#7c3aed', tag: 'KAC' },
-        { key: 'hec_warranty', label: 'HEC Warranty', bVal: demData.baseline.hecW, cVal: demData.comparison.hecW, delta: demData.comparison.hecW - demData.baseline.hecW, color: '#3b82f6', tag: 'HEC' },
-        { key: 'kac_warranty', label: 'KAC Warranty', bVal: demData.baseline.kacW, cVal: demData.comparison.kacW, delta: demData.comparison.kacW - demData.baseline.kacW, color: '#8b5cf6', tag: 'KAC' },
+    const streams = (demData?.rebalanceStreams && demData.rebalanceStreams.length) ? demData.rebalanceStreams : [
+        { key: 'hec_jobs', label: 'HEC Jobs', bVal: demData.baseline.hecR || 0, cVal: demData.comparison.hecR || 0, delta: (demData.comparison.hecR || 0) - (demData.baseline.hecR || 0), color: '#2563eb', tag: 'HEC' },
+        { key: 'hec_growth', label: 'HEC Growth', bVal: demData.baseline.hecW || 0, cVal: demData.comparison.hecW || 0, delta: (demData.comparison.hecW || 0) - (demData.baseline.hecW || 0), color: '#0ea5e9', tag: 'HEC' },
+        { key: 'hec_upgrades', label: 'HEC Upgrades', bVal: demData.baseline.hecU || 0, cVal: demData.comparison.hecU || 0, delta: (demData.comparison.hecU || 0) - (demData.baseline.hecU || 0), color: '#0284c7', tag: 'HEC' },
+        { key: 'kac_jobs', label: 'KAC Jobs', bVal: demData.baseline.kacR || 0, cVal: demData.comparison.kacR || 0, delta: (demData.comparison.kacR || 0) - (demData.baseline.kacR || 0), color: '#7c3aed', tag: 'KAC' },
+        { key: 'kac_growth', label: 'KAC Growth', bVal: demData.baseline.kacW || 0, cVal: demData.comparison.kacW || 0, delta: (demData.comparison.kacW || 0) - (demData.baseline.kacW || 0), color: '#8b5cf6', tag: 'KAC' },
+        { key: 'kac_other', label: 'KAC Other', bVal: demData.baseline.kacU || 0, cVal: demData.comparison.kacU || 0, delta: (demData.comparison.kacU || 0) - (demData.baseline.kacU || 0), color: '#a78bfa', tag: 'KAC' }
     ];
 
     const maxAbsDelta = Math.max(...streams.map(s => Math.abs(s.delta)), 500);
@@ -11115,10 +11856,11 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
     const plotW = Math.max(100, width - padLeft - padRight);
     const plotH = height - padTop - padBottom;
 
-    const allValues = weeklyData.flatMap(r => [r.d1, r.d2, r.c1, r.c2]);
-    const minVal = Math.min(...allValues, 3800);
-    const maxVal = Math.max(...allValues, 4900);
-    const yMargin = Math.round((maxVal - minVal) * 0.15);
+    const allValues = weeklyData.flatMap(r => [r.d1, r.d2, r.c1, r.c2]).filter(v => Number.isFinite(v));
+    const minVal = allValues.length ? Math.min(...allValues) : 0;
+    const maxVal = allValues.length ? Math.max(...allValues) : 1000;
+    const span = Math.max(100, maxVal - minVal);
+    const yMargin = Math.round(span * 0.15);
     const yMin = Math.max(0, Math.floor((minVal - yMargin) / 100) * 100);
     const yMax = Math.ceil((maxVal + yMargin) / 100) * 100;
     const yRange = (yMax - yMin) || 1;
@@ -11176,6 +11918,9 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
                     const x = getX(i);
                     const colW = weeklyData.length > 1 ? plotW / (weeklyData.length - 1) : plotW;
                     const isHovered = hoveredIdx === i;
+                    const labelStep = weeklyData.length > 36 ? 6 : (weeklyData.length > 16 ? 3 : 1);
+                    const showTick = (i % labelStep === 0) || (i === weeklyData.length - 1);
+                    const deltaSigned = r.delta >= 0 ? `+${metricUnit === 'fte' ? (r.delta / 37.5).toFixed(1) : Math.round(r.delta)}` : `${metricUnit === 'fte' ? (r.delta / 37.5).toFixed(1) : Math.round(r.delta)}`;
 
                     return (
                         <g key={i} onMouseEnter={() => setHoveredIdx(i)} onMouseLeave={() => setHoveredIdx(null)} className="cursor-pointer">
@@ -11187,14 +11932,18 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
                                 fill={isHovered ? "#3b82f6" : "transparent"}
                                 fillOpacity={isHovered ? "0.04" : "0"}
                             />
-                            <circle cx={x} cy={getY(r.d2)} r={isHovered ? 5.5 : 3.5} fill={isDark ? "#60a5fa" : "#005eb8"} stroke="#fff" strokeWidth="1.5" />
-                            <circle cx={x} cy={getY(r.c2)} r={isHovered ? 5.5 : 3.5} fill={isDark ? "#34d399" : "#059669"} stroke="#fff" strokeWidth="1.5" />
-                            <text x={x} y={padTop + plotH + 15} textAnchor="middle" fontSize="10.5" fontWeight="600" fill={isHovered ? (isDark ? "#60a5fa" : "#005eb8") : (isDark ? "#94a3b8" : "#64748b")}>
-                                {r.week.slice(5)}
-                            </text>
-                            <text x={x} y={padTop + plotH + 28} textAnchor="middle" fontSize="10" fontWeight="800" fill={isDark ? "#34d399" : "#059669"} fontFamily="monospace">
-                                +{metricUnit === 'fte' ? (r.delta / 37.5).toFixed(1) : r.delta}
-                            </text>
+                            <circle cx={x} cy={getY(r.d2)} r={isHovered ? 5.5 : (weeklyData.length > 30 ? 2.5 : 3.5)} fill={isDark ? "#60a5fa" : "#005eb8"} stroke="#fff" strokeWidth="1.2" />
+                            <circle cx={x} cy={getY(r.c2)} r={isHovered ? 5.5 : (weeklyData.length > 30 ? 2.5 : 3.5)} fill={isDark ? "#34d399" : "#059669"} stroke="#fff" strokeWidth="1.2" />
+                            {showTick && (
+                                <>
+                                    <text x={x} y={padTop + plotH + 15} textAnchor="middle" fontSize="9.5" fontWeight="600" fill={isHovered ? (isDark ? "#60a5fa" : "#005eb8") : (isDark ? "#94a3b8" : "#64748b")}>
+                                        {r.week.slice(2, 7)}
+                                    </text>
+                                    <text x={x} y={padTop + plotH + 28} textAnchor="middle" fontSize="9.5" fontWeight="800" fill={r.delta >= 0 ? (isDark ? "#34d399" : "#059669") : (isDark ? "#f87171" : "#dc2626")} fontFamily="monospace">
+                                        {deltaSigned}
+                                    </text>
+                                </>
+                            )}
                         </g>
                     );
                 })}
@@ -11210,22 +11959,22 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
                     }}
                 >
                     <div className="font-bold flex items-center justify-between gap-4 text-slate-100 border-b border-slate-700 pb-1 font-sans">
-                        <span>Week Commencing: {weeklyData[hoveredIdx].week}</span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-600 text-white font-mono">
-                            +{weeklyData[hoveredIdx].delta} hrs Delta
+                        <span>Period: {weeklyData[hoveredIdx].week}</span>
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded text-white font-mono ${weeklyData[hoveredIdx].delta >= 0 ? 'bg-emerald-600' : 'bg-rose-600'}`}>
+                            {weeklyData[hoveredIdx].delta >= 0 ? '+' : ''}{weeklyData[hoveredIdx].delta.toLocaleString()} hrs Delta
                         </span>
                     </div>
                     <div className="flex items-center justify-between gap-6 text-slate-300">
                         <span>Demand:</span>
-                        <span>{weeklyData[hoveredIdx].d2.toLocaleString()} hrs <span className="text-slate-400">({weeklyData[hoveredIdx].d2 - weeklyData[hoveredIdx].d1 >= 0 ? '+' : ''}{weeklyData[hoveredIdx].d2 - weeklyData[hoveredIdx].d1})</span></span>
+                        <span>{weeklyData[hoveredIdx].d2.toLocaleString()} hrs <span className="text-slate-400">({weeklyData[hoveredIdx].d2 - weeklyData[hoveredIdx].d1 >= 0 ? '+' : ''}{(weeklyData[hoveredIdx].d2 - weeklyData[hoveredIdx].d1).toLocaleString()})</span></span>
                     </div>
                     <div className="flex items-center justify-between gap-6 text-slate-300">
                         <span>Capacity:</span>
-                        <span>{weeklyData[hoveredIdx].c2.toLocaleString()} hrs <span className="text-emerald-400">({weeklyData[hoveredIdx].c2 - weeklyData[hoveredIdx].c1 >= 0 ? '+' : ''}{weeklyData[hoveredIdx].c2 - weeklyData[hoveredIdx].c1})</span></span>
+                        <span>{weeklyData[hoveredIdx].c2.toLocaleString()} hrs <span className="text-emerald-400">({weeklyData[hoveredIdx].c2 - weeklyData[hoveredIdx].c1 >= 0 ? '+' : ''}{(weeklyData[hoveredIdx].c2 - weeklyData[hoveredIdx].c1).toLocaleString()})</span></span>
                     </div>
-                    <div className="flex items-center justify-between gap-6 pt-1 border-t border-slate-700 text-emerald-400 font-bold">
-                        <span>Comparison Advantage:</span>
-                        <span>+{weeklyData[hoveredIdx].delta} hrs ({(weeklyData[hoveredIdx].delta / 37.5).toFixed(1)} FTEs)</span>
+                    <div className={`flex items-center justify-between gap-6 pt-1 border-t border-slate-700 font-bold ${weeklyData[hoveredIdx].delta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        <span>{weeklyData[hoveredIdx].delta >= 0 ? 'Final Advantage:' : 'Final Deficit:'}</span>
+                        <span>{weeklyData[hoveredIdx].delta >= 0 ? '+' : ''}{weeklyData[hoveredIdx].delta.toLocaleString()} hrs ({(weeklyData[hoveredIdx].delta / 37.5).toFixed(1)} FTEs)</span>
                     </div>
                 </div>
             )}
@@ -11234,7 +11983,7 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
             <div className="flex flex-wrap items-center justify-center gap-5 pt-2.5 text-[11px] text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-[#18365d] mt-2">
                 <span className="flex items-center gap-1.5">
                     <span className="w-4 h-0.5 bg-[#005eb8] dark:bg-[#60a5fa]"></span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">Comp Demand</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-200">Final Demand</span>
                 </span>
                 <span className="flex items-center gap-1.5">
                     <span className="w-4 h-0.5 bg-blue-300 border-t border-dashed border-blue-400"></span>
@@ -11242,7 +11991,7 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
                 </span>
                 <span className="flex items-center gap-1.5">
                     <span className="w-4 h-0.5 bg-emerald-600 dark:bg-[#34d399]"></span>
-                    <span className="font-bold text-emerald-800 dark:text-emerald-300">Comp Capacity</span>
+                    <span className="font-bold text-emerald-800 dark:text-emerald-300">Final Capacity</span>
                 </span>
                 <span className="flex items-center gap-1.5">
                     <span className="w-4 h-0.5 bg-slate-300 dark:bg-slate-500 border-t border-dashed border-slate-400"></span>
@@ -11257,16 +12006,16 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
     );
 }
 
-function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, baselineScenarioId, comparisonScenarioId, isDarkMode = false }) {
+function ScenarioWaterfallBridgesSection({ totals, bridgeStats = null, skillFilter, visibleWeeks, baselineScenarioId, comparisonScenarioId, isDarkMode = false }) {
     const [viewMode, setViewMode] = useState('side_by_side'); // 'side_by_side' | 'capacity_only' | 'demand_only' | 'work_stream_rebalance'
 
     const capData = useMemo(() => {
-        return computeCapacityWaterfall(totals.totC1, totals.totC2);
-    }, [totals.totC1, totals.totC2]);
+        return computeCapacityWaterfall(totals.totC1, totals.totC2, bridgeStats);
+    }, [totals.totC1, totals.totC2, bridgeStats]);
 
     const demData = useMemo(() => {
-        return computeDemandWaterfall(totals.totD1, totals.totD2, skillFilter);
-    }, [totals.totD1, totals.totD2, skillFilter]);
+        return computeDemandWaterfall(totals.totD1, totals.totD2, skillFilter, bridgeStats);
+    }, [totals.totD1, totals.totD2, skillFilter, bridgeStats]);
 
     const isSingleView = viewMode !== 'side_by_side';
 
@@ -11342,7 +12091,7 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
                     {(viewMode === 'side_by_side' || viewMode === 'capacity_only') && (
                         <WaterfallSvgChart
                             title="Capacity Waterfall (Available Hours Bridge)"
-                            subtitle="Shows how different factors impact available capacity versus demand."
+                            subtitle="Baseline to Final Available Hours via Core Hours, downtimes (Sickness, Holiday, Training, Meeting, Others), and Overtime."
                             steps={capData.steps}
                             unit="hrs"
                             badgeText="Available Hours Bridge"
@@ -11356,11 +12105,11 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
                     {/* 2. Demand Waterfall */}
                     {(viewMode === 'side_by_side' || viewMode === 'demand_only') && (
                         <WaterfallSvgChart
-                            title="Demand Waterfall (Total Demand Hours Bridge)"
-                            subtitle="NECB & other adjustments (pool, growth, variations) for total demand."
+                            title="Demand Waterfall (Non-EV Work Stream Bridge)"
+                            subtitle="Demand variance by business category (excludes EV & EV Warranties)."
                             steps={demData.steps}
                             unit="hrs"
-                            badgeText="Total Demand Bridge"
+                            badgeText="Non-EV Demand Bridge"
                             iconText="trend"
                             idPrefix="dem-wf"
                             isSingleView={isSingleView}
@@ -11378,6 +12127,8 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
 // ------------------------------------------------------------------------------------------------
 function ScenarioComparisonView({
     scenarios,
+    scenarioLog = [],
+    scenarioDiffCache = {},
     baselineScenarioId,
     setBaselineScenarioId,
     comparisonScenarioId,
@@ -11423,7 +12174,7 @@ function ScenarioComparisonView({
         }, 0);
     }, [hierarchy]);
 
-    // 2. Filter States
+    // 2. Filter States (strictly driven by es_powerbi_model_checker_plan period W/M & weekcomm)
     const [selectedGeo, setSelectedGeo] = useState({
         type: 'national',
         id: 'national',
@@ -11431,67 +12182,264 @@ function ScenarioComparisonView({
         count: totalTerritoriesCount || 18
     });
 
-    // Update territory count if hierarchy changes
     useEffect(() => {
         if (selectedGeo.type === 'national') {
             setSelectedGeo(prev => ({ ...prev, count: totalTerritoriesCount }));
         }
     }, [totalTerritoriesCount]);
 
+    const [periodMode, setPeriodMode] = useState('W'); // 'W' (Weekly) | 'M' (Monthly)
     const [skillFilter, setSkillFilter] = useState('ALL'); // 'ALL' | 'HEC' | 'KAC'
-    const [startDate, setStartDate] = useState('2026-09-28');
-    const [endDate, setEndDate] = useState('2026-11-16');
+    const [startDate, setStartDate] = useState('2026-11-02');
+    const [endDate, setEndDate] = useState('2027-12-27');
     const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
+    const [diffPayload, setDiffPayload] = useState(null);
+    const [diffLoading, setDiffLoading] = useState(false);
+    const [diffError, setDiffError] = useState('');
+    const [showLogDetails, setShowLogDetails] = useState(false);
 
-    const allWeeks = [
-        "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
-        "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16"
-    ];
+    // Fetch scenario diff data ONLY from es_powerbi_model_checker_plan + es_shiny_scenario_log
+    useEffect(() => {
+        if (!baselineScenarioId || !comparisonScenarioId) return;
+        const cacheKey = `${baselineScenarioId}||${comparisonScenarioId}`;
+        if (scenarioDiffCache[cacheKey]) {
+            setDiffPayload(scenarioDiffCache[cacheKey]);
+            setDiffError('');
+            setDiffLoading(false);
+            return;
+        }
+        // Check reverse cache if scenarios were swapped
+        const revKey = `${comparisonScenarioId}||${baselineScenarioId}`;
+        if (scenarioDiffCache[revKey]) {
+            const rev = scenarioDiffCache[revKey];
+            setDiffPayload({
+                ...rev,
+                baselineVersion: baselineScenarioId,
+                comparisonVersion: comparisonScenarioId,
+                baselineData: rev.comparisonData,
+                comparisonData: rev.baselineData,
+            });
+            setDiffError('');
+            setDiffLoading(false);
+            return;
+        }
+
+        let disposed = false;
+        const reqId = `diff-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        setDiffLoading(true);
+        setDiffError('');
+
+        const onResponse = (e) => {
+            const data = e.detail;
+            if (!data || data.requestId !== reqId || disposed) return;
+            setDiffLoading(false);
+            if (!data.success) {
+                setDiffError(data.error || 'Unable to load final scenario data.');
+            } else {
+                setDiffPayload(data);
+            }
+        };
+
+        window.addEventListener('capacity-scenario-diff-data', onResponse);
+        if (window.Shiny && window.Shiny.setInputValue) {
+            window.Shiny.setInputValue('request_scenario_diff_data', {
+                baselineId: baselineScenarioId,
+                comparisonId: comparisonScenarioId,
+                requestId: reqId
+            }, { priority: 'event' });
+        }
+
+        const timer = setTimeout(() => {
+            if (!disposed) setDiffLoading(false);
+        }, 12000);
+
+        return () => {
+            disposed = true;
+            clearTimeout(timer);
+            window.removeEventListener('capacity-scenario-diff-data', onResponse);
+        };
+    }, [baselineScenarioId, comparisonScenarioId, scenarioDiffCache]);
+
+    const baseRows = useMemo(() => unpackFinalScenarioData(diffPayload?.baselineData), [diffPayload]);
+    const compRows = useMemo(() => unpackFinalScenarioData(diffPayload?.comparisonData), [diffPayload]);
+
+    // Derive available weeks/months from final scenario data for the active periodMode ('W' or 'M')
+    const allWeeks = useMemo(() => {
+        const set = new Set();
+        for (const r of baseRows) if (r.period === periodMode && r.weekcomm) set.add(r.weekcomm);
+        for (const r of compRows) if (r.period === periodMode && r.weekcomm) set.add(r.weekcomm);
+        const sorted = Array.from(set).sort();
+        if (sorted.length > 0) return sorted;
+        return periodMode === 'M' ? ['2026-11-01', '2027-12-01'] : ['2026-11-02', '2027-12-27'];
+    }, [baseRows, compRows, periodMode]);
+
+    // Sync start/end bounds whenever periodMode or available dates change
+    useEffect(() => {
+        if (!allWeeks.length) return;
+        const first = allWeeks[0];
+        const last = allWeeks[allWeeks.length - 1];
+        setStartDate(prev => (prev && prev >= first && prev <= last) ? prev : first);
+        setEndDate(prev => (prev && prev >= first && prev <= last) ? prev : last);
+    }, [allWeeks]);
 
     const visibleWeeks = useMemo(() => {
         return allWeeks.filter(w => w >= startDate && w <= endDate);
-    }, [startDate, endDate]);
+    }, [allWeeks, startDate, endDate]);
 
-    // Scenario remarks lookup
+    // Allowed patches for the selected geography scope
+    const allowedPatches = useMemo(() => {
+        if (!selectedGeo || selectedGeo.type === 'national') return null;
+        const norm = (v) => String(v || '').trim().toLowerCase();
+        const rows = (diffPayload?.geographyRows && diffPayload.geographyRows.length) ? diffPayload.geographyRows : geoRows;
+        const matches = new Set();
+        for (const r of rows) {
+            const patch = String(r.Patch || r.patch || r.Territory || '').trim();
+            const regCode = String(r['Region Code'] || r.RegionCode || r.Region || '').trim();
+            const regName = String(r.Region || '').trim();
+            const areaCode = String(r['Area Code'] || r.AreaCode || r.ACDM || '').trim();
+            if (!patch) continue;
+            if (selectedGeo.type === 'region') {
+                if (norm(regCode) === norm(selectedGeo.id) || norm(regName) === norm(selectedGeo.id) || norm(selectedGeo.label).includes(norm(regCode))) {
+                    matches.add(patch);
+                }
+            } else if (selectedGeo.type === 'acdm') {
+                if (norm(areaCode) === norm(selectedGeo.id) || norm(areaCode) === norm(selectedGeo.label)) {
+                    matches.add(patch);
+                }
+            } else if (selectedGeo.type === 'territory') {
+                if (norm(patch) === norm(selectedGeo.id) || norm(patch) === norm(selectedGeo.label) || norm(patch).includes(norm(selectedGeo.id))) {
+                    matches.add(patch);
+                }
+            }
+        }
+        return matches.size > 0 ? matches : new Set([selectedGeo.label || selectedGeo.id]);
+    }, [selectedGeo, diffPayload, geoRows]);
+
+    // Scenario log metadata lookup for Baseline and Comparison
     const scen1 = scenarios[baselineScenarioId] || {};
     const scen2 = scenarios[comparisonScenarioId] || {};
+    const log1 = useMemo(() => {
+        if (diffPayload?.scenarioLogs?.[baselineScenarioId]) return diffPayload.scenarioLogs[baselineScenarioId];
+        return scenarioLog.find(r => r.key === baselineScenarioId && r.delete_flag !== 'Y')
+            || scenarioLog.find(r => r.key === baselineScenarioId)
+            || null;
+    }, [diffPayload, scenarioLog, baselineScenarioId]);
+    const log2 = useMemo(() => {
+        if (diffPayload?.scenarioLogs?.[comparisonScenarioId]) return diffPayload.scenarioLogs[comparisonScenarioId];
+        return scenarioLog.find(r => r.key === comparisonScenarioId && r.delete_flag !== 'Y')
+            || scenarioLog.find(r => r.key === comparisonScenarioId)
+            || null;
+    }, [diffPayload, scenarioLog, comparisonScenarioId]);
 
-    // Scenario Swap handler
     const handleSwapScenarios = () => {
         const tmp = baselineScenarioId;
         setBaselineScenarioId(comparisonScenarioId);
         setComparisonScenarioId(tmp);
-        if (showToast) showToast('Baseline and Comparison Scenarios swapped', 'info');
+        if (showToast) showToast('Baseline and Final Scenarios swapped', 'info');
     };
 
-    // Reset all filters handler
     const handleResetFilters = () => {
         setSelectedGeo({ type: 'national', id: 'national', label: 'National', count: totalTerritoriesCount });
         setSkillFilter('ALL');
-        setStartDate('2026-09-28');
-        setEndDate('2026-11-16');
+        if (allWeeks.length) {
+            setStartDate(allWeeks[0]);
+            setEndDate(allWeeks[allWeeks.length - 1]);
+        }
         if (showToast) showToast('All comparison filters reset to default', 'info');
     };
 
-    // Filter Multipliers for Demand & Capacity calculation
-    const skillMultiplier = skillFilter === 'HEC' ? 0.62 : (skillFilter === 'KAC' ? 0.38 : 1.0);
-    let geoMultiplier = 1.0;
-    if (selectedGeo.type === 'region') geoMultiplier = 0.22;
-    else if (selectedGeo.type === 'acdm') geoMultiplier = 0.11;
-    else if (selectedGeo.type === 'territory') geoMultiplier = 0.045;
+    // Aggregate weekly/monthly demand, capacity, and component bridges strictly from es_powerbi_model_checker_plan
+    const { weeklyData, bridgeStats } = useMemo(() => {
+        const weekSet = new Set(visibleWeeks);
+        const makeBucket = () => ({ demand: 0, capacity: 0 });
+        const bByWeek = new Map();
+        const cByWeek = new Map();
+        visibleWeeks.forEach(w => {
+            bByWeek.set(w, makeBucket());
+            cByWeek.set(w, makeBucket());
+        });
 
-    // Calculate aggregated metrics & weekly data
-    const weeklyData = useMemo(() => {
-        return visibleWeeks.map((w) => {
-            const idx = allWeeks.indexOf(w);
-            const d1 = Math.round((4300 + idx * 45) * skillMultiplier * geoMultiplier);
-            const d2 = Math.round((4280 + idx * 40) * skillMultiplier * geoMultiplier);
-            const c1 = Math.round((4550 + idx * 30) * skillMultiplier * geoMultiplier);
-            const c2 = Math.round((4610 + idx * 35) * skillMultiplier * geoMultiplier);
+        const makeCompAcc = () => ({
+            gross: 0, core: 0, available: 0, overtime: 0, holiday: 0, sickness: 0,
+            training: 0, meeting: 0, other: 0, downtimeOverlays: 0, productive: 0, sp: 0,
+            hecDemand: 0, kacDemand: 0, demandCategories: {}
+        });
+        const bComp = makeCompAcc();
+        const cComp = makeCompAcc();
+
+        const skillMatches = (rowSkill) => {
+            if (skillFilter === 'ALL') return rowSkill === 'HEC' || rowSkill === 'KAC';
+            return rowSkill === skillFilter;
+        };
+
+        const normGeo = (v) => String(v || '').trim().toLowerCase();
+        const rowMatchesGeo = (r) => {
+            if (!selectedGeo || selectedGeo.type === 'national') return true;
+            if (selectedGeo.type === 'region' && r.region) {
+                if (normGeo(r.region) === normGeo(selectedGeo.label) || normGeo(r.region) === normGeo(selectedGeo.id)) return true;
+            }
+            if (selectedGeo.type === 'acdm' && r.area_code) {
+                if (normGeo(r.area_code) === normGeo(selectedGeo.id) || normGeo(r.area_code) === normGeo(selectedGeo.label)) return true;
+            }
+            return !allowedPatches || allowedPatches.has(r.patch);
+        };
+
+        const accumulate = (rows, byWeekMap, acc) => {
+            for (const r of rows) {
+                if (r.period !== periodMode || !weekSet.has(r.weekcomm)) continue;
+                if (!rowMatchesGeo(r)) continue;
+                if (!skillMatches(r.skill)) continue;
+
+                const bucket = byWeekMap.get(r.weekcomm);
+                const val = r.value || 0;
+
+                if (r.flag === 'Demand Hours') {
+                    bucket.demand += val;
+                    if (r.skill === 'HEC') acc.hecDemand += val;
+                    else if (r.skill === 'KAC') acc.kacDemand += val;
+                    const demCat = getDemandWaterfallCategory(r.metric, r.skill);
+                    if (demCat) {
+                        acc.demandCategories[demCat] = (acc.demandCategories[demCat] || 0) + val;
+                    }
+                } else if (r.flag === 'Capacity Hours') {
+                    bucket.capacity += val;
+                    if (r.metric === 'Productive hrs') acc.productive += val;
+                    else if (r.metric === 'SP') acc.sp += val;
+                } else if (r.flag === 'Available Hours') {
+                    if (r.metric === 'Gross Hrs') acc.gross += val;
+                    else if (r.metric === 'Core Hrs') acc.core += val;
+                    else if (r.metric === 'Available Hrs') acc.available += val;
+                    else if (r.metric === 'Overtime') acc.overtime += val;
+                    else if (r.metric === 'Holiday') acc.holiday += val;
+                    else if (r.metric === 'Sickness') acc.sickness += val;
+                    else if (r.metric === 'Training') acc.training += val;
+                    else if (r.metric === 'Meeting') acc.meeting += val;
+                    else if (r.metric === 'Other') acc.other += val;
+                } else if (r.flag === 'Downtime Overlay Hours') {
+                    acc.downtimeOverlays += val;
+                }
+            }
+        };
+
+        accumulate(baseRows, bByWeek, bComp);
+        accumulate(compRows, cByWeek, cComp);
+
+        const list = visibleWeeks.map((w) => {
+            const b = bByWeek.get(w) || { demand: 0, capacity: 0 };
+            const c = cByWeek.get(w) || { demand: 0, capacity: 0 };
+            const d1 = Math.round(b.demand);
+            const d2 = Math.round(c.demand);
+            const c1 = Math.round(b.capacity);
+            const c2 = Math.round(c.capacity);
             const delta = (c2 - d2) - (c1 - d1);
             return { week: w, d1, d2, c1, c2, delta };
         });
-    }, [visibleWeeks, skillMultiplier, geoMultiplier]);
+
+        return {
+            weeklyData: list,
+            bridgeStats: (baseRows.length && compRows.length) ? { base: bComp, comp: cComp } : null
+        };
+    }, [baseRows, compRows, visibleWeeks, periodMode, selectedGeo, allowedPatches, skillFilter]);
 
     const totals = useMemo(() => {
         let totD1 = 0, totD2 = 0, totC1 = 0, totC2 = 0, totDelta = 0;
@@ -11507,7 +12455,8 @@ function ScenarioComparisonView({
 
     const [metricUnit, setMetricUnit] = useState('hrs'); // 'hrs' | 'fte'
 
-    const FTE_CONV = 37.5 * Math.max(1, visibleWeeks.length);
+    const periodHoursFactor = periodMode === 'M' ? (37.5 * 4.333) : 37.5;
+    const FTE_CONV = periodHoursFactor * Math.max(1, visibleWeeks.length);
     const toFte = (hrs) => (hrs / FTE_CONV).toFixed(1);
 
     return (
@@ -11561,7 +12510,7 @@ function ScenarioComparisonView({
                             <div className="flex-1 min-w-[240px] flex items-center gap-2 bg-slate-50/70 dark:bg-[#08162b] border border-slate-200 dark:border-[#1a3862] rounded-xl px-3 py-2 shadow-2xs">
                                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] flex-shrink-0 flex items-center gap-1.5">
                                     <span className="w-2 h-2 rounded-full bg-blue-600 ring-2 ring-blue-200 dark:ring-blue-900" />
-                                    <span>BASELINE SCENARIO (D1)</span>
+                                    <span>BASELINE SCENARIO (1)</span>
                                     <span title="Primary baseline reference scenario" className="cursor-help text-slate-400">
                                         <IconInfo className="w-3 h-3" />
                                     </span>
@@ -11583,18 +12532,18 @@ function ScenarioComparisonView({
                                 type="button"
                                 onClick={handleSwapScenarios}
                                 className="px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50 dark:bg-[#0c1f38] dark:hover:bg-[#122b4d] text-slate-700 dark:text-white hover:text-[#005eb8] border border-slate-200 dark:border-blue-600/50 transition shadow-2xs flex-shrink-0 cursor-pointer flex items-center gap-1.5 text-xs font-bold select-none"
-                                title="Swap Baseline and Comparison Scenarios"
+                                title="Swap Baseline and Final Scenarios"
                             >
                                 <IconArrowsSwap className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
                                 <span>Swap Scenarios</span>
                             </button>
 
-                            {/* Comparison Scenario (2) */}
+                            {/* Final Scenario (2) */}
                             <div className="flex-1 min-w-[240px] flex items-center gap-2 bg-slate-50/70 dark:bg-[#08162b] border border-slate-200 dark:border-[#1a3862] rounded-xl px-3 py-2 shadow-2xs">
                                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-emerald-400 flex-shrink-0 flex items-center gap-1.5">
                                     <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 dark:ring-emerald-900" />
-                                    <span>COMPARISON SCENARIO (2I)</span>
-                                    <span title="Secondary comparison scenario" className="cursor-help text-slate-400">
+                                    <span>FINAL SCENARIO (2)</span>
+                                    <span title="Final target scenario" className="cursor-help text-slate-400">
                                         <IconInfo className="w-3 h-3" />
                                     </span>
                                 </span>
@@ -11602,7 +12551,7 @@ function ScenarioComparisonView({
                                     value={comparisonScenarioId}
                                     onChange={(e) => setComparisonScenarioId(e.target.value)}
                                     className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-emerald-500 cursor-pointer truncate shadow-2xs"
-                                    title={`Comparison Scenario (2): ${comparisonScenarioId} - ${scen2.remarks || 'Secondary revision'}`}
+                                    title={`Final Scenario (2): ${comparisonScenarioId} - ${scen2.remarks || 'Final scenario revision'}`}
                                 >
                                     {Object.keys(scenarios).map(id => (
                                         <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
@@ -11664,8 +12613,27 @@ function ScenarioComparisonView({
                                 </div>
                             </div>
 
-                            {/* C. Date Range Filter */}
-                            <div className="flex items-center gap-2 flex-shrink-0" title="Date Range Filter">
+                            {/* C. Period Granularity (W/M) & Date Range Filter */}
+                            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap" title="Period Granularity & Date Range Filter">
+                                <div className="flex items-center bg-white dark:bg-[#081324] p-0.5 rounded-xl border border-slate-200 dark:border-[#18365d] h-[34px] shadow-2xs">
+                                    {[
+                                        { id: 'W', label: 'Weekly (W)' },
+                                        { id: 'M', label: 'Monthly (M)' }
+                                    ].map(p => (
+                                        <button
+                                            key={p.id}
+                                            type="button"
+                                            onClick={() => setPeriodMode(p.id)}
+                                            className={`px-2.5 h-full text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
+                                                periodMode === p.id
+                                                    ? 'bg-blue-100 text-[#005eb8] dark:bg-[#1d4ed8] dark:text-white shadow-xs font-extrabold'
+                                                    : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
+                                            }`}
+                                        >
+                                            {p.label}
+                                        </button>
+                                    ))}
+                                </div>
                                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
                                     <IconCalendar className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
                                     <span>DATE:</span>
@@ -11677,10 +12645,10 @@ function ScenarioComparisonView({
                                             if (e.target.value <= endDate) setStartDate(e.target.value);
                                         }}
                                         className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
-                                        title="Start Week"
+                                        title="Start Period"
                                     >
                                         {allWeeks.map(w => (
-                                            <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
+                                            <option key={w} value={w} className="dark:bg-[#0c1b31]">{periodMode === 'M' ? w.slice(0, 7) : w}</option>
                                         ))}
                                     </select>
                                     <span className="text-slate-400 text-xs font-bold select-none">→</span>
@@ -11690,15 +12658,85 @@ function ScenarioComparisonView({
                                             if (e.target.value >= startDate) setEndDate(e.target.value);
                                         }}
                                         className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
-                                        title="End Week"
+                                        title="End Period"
                                     >
                                         {allWeeks.map(w => (
-                                            <option key={w} value={w} className="dark:bg-[#0c1b31]">{w}</option>
+                                            <option key={w} value={w} className="dark:bg-[#0c1b31]">{periodMode === 'M' ? w.slice(0, 7) : w}</option>
                                         ))}
                                     </select>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Row 3: Scenario Log & Calculation Keys Traceability Strip */}
+                        <div className="pt-2 border-t border-slate-100 dark:border-[#18365d]/80 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                            <div className="flex flex-wrap items-center gap-2 text-slate-600 dark:text-slate-300">
+                                <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-[#005eb8] dark:text-[#80c6ff] font-bold border border-blue-200/70 dark:border-blue-800/60">
+                                    Source: es_powerbi_model_checker_plan ({periodMode === 'M' ? 'Monthly M' : 'Weekly W'})
+                                </span>
+                                {diffLoading && <span className="text-amber-600 dark:text-amber-400 font-semibold animate-pulse">Loading final scenario data...</span>}
+                                {diffError && <span className="text-rose-600 dark:text-rose-400 font-semibold">{diffError}</span>}
+                                {log1 && log2 && (
+                                    <span className="text-slate-500 dark:text-slate-400">
+                                        Calc Keys Changed:{' '}
+                                        <strong className="text-slate-800 dark:text-white">
+                                            {['fte_key', 'avl_key', 'capacity_key', 'demand_key', 'workload_key', 'imbalance_key'].filter(k => (log1[k] || '') !== (log2[k] || '')).length} / 6
+                                        </strong>
+                                    </span>
+                                )}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowLogDetails(v => !v)}
+                                className="text-[11px] font-bold text-[#005eb8] dark:text-[#80c6ff] hover:underline cursor-pointer"
+                            >
+                                {showLogDetails ? 'Hide Scenario Log & Calc Keys ▴' : 'Inspect Scenario Log & Calc Keys ▾'}
+                            </button>
+                        </div>
+
+                        {showLogDetails && (
+                            <div className="mt-2 p-3 rounded-xl bg-slate-50 dark:bg-[#08162b] border border-slate-200 dark:border-[#18365d] text-[11px] space-y-2 overflow-x-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div>
+                                        <div className="font-bold text-slate-800 dark:text-white">{baselineScenarioId} (Baseline)</div>
+                                        <div className="text-slate-500 dark:text-slate-400">Created: {log1?.last_update || scen1.created_at || '—'} · Remarks: {log1?.remarks || scen1.remarks || '—'}</div>
+                                    </div>
+                                    <div>
+                                        <div className="font-bold text-slate-800 dark:text-white">{comparisonScenarioId} (Final)</div>
+                                        <div className="text-slate-500 dark:text-slate-400">Created: {log2?.last_update || scen2.created_at || '—'} · Remarks: {log2?.remarks || scen2.remarks || '—'}</div>
+                                    </div>
+                                </div>
+                                {log1 && log2 && (
+                                    <table className="w-full text-left border-collapse text-[10px] font-mono">
+                                        <thead>
+                                            <tr className="border-b border-slate-200 dark:border-[#18365d] text-slate-500 dark:text-slate-400">
+                                                <th className="py-1 pr-2">Calc Key</th>
+                                                <th className="py-1 pr-2">Status</th>
+                                                <th className="py-1 pr-2">Baseline Key Combination</th>
+                                                <th className="py-1">Final Key Combination</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-[#18365d]">
+                                            {['fte_key', 'avl_key', 'capacity_key', 'demand_key', 'workload_key', 'imbalance_key'].map(k => {
+                                                const same = (log1[k] || '') === (log2[k] || '');
+                                                return (
+                                                    <tr key={k}>
+                                                        <td className="py-1 pr-2 font-bold text-slate-700 dark:text-slate-200">{k}</td>
+                                                        <td className="py-1 pr-2">
+                                                            <span className={`px-1.5 py-0.5 rounded font-sans font-bold ${same ? 'bg-slate-100 dark:bg-slate-800 text-slate-500' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'}`}>
+                                                                {same ? 'Match' : 'Changed'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-1 pr-2 max-w-[260px] truncate text-slate-600 dark:text-slate-300" title={log1[k]}>{log1[k]}</td>
+                                                        <td className="py-1 max-w-[260px] truncate text-slate-600 dark:text-slate-300" title={log2[k]}>{log2[k]}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        )}
                     </>
                 )}
             </div>
@@ -11770,9 +12808,9 @@ function ScenarioComparisonView({
                 const netVal = totals.totDelta;
                 const netType = netVal > 0 ? 'positive' : (netVal < 0 ? 'drop' : 'neutral');
                 const netIcon = netVal > 0 ? '▲' : (netVal < 0 ? '▼' : '●');
-                const netBadgeLabel = netVal > 0 ? 'Comparison Advantage' : (netVal < 0 ? 'Comparison Deficit' : 'Balanced Parity');
+                const netBadgeLabel = netVal > 0 ? 'Final Advantage' : (netVal < 0 ? 'Final Deficit' : 'Balanced Parity');
 
-                // 2. Comparison Demand Delta vs Baseline
+                // 2. Final Demand Delta vs Baseline
                 const demandDelta = totals.totD2 - totals.totD1;
                 const demandType = demandDelta < 0 ? 'drop' : (demandDelta > 0 ? 'positive' : 'neutral');
                 const demandIcon = demandDelta > 0 ? '▲' : (demandDelta < 0 ? '▼' : '●');
@@ -11780,7 +12818,7 @@ function ScenarioComparisonView({
                     ? `0 ${metricUnit === 'fte' ? 'FTE' : 'hrs'}` 
                     : `${demandDelta > 0 ? '+' : '-'}${metricUnit === 'fte' ? toFte(Math.abs(demandDelta)) : Math.abs(demandDelta).toLocaleString()} ${metricUnit === 'fte' ? 'FTE' : 'hrs'}`;
 
-                // 3. Comparison Capacity Delta vs Baseline
+                // 3. Final Capacity Delta vs Baseline
                 const capDelta = totals.totC2 - totals.totC1;
                 const capType = capDelta > 0 ? 'positive' : (capDelta < 0 ? 'drop' : 'neutral');
                 const capIcon = capDelta > 0 ? '▲' : (capDelta < 0 ? '▼' : '●');
@@ -11834,7 +12872,7 @@ function ScenarioComparisonView({
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-300 tracking-wider whitespace-nowrap truncate block">
-                                        COMPARISON DEMAND
+                                        FINAL DEMAND
                                     </span>
                                     <div className="flex items-baseline gap-1.5 whitespace-nowrap leading-none mt-0.5">
                                         <span className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none whitespace-nowrap font-mono">
@@ -11863,7 +12901,7 @@ function ScenarioComparisonView({
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-300 tracking-wider whitespace-nowrap truncate block">
-                                        COMPARISON CAPACITY
+                                        FINAL CAPACITY
                                     </span>
                                     <div className="flex items-baseline gap-1.5 whitespace-nowrap leading-none mt-0.5">
                                         <span className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none whitespace-nowrap font-mono">
@@ -11895,12 +12933,12 @@ function ScenarioComparisonView({
                                         OPERATIONAL SCOPE
                                     </span>
                                     <div className="text-base font-black text-slate-900 dark:text-white mt-0.5 whitespace-nowrap leading-none truncate">
-                                        {selectedGeo?.name || 'National (All UK)'}
+                                        {selectedGeo?.label || selectedGeo?.name || 'National (All UK)'}
                                     </div>
                                     <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
                                         {renderKpiBadge('neutral', '●', `Skill: ${scopeSkill}`)}
                                         <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium whitespace-nowrap truncate">
-                                            Weeks: Commencing
+                                            {periodMode === 'M' ? 'Period: Monthly (M)' : 'Period: Weekly (W)'}
                                         </span>
                                     </div>
                                 </div>
@@ -11913,6 +12951,7 @@ function ScenarioComparisonView({
             {/* 4. SCENARIO VARIANCE WATERFALL ANALYSIS: CAPACITY & DEMAND BRIDGES */}
             <ScenarioWaterfallBridgesSection
                 totals={totals}
+                bridgeStats={bridgeStats}
                 skillFilter={skillFilter}
                 visibleWeeks={visibleWeeks}
                 baselineScenarioId={baselineScenarioId}
@@ -11920,35 +12959,35 @@ function ScenarioComparisonView({
                 isDarkMode={isDarkMode}
             />
 
-            {/* 5. WEEKLY DEMAND VS CAPACITY VARIANCE BREAKDOWN (COMBINED HORIZON & TABULAR VIEW) */}
+            {/* 5. WEEKLY / MONTHLY DEMAND VS CAPACITY VARIANCE BREAKDOWN */}
             <div className="bg-white dark:bg-[#071324] p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-[#18365d] shadow-xs overflow-hidden glow-card relative z-10">
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100 dark:border-[#18365d]">
                     <div>
                         <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                            <span>Weekly Demand vs Capacity Variance Breakdown</span>
+                            <span>{periodMode === 'M' ? 'Monthly' : 'Weekly'} Demand vs Capacity Variance Breakdown</span>
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#005eb8] dark:text-[#80c6ff] border border-blue-200 dark:border-blue-800">
-                                Combined View
+                                {periodMode === 'M' ? 'Period: M' : 'Period: W'}
                             </span>
                         </h4>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                            Granular week-by-week delta between Baseline ({baselineScenarioId}) and Comparison ({comparisonScenarioId})
+                            Granular {periodMode === 'M' ? 'month-by-month' : 'week-by-week'} delta between Baseline ({baselineScenarioId}) and Final ({comparisonScenarioId})
                         </p>
                     </div>
 
                     <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#0c1b31] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#18365d]">
-                        {visibleWeeks.length} Active Weeks Commencing
+                        {visibleWeeks.length} Active {periodMode === 'M' ? 'Months' : 'Weeks Commencing'}
                     </span>
                 </div>
 
-                {/* 8-Week Horizon Trajectory Chart */}
+                {/* Horizon Trajectory Chart */}
                 <div className="mb-4 p-3.5 bg-slate-50/70 dark:bg-[#08162b] rounded-xl border border-slate-200/80 dark:border-[#18365d]">
                     <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-extrabold text-slate-700 dark:text-white flex items-center gap-1.5">
                             <IconTrendingUp className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#60a5fa]" />
-                            <span>8-Week Dual-Horizon Supply vs Demand Gap & Surplus Buffer</span>
+                            <span>{visibleWeeks.length}-{periodMode === 'M' ? 'Month' : 'Week'} Dual-Horizon Supply vs Demand Gap & Surplus Buffer</span>
                         </span>
                         <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
-                            Hover points for exact weekly figures & net headroom
+                            Hover points for exact {periodMode === 'M' ? 'monthly' : 'weekly'} figures & net headroom
                         </span>
                     </div>
                     <WeeklyDualHorizonChart
@@ -11975,10 +13014,10 @@ function ScenarioComparisonView({
                             <tr className="bg-slate-50 dark:bg-[#0c1b31] text-slate-700 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-[#18365d] text-[11px]">
                                 <th className="py-2.5 px-3 border-r border-slate-200 dark:border-[#18365d]">Week Commencing</th>
                                 <th className="py-2.5 px-3 text-slate-600 dark:text-slate-400">Baseline</th>
-                                <th className="py-2.5 px-3 text-blue-700 dark:text-[#80c6ff]">Comp</th>
+                                <th className="py-2.5 px-3 text-blue-700 dark:text-[#80c6ff]">Final</th>
                                 <th className="py-2.5 px-3 text-slate-500 dark:text-slate-400 border-r border-slate-200 dark:border-[#18365d]">Δ Demand</th>
                                 <th className="py-2.5 px-3 text-slate-600 dark:text-slate-400">Baseline</th>
-                                <th className="py-2.5 px-3 text-emerald-700 dark:text-emerald-400">Comp</th>
+                                <th className="py-2.5 px-3 text-emerald-700 dark:text-emerald-400">Final</th>
                                 <th className="py-2.5 px-3 text-slate-500 dark:text-slate-400 border-r border-slate-200 dark:border-[#18365d]">Δ Capacity</th>
                                 <th className="py-2.5 px-3 text-right text-emerald-700 dark:text-emerald-400">Delta Imbalance</th>
                             </tr>

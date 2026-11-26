@@ -141,6 +141,26 @@ class EnvironmentConfig:
         return f"{cls.get_catalog()}.{cls.get_schema()}.{cls.get_table_name(input_key)}"
 
     @classmethod
+    def get_final_plan_table_name(cls) -> str:
+        """Returns the Databricks table name for final scenario plan data."""
+        return os.environ.get("TABLE_FINAL_PLAN", "es_powerbi_model_checker_plan")
+
+    @classmethod
+    def get_scenario_log_table_name(cls) -> str:
+        """Returns the Databricks table name for the scenario log table."""
+        return os.environ.get("TABLE_SCENARIO_LOG", "es_shiny_scenario_log")
+
+    @classmethod
+    def get_full_final_plan_table_path(cls) -> str:
+        """Returns full 3-level Unity Catalog path for es_powerbi_model_checker_plan."""
+        return f"{cls.get_catalog()}.{cls.get_schema()}.{cls.get_final_plan_table_name()}"
+
+    @classmethod
+    def get_full_scenario_log_table_path(cls) -> str:
+        """Returns full 3-level Unity Catalog path for es_shiny_scenario_log."""
+        return f"{cls.get_catalog()}.{cls.get_schema()}.{cls.get_scenario_log_table_name()}"
+
+    @classmethod
     def get_all_table_mappings(cls) -> List[Dict[str, str]]:
         """
         Returns the full mapping for all 21 operational inputs with their

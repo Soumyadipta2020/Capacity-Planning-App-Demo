@@ -183,15 +183,26 @@ function DecisionStudioPeriodControls({A, weeks, filter, setFilter}) {
 
 function DecisionStudioMonthlyWorkload({A, V, data, filter, setFilter}) {
   const groups = new Map();
-  for (const row of data.facts.demand_input || []) {
-    if (!row.week || row.jobs===null || !A.inScope(row,filter)) continue;
-    const period = A.calendarPeriod(row.week);
-    groups.set(period,(groups.get(period) || 0)+row.jobs);
+  if (data.isFinalData && Array.isArray(data.monthlyFinalRows) && data.monthlyFinalRows.length) {
+    for (const row of data.monthlyFinalRows) {
+      if (row.flag !== 'Demand Hours') continue;
+      const g = data.geography.get(row.patch) || { area: '', region: 'Unmapped' };
+      const scopedRow = { patch: row.patch, area: g.area, region: g.region, skill: row.skill.toUpperCase(), week: row.weekcomm };
+      if (!A.inScope(scopedRow, filter)) continue;
+      const period = row.weekcomm.slice(0, 7);
+      groups.set(period, (groups.get(period) || 0) + (row.value || 0));
+    }
+  } else {
+    for (const row of data.facts.demand_input || []) {
+      if (!row.week || row.jobs===null || !A.inScope(row,filter)) continue;
+      const period = A.calendarPeriod(row.week);
+      groups.set(period,(groups.get(period) || 0)+row.jobs);
+    }
   }
   const chart = [...groups].sort(([a],[b])=>a.localeCompare(b)).map(([key,jobs])=>({key,label:decisionPeriodLabel(key,true),jobs}));
   return <div className="ds-overview-chart">
-    <V.Trend title="Forecast work by month" subtitle="Jobs in the selected geography, skill and planning period"
-      data={chart} series={[{key:'jobs',label:'Forecast jobs',bar:true,color:'#6595e8'}]} unit="jobs"
+    <V.Trend title="Forecast work by month" subtitle="Demand hours from es_powerbi_model_checker_plan (period = M)"
+      data={chart} series={[{key:'jobs',label:'Demand hours',bar:true,color:'#6595e8'}]} unit="h"
       actionLabel="Select a month" onSelect={row=>setFilter({...filter,...A.calendarBounds(row.key)})}/>
   </div>;
 }
@@ -1603,7 +1614,7 @@ function DecisionStudioEvidence({A, geographyChanges, metric, format, gapLabel, 
       {[...sources].map(([source, records])=><details key={source} open={sources.size===1} className="ds-source">
         <summary><AnalyticsIcon name="file" size={16}/><strong>{sourceNames[source] || source.replace(/_/g,' ')}</strong>
           <span>{records.size} {records.size===1?'record':'records'}</span><AnalyticsIcon name="chevron" size={13}/></summary>
-        <p className="ds-context ds-source-version">{recordBundle?.sources?.[source]?.version}</p>
+        <p className="ds-context ds-source-version">{recordBundle?.sources?.[source]?.version || recordBundle?.scenarioId}</p>
         <AnalyticsTable title="Source records" rows={[...records.values()].map(({row,hours,known})=>({
           ...row.raw,'Source row':row.row,...(known?{'Modeled hours':format(hours)}:{})
         }))} pageSize={12} columns={[...new Set(['Source row',...[...records.values()].flatMap(({row,known})=>
@@ -1700,7 +1711,11 @@ function AnalyticsWorkspace({
   const [comparisonEnabled, setComparisonEnabled] = React.useState(false);
   const planningView = presentation==='summary' || presentation==='imbalance';
 
-  const forecastBundle = value => value ? {...value,sources:Object.fromEntries(Object.entries(value.sources||{}).filter(([key])=>key!=='actuals_input'))} : null;
+  const forecastBundle = value => {
+    if (!value) return null;
+    if (value.mode === 'final_data') return value;
+    return {...value,sources:Object.fromEntries(Object.entries(value.sources||{}).filter(([key])=>key!=='actuals_input'))};
+  };
   const data = React.useMemo(() => A.extract(forecastBundle(bundle)), [bundle]);
   const baseData = React.useMemo(() => A.extract(forecastBundle(baseline)), [baseline]);
   const requestState = React.useRef({});
@@ -1856,14 +1871,14 @@ function AnalyticsWorkspace({
     tested: summary(tested),
     runs,
     issues: data.issues,
-    sources: Object.fromEntries(Object.entries(bundle?.sources || {}).filter(([key])=>key!=='actuals_input').map(([k, v]) => [k, {
+    sources: Object.fromEntries(Object.entries(bundle?.sources || data?.sources || {}).filter(([key])=>key!=='actuals_input').map(([k, v]) => [k, {
       version: v.version,
       hash: v.hash,
       rowCount: v.rowCount,
       success: v.success,
       error: v.error
     }])),
-    baselineSources: Object.fromEntries(Object.entries(baseline?.sources || {}).filter(([key])=>key!=='actuals_input').map(([k, v]) => [k, {
+    baselineSources: Object.fromEntries(Object.entries(baseline?.sources || baseData?.sources || {}).filter(([key])=>key!=='actuals_input').map(([k, v]) => [k, {
       version: v.version,
       hash: v.hash,
       success: v.success
@@ -1901,7 +1916,7 @@ function AnalyticsWorkspace({
         ...shock
       },
       result: summary(tested),
-      sourceHashes: Object.fromEntries(Object.entries(bundle.sources).filter(([key])=>key!=='actuals_input').map(([k, v]) => [k, v.hash || null]))
+      sourceHashes: Object.fromEntries(Object.entries(bundle?.sources || data?.sources || {}).filter(([key])=>key!=='actuals_input').map(([k, v]) => [k, v.hash || null]))
     };
     setRuns(prev => [...prev, run]);
   };
@@ -2151,7 +2166,8 @@ function AnalyticsWorkspace({
     })} /><div className="av-range-bounds"><span>{min}</span><span>{max}</span></div></div>;
   const modelNote = <AnalyticsDisclosure compact title="Model scope & limits" subtitle="Exploratory calculations with explicitly partial evidence"><div className="av-scope-note-grid"><section><span>Included</span><h4>Source facts and selected assumptions</h4><p>Matched demand, supplied active roster and enabled support inputs. The selected geography mapping takes precedence over conflicting region fields.</p></section><section><span>Not inferred</span><h4>A complete workforce or SLA forecast</h4><p>Unknown attrition units, unmatched ramp cohorts and overlapping deductions are not invented. Workload coverage is not observed service performance.</p></section></div></AnalyticsDisclosure>;
   const modelStats = m => <div className="grid grid-cols-2 lg:grid-cols-4 gap-3"><Card title="Comparable cells" value={`${m.comparable} / ${m.total}`} sub="Region × skill × week" /><Card title="Gross shortfall" value={m.comparable ? fmt(m.deficit) + ' h' : '—'} sub="No offset from surplus elsewhere" /><Card title="Gross surplus" value={m.comparable ? fmt(m.surplus) + ' h' : '—'} sub="Transfer feasibility not assumed" /><Card title="Matched-scope coverage" value={m.coverage === null ? '—' : fmt(m.coverage) + '%'} sub="Ratio of comparable totals" /></div>;
-  const sourceNames = Object.keys(bundle?.sources || {}).filter(k=>k!=='actuals_input');
+  const activeSources = bundle?.sources || data?.sources || {};
+  const sourceNames = Object.keys(activeSources).filter(k=>k!=='actuals_input');
   const bridge = React.useMemo(() => A.demandBridge(baseData, data, filter, assumptions), [baseData, data, filter, assumptions]);
   const renderDemandBridge = () => <section className={panel}><h3 className="font-bold text-sm mb-2">Explain the demand-hours change versus baseline</h3><p className="text-xs text-slate-500 mb-4">Same patch, skill, week and work-code scope; complete job-time matches only. Contributions average all six calculation orders so they reconcile without privileging one ordering.</p><div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4"><Card title="Comparable change" value={bridge.rows.length ? fmt(bridge.after - bridge.before) + ' h' : '—'} sub={`${bridge.rows.length} included groups · ${bridge.excluded.length} excluded`} /><Card title="Job volume effect" value={bridge.rows.length ? fmt(bridge.volume) + ' h' : '—'} sub="Change in total jobs" /><Card title="Work mix effect" value={bridge.rows.length ? fmt(bridge.mix) + ' h' : '—'} sub="Change in work-code shares" /><Card title="Task duration effect" value={bridge.rows.length ? fmt(bridge.duration) + ' h' : '—'} sub="Change in matched job times" /></div><Table rows={bridge.rows} columns={[{
       key: 'patch',
@@ -2302,7 +2318,7 @@ function AnalyticsWorkspace({
       }) => <section key={name} className={panel}><h3 className="text-sm font-bold mb-3">{name} · selected common filters</h3><p className="text-xs text-slate-600">Gross shortfall {m.comparable ? fmt(m.deficit) + ' h' : 'unavailable'} · {m.comparable} comparable cells · coverage {m.coverage === null ? 'unavailable' : fmt(m.coverage) + '%'}</p></section>)}</div><Note>Source differences cover entire selected versions; global filters apply to modeled totals, not this version audit. Comparing modeled totals with different matched-cell coverage is not an attributed impact. Duplicate keys are retained as groups. A changed filename with identical contents has no modeled effect.</Note></>;
   const renderQualityDetails = () => {
     const grouped = group(data.issues, r => r.kind, () => 1);
-    return <><div className="grid lg:grid-cols-3 gap-3"><Card title="Inputs available" value={`${sourceNames.filter(s => bundle.sources[s].success).length} / ${sourceNames.length}`} sub="Exact selected versions only" /><Card title="Matched demand volume" value={percent(matchedJobs, jobs)} sub="In current filters" /><Card title="Issues identified" value={data.issues.length} sub="All selected source versions" /></div><div className="grid lg:grid-cols-2 gap-5"><section className={panel}><h3 className="font-bold text-sm mb-3">Evidence gaps by category</h3><BarList rows={grouped} onRow={r => {
+    return <><div className="grid lg:grid-cols-3 gap-3"><Card title="Inputs available" value={`${sourceNames.filter(s => activeSources[s]?.success).length} / ${sourceNames.length}`} sub="Exact selected versions only" /><Card title="Matched demand volume" value={percent(matchedJobs, jobs)} sub="In current filters" /><Card title="Issues identified" value={data.issues.length} sub="All selected source versions" /></div><div className="grid lg:grid-cols-2 gap-5"><section className={panel}><h3 className="font-bold text-sm mb-3">Evidence gaps by category</h3><BarList rows={grouped} onRow={r => {
             setDetail({
               title: r.name,
               issues: r.records
@@ -2311,7 +2327,7 @@ function AnalyticsWorkspace({
             setSourcePage(0);
           }} /></section><section className={panel}><h3 className="font-bold text-sm mb-3">Source provenance</h3><Table rows={sourceNames.map(source => ({
             source,
-            ...bundle.sources[source]
+            ...(activeSources[source] || {})
           }))} columns={[{
             key: 'source',
             label: 'Input',
@@ -3017,7 +3033,7 @@ function AnalyticsWorkspace({
         start: r.key,
         end: r.key
       })} /></div><V.Heatmap title="Does the intervention move the pressure?" subtitle="Test buffers across regions and skills. Select a cell to investigate the remaining exposure." rows={tested.rows} onSelect={focusCell} />{evidenceSection('Compare alternative outcomes and pinned runs', renderActionsDetails())}</>;
-  const forecastSettingsKey = id => JSON.stringify({id,scenarioId,sources:sourceNames.map(key=>[key,bundle.sources[key].hash||bundle.sources[key].error||null])});
+  const forecastSettingsKey = id => JSON.stringify({id,scenarioId,sources:sourceNames.map(key=>[key,activeSources[key]?.hash||activeSources[key]?.error||null])});
   const forecastView = id => <AnalyticsForecastView key={forecastSettingsKey(id)} settingsKey={forecastSettingsKey(id)} view={id} data={data} current={current} filter={filter} assumptions={assumptions} onInspect={sourceDetail} onFocus={setFilter} onExport={(name,rows)=>csv(name,rows.map(r=>({scenario:scenarioId,scope:JSON.stringify(filter),...r})))} onReport={report=>{
     const clean=JSON.parse(JSON.stringify(report,(key,value)=>['records','raw','n','jobTime'].includes(key)?undefined:value));
     forecastReports.current[id]={...clean,context:JSON.stringify({scenarioId,loadedAt:bundle?.loadedAt,filter,assumptions})};
@@ -3163,9 +3179,9 @@ function AnalyticsWorkspace({
         {error && <div role="alert" className="p-4 rounded-xl border border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-sm mt-3">{error}</div>}
         {busy && <div role="status" className={panel + ' text-sm text-slate-500 dark:text-[#adbed4] animate-pulse mt-3'}>Reading selected source versions and baseline…</div>}
         {detail && <AnalyticsDrawer title={detail.title} eyebrow={detail.diff ? 'Scenario comparison' : detail.issues ? 'Evidence coverage' : 'Source evidence'} subtitle={detail.diff ? 'Understand exactly which source records changed.' : detail.issues ? 'Inspect the checks behind the data-coverage result.' : 'Browse original records and their selected source versions.'} onClose={() => setDetail(null)}>
-          {detail.diff ? <AnalyticsDiffBrowser rows={detail.diff} comparison={detail.comparison || {}} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-record-changes.csv', rows)} /> : detail.issues ? <AnalyticsIssueBrowser issues={detail.issues} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-evidence-issues.csv', rows)} onInspect={r => sourceDetail(r.source, r.row ? (data.facts[r.source] || []).filter(x => x.row === r.row) : undefined)} /> : <AnalyticsRecordBrowser key={detail.title} rows={detailRows} columns={sourceColumns} sources={bundle?.sources || {}} sourceKey={detail.source} query={sourceSearch} onQueryChange={setSourceSearch} page={sourcePage} onPageChange={setSourcePage} onExport={rows => csv('analytics-source-evidence.csv', rows.map(r => ({
+          {detail.diff ? <AnalyticsDiffBrowser rows={detail.diff} comparison={detail.comparison || {}} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-record-changes.csv', rows)} /> : detail.issues ? <AnalyticsIssueBrowser issues={detail.issues} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-evidence-issues.csv', rows)} onInspect={r => sourceDetail(r.source, r.row ? (data.facts[r.source] || []).filter(x => x.row === r.row) : undefined)} /> : <AnalyticsRecordBrowser key={detail.title} rows={detailRows} columns={sourceColumns} sources={activeSources} sourceKey={detail.source} query={sourceSearch} onQueryChange={setSourceSearch} page={sourcePage} onPageChange={setSourcePage} onExport={rows => csv('analytics-source-evidence.csv', rows.map(r => ({
         input: r.source,
-        version: bundle?.sources[r.source]?.version,
+        version: activeSources[r.source]?.version || bundle?.scenarioId,
         sourceRow: r.row,
         ...r.raw
       })))} />}

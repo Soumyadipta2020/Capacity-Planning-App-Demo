@@ -161,11 +161,11 @@ try:
         # Verify Scenario Diff tab enhancements in react_app.js:
         # 1. Top bar active scenario dropdown hidden in comparison mode
         assert "activeTab !== 'comparison' ?" in js_content, "Top bar scenario select must be hidden in comparison mode"
-        assert "Scenario Diff Mode: Dual Scenario Comparison" in js_content, "Diff mode badge missing"
+        assert "Scenario Diff Mode: Baseline vs Final" in js_content, "Diff mode badge missing"
 
-        # 2. Dual scenario selectors (Baseline & Comparison) in Diff tab
-        assert "Baseline Scenario (1)" in js_content, "Baseline Scenario (1) missing in comparison view"
-        assert "Comparison Scenario (2)" in js_content, "Comparison Scenario (2) missing in comparison view"
+        # 2. Dual scenario selectors (Baseline & Final) in Diff tab
+        assert "Baseline Scenario (1)" in js_content, "Baseline Scenario (1) missing in diff view"
+        assert "Final Scenario (2)" in js_content, "Final Scenario (2) missing in diff view"
         assert "Swap Scenarios" in js_content, "Swap Scenarios button missing"
 
         # 3. Geography hierarchy filter (National -> Region -> ACDM -> Territory)

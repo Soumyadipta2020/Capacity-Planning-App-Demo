@@ -13,10 +13,12 @@ from data_manager import (
     DEFAULT_REMARKS,
     ScenarioManager,
     SampleDataGenerator,
+    clean_for_json,
     load_input_table_data,
     get_calculation_module_data
 )
 from engine.data_engine import CapacityDataEngine
+from engine.scenario_data_engine import get_decision_studio_bundle, load_scenario_log
 
 def create_modern_ui_page():
     """Generates the modern full-bleed HTML layout for the React client without container-fluid."""
@@ -43,10 +45,29 @@ def create_modern_ui_page():
         except Exception:
             pass
 
+    scenarios_map = sm.get_all_scenarios()
+
+    try:
+        scenario_log_rows = clean_for_json(load_scenario_log(engine=engine).to_dict(orient="records"))
+    except Exception:
+        scenario_log_rows = []
+
+    initial_final_bundle = None
+    first_scen_id = next(iter(scenarios_map), None)
+    if first_scen_id:
+        try:
+            initial_final_bundle = clean_for_json(
+                get_decision_studio_bundle(first_scen_id, engine=engine, scenario_meta=scenarios_map.get(first_scen_id))
+            )
+        except Exception:
+            initial_final_bundle = None
+
     # Pre-serialize initial scenario data for the React client
     initial_data = {
         "envInfo": engine.get_engine_status(),
-        "scenarios": sm.get_all_scenarios(),
+        "scenarios": scenarios_map,
+        "scenarioLog": scenario_log_rows,
+        "initialFinalBundle": initial_final_bundle,
         "inputOptions": DEFAULT_INPUT_OPTIONS,
         "remarksMap": DEFAULT_REMARKS,
         "initialTableData": initial_table_data,

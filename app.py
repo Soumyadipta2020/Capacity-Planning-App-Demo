@@ -150,49 +150,94 @@ def server(input, output, session):
     @reactive.effect
     @reactive.event(input.request_analytics_bundle)
     async def _on_request_analytics_bundle():
-        from engine.analytics_loader import load_analytics_bundle
+        from datetime import datetime, timezone
+        from engine.scenario_data_engine import (
+            _load_geography_rows,
+            _pack_final_dataframe,
+            build_scenario_log_row,
+            generate_scenario_final_rows,
+            get_decision_studio_bundle,
+        )
         request = input.request_analytics_bundle()
         if not isinstance(request, dict):
             return
         request_id = request.get("requestId")
         try:
             if request.get("draft"):
-                scenario = {"id": "Draft inputs", "inputs": request.get("inputs", {})}
+                draft_inputs = request.get("inputs", {})
+                now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000+00:00")
+                log_row = build_scenario_log_row("Draft inputs", now_iso, "Unsaved draft inputs", draft_inputs)
+                df_draft = generate_scenario_final_rows("Draft inputs", now_iso, draft_inputs, log_row=log_row)
+                result = {
+                    "success": True,
+                    "mode": "final_data",
+                    "scenarioId": "Draft inputs",
+                    "createDatestamp": now_iso,
+                    "loadedAt": datetime.now(timezone.utc).isoformat(),
+                    "scenarioLog": log_row,
+                    "geographyRows": _load_geography_rows(draft_inputs),
+                    "finalData": _pack_final_dataframe(df_draft),
+                }
             else:
-                scenario = sm.get_scenario(request.get("scenarioId", ""))
-            if not scenario:
-                raise ValueError("Selected scenario no longer exists")
-            result = load_analytics_bundle(scenario, engine)
+                scen_id = request.get("scenarioId", "")
+                scenario = sm.get_scenario(scen_id)
+                if not scenario:
+                    raise ValueError("Selected scenario no longer exists")
+                result = get_decision_studio_bundle(scen_id, engine=engine, scenario_meta=scenario)
         except Exception as error:
             result = {"success": False, "error": str(error)}
         result["requestId"] = request_id
-        await session.send_custom_message("response_analytics_bundle", result)
+        await session.send_custom_message("response_analytics_bundle", clean_for_json(result))
+
+    @reactive.effect
+    @reactive.event(input.request_scenario_diff_data)
+    async def _on_request_scenario_diff_data():
+        from engine.scenario_data_engine import get_scenario_diff_payload
+        request = input.request_scenario_diff_data()
+        if not isinstance(request, dict):
+            return
+        request_id = request.get("requestId")
+        baseline_id = request.get("baselineId", "")
+        comparison_id = request.get("comparisonId", "")
+        try:
+            result = get_scenario_diff_payload(baseline_id, comparison_id, engine=engine)
+        except Exception as error:
+            result = {"success": False, "error": str(error)}
+        result["requestId"] = request_id
+        await session.send_custom_message("response_scenario_diff_data", clean_for_json(result))
 
     # Handle Scenario Save from React UI
     @reactive.effect
     @reactive.event(input.save_scenario_event)
     async def _on_react_save():
+        from engine.scenario_data_engine import load_scenario_log
         data = input.save_scenario_event()
         if not data:
             return
         
         plan_type = data.get("plan_type", "LV")
-        month = data.get("month", "OCT")
-        version = data.get("version", "0")
+        month = data.get("month", "NOV")
+        version = data.get("version", "1")
+        year = str(data.get("year") or "2026")
         remarks = data.get("remarks", "")
         inputs = data.get("inputs", {})
         
-        new_id = sm.save_scenario(plan_type, month, version, remarks, inputs)
+        new_id = sm.save_scenario(plan_type, month, version, remarks, inputs, year=year)
+        try:
+            log_rows = clean_for_json(load_scenario_log(engine=engine).to_dict(orient="records"))
+        except Exception:
+            log_rows = []
         
         # Broadcast updated scenarios back to React
         await session.send_custom_message("update_scenario_data", {
             "scenarios": sm.get_all_scenarios(),
+            "scenarioLog": log_rows,
             "selectedScenarioId": new_id,
             "inputsState": inputs,
             "envInfo": engine.get_engine_status()
         })
         await session.send_custom_message("show_toast", {
-            "message": f"Scenario '{new_id}' saved successfully to backend!",
+            "message": f"Scenario '{new_id}' saved, logged, and final data generated!",
             "type": "success"
         })
 

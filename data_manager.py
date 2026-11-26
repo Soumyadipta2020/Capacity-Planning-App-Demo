@@ -1300,63 +1300,16 @@ class ScenarioManager:
         self._ensure_storage()
 
     def _ensure_storage(self):
-        """Ensures the scenarios file exists with realistic default scenarios."""
+        """Ensures scenarios.json, es_shiny_scenario_log.csv, and es_powerbi_model_checker_plan.csv exist."""
         self.scenarios_file.parent.mkdir(parents=True, exist_ok=True)
-        if not self.scenarios_file.exists():
-            default_scenarios = self._generate_default_scenarios()
-            with open(self.scenarios_file, "w", encoding="utf-8") as f:
-                json.dump(default_scenarios, f, indent=2)
+        from engine.scenario_data_engine import ensure_default_scenarios_and_final_data
+        ensure_default_scenarios_and_final_data(force_rebuild=False)
 
     @classmethod
     def _generate_default_scenarios(cls) -> Dict[str, Any]:
-        """Creates sample scenarios matching user screenshots."""
-        scenario_jul = {
-            "id": "LV JUL V.1 2026-07-07 12:46:46",
-            "plan_type": "LV",
-            "month": "JUL",
-            "version": "1",
-            "remarks": "test2",
-            "created_at": "2026-07-07 12:46:46",
-            "inputs": {k: v[0] for k, v in DEFAULT_INPUT_OPTIONS.items()}
-        }
-        
-        scenario_oct = {
-            "id": "LV OCT V.0 2026-10-29 16:00:00",
-            "plan_type": "LV",
-            "month": "OCT",
-            "version": "0",
-            "remarks": "October Operating Plan baseline",
-            "created_at": "2026-10-29 16:00:00",
-            "inputs": {
-                **{k: v[0] for k, v in DEFAULT_INPUT_OPTIONS.items()},
-                "resource_plan": "Latest Resource Plan V3_2026-07-07",
-                "demand_input": "es_shiny_es_mtp_demand2_input3_2026-02-04 08:10:23",
-                "downtime_overlays_percentage": "es_shiny_overlays_percentage_input2_2026-02-24 15:39:40",
-                "attrition": "es_shiny_attrition_input2_2026-02-05 09:54:11",
-                "job_time_assumptions": "job_time_2026-02-23 17:08:12",
-                "geography_mapping": "es_shiny_geog_mapping_input2_2026-02-18 13:04:22"
-            }
-        }
-
-        scenario_hv = {
-            "id": "HV OCT V.1 2026-10-29 16:15:00",
-            "plan_type": "HV",
-            "month": "OCT",
-            "version": "1",
-            "remarks": "High Volume Winter Stress Test",
-            "created_at": "2026-10-29 16:15:00",
-            "inputs": {
-                **{k: (v[1] if len(v) > 1 else v[0]) for k, v in DEFAULT_INPUT_OPTIONS.items()},
-                "resource_plan": "Resource Plan V2_2026-06-15",
-                "recruitment_ungrounded": "recruitment_ungrounded_upside_v2"
-            }
-        }
-        
-        return {
-            scenario_jul["id"]: scenario_jul,
-            scenario_oct["id"]: scenario_oct,
-            scenario_hv["id"]: scenario_hv
-        }
+        """Creates default scenarios covering Nov 2, 2026 - Dec 27, 2027."""
+        from engine.scenario_data_engine import get_default_scenario_definitions
+        return {s["id"]: s for s in get_default_scenario_definitions()}
 
     def get_all_scenarios(self) -> Dict[str, Any]:
         """
@@ -1402,30 +1355,45 @@ class ScenarioManager:
         month: str,
         version: str,
         remarks: str,
-        inputs: Dict[str, str]
+        inputs: Dict[str, str],
+        year: Optional[str] = None
     ) -> str:
-        """Saves a new scenario and persists to both local storage and Unity Catalog."""
+        """
+        Saves a new scenario, logs all input keys & calc keys into `es_shiny_scenario_log`,
+        and generates/links its final scenario data in `es_powerbi_model_checker_plan`.
+        """
+        from datetime import timezone
+        from engine.scenario_data_engine import (
+            append_scenario_log_entry,
+            build_scenario_log_row,
+            generate_scenario_final_rows,
+            save_final_scenario_rows,
+        )
+
         scenarios = self.get_all_scenarios()
-        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        scenario_id = f"{plan_type} {month} V.{version} {now_str}"
-        
+        now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000+00:00")
+        scenario_year = str(year or "2026").strip()
+        scenario_id = f"{plan_type} {month} V.{version} {scenario_year}"
+
         new_scen = {
             "id": scenario_id,
             "plan_type": plan_type,
             "month": month,
             "version": str(version),
+            "year": scenario_year,
             "remarks": remarks or "",
-            "created_at": now_str,
-            "inputs": inputs
+            "created_at": now_iso,
+            "inputs": inputs or {},
         }
         scenarios[scenario_id] = new_scen
-        
+
         try:
             with open(self.scenarios_file, "w", encoding="utf-8") as f:
                 json.dump(scenarios, f, indent=2)
         except Exception as e:
             print(f"Warning: could not write local scenarios.json: {e}")
 
+        engine = None
         try:
             from engine.data_engine import CapacityDataEngine
             engine = CapacityDataEngine.get_instance()
@@ -1436,7 +1404,25 @@ class ScenarioManager:
             if isinstance(e, ClusterStartingError):
                 raise
             print(f"[Databricks] Save scenario Delta warning: {e}")
-            
+
+        # Log into es_shiny_scenario_log and generate linked final scenario data
+        log_row = build_scenario_log_row(
+            scenario_key=scenario_id,
+            last_update=now_iso,
+            remarks=remarks or "",
+            inputs=inputs or {},
+            delete_flag="N",
+        )
+        append_scenario_log_entry(log_row, engine=engine)
+
+        df_final = generate_scenario_final_rows(
+            scenario_key=scenario_id,
+            create_datestamp=now_iso,
+            inputs=inputs or {},
+            log_row=log_row,
+        )
+        save_final_scenario_rows(scenario_id, df_final, engine=engine)
+
         return scenario_id
 
     def delete_scenario(self, scenario_id: str) -> bool:
@@ -1451,6 +1437,7 @@ class ScenarioManager:
                 pass
             deleted = True
 
+        engine = None
         try:
             from engine.data_engine import CapacityDataEngine
             engine = CapacityDataEngine.get_instance()
@@ -1462,6 +1449,12 @@ class ScenarioManager:
             if isinstance(e, ClusterStartingError):
                 raise
             print(f"[Databricks] Delete scenario Delta warning: {e}")
+
+        try:
+            from engine.scenario_data_engine import delete_scenario_from_log_and_plan
+            delete_scenario_from_log_and_plan(scenario_id, engine=engine)
+        except Exception as e:
+            print(f"[ScenarioLog] Delete warning: {e}")
 
         return deleted
 

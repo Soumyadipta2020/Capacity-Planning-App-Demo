@@ -77,7 +77,273 @@
     hec_on_ev_demand: ['Region', 'Skill', 'Support', 'Weekcomm'],
     week_to_month: ['Weekcomm']
   };
+  function unpackFinalPayload(finalData) {
+    if (!finalData || !Array.isArray(finalData.rows)) return [];
+    const regions = finalData.regions || [];
+    const areaCodes = finalData.areaCodes || [];
+    const patches = finalData.patches || [];
+    const combos = finalData.combos || [];
+    const periods = finalData.periods || [];
+    const weeks = finalData.weeks || [];
+    const rows = finalData.rows || [];
+    const version = finalData.version || '';
+    const create_datestamp = finalData.create_datestamp || '';
+    const out = new Array(rows.length);
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      const c = combos[r[1]] || [];
+      out[i] = {
+        region: r.length > 5 ? (regions[r[5]] || '') : '',
+        area_code: r.length > 6 ? (areaCodes[r[6]] || '') : '',
+        patch: patches[r[0]] || '',
+        skill: c[0] || '',
+        group: c[1] || '',
+        metric: c[2] || '',
+        level2: c[3] || '',
+        flag: c[4] || '',
+        period: periods[r[2]] || 'W',
+        weekcomm: weeks[r[3]] || '',
+        value: Number(r[4]) || 0,
+        version,
+        create_datestamp
+      };
+    }
+    return out;
+  }
+
+  function extractFinalBundle(bundle) {
+    const issues = [];
+    const map = new Map();
+    const geography = new Map();
+    (bundle.geographyRows || []).forEach((r, i) => {
+      const n = normalizeSource('geography_mapping', r),
+        p = text(n.territory),
+        region = reg(n.region),
+        area = text(n.areacode || n.acdm);
+      if (!p || !region) {
+        issues.push({ source: 'geography_mapping', row: i + 1, kind: 'Invalid geography', detail: 'Territory or region missing' });
+      } else {
+        map.set(p, region);
+        geography.set(p, { patch: p, area, region, label: text(n.patchname) || p });
+      }
+    });
+
+    const allFinalRows = unpackFinalPayload(bundle.finalData);
+    const weeklyRows = [];
+    const monthlyFinalRows = [];
+    for (const row of allFinalRows) {
+      if (row.period === 'M') monthlyFinalRows.push(row);
+      else weeklyRows.push(row);
+    }
+
+    const facts = {
+      geography_mapping: (bundle.geographyRows || []).map((raw, i) => {
+        const n = normalizeSource('geography_mapping', raw);
+        const patch = text(n.territory);
+        return {
+          source: 'geography_mapping', row: i + 1, raw, patch,
+          area: geography.get(patch)?.area || '', region: map.get(patch) || 'Unmapped',
+          skill: '', week: '', workCode: '', value: null, category: '', n
+        };
+      }),
+      demand_input: [],
+      job_time_assumptions: [],
+      resource_plan: [],
+      downtime_overlays_hours: [],
+      downtime_overlays_percentage: [],
+      downtime_overlays_hours_fte: [],
+      overtime: [],
+      ctr_capacity: [],
+      recruitment_grounded: [],
+      recruitment_ungrounded: [],
+      week_to_month: [],
+      baseline_productivity: [
+        { source: 'baseline_productivity', row: 1, raw: { Skill: 'HEC', Values: 3.8 }, patch: '', area: '', region: 'All', skill: 'HEC', week: '', workCode: '', value: 3.8, category: '', n: { skill: 'HEC', values: 3.8 } },
+        { source: 'baseline_productivity', row: 2, raw: { Skill: 'KAC', Values: 3.5 }, patch: '', area: '', region: 'All', skill: 'KAC', week: '', workCode: '', value: 3.5, category: '', n: { skill: 'KAC', values: 3.5 } }
+      ],
+      final_plan: allFinalRows
+    };
+
+    const grossByCell = new Map();
+    const weekSet = new Set();
+    const availLossMetrics = new Set(['Holiday', 'Sickness', 'Training', 'Meeting', 'Other']);
+
+    for (let i = 0; i < weeklyRows.length; i++) {
+      const r = weeklyRows[i];
+      if (r.flag === 'Available Hours' && r.metric === 'Gross Hrs') {
+        grossByCell.set([r.patch, r.skill, r.weekcomm].join('|'), r.value);
+      }
+      if (r.weekcomm) weekSet.add(r.weekcomm);
+    }
+
+    for (const w of [...weekSet].sort()) {
+      facts.week_to_month.push({
+        source: 'week_to_month',
+        row: facts.week_to_month.length + 1,
+        raw: { Weekcomm: w, FiscalYear: w.slice(0, 4), FiscalMonth: w.slice(0, 7) },
+        patch: '', area: '', region: 'All', skill: '', week: w, workCode: '', value: 1, category: '',
+        n: { weekcomm: w, fiscalyear: w.slice(0, 4), fiscalmonth: w.slice(0, 7) }
+      });
+    }
+
+    let rowIdx = 0;
+    for (const r of weeklyRows) {
+      rowIdx++;
+      const gMap = geography.get(r.patch);
+      const rowArea = r.area_code || gMap?.area || '';
+      const rowRegion = r.region ? reg(r.region) : (gMap?.region || 'Unmapped');
+      if (r.patch && rowRegion !== 'Unmapped' && !geography.has(r.patch)) {
+        map.set(r.patch, rowRegion);
+        geography.set(r.patch, { patch: r.patch, area: rowArea, region: rowRegion, label: r.patch });
+      }
+      const g = { area: rowArea, region: rowRegion };
+      const base = {
+        row: rowIdx,
+        raw: r,
+        patch: r.patch,
+        area: g.area,
+        region: g.region,
+        skill: r.skill.toUpperCase(),
+        week: r.weekcomm,
+        workCode: r.metric,
+        value: r.value,
+        category: r.metric
+      };
+
+      if (r.flag === 'Demand Hours') {
+        const jobTime = {
+          ...base,
+          source: 'job_time_assumptions',
+          value: 1,
+          n: { patch: r.patch, skill: r.skill, workcode: r.metric, weekcomm: r.weekcomm, values: 1 }
+        };
+        facts.job_time_assumptions.push(jobTime);
+        facts.demand_input.push({
+          ...base,
+          source: 'demand_input',
+          jobs: r.value,
+          jobTime,
+          matched: true,
+          n: { patch: r.patch, skill: r.skill, workcode: r.metric, product: r.level2, weekcomm: r.weekcomm, values: r.value }
+        });
+      } else if (r.flag === 'FTE' && (r.skill === 'HEC' || r.skill === 'KAC')) {
+        const gross = grossByCell.get([r.patch, r.skill, r.weekcomm].join('|'));
+        const hrs = gross !== undefined ? gross : r.value * 37.5;
+        facts.resource_plan.push({
+          ...base,
+          source: 'resource_plan',
+          n: {
+            payid: `${r.patch}|${r.skill}`,
+            wmis: r.patch,
+            skill: r.skill,
+            status: 'Active',
+            hours: hrs,
+            allocation: 100,
+            labourtype: r.group,
+            update: r.weekcomm
+          }
+        });
+      } else if (r.flag === 'FTE' && r.skill.includes('Recruitment')) {
+        const targetSkill = r.skill.replace(/\s*Recruitment$/i, '').trim().toUpperCase();
+        const isUngrounded = r.group === 'Ungrounded';
+        const srcName = isUngrounded ? 'recruitment_ungrounded' : 'recruitment_grounded';
+        facts[srcName].push({
+          ...base,
+          source: srcName,
+          skill: targetSkill,
+          n: {
+            cohort: r.group,
+            skill: targetSkill,
+            region: g.region,
+            weekcomm: r.weekcomm,
+            headcount: r.value,
+            probability: isUngrounded ? 50 : 100
+          }
+        });
+      } else if (r.flag === 'Downtime Overlay Hours' || (r.flag === 'Available Hours' && availLossMetrics.has(r.metric))) {
+        const cat = r.flag === 'Available Hours' ? `Base ${r.metric}` : r.metric;
+        const lvl2 = r.flag === 'Available Hours' ? 'Available Hours Deduction' : r.level2;
+        facts.downtime_overlays_hours.push({
+          ...base,
+          source: 'downtime_overlays_hours',
+          category: cat,
+          n: { patch: r.patch, skill: r.skill, metric: cat, level2: lvl2, weekcomm: r.weekcomm, values: r.value }
+        });
+        const gross = grossByCell.get([r.patch, r.skill, r.weekcomm].join('|')) || 0;
+        const pctVal = gross > 0 ? (r.value / gross) * 100 : 0;
+        const perFteVal = gross > 0 ? (r.value / (gross / 37.5)) : 0;
+        facts.downtime_overlays_percentage.push({
+          ...base,
+          source: 'downtime_overlays_percentage',
+          category: cat,
+          value: pctVal,
+          n: { patch: r.patch, skill: r.skill, metric: cat, level2: lvl2, weekcomm: r.weekcomm, values: pctVal }
+        });
+        facts.downtime_overlays_hours_fte.push({
+          ...base,
+          source: 'downtime_overlays_hours_fte',
+          category: cat,
+          value: perFteVal,
+          n: { patch: r.patch, skill: r.skill, metric: cat, level2: lvl2, weekcomm: r.weekcomm, values: perFteVal }
+        });
+      } else if (r.flag === 'Available Hours' && r.metric === 'Overtime') {
+        facts.overtime.push({
+          ...base,
+          source: 'overtime',
+          n: { region: g.region, patch: r.patch, skill: r.skill, weekcomm: r.weekcomm, authorized: 'Yes', overtimehours: r.value }
+        });
+      } else if (r.flag === 'Capacity Hours' && r.metric === 'SP') {
+        facts.ctr_capacity.push({
+          ...base,
+          source: 'ctr_capacity',
+          n: { region: g.region, patch: r.patch, skill: r.skill, weekcomm: r.weekcomm, status: 'Active', agency: 'General SP', contractorhours: r.value }
+        });
+      }
+    }
+
+    const ver = bundle.scenarioId || bundle.finalData?.version || '';
+    const log = bundle.scenarioLog || {};
+    const makeSrc = (rows, keyName) => ({
+      success: true,
+      version: `${ver} (${keyName})`,
+      source: 'es_powerbi_model_checker_plan',
+      hash: `${ver}|${bundle.createDatestamp || ''}|${rows.length}|${log.imbalance_key || ''}`,
+      rowCount: rows.length,
+      rows: rows.slice(0, 500).map(r => r.raw)
+    });
+    const virtualSources = {
+      demand_input: makeSrc(facts.demand_input, 'Demand Hours'),
+      job_time_assumptions: makeSrc(facts.job_time_assumptions, 'Demand Hours'),
+      resource_plan: makeSrc(facts.resource_plan, 'FTE / Gross Hrs'),
+      downtime_overlays_hours: makeSrc(facts.downtime_overlays_hours, 'Downtime & Losses'),
+      downtime_overlays_percentage: makeSrc(facts.downtime_overlays_percentage, 'Downtime %'),
+      downtime_overlays_hours_fte: makeSrc(facts.downtime_overlays_hours_fte, 'Downtime Hrs/FTE'),
+      overtime: makeSrc(facts.overtime, 'Overtime'),
+      ctr_capacity: makeSrc(facts.ctr_capacity, 'SP Capacity'),
+      recruitment_grounded: makeSrc(facts.recruitment_grounded, 'Grounded Recruitment'),
+      recruitment_ungrounded: makeSrc(facts.recruitment_ungrounded, 'Ungrounded Recruitment'),
+      geography_mapping: makeSrc(facts.geography_mapping, 'Geography Mapping'),
+      week_to_month: makeSrc(facts.week_to_month, 'Week to Month'),
+      baseline_productivity: makeSrc(facts.baseline_productivity, 'Baseline Productivity')
+    };
+
+    return {
+      isFinalData: true,
+      facts,
+      issues,
+      map,
+      geography,
+      sources: virtualSources,
+      weeks: [...weekSet].sort(),
+      monthlyFinalRows,
+      scenarioLog: log
+    };
+  }
+
   function extract(bundle) {
+    if (bundle?.mode === 'final_data' && bundle?.finalData) {
+      return extractFinalBundle(bundle);
+    }
     const facts = {},
       issues = [],
       map = new Map(), geography = new Map(), areaRegions = new Map();
@@ -257,7 +523,7 @@
       } else c.unmatched++;
       record(c, r, r.matched ? r.jobs * r.jobTime.value / (a.jobTimeUnit === 'minutes' ? 60 : 1) : null);
     });
-    // Roster is a snapshot, repeated across weeks, with explicit active status and effective dates.
+    // Roster is a snapshot in legacy bundles, or already weekly-dated in final_data bundles.
     (facts.resource_plan || []).filter(r => inScope(r, filter) && !r.duplicate && text(r.n.status).toLowerCase() === 'active').forEach(r => {
       if (r.region === 'Unmapped' || (!r.area && !data.map.has(r.patch))) {
         exclusions.add('Unmapped active roster rows excluded from capacity.');
@@ -269,8 +535,9 @@
         exclusions.add('Roster rows with invalid hours/allocation excluded.');
         return;
       }
-      weeks.forEach(w => {
-        if (week(r.n.leftdate) && week(r.n.leftdate) <= w || week(r.n.upddate || r.n.update) && week(r.n.upddate || r.n.update) > w) return;
+      const targetWeeks = data.isFinalData && r.week ? [r.week] : weeks;
+      targetWeeks.forEach(w => {
+        if (!data.isFinalData && (week(r.n.leftdate) && week(r.n.leftdate) <= w || week(r.n.upddate || r.n.update) && week(r.n.upddate || r.n.update) > w)) return;
         const dated = {...r, week:w};
         const c = ensure(dated);
         const allocated = hours * allocation / 100 * (affected(c) ? change.rosterScale : 1);
@@ -297,8 +564,8 @@
       record(c, r, c.unresolvedDowntime && roster === undefined ? null : hours, {downtime:true});
     });
     const patchScope = childScope;
-    if (patchScope) exclusions.add('Region-level recruitment, overtime, contractors, transfers and support are excluded at area or patch scope; no allocation is assumed.');
-    if (!patchScope) {
+    if (patchScope && !data.isFinalData) exclusions.add('Region-level recruitment, overtime, contractors, transfers and support are excluded at area or patch scope; no allocation is assumed.');
+    if (!patchScope || data.isFinalData) {
       (facts.overtime || []).filter(r => inScope(r, filter) && r.week && !r.duplicate).forEach(r => {
         if (a.includeOvertime && text(r.n.authorized).toLowerCase() === 'yes' && num(r.n.overtimehours) !== null) {
           const c = ensure(r);
@@ -874,6 +1141,46 @@
   }
 
   function compareSources(base, current) {
+    if (base?.mode === 'final_data' && current?.mode === 'final_data') {
+      const bRows = unpackFinalPayload(base.finalData);
+      const cRows = unpackFinalPayload(current.finalData);
+      const byFlag = (rows) => {
+        const m = new Map();
+        for (const r of rows) {
+          if (!m.has(r.flag)) m.set(r.flag, new Map());
+          const k = [r.patch, r.skill, r.group, r.metric, r.level2, r.period, r.weekcomm].join('|');
+          m.get(r.flag).set(k, r);
+        }
+        return m;
+      };
+      const bm = byFlag(bRows);
+      const cm = byFlag(cRows);
+      const flags = [...new Set([...bm.keys(), ...cm.keys()])];
+      return flags.map(flag => {
+        const left = bm.get(flag) || new Map();
+        const right = cm.get(flag) || new Map();
+        const records = [];
+        for (const k of new Set([...left.keys(), ...right.keys()])) {
+          const b = left.get(k);
+          const c = right.get(k);
+          if (!b || !c || Math.abs((b.value || 0) - (c.value || 0)) > 1e-6) {
+            records.push({
+              key: k,
+              status: !b ? 'Added' : !c ? 'Removed' : 'Changed',
+              before: b ? [b] : [],
+              after: c ? [c] : []
+            });
+          }
+        }
+        return {
+          source: flag,
+          before: base.scenarioId || '',
+          after: current.scenarioId || '',
+          status: records.length ? 'Contents changed' : 'Unchanged',
+          records
+        };
+      });
+    }
     const result = [];
     for (const source of new Set([...Object.keys(base?.sources || {}), ...Object.keys(current?.sources || {})])) {
       const b = base?.sources?.[source],
