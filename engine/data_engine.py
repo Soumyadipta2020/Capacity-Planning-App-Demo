@@ -516,6 +516,7 @@ class CapacityDataEngine:
                     for extra_tbl, ens_fn in (
                         (EnvironmentConfig.get_scenario_log_table_name(), self.ensure_scenario_log_table),
                         (EnvironmentConfig.get_final_plan_table_name(), self.ensure_final_plan_table),
+                        *((EnvironmentConfig.get_subcalc_table_name(sk), lambda _sk=sk: self.ensure_subcalc_table(_sk)) for sk in EnvironmentConfig.SUBCALC_TABLE_NAMES),
                     ):
                         if extra_tbl.lower() not in spark_tables:
                             ens_fn()
@@ -562,6 +563,7 @@ class CapacityDataEngine:
                     for extra_tbl, ens_fn in (
                         (EnvironmentConfig.get_scenario_log_table_name(), self.ensure_scenario_log_table),
                         (EnvironmentConfig.get_final_plan_table_name(), self.ensure_final_plan_table),
+                        *((EnvironmentConfig.get_subcalc_table_name(sk), lambda cursor=None, _sk=sk: self.ensure_subcalc_table(_sk, cursor=cursor)) for sk in EnvironmentConfig.SUBCALC_TABLE_NAMES),
                     ):
                         was_v = extra_tbl in self._verified_tables
                         try:
@@ -1038,6 +1040,74 @@ class CapacityDataEngine:
         self.ensure_final_plan_table()
         with self.cluster_manager.get_cursor() as cur:
             cur.execute(f"DELETE FROM {full_table_path} WHERE version = {self._sql_literal(version)}")
+
+    # ---------------------------------------------------------------------------
+    # 6 Sub-Calculation Delta Tables (fte, avlhr, capacity, demand, workload, imbalance)
+    # ---------------------------------------------------------------------------
+
+    def ensure_subcalc_table(self, subcalc_key: str, cursor=None) -> bool:
+        from engine.scenario_data_engine import SUBCALC_SPECS, load_subcalc_data
+        table_name = EnvironmentConfig.get_subcalc_table_name(subcalc_key)
+        self._validate_identifier(table_name)
+        full_table_path = self._full_table_name(table_name)
+        if table_name in self._verified_tables:
+            return True
+
+        cols = SUBCALC_SPECS[subcalc_key]["columns"]
+        with self._init_lock:
+            if table_name in self._verified_tables:
+                return True
+            seed_df = load_subcalc_data(subcalc_key, engine=None)
+
+            if self.spark is not None:
+                try:
+                    self.spark.sql(f"CREATE SCHEMA IF NOT EXISTS {self._schema_name()}")
+                    if not self.spark.catalog.tableExists(f"{self.catalog}.{self.schema}.{table_name}") and not seed_df.empty:
+                        self.spark.createDataFrame(seed_df).write.format("delta").mode("ignore").saveAsTable(full_table_path)
+                    self._verified_tables.add(table_name)
+                    return True
+                except Exception as e:
+                    print(f"[Warning] Spark subcalc '{subcalc_key}' init failed: {e}")
+
+            def _exec(cur):
+                cur.execute(f"CREATE SCHEMA IF NOT EXISTS {self._schema_name()}")
+                cur.execute(f"SHOW TABLES IN {self._schema_name()} LIKE '{table_name}'")
+                if not cur.fetchall():
+                    col_types = {c: ("DOUBLE" if c == "values" else "STRING") for c in cols}
+                    cols_ddl = ",\n  ".join(f"`{c}` {col_types[c]}" for c in cols)
+                    cur.execute(f"CREATE TABLE IF NOT EXISTS {full_table_path} (\n  {cols_ddl}\n) USING DELTA")
+                    if not seed_df.empty:
+                        for stmt in self._build_batch_insert_sql(full_table_path, seed_df, batch_size=500):
+                            cur.execute(stmt)
+                self._verified_tables.add(table_name)
+                return True
+
+            if cursor is not None:
+                return _exec(cursor)
+            with self.cluster_manager.get_cursor() as cur:
+                return _exec(cur)
+
+    def load_subcalc_table(self, subcalc_key: str, calc_key_value: Optional[str] = None) -> Optional[pd.DataFrame]:
+        table_name = EnvironmentConfig.get_subcalc_table_name(subcalc_key)
+        full_table_path = self._full_table_name(table_name)
+        self.ensure_subcalc_table(subcalc_key)
+        where_sql = f" WHERE `key` = {self._sql_literal(calc_key_value)}" if calc_key_value else ""
+        with self.cluster_manager.get_cursor() as cur:
+            cur.execute(f"SELECT * FROM {full_table_path}{where_sql}")
+            try:
+                return cur.fetchall_arrow().to_pandas()
+            except Exception:
+                cols = [d[0] for d in cur.description]
+                return pd.DataFrame(cur.fetchall(), columns=cols)
+
+    def save_subcalc_key_to_databricks(self, subcalc_key: str, calc_key_value: str, df_rows: pd.DataFrame) -> None:
+        table_name = EnvironmentConfig.get_subcalc_table_name(subcalc_key)
+        full_table_path = self._full_table_name(table_name)
+        self.ensure_subcalc_table(subcalc_key)
+        with self.cluster_manager.get_cursor() as cur:
+            cur.execute(f"DELETE FROM {full_table_path} WHERE `key` = {self._sql_literal(calc_key_value)}")
+            for stmt in self._build_batch_insert_sql(full_table_path, df_rows, batch_size=500):
+                cur.execute(stmt)
 
     def append_uploaded_file_to_databricks(self, input_key: str, filename: str, df: pd.DataFrame) -> None:
         """

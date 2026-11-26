@@ -1,1045 +1,1045 @@
 Patch,Skill,Weekcomm,Values
-ED44 Canterbury & Dover,HEC,2026-09-14,6.55
-ED44 Canterbury & Dover,KAC,2026-09-14,2.61
-ED44 Canterbury & Dover,EV,2026-09-14,4.19
-EB12 Altrincham,HEC,2026-09-14,4.0
-EB12 Altrincham,KAC,2026-09-14,6.75
-EB12 Altrincham,EV,2026-09-14,6.68
-EC62 Essex East,HEC,2026-09-14,7.66
-EC62 Essex East,KAC,2026-09-14,3.01
-EC62 Essex East,EV,2026-09-14,5.18
-EB14 Stockport,HEC,2026-09-14,2.6
-EB14 Stockport,KAC,2026-09-14,3.8
-EB14 Stockport,EV,2026-09-14,5.71
-ED22 Cobham & Heathrow,HEC,2026-09-14,2.56
-ED22 Cobham & Heathrow,KAC,2026-09-14,3.64
-ED22 Cobham & Heathrow,EV,2026-09-14,6.25
-EA62 Blackpool & Lancaster,HEC,2026-09-14,6.0
-EA62 Blackpool & Lancaster,KAC,2026-09-14,3.97
-EA62 Blackpool & Lancaster,EV,2026-09-14,5.89
-EA62 Preston & Southport,HEC,2026-09-14,7.4
-EA62 Preston & Southport,KAC,2026-09-14,2.64
-EA62 Preston & Southport,EV,2026-09-14,7.56
-EB24 The Wirral,HEC,2026-09-14,6.62
-EB24 The Wirral,KAC,2026-09-14,4.63
-EB24 The Wirral,EV,2026-09-14,3.47
-EC91 Leicester,HEC,2026-09-14,8.61
-EC91 Leicester,KAC,2026-09-14,4.67
-EC91 Leicester,EV,2026-09-14,3.18
-ED41 Bromley & Dartford,HEC,2026-09-14,3.06
-ED41 Bromley & Dartford,KAC,2026-09-14,7.86
-ED41 Bromley & Dartford,EV,2026-09-14,6.36
-EB13 Manchester Centre,HEC,2026-09-14,7.63
-EB13 Manchester Centre,KAC,2026-09-14,7.22
-EB13 Manchester Centre,EV,2026-09-14,5.96
-EB12 Lancashire South,HEC,2026-09-14,8.68
-EB12 Lancashire South,KAC,2026-09-14,4.71
-EB12 Lancashire South,EV,2026-09-14,5.91
-ED44 Canterbury & Dover,HEC,2026-09-21,7.76
-ED44 Canterbury & Dover,KAC,2026-09-21,6.12
-ED44 Canterbury & Dover,EV,2026-09-21,7.65
-EB12 Altrincham,HEC,2026-09-21,5.77
-EB12 Altrincham,KAC,2026-09-21,6.68
-EB12 Altrincham,EV,2026-09-21,2.91
-EC62 Essex East,HEC,2026-09-21,3.86
-EC62 Essex East,KAC,2026-09-21,4.36
-EC62 Essex East,EV,2026-09-21,2.9
-EB14 Stockport,HEC,2026-09-21,3.8
-EB14 Stockport,KAC,2026-09-21,3.02
-EB14 Stockport,EV,2026-09-21,4.3
-ED22 Cobham & Heathrow,HEC,2026-09-21,6.33
-ED22 Cobham & Heathrow,KAC,2026-09-21,4.84
-ED22 Cobham & Heathrow,EV,2026-09-21,4.91
-EA62 Blackpool & Lancaster,HEC,2026-09-21,3.66
-EA62 Blackpool & Lancaster,KAC,2026-09-21,4.0
-EA62 Blackpool & Lancaster,EV,2026-09-21,8.31
-EA62 Preston & Southport,HEC,2026-09-21,6.44
-EA62 Preston & Southport,KAC,2026-09-21,6.37
-EA62 Preston & Southport,EV,2026-09-21,3.64
-EB24 The Wirral,HEC,2026-09-21,7.14
-EB24 The Wirral,KAC,2026-09-21,3.61
-EB24 The Wirral,EV,2026-09-21,4.62
-EC91 Leicester,HEC,2026-09-21,8.18
-EC91 Leicester,KAC,2026-09-21,6.53
-EC91 Leicester,EV,2026-09-21,5.95
-ED41 Bromley & Dartford,HEC,2026-09-21,6.83
-ED41 Bromley & Dartford,KAC,2026-09-21,7.29
-ED41 Bromley & Dartford,EV,2026-09-21,7.09
-EB13 Manchester Centre,HEC,2026-09-21,4.02
-EB13 Manchester Centre,KAC,2026-09-21,2.64
-EB13 Manchester Centre,EV,2026-09-21,4.39
-EB12 Lancashire South,HEC,2026-09-21,4.16
-EB12 Lancashire South,KAC,2026-09-21,3.73
-EB12 Lancashire South,EV,2026-09-21,8.09
-ED44 Canterbury & Dover,HEC,2026-09-28,7.98
-ED44 Canterbury & Dover,KAC,2026-09-28,4.61
-ED44 Canterbury & Dover,EV,2026-09-28,6.73
-EB12 Altrincham,HEC,2026-09-28,4.76
-EB12 Altrincham,KAC,2026-09-28,8.12
-EB12 Altrincham,EV,2026-09-28,5.41
-EC62 Essex East,HEC,2026-09-28,4.02
-EC62 Essex East,KAC,2026-09-28,4.02
-EC62 Essex East,EV,2026-09-28,6.05
-EB14 Stockport,HEC,2026-09-28,4.17
-EB14 Stockport,KAC,2026-09-28,5.8
-EB14 Stockport,EV,2026-09-28,8.02
-ED22 Cobham & Heathrow,HEC,2026-09-28,5.06
-ED22 Cobham & Heathrow,KAC,2026-09-28,3.99
-ED22 Cobham & Heathrow,EV,2026-09-28,8.43
-EA62 Blackpool & Lancaster,HEC,2026-09-28,5.52
-EA62 Blackpool & Lancaster,KAC,2026-09-28,2.96
-EA62 Blackpool & Lancaster,EV,2026-09-28,2.82
-EA62 Preston & Southport,HEC,2026-09-28,3.13
-EA62 Preston & Southport,KAC,2026-09-28,6.43
-EA62 Preston & Southport,EV,2026-09-28,7.5
-EB24 The Wirral,HEC,2026-09-28,5.19
-EB24 The Wirral,KAC,2026-09-28,2.78
-EB24 The Wirral,EV,2026-09-28,4.98
-EC91 Leicester,HEC,2026-09-28,8.37
-EC91 Leicester,KAC,2026-09-28,5.64
-EC91 Leicester,EV,2026-09-28,8.28
-ED41 Bromley & Dartford,HEC,2026-09-28,7.53
-ED41 Bromley & Dartford,KAC,2026-09-28,2.47
-ED41 Bromley & Dartford,EV,2026-09-28,6.88
-EB13 Manchester Centre,HEC,2026-09-28,6.91
-EB13 Manchester Centre,KAC,2026-09-28,5.91
-EB13 Manchester Centre,EV,2026-09-28,4.08
-EB12 Lancashire South,HEC,2026-09-28,6.64
-EB12 Lancashire South,KAC,2026-09-28,3.32
-EB12 Lancashire South,EV,2026-09-28,5.19
-ED44 Canterbury & Dover,HEC,2026-10-05,5.2
-ED44 Canterbury & Dover,KAC,2026-10-05,8.28
-ED44 Canterbury & Dover,EV,2026-10-05,7.74
-EB12 Altrincham,HEC,2026-10-05,3.99
-EB12 Altrincham,KAC,2026-10-05,5.37
+ED44 Canterbury & Dover,HEC,2026-09-14,4.77
+ED44 Canterbury & Dover,KAC,2026-09-14,2.41
+ED44 Canterbury & Dover,EV,2026-09-14,3.36
+EB12 Altrincham,HEC,2026-09-14,3.27
+EB12 Altrincham,KAC,2026-09-14,4.84
+EB12 Altrincham,EV,2026-09-14,4.83
+EC62 Essex East,HEC,2026-09-14,5.38
+EC62 Essex East,KAC,2026-09-14,2.66
+EC62 Essex East,EV,2026-09-14,3.96
+EB14 Stockport,HEC,2026-09-14,2.38
+EB14 Stockport,KAC,2026-09-14,3.12
+EB14 Stockport,EV,2026-09-14,4.27
+ED22 Cobham & Heathrow,HEC,2026-09-14,2.36
+ED22 Cobham & Heathrow,KAC,2026-09-14,3.02
+ED22 Cobham & Heathrow,EV,2026-09-14,4.54
+EA62 Blackpool & Lancaster,HEC,2026-09-14,4.45
+EA62 Blackpool & Lancaster,KAC,2026-09-14,3.25
+EA62 Blackpool & Lancaster,EV,2026-09-14,4.33
+EA62 Preston & Southport,HEC,2026-09-14,5.25
+EA62 Preston & Southport,KAC,2026-09-14,2.47
+EA62 Preston & Southport,EV,2026-09-14,5.36
+EB24 The Wirral,HEC,2026-09-14,4.77
+EB24 The Wirral,KAC,2026-09-14,3.63
+EB24 The Wirral,EV,2026-09-14,2.94
+EC91 Leicester,HEC,2026-09-14,5.99
+EC91 Leicester,KAC,2026-09-14,3.66
+EC91 Leicester,EV,2026-09-14,2.79
+ED41 Bromley & Dartford,HEC,2026-09-14,2.68
+ED41 Bromley & Dartford,KAC,2026-09-14,5.55
+ED41 Bromley & Dartford,EV,2026-09-14,4.66
+EB13 Manchester Centre,HEC,2026-09-14,5.41
+EB13 Manchester Centre,KAC,2026-09-14,5.18
+EB13 Manchester Centre,EV,2026-09-14,4.43
+EB12 Lancashire South,HEC,2026-09-14,6.03
+EB12 Lancashire South,KAC,2026-09-14,3.64
+EB12 Lancashire South,EV,2026-09-14,4.38
+ED44 Canterbury & Dover,HEC,2026-09-21,5.83
+ED44 Canterbury & Dover,KAC,2026-09-21,4.76
+ED44 Canterbury & Dover,EV,2026-09-21,5.72
+EB12 Altrincham,HEC,2026-09-21,4.52
+EB12 Altrincham,KAC,2026-09-21,5.11
+EB12 Altrincham,EV,2026-09-21,2.8
+EC62 Essex East,HEC,2026-09-21,3.36
+EC62 Essex East,KAC,2026-09-21,3.69
+EC62 Essex East,EV,2026-09-21,2.72
+EB14 Stockport,HEC,2026-09-21,3.29
+EB14 Stockport,KAC,2026-09-21,2.8
+EB14 Stockport,EV,2026-09-21,3.66
+ED22 Cobham & Heathrow,HEC,2026-09-21,4.9
+ED22 Cobham & Heathrow,KAC,2026-09-21,4.0
+ED22 Cobham & Heathrow,EV,2026-09-21,4.05
+EA62 Blackpool & Lancaster,HEC,2026-09-21,3.21
+EA62 Blackpool & Lancaster,KAC,2026-09-21,3.42
+EA62 Blackpool & Lancaster,EV,2026-09-21,6.16
+EA62 Preston & Southport,HEC,2026-09-21,4.98
+EA62 Preston & Southport,KAC,2026-09-21,4.96
+EA62 Preston & Southport,EV,2026-09-21,3.24
+EB24 The Wirral,HEC,2026-09-21,5.45
+EB24 The Wirral,KAC,2026-09-21,3.23
+EB24 The Wirral,EV,2026-09-21,3.8
+EC91 Leicester,HEC,2026-09-21,6.03
+EC91 Leicester,KAC,2026-09-21,5.05
+EC91 Leicester,EV,2026-09-21,4.68
+ED41 Bromley & Dartford,HEC,2026-09-21,5.24
+ED41 Bromley & Dartford,KAC,2026-09-21,5.46
+ED41 Bromley & Dartford,EV,2026-09-21,5.36
+EB13 Manchester Centre,HEC,2026-09-21,3.49
+EB13 Manchester Centre,KAC,2026-09-21,2.57
+EB13 Manchester Centre,EV,2026-09-21,3.69
+EB12 Lancashire South,HEC,2026-09-21,3.55
+EB12 Lancashire South,KAC,2026-09-21,3.27
+EB12 Lancashire South,EV,2026-09-21,5.99
+ED44 Canterbury & Dover,HEC,2026-09-28,6.33
+ED44 Canterbury & Dover,KAC,2026-09-28,4.11
+ED44 Canterbury & Dover,EV,2026-09-28,5.51
+EB12 Altrincham,HEC,2026-09-28,4.13
+EB12 Altrincham,KAC,2026-09-28,6.41
+EB12 Altrincham,EV,2026-09-28,4.62
+EC62 Essex East,HEC,2026-09-28,3.65
+EC62 Essex East,KAC,2026-09-28,3.68
+EC62 Essex East,EV,2026-09-28,5.04
+EB14 Stockport,HEC,2026-09-28,3.79
+EB14 Stockport,KAC,2026-09-28,4.81
+EB14 Stockport,EV,2026-09-28,6.34
+ED22 Cobham & Heathrow,HEC,2026-09-28,4.39
+ED22 Cobham & Heathrow,KAC,2026-09-28,3.69
+ED22 Cobham & Heathrow,EV,2026-09-28,6.59
+EA62 Blackpool & Lancaster,HEC,2026-09-28,4.66
+EA62 Blackpool & Lancaster,KAC,2026-09-28,2.93
+EA62 Blackpool & Lancaster,EV,2026-09-28,2.88
+EA62 Preston & Southport,HEC,2026-09-28,3.07
+EA62 Preston & Southport,KAC,2026-09-28,5.29
+EA62 Preston & Southport,EV,2026-09-28,6.01
+EB24 The Wirral,HEC,2026-09-28,4.47
+EB24 The Wirral,KAC,2026-09-28,2.81
+EB24 The Wirral,EV,2026-09-28,4.35
+EC91 Leicester,HEC,2026-09-28,6.54
+EC91 Leicester,KAC,2026-09-28,4.74
+EC91 Leicester,EV,2026-09-28,6.49
+ED41 Bromley & Dartford,HEC,2026-09-28,5.98
+ED41 Bromley & Dartford,KAC,2026-09-28,2.6
+ED41 Bromley & Dartford,EV,2026-09-28,5.57
+EB13 Manchester Centre,HEC,2026-09-28,5.63
+EB13 Manchester Centre,KAC,2026-09-28,4.95
+EB13 Manchester Centre,EV,2026-09-28,3.7
+EB12 Lancashire South,HEC,2026-09-28,5.45
+EB12 Lancashire South,KAC,2026-09-28,3.25
+EB12 Lancashire South,EV,2026-09-28,4.46
+ED44 Canterbury & Dover,HEC,2026-10-05,4.72
+ED44 Canterbury & Dover,KAC,2026-10-05,6.89
+ED44 Canterbury & Dover,EV,2026-10-05,6.5
+EB12 Altrincham,HEC,2026-10-05,3.84
+EB12 Altrincham,KAC,2026-10-05,4.81
 EB12 Altrincham,EV,2026-10-05,3.46
-EC62 Essex East,HEC,2026-10-05,8.09
-EC62 Essex East,KAC,2026-10-05,7.76
-EC62 Essex East,EV,2026-10-05,4.15
-EB14 Stockport,HEC,2026-10-05,6.47
-EB14 Stockport,KAC,2026-10-05,6.08
-EB14 Stockport,EV,2026-10-05,3.46
-ED22 Cobham & Heathrow,HEC,2026-10-05,7.29
-ED22 Cobham & Heathrow,KAC,2026-10-05,6.02
-ED22 Cobham & Heathrow,EV,2026-10-05,7.21
-EA62 Blackpool & Lancaster,HEC,2026-10-05,5.51
-EA62 Blackpool & Lancaster,KAC,2026-10-05,2.56
-EA62 Blackpool & Lancaster,EV,2026-10-05,4.41
-EA62 Preston & Southport,HEC,2026-10-05,2.52
-EA62 Preston & Southport,KAC,2026-10-05,8.25
-EA62 Preston & Southport,EV,2026-10-05,7.63
-EB24 The Wirral,HEC,2026-10-05,7.22
-EB24 The Wirral,KAC,2026-10-05,4.49
-EB24 The Wirral,EV,2026-10-05,2.75
-EC91 Leicester,HEC,2026-10-05,8.1
-EC91 Leicester,KAC,2026-10-05,8.0
-EC91 Leicester,EV,2026-10-05,3.16
-ED41 Bromley & Dartford,HEC,2026-10-05,5.53
-ED41 Bromley & Dartford,KAC,2026-10-05,2.9
-ED41 Bromley & Dartford,EV,2026-10-05,6.84
-EB13 Manchester Centre,HEC,2026-10-05,7.44
-EB13 Manchester Centre,KAC,2026-10-05,3.35
-EB13 Manchester Centre,EV,2026-10-05,5.15
-EB12 Lancashire South,HEC,2026-10-05,5.75
-EB12 Lancashire South,KAC,2026-10-05,4.22
-EB12 Lancashire South,EV,2026-10-05,7.59
-ED44 Canterbury & Dover,HEC,2026-10-12,5.0
-ED44 Canterbury & Dover,KAC,2026-10-12,3.85
-ED44 Canterbury & Dover,EV,2026-10-12,6.0
-EB12 Altrincham,HEC,2026-10-12,6.79
-EB12 Altrincham,KAC,2026-10-12,3.73
+EC62 Essex East,HEC,2026-10-05,6.76
+EC62 Essex East,KAC,2026-10-05,6.52
+EC62 Essex East,EV,2026-10-05,3.94
+EB14 Stockport,HEC,2026-10-05,5.63
+EB14 Stockport,KAC,2026-10-05,5.33
+EB14 Stockport,EV,2026-10-05,3.51
+ED22 Cobham & Heathrow,HEC,2026-10-05,6.22
+ED22 Cobham & Heathrow,KAC,2026-10-05,5.35
+ED22 Cobham & Heathrow,EV,2026-10-05,6.14
+EA62 Blackpool & Lancaster,HEC,2026-10-05,4.9
+EA62 Blackpool & Lancaster,KAC,2026-10-05,2.88
+EA62 Blackpool & Lancaster,EV,2026-10-05,4.15
+EA62 Preston & Southport,HEC,2026-10-05,2.79
+EA62 Preston & Southport,KAC,2026-10-05,6.89
+EA62 Preston & Southport,EV,2026-10-05,6.41
+EB24 The Wirral,HEC,2026-10-05,6.1
+EB24 The Wirral,KAC,2026-10-05,4.25
+EB24 The Wirral,EV,2026-10-05,2.96
+EC91 Leicester,HEC,2026-10-05,6.81
+EC91 Leicester,KAC,2026-10-05,6.67
+EC91 Leicester,EV,2026-10-05,3.33
+ED41 Bromley & Dartford,HEC,2026-10-05,4.97
+ED41 Bromley & Dartford,KAC,2026-10-05,3.09
+ED41 Bromley & Dartford,EV,2026-10-05,5.84
+EB13 Manchester Centre,HEC,2026-10-05,6.35
+EB13 Manchester Centre,KAC,2026-10-05,3.44
+EB13 Manchester Centre,EV,2026-10-05,4.64
+EB12 Lancashire South,HEC,2026-10-05,5.1
+EB12 Lancashire South,KAC,2026-10-05,4.06
+EB12 Lancashire South,EV,2026-10-05,6.38
+ED44 Canterbury & Dover,HEC,2026-10-12,4.83
+ED44 Canterbury & Dover,KAC,2026-10-12,4.01
+ED44 Canterbury & Dover,EV,2026-10-12,5.63
+EB12 Altrincham,HEC,2026-10-12,6.16
+EB12 Altrincham,KAC,2026-10-12,3.9
 EB12 Altrincham,EV,2026-10-12,4.28
-EC62 Essex East,HEC,2026-10-12,8.49
-EC62 Essex East,KAC,2026-10-12,6.35
-EC62 Essex East,EV,2026-10-12,4.94
-EB14 Stockport,HEC,2026-10-12,5.38
-EB14 Stockport,KAC,2026-10-12,3.21
-EB14 Stockport,EV,2026-10-12,3.81
-ED22 Cobham & Heathrow,HEC,2026-10-12,4.46
-ED22 Cobham & Heathrow,KAC,2026-10-12,6.03
-ED22 Cobham & Heathrow,EV,2026-10-12,3.83
-EA62 Blackpool & Lancaster,HEC,2026-10-12,3.92
-EA62 Blackpool & Lancaster,KAC,2026-10-12,2.99
-EA62 Blackpool & Lancaster,EV,2026-10-12,6.13
-EA62 Preston & Southport,HEC,2026-10-12,3.73
-EA62 Preston & Southport,KAC,2026-10-12,7.8
-EA62 Preston & Southport,EV,2026-10-12,7.71
-EB24 The Wirral,HEC,2026-10-12,3.04
-EB24 The Wirral,KAC,2026-10-12,3.82
-EB24 The Wirral,EV,2026-10-12,6.43
-EC91 Leicester,HEC,2026-10-12,3.67
-EC91 Leicester,KAC,2026-10-12,3.24
-EC91 Leicester,EV,2026-10-12,8.0
-ED41 Bromley & Dartford,HEC,2026-10-12,5.97
-ED41 Bromley & Dartford,KAC,2026-10-12,5.34
-ED41 Bromley & Dartford,EV,2026-10-12,7.13
-EB13 Manchester Centre,HEC,2026-10-12,7.45
-EB13 Manchester Centre,KAC,2026-10-12,3.52
-EB13 Manchester Centre,EV,2026-10-12,3.04
-EB12 Lancashire South,HEC,2026-10-12,5.0
-EB12 Lancashire South,KAC,2026-10-12,5.09
-EB12 Lancashire South,EV,2026-10-12,5.38
-ED44 Canterbury & Dover,HEC,2026-10-19,6.89
-ED44 Canterbury & Dover,KAC,2026-10-19,6.76
-ED44 Canterbury & Dover,EV,2026-10-19,8.33
-EB12 Altrincham,HEC,2026-10-19,3.23
-EB12 Altrincham,KAC,2026-10-19,4.76
-EB12 Altrincham,EV,2026-10-19,4.54
-EC62 Essex East,HEC,2026-10-19,7.79
-EC62 Essex East,KAC,2026-10-19,3.9
-EC62 Essex East,EV,2026-10-19,3.69
-EB14 Stockport,HEC,2026-10-19,5.36
-EB14 Stockport,KAC,2026-10-19,4.84
-EB14 Stockport,EV,2026-10-19,4.35
-ED22 Cobham & Heathrow,HEC,2026-10-19,3.94
-ED22 Cobham & Heathrow,KAC,2026-10-19,7.8
-ED22 Cobham & Heathrow,EV,2026-10-19,5.22
-EA62 Blackpool & Lancaster,HEC,2026-10-19,7.5
-EA62 Blackpool & Lancaster,KAC,2026-10-19,5.73
-EA62 Blackpool & Lancaster,EV,2026-10-19,2.92
-EA62 Preston & Southport,HEC,2026-10-19,8.48
-EA62 Preston & Southport,KAC,2026-10-19,7.48
-EA62 Preston & Southport,EV,2026-10-19,8.53
-EB24 The Wirral,HEC,2026-10-19,7.81
-EB24 The Wirral,KAC,2026-10-19,7.79
-EB24 The Wirral,EV,2026-10-19,3.46
-EC91 Leicester,HEC,2026-10-19,5.32
-EC91 Leicester,KAC,2026-10-19,3.77
-EC91 Leicester,EV,2026-10-19,4.85
-ED41 Bromley & Dartford,HEC,2026-10-19,2.99
-ED41 Bromley & Dartford,KAC,2026-10-19,4.85
-ED41 Bromley & Dartford,EV,2026-10-19,8.6
-EB13 Manchester Centre,HEC,2026-10-19,3.94
-EB13 Manchester Centre,KAC,2026-10-19,6.97
-EB13 Manchester Centre,EV,2026-10-19,5.2
-EB12 Lancashire South,HEC,2026-10-19,4.99
-EB12 Lancashire South,KAC,2026-10-19,8.33
-EB12 Lancashire South,EV,2026-10-19,8.81
-ED44 Canterbury & Dover,HEC,2026-10-26,6.08
-ED44 Canterbury & Dover,KAC,2026-10-26,6.92
-ED44 Canterbury & Dover,EV,2026-10-26,3.52
-EB12 Altrincham,HEC,2026-10-26,4.46
-EB12 Altrincham,KAC,2026-10-26,8.51
-EB12 Altrincham,EV,2026-10-26,5.99
-EC62 Essex East,HEC,2026-10-26,5.53
-EC62 Essex East,KAC,2026-10-26,7.15
-EC62 Essex East,EV,2026-10-26,2.76
-EB14 Stockport,HEC,2026-10-26,6.28
-EB14 Stockport,KAC,2026-10-26,5.4
-EB14 Stockport,EV,2026-10-26,7.43
-ED22 Cobham & Heathrow,HEC,2026-10-26,3.4
-ED22 Cobham & Heathrow,KAC,2026-10-26,8.41
-ED22 Cobham & Heathrow,EV,2026-10-26,2.92
-EA62 Blackpool & Lancaster,HEC,2026-10-26,3.79
-EA62 Blackpool & Lancaster,KAC,2026-10-26,5.91
-EA62 Blackpool & Lancaster,EV,2026-10-26,6.86
-EA62 Preston & Southport,HEC,2026-10-26,4.0
-EA62 Preston & Southport,KAC,2026-10-26,3.35
-EA62 Preston & Southport,EV,2026-10-26,7.57
-EB24 The Wirral,HEC,2026-10-26,3.97
-EB24 The Wirral,KAC,2026-10-26,6.28
-EB24 The Wirral,EV,2026-10-26,6.23
-EC91 Leicester,HEC,2026-10-26,5.15
-EC91 Leicester,KAC,2026-10-26,6.25
-EC91 Leicester,EV,2026-10-26,5.84
-ED41 Bromley & Dartford,HEC,2026-10-26,7.79
-ED41 Bromley & Dartford,KAC,2026-10-26,3.87
-ED41 Bromley & Dartford,EV,2026-10-26,6.99
-EB13 Manchester Centre,HEC,2026-10-26,3.97
-EB13 Manchester Centre,KAC,2026-10-26,4.73
-EB13 Manchester Centre,EV,2026-10-26,6.45
-EB12 Lancashire South,HEC,2026-10-26,4.23
-EB12 Lancashire South,KAC,2026-10-26,4.53
-EB12 Lancashire South,EV,2026-10-26,7.16
-ED44 Canterbury & Dover,HEC,2026-11-02,3.03
-ED44 Canterbury & Dover,KAC,2026-11-02,5.23
-ED44 Canterbury & Dover,EV,2026-11-02,8.27
-EB12 Altrincham,HEC,2026-11-02,8.3
-EB12 Altrincham,KAC,2026-11-02,2.87
-EB12 Altrincham,EV,2026-11-02,3.77
-EC62 Essex East,HEC,2026-11-02,4.24
-EC62 Essex East,KAC,2026-11-02,7.87
-EC62 Essex East,EV,2026-11-02,7.85
-EB14 Stockport,HEC,2026-11-02,7.75
-EB14 Stockport,KAC,2026-11-02,4.94
-EB14 Stockport,EV,2026-11-02,3.47
-ED22 Cobham & Heathrow,HEC,2026-11-02,7.37
-ED22 Cobham & Heathrow,KAC,2026-11-02,6.65
-ED22 Cobham & Heathrow,EV,2026-11-02,5.95
-EA62 Blackpool & Lancaster,HEC,2026-11-02,8.74
-EA62 Blackpool & Lancaster,KAC,2026-11-02,6.55
-EA62 Blackpool & Lancaster,EV,2026-11-02,2.45
-EA62 Preston & Southport,HEC,2026-11-02,7.2
-EA62 Preston & Southport,KAC,2026-11-02,4.15
-EA62 Preston & Southport,EV,2026-11-02,6.67
-EB24 The Wirral,HEC,2026-11-02,7.92
-EB24 The Wirral,KAC,2026-11-02,3.46
-EB24 The Wirral,EV,2026-11-02,3.3
-EC91 Leicester,HEC,2026-11-02,3.02
-EC91 Leicester,KAC,2026-11-02,5.83
-EC91 Leicester,EV,2026-11-02,4.22
-ED41 Bromley & Dartford,HEC,2026-11-02,6.29
-ED41 Bromley & Dartford,KAC,2026-11-02,7.1
-ED41 Bromley & Dartford,EV,2026-11-02,3.59
-EB13 Manchester Centre,HEC,2026-11-02,6.24
-EB13 Manchester Centre,KAC,2026-11-02,4.05
-EB13 Manchester Centre,EV,2026-11-02,5.47
-EB12 Lancashire South,HEC,2026-11-02,7.97
-EB12 Lancashire South,KAC,2026-11-02,7.77
-EB12 Lancashire South,EV,2026-11-02,3.21
-ED44 Canterbury & Dover,HEC,2026-11-09,4.9
-ED44 Canterbury & Dover,KAC,2026-11-09,4.25
-ED44 Canterbury & Dover,EV,2026-11-09,2.49
-EB12 Altrincham,HEC,2026-11-09,7.34
-EB12 Altrincham,KAC,2026-11-09,6.2
-EB12 Altrincham,EV,2026-11-09,4.1
-EC62 Essex East,HEC,2026-11-09,6.93
-EC62 Essex East,KAC,2026-11-09,5.73
-EC62 Essex East,EV,2026-11-09,5.25
-EB14 Stockport,HEC,2026-11-09,2.63
-EB14 Stockport,KAC,2026-11-09,3.03
-EB14 Stockport,EV,2026-11-09,8.1
-ED22 Cobham & Heathrow,HEC,2026-11-09,8.14
-ED22 Cobham & Heathrow,KAC,2026-11-09,5.56
-ED22 Cobham & Heathrow,EV,2026-11-09,7.54
-EA62 Blackpool & Lancaster,HEC,2026-11-09,5.76
-EA62 Blackpool & Lancaster,KAC,2026-11-09,3.39
-EA62 Blackpool & Lancaster,EV,2026-11-09,3.26
-EA62 Preston & Southport,HEC,2026-11-09,4.27
-EA62 Preston & Southport,KAC,2026-11-09,7.85
-EA62 Preston & Southport,EV,2026-11-09,7.57
-EB24 The Wirral,HEC,2026-11-09,7.63
-EB24 The Wirral,KAC,2026-11-09,7.94
-EB24 The Wirral,EV,2026-11-09,3.91
-EC91 Leicester,HEC,2026-11-09,4.16
-EC91 Leicester,KAC,2026-11-09,3.24
-EC91 Leicester,EV,2026-11-09,7.1
-ED41 Bromley & Dartford,HEC,2026-11-09,7.89
-ED41 Bromley & Dartford,KAC,2026-11-09,4.86
-ED41 Bromley & Dartford,EV,2026-11-09,6.25
-EB13 Manchester Centre,HEC,2026-11-09,3.58
-EB13 Manchester Centre,KAC,2026-11-09,8.32
-EB13 Manchester Centre,EV,2026-11-09,7.91
-EB12 Lancashire South,HEC,2026-11-09,8.41
-EB12 Lancashire South,KAC,2026-11-09,7.34
-EB12 Lancashire South,EV,2026-11-09,7.65
-ED44 Canterbury & Dover,HEC,2026-11-16,2.71
-ED44 Canterbury & Dover,KAC,2026-11-16,6.75
-ED44 Canterbury & Dover,EV,2026-11-16,4.57
-EB12 Altrincham,HEC,2026-11-16,8.48
-EB12 Altrincham,KAC,2026-11-16,7.47
-EB12 Altrincham,EV,2026-11-16,7.65
-EC62 Essex East,HEC,2026-11-16,7.69
-EC62 Essex East,KAC,2026-11-16,4.14
-EC62 Essex East,EV,2026-11-16,7.22
-EB14 Stockport,HEC,2026-11-16,3.25
-EB14 Stockport,KAC,2026-11-16,7.76
-EB14 Stockport,EV,2026-11-16,7.84
-ED22 Cobham & Heathrow,HEC,2026-11-16,4.02
-ED22 Cobham & Heathrow,KAC,2026-11-16,7.62
-ED22 Cobham & Heathrow,EV,2026-11-16,5.15
-EA62 Blackpool & Lancaster,HEC,2026-11-16,4.26
-EA62 Blackpool & Lancaster,KAC,2026-11-16,7.53
-EA62 Blackpool & Lancaster,EV,2026-11-16,3.96
-EA62 Preston & Southport,HEC,2026-11-16,2.7
-EA62 Preston & Southport,KAC,2026-11-16,3.71
-EA62 Preston & Southport,EV,2026-11-16,4.58
-EB24 The Wirral,HEC,2026-11-16,7.77
-EB24 The Wirral,KAC,2026-11-16,8.11
-EB24 The Wirral,EV,2026-11-16,4.1
-EC91 Leicester,HEC,2026-11-16,6.44
-EC91 Leicester,KAC,2026-11-16,5.04
-EC91 Leicester,EV,2026-11-16,8.27
-ED41 Bromley & Dartford,HEC,2026-11-16,5.55
-ED41 Bromley & Dartford,KAC,2026-11-16,7.94
-ED41 Bromley & Dartford,EV,2026-11-16,3.32
-EB13 Manchester Centre,HEC,2026-11-16,8.27
-EB13 Manchester Centre,KAC,2026-11-16,3.65
-EB13 Manchester Centre,EV,2026-11-16,7.99
-EB12 Lancashire South,HEC,2026-11-16,4.2
-EB12 Lancashire South,KAC,2026-11-16,3.25
-EB12 Lancashire South,EV,2026-11-16,4.96
-ED44 Canterbury & Dover,HEC,2026-11-23,7.0
-ED44 Canterbury & Dover,KAC,2026-11-23,4.43
-ED44 Canterbury & Dover,EV,2026-11-23,5.97
-EB12 Altrincham,HEC,2026-11-23,5.39
-EB12 Altrincham,KAC,2026-11-23,4.84
-EB12 Altrincham,EV,2026-11-23,5.95
-EC62 Essex East,HEC,2026-11-23,3.95
-EC62 Essex East,KAC,2026-11-23,6.59
-EC62 Essex East,EV,2026-11-23,2.52
-EB14 Stockport,HEC,2026-11-23,8.26
-EB14 Stockport,KAC,2026-11-23,5.61
-EB14 Stockport,EV,2026-11-23,7.06
-ED22 Cobham & Heathrow,HEC,2026-11-23,6.93
-ED22 Cobham & Heathrow,KAC,2026-11-23,6.69
-ED22 Cobham & Heathrow,EV,2026-11-23,4.77
-EA62 Blackpool & Lancaster,HEC,2026-11-23,2.91
-EA62 Blackpool & Lancaster,KAC,2026-11-23,6.6
-EA62 Blackpool & Lancaster,EV,2026-11-23,4.67
-EA62 Preston & Southport,HEC,2026-11-23,4.59
-EA62 Preston & Southport,KAC,2026-11-23,7.87
-EA62 Preston & Southport,EV,2026-11-23,7.04
-EB24 The Wirral,HEC,2026-11-23,4.31
-EB24 The Wirral,KAC,2026-11-23,4.35
-EB24 The Wirral,EV,2026-11-23,5.13
-EC91 Leicester,HEC,2026-11-23,5.04
-EC91 Leicester,KAC,2026-11-23,4.34
-EC91 Leicester,EV,2026-11-23,3.3
-ED41 Bromley & Dartford,HEC,2026-11-23,4.97
-ED41 Bromley & Dartford,KAC,2026-11-23,8.43
-ED41 Bromley & Dartford,EV,2026-11-23,6.41
-EB13 Manchester Centre,HEC,2026-11-23,7.66
-EB13 Manchester Centre,KAC,2026-11-23,6.18
-EB13 Manchester Centre,EV,2026-11-23,4.41
-EB12 Lancashire South,HEC,2026-11-23,5.75
-EB12 Lancashire South,KAC,2026-11-23,2.54
-EB12 Lancashire South,EV,2026-11-23,4.28
-ED44 Canterbury & Dover,HEC,2026-11-30,4.91
-ED44 Canterbury & Dover,KAC,2026-11-30,6.16
-ED44 Canterbury & Dover,EV,2026-11-30,6.24
-EB12 Altrincham,HEC,2026-11-30,5.23
-EB12 Altrincham,KAC,2026-11-30,4.98
-EB12 Altrincham,EV,2026-11-30,3.89
-EC62 Essex East,HEC,2026-11-30,5.51
-EC62 Essex East,KAC,2026-11-30,7.78
-EC62 Essex East,EV,2026-11-30,7.18
-EB14 Stockport,HEC,2026-11-30,3.49
-EB14 Stockport,KAC,2026-11-30,2.97
-EB14 Stockport,EV,2026-11-30,5.42
-ED22 Cobham & Heathrow,HEC,2026-11-30,6.31
-ED22 Cobham & Heathrow,KAC,2026-11-30,4.53
-ED22 Cobham & Heathrow,EV,2026-11-30,7.59
-EA62 Blackpool & Lancaster,HEC,2026-11-30,6.85
-EA62 Blackpool & Lancaster,KAC,2026-11-30,6.36
-EA62 Blackpool & Lancaster,EV,2026-11-30,3.85
-EA62 Preston & Southport,HEC,2026-11-30,3.84
-EA62 Preston & Southport,KAC,2026-11-30,2.69
-EA62 Preston & Southport,EV,2026-11-30,3.87
-EB24 The Wirral,HEC,2026-11-30,5.45
-EB24 The Wirral,KAC,2026-11-30,7.82
-EB24 The Wirral,EV,2026-11-30,3.05
-EC91 Leicester,HEC,2026-11-30,5.14
-EC91 Leicester,KAC,2026-11-30,6.24
-EC91 Leicester,EV,2026-11-30,3.56
-ED41 Bromley & Dartford,HEC,2026-11-30,6.43
-ED41 Bromley & Dartford,KAC,2026-11-30,5.68
-ED41 Bromley & Dartford,EV,2026-11-30,4.07
-EB13 Manchester Centre,HEC,2026-11-30,6.5
-EB13 Manchester Centre,KAC,2026-11-30,2.49
-EB13 Manchester Centre,EV,2026-11-30,7.0
-EB12 Lancashire South,HEC,2026-11-30,7.15
-EB12 Lancashire South,KAC,2026-11-30,3.03
-EB12 Lancashire South,EV,2026-11-30,5.05
-ED44 Canterbury & Dover,HEC,2026-12-07,3.46
-ED44 Canterbury & Dover,KAC,2026-12-07,8.12
-ED44 Canterbury & Dover,EV,2026-12-07,5.63
-EB12 Altrincham,HEC,2026-12-07,2.83
-EB12 Altrincham,KAC,2026-12-07,4.0
-EB12 Altrincham,EV,2026-12-07,7.52
-EC62 Essex East,HEC,2026-12-07,5.15
-EC62 Essex East,KAC,2026-12-07,7.3
-EC62 Essex East,EV,2026-12-07,6.43
-EB14 Stockport,HEC,2026-12-07,8.24
-EB14 Stockport,KAC,2026-12-07,5.93
-EB14 Stockport,EV,2026-12-07,7.97
-ED22 Cobham & Heathrow,HEC,2026-12-07,7.83
-ED22 Cobham & Heathrow,KAC,2026-12-07,6.2
-ED22 Cobham & Heathrow,EV,2026-12-07,6.71
-EA62 Blackpool & Lancaster,HEC,2026-12-07,5.33
-EA62 Blackpool & Lancaster,KAC,2026-12-07,7.69
-EA62 Blackpool & Lancaster,EV,2026-12-07,5.64
-EA62 Preston & Southport,HEC,2026-12-07,8.17
-EA62 Preston & Southport,KAC,2026-12-07,6.98
-EA62 Preston & Southport,EV,2026-12-07,5.59
-EB24 The Wirral,HEC,2026-12-07,4.24
-EB24 The Wirral,KAC,2026-12-07,3.96
-EB24 The Wirral,EV,2026-12-07,6.6
-EC91 Leicester,HEC,2026-12-07,6.96
-EC91 Leicester,KAC,2026-12-07,5.74
-EC91 Leicester,EV,2026-12-07,6.28
-ED41 Bromley & Dartford,HEC,2026-12-07,4.34
-ED41 Bromley & Dartford,KAC,2026-12-07,2.88
-ED41 Bromley & Dartford,EV,2026-12-07,4.29
-EB13 Manchester Centre,HEC,2026-12-07,3.98
-EB13 Manchester Centre,KAC,2026-12-07,4.55
-EB13 Manchester Centre,EV,2026-12-07,5.76
-EB12 Lancashire South,HEC,2026-12-07,3.32
-EB12 Lancashire South,KAC,2026-12-07,3.8
-EB12 Lancashire South,EV,2026-12-07,6.78
-ED44 Canterbury & Dover,HEC,2026-12-14,6.8
-ED44 Canterbury & Dover,KAC,2026-12-14,2.83
-ED44 Canterbury & Dover,EV,2026-12-14,4.77
-EB12 Altrincham,HEC,2026-12-14,5.69
-EB12 Altrincham,KAC,2026-12-14,5.12
-EB12 Altrincham,EV,2026-12-14,3.61
-EC62 Essex East,HEC,2026-12-14,5.17
-EC62 Essex East,KAC,2026-12-14,7.83
-EC62 Essex East,EV,2026-12-14,6.1
-EB14 Stockport,HEC,2026-12-14,6.9
-EB14 Stockport,KAC,2026-12-14,7.87
-EB14 Stockport,EV,2026-12-14,6.85
-ED22 Cobham & Heathrow,HEC,2026-12-14,4.78
-ED22 Cobham & Heathrow,KAC,2026-12-14,2.6
-ED22 Cobham & Heathrow,EV,2026-12-14,4.6
-EA62 Blackpool & Lancaster,HEC,2026-12-14,7.01
-EA62 Blackpool & Lancaster,KAC,2026-12-14,7.38
-EA62 Blackpool & Lancaster,EV,2026-12-14,8.17
-EA62 Preston & Southport,HEC,2026-12-14,4.83
-EA62 Preston & Southport,KAC,2026-12-14,7.07
-EA62 Preston & Southport,EV,2026-12-14,5.8
-EB24 The Wirral,HEC,2026-12-14,5.95
-EB24 The Wirral,KAC,2026-12-14,3.83
-EB24 The Wirral,EV,2026-12-14,3.9
-EC91 Leicester,HEC,2026-12-14,4.94
-EC91 Leicester,KAC,2026-12-14,2.79
-EC91 Leicester,EV,2026-12-14,4.38
-ED41 Bromley & Dartford,HEC,2026-12-14,6.48
-ED41 Bromley & Dartford,KAC,2026-12-14,5.09
-ED41 Bromley & Dartford,EV,2026-12-14,3.48
-EB13 Manchester Centre,HEC,2026-12-14,5.18
-EB13 Manchester Centre,KAC,2026-12-14,3.37
-EB13 Manchester Centre,EV,2026-12-14,6.27
-EB12 Lancashire South,HEC,2026-12-14,2.57
-EB12 Lancashire South,KAC,2026-12-14,4.86
-EB12 Lancashire South,EV,2026-12-14,5.87
-ED44 Canterbury & Dover,HEC,2026-12-21,2.69
-ED44 Canterbury & Dover,KAC,2026-12-21,6.64
-ED44 Canterbury & Dover,EV,2026-12-21,3.36
-EB12 Altrincham,HEC,2026-12-21,5.31
-EB12 Altrincham,KAC,2026-12-21,2.87
-EB12 Altrincham,EV,2026-12-21,4.69
-EC62 Essex East,HEC,2026-12-21,3.82
-EC62 Essex East,KAC,2026-12-21,4.67
-EC62 Essex East,EV,2026-12-21,6.95
-EB14 Stockport,HEC,2026-12-21,4.98
-EB14 Stockport,KAC,2026-12-21,6.78
-EB14 Stockport,EV,2026-12-21,7.64
-ED22 Cobham & Heathrow,HEC,2026-12-21,3.92
-ED22 Cobham & Heathrow,KAC,2026-12-21,2.99
-ED22 Cobham & Heathrow,EV,2026-12-21,2.73
-EA62 Blackpool & Lancaster,HEC,2026-12-21,5.65
-EA62 Blackpool & Lancaster,KAC,2026-12-21,8.21
-EA62 Blackpool & Lancaster,EV,2026-12-21,4.78
-EA62 Preston & Southport,HEC,2026-12-21,6.55
-EA62 Preston & Southport,KAC,2026-12-21,7.15
-EA62 Preston & Southport,EV,2026-12-21,6.72
-EB24 The Wirral,HEC,2026-12-21,7.34
-EB24 The Wirral,KAC,2026-12-21,8.45
-EB24 The Wirral,EV,2026-12-21,3.77
-EC91 Leicester,HEC,2026-12-21,2.67
-EC91 Leicester,KAC,2026-12-21,3.44
-EC91 Leicester,EV,2026-12-21,3.34
-ED41 Bromley & Dartford,HEC,2026-12-21,6.31
-ED41 Bromley & Dartford,KAC,2026-12-21,6.03
-ED41 Bromley & Dartford,EV,2026-12-21,3.73
-EB13 Manchester Centre,HEC,2026-12-21,6.48
-EB13 Manchester Centre,KAC,2026-12-21,6.89
-EB13 Manchester Centre,EV,2026-12-21,3.53
-EB12 Lancashire South,HEC,2026-12-21,6.37
-EB12 Lancashire South,KAC,2026-12-21,6.9
-EB12 Lancashire South,EV,2026-12-21,3.25
-ED44 Canterbury & Dover,HEC,2026-12-28,7.69
-ED44 Canterbury & Dover,KAC,2026-12-28,8.61
-ED44 Canterbury & Dover,EV,2026-12-28,3.09
-EB12 Altrincham,HEC,2026-12-28,2.58
-EB12 Altrincham,KAC,2026-12-28,4.43
-EB12 Altrincham,EV,2026-12-28,6.82
-EC62 Essex East,HEC,2026-12-28,8.31
-EC62 Essex East,KAC,2026-12-28,4.74
-EC62 Essex East,EV,2026-12-28,6.55
-EB14 Stockport,HEC,2026-12-28,3.05
-EB14 Stockport,KAC,2026-12-28,6.97
-EB14 Stockport,EV,2026-12-28,6.12
-ED22 Cobham & Heathrow,HEC,2026-12-28,3.08
-ED22 Cobham & Heathrow,KAC,2026-12-28,6.96
-ED22 Cobham & Heathrow,EV,2026-12-28,7.87
-EA62 Blackpool & Lancaster,HEC,2026-12-28,6.32
-EA62 Blackpool & Lancaster,KAC,2026-12-28,3.37
-EA62 Blackpool & Lancaster,EV,2026-12-28,8.3
-EA62 Preston & Southport,HEC,2026-12-28,6.94
-EA62 Preston & Southport,KAC,2026-12-28,4.7
-EA62 Preston & Southport,EV,2026-12-28,4.89
-EB24 The Wirral,HEC,2026-12-28,4.86
-EB24 The Wirral,KAC,2026-12-28,5.69
-EB24 The Wirral,EV,2026-12-28,4.4
-EC91 Leicester,HEC,2026-12-28,7.77
-EC91 Leicester,KAC,2026-12-28,7.73
-EC91 Leicester,EV,2026-12-28,3.28
-ED41 Bromley & Dartford,HEC,2026-12-28,8.64
-ED41 Bromley & Dartford,KAC,2026-12-28,6.6
-ED41 Bromley & Dartford,EV,2026-12-28,7.49
-EB13 Manchester Centre,HEC,2026-12-28,6.92
-EB13 Manchester Centre,KAC,2026-12-28,5.09
-EB13 Manchester Centre,EV,2026-12-28,7.15
-EB12 Lancashire South,HEC,2026-12-28,8.1
-EB12 Lancashire South,KAC,2026-12-28,4.11
-EB12 Lancashire South,EV,2026-12-28,7.49
-ED44 Canterbury & Dover,HEC,2027-01-04,5.86
-ED44 Canterbury & Dover,KAC,2027-01-04,5.4
-ED44 Canterbury & Dover,EV,2027-01-04,5.3
-EB12 Altrincham,HEC,2027-01-04,6.97
-EB12 Altrincham,KAC,2027-01-04,4.13
-EB12 Altrincham,EV,2027-01-04,7.65
-EC62 Essex East,HEC,2027-01-04,7.59
-EC62 Essex East,KAC,2027-01-04,2.95
-EC62 Essex East,EV,2027-01-04,7.54
-EB14 Stockport,HEC,2027-01-04,4.11
-EB14 Stockport,KAC,2027-01-04,5.23
-EB14 Stockport,EV,2027-01-04,6.33
-ED22 Cobham & Heathrow,HEC,2027-01-04,4.61
-ED22 Cobham & Heathrow,KAC,2027-01-04,2.8
-ED22 Cobham & Heathrow,EV,2027-01-04,7.87
-EA62 Blackpool & Lancaster,HEC,2027-01-04,3.66
-EA62 Blackpool & Lancaster,KAC,2027-01-04,3.65
-EA62 Blackpool & Lancaster,EV,2027-01-04,7.58
-EA62 Preston & Southport,HEC,2027-01-04,4.74
-EA62 Preston & Southport,KAC,2027-01-04,8.0
-EA62 Preston & Southport,EV,2027-01-04,6.79
-EB24 The Wirral,HEC,2027-01-04,3.99
-EB24 The Wirral,KAC,2027-01-04,2.52
-EB24 The Wirral,EV,2027-01-04,7.9
-EC91 Leicester,HEC,2027-01-04,3.06
-EC91 Leicester,KAC,2027-01-04,6.71
-EC91 Leicester,EV,2027-01-04,5.43
-ED41 Bromley & Dartford,HEC,2027-01-04,7.4
-ED41 Bromley & Dartford,KAC,2027-01-04,6.71
-ED41 Bromley & Dartford,EV,2027-01-04,6.55
-EB13 Manchester Centre,HEC,2027-01-04,5.66
-EB13 Manchester Centre,KAC,2027-01-04,7.43
-EB13 Manchester Centre,EV,2027-01-04,3.0
-EB12 Lancashire South,HEC,2027-01-04,3.78
-EB12 Lancashire South,KAC,2027-01-04,6.92
-EB12 Lancashire South,EV,2027-01-04,4.44
-ED44 Canterbury & Dover,HEC,2027-01-11,6.28
-ED44 Canterbury & Dover,KAC,2027-01-11,5.58
-ED44 Canterbury & Dover,EV,2027-01-11,5.54
-EB12 Altrincham,HEC,2027-01-11,4.92
-EB12 Altrincham,KAC,2027-01-11,7.28
-EB12 Altrincham,EV,2027-01-11,4.39
-EC62 Essex East,HEC,2027-01-11,7.01
-EC62 Essex East,KAC,2027-01-11,4.29
-EC62 Essex East,EV,2027-01-11,3.96
-EB14 Stockport,HEC,2027-01-11,3.22
-EB14 Stockport,KAC,2027-01-11,3.79
-EB14 Stockport,EV,2027-01-11,3.16
-ED22 Cobham & Heathrow,HEC,2027-01-11,5.91
-ED22 Cobham & Heathrow,KAC,2027-01-11,7.23
-ED22 Cobham & Heathrow,EV,2027-01-11,3.52
-EA62 Blackpool & Lancaster,HEC,2027-01-11,3.74
-EA62 Blackpool & Lancaster,KAC,2027-01-11,5.46
-EA62 Blackpool & Lancaster,EV,2027-01-11,6.67
-EA62 Preston & Southport,HEC,2027-01-11,8.72
-EA62 Preston & Southport,KAC,2027-01-11,5.44
-EA62 Preston & Southport,EV,2027-01-11,4.41
-EB24 The Wirral,HEC,2027-01-11,3.2
-EB24 The Wirral,KAC,2027-01-11,3.62
-EB24 The Wirral,EV,2027-01-11,3.74
-EC91 Leicester,HEC,2027-01-11,3.67
-EC91 Leicester,KAC,2027-01-11,2.57
-EC91 Leicester,EV,2027-01-11,5.77
-ED41 Bromley & Dartford,HEC,2027-01-11,4.18
-ED41 Bromley & Dartford,KAC,2027-01-11,8.17
-ED41 Bromley & Dartford,EV,2027-01-11,5.93
-EB13 Manchester Centre,HEC,2027-01-11,6.84
-EB13 Manchester Centre,KAC,2027-01-11,3.33
-EB13 Manchester Centre,EV,2027-01-11,7.86
-EB12 Lancashire South,HEC,2027-01-11,5.55
-EB12 Lancashire South,KAC,2027-01-11,7.66
-EB12 Lancashire South,EV,2027-01-11,5.71
-ED44 Canterbury & Dover,HEC,2027-01-18,5.51
-ED44 Canterbury & Dover,KAC,2027-01-18,5.36
-ED44 Canterbury & Dover,EV,2027-01-18,3.64
-EB12 Altrincham,HEC,2027-01-18,2.91
-EB12 Altrincham,KAC,2027-01-18,8.24
-EB12 Altrincham,EV,2027-01-18,5.46
-EC62 Essex East,HEC,2027-01-18,7.58
-EC62 Essex East,KAC,2027-01-18,4.72
-EC62 Essex East,EV,2027-01-18,2.96
-EB14 Stockport,HEC,2027-01-18,6.54
-EB14 Stockport,KAC,2027-01-18,2.8
-EB14 Stockport,EV,2027-01-18,3.48
-ED22 Cobham & Heathrow,HEC,2027-01-18,6.1
-ED22 Cobham & Heathrow,KAC,2027-01-18,4.32
-ED22 Cobham & Heathrow,EV,2027-01-18,8.71
-EA62 Blackpool & Lancaster,HEC,2027-01-18,3.21
-EA62 Blackpool & Lancaster,KAC,2027-01-18,6.82
-EA62 Blackpool & Lancaster,EV,2027-01-18,6.07
-EA62 Preston & Southport,HEC,2027-01-18,7.47
-EA62 Preston & Southport,KAC,2027-01-18,3.77
-EA62 Preston & Southport,EV,2027-01-18,5.52
-EB24 The Wirral,HEC,2027-01-18,5.24
-EB24 The Wirral,KAC,2027-01-18,5.19
-EB24 The Wirral,EV,2027-01-18,7.48
-EC91 Leicester,HEC,2027-01-18,8.51
-EC91 Leicester,KAC,2027-01-18,4.41
-EC91 Leicester,EV,2027-01-18,6.37
-ED41 Bromley & Dartford,HEC,2027-01-18,6.36
-ED41 Bromley & Dartford,KAC,2027-01-18,7.03
-ED41 Bromley & Dartford,EV,2027-01-18,8.37
-EB13 Manchester Centre,HEC,2027-01-18,3.87
-EB13 Manchester Centre,KAC,2027-01-18,3.73
-EB13 Manchester Centre,EV,2027-01-18,6.25
-EB12 Lancashire South,HEC,2027-01-18,3.59
-EB12 Lancashire South,KAC,2027-01-18,3.61
-EB12 Lancashire South,EV,2027-01-18,2.95
-ED44 Canterbury & Dover,HEC,2027-01-25,2.5
-ED44 Canterbury & Dover,KAC,2027-01-25,5.05
-ED44 Canterbury & Dover,EV,2027-01-25,6.27
-EB12 Altrincham,HEC,2027-01-25,4.38
-EB12 Altrincham,KAC,2027-01-25,3.86
-EB12 Altrincham,EV,2027-01-25,6.68
-EC62 Essex East,HEC,2027-01-25,6.64
-EC62 Essex East,KAC,2027-01-25,5.32
-EC62 Essex East,EV,2027-01-25,6.73
-EB14 Stockport,HEC,2027-01-25,8.09
-EB14 Stockport,KAC,2027-01-25,7.16
-EB14 Stockport,EV,2027-01-25,6.11
-ED22 Cobham & Heathrow,HEC,2027-01-25,6.76
-ED22 Cobham & Heathrow,KAC,2027-01-25,7.85
-ED22 Cobham & Heathrow,EV,2027-01-25,5.09
-EA62 Blackpool & Lancaster,HEC,2027-01-25,5.61
-EA62 Blackpool & Lancaster,KAC,2027-01-25,6.37
-EA62 Blackpool & Lancaster,EV,2027-01-25,7.84
-EA62 Preston & Southport,HEC,2027-01-25,7.59
-EA62 Preston & Southport,KAC,2027-01-25,2.86
-EA62 Preston & Southport,EV,2027-01-25,3.37
-EB24 The Wirral,HEC,2027-01-25,4.31
-EB24 The Wirral,KAC,2027-01-25,6.8
-EB24 The Wirral,EV,2027-01-25,5.69
-EC91 Leicester,HEC,2027-01-25,4.08
-EC91 Leicester,KAC,2027-01-25,3.12
-EC91 Leicester,EV,2027-01-25,6.69
-ED41 Bromley & Dartford,HEC,2027-01-25,6.5
-ED41 Bromley & Dartford,KAC,2027-01-25,8.04
-ED41 Bromley & Dartford,EV,2027-01-25,5.47
-EB13 Manchester Centre,HEC,2027-01-25,5.7
-EB13 Manchester Centre,KAC,2027-01-25,3.03
-EB13 Manchester Centre,EV,2027-01-25,2.78
-EB12 Lancashire South,HEC,2027-01-25,4.92
-EB12 Lancashire South,KAC,2027-01-25,4.62
-EB12 Lancashire South,EV,2027-01-25,4.13
-ED44 Canterbury & Dover,HEC,2027-02-01,3.13
-ED44 Canterbury & Dover,KAC,2027-02-01,8.44
-ED44 Canterbury & Dover,EV,2027-02-01,7.37
-EB12 Altrincham,HEC,2027-02-01,6.17
-EB12 Altrincham,KAC,2027-02-01,8.48
-EB12 Altrincham,EV,2027-02-01,8.19
-EC62 Essex East,HEC,2027-02-01,6.68
-EC62 Essex East,KAC,2027-02-01,4.08
-EC62 Essex East,EV,2027-02-01,2.78
-EB14 Stockport,HEC,2027-02-01,7.05
-EB14 Stockport,KAC,2027-02-01,5.22
-EB14 Stockport,EV,2027-02-01,6.19
-ED22 Cobham & Heathrow,HEC,2027-02-01,8.18
-ED22 Cobham & Heathrow,KAC,2027-02-01,3.52
-ED22 Cobham & Heathrow,EV,2027-02-01,6.21
-EA62 Blackpool & Lancaster,HEC,2027-02-01,6.17
-EA62 Blackpool & Lancaster,KAC,2027-02-01,5.38
-EA62 Blackpool & Lancaster,EV,2027-02-01,3.0
-EA62 Preston & Southport,HEC,2027-02-01,4.54
-EA62 Preston & Southport,KAC,2027-02-01,4.62
-EA62 Preston & Southport,EV,2027-02-01,6.75
-EB24 The Wirral,HEC,2027-02-01,7.74
-EB24 The Wirral,KAC,2027-02-01,4.52
-EB24 The Wirral,EV,2027-02-01,6.54
-EC91 Leicester,HEC,2027-02-01,4.41
-EC91 Leicester,KAC,2027-02-01,8.37
-EC91 Leicester,EV,2027-02-01,7.64
-ED41 Bromley & Dartford,HEC,2027-02-01,6.07
-ED41 Bromley & Dartford,KAC,2027-02-01,5.09
-ED41 Bromley & Dartford,EV,2027-02-01,4.6
-EB13 Manchester Centre,HEC,2027-02-01,4.49
-EB13 Manchester Centre,KAC,2027-02-01,8.6
-EB13 Manchester Centre,EV,2027-02-01,4.88
-EB12 Lancashire South,HEC,2027-02-01,5.86
-EB12 Lancashire South,KAC,2027-02-01,8.19
-EB12 Lancashire South,EV,2027-02-01,6.7
-ED44 Canterbury & Dover,HEC,2027-02-08,5.92
-ED44 Canterbury & Dover,KAC,2027-02-08,5.18
-ED44 Canterbury & Dover,EV,2027-02-08,3.55
-EB12 Altrincham,HEC,2027-02-08,4.5
-EB12 Altrincham,KAC,2027-02-08,6.92
-EB12 Altrincham,EV,2027-02-08,6.46
-EC62 Essex East,HEC,2027-02-08,7.26
-EC62 Essex East,KAC,2027-02-08,3.6
-EC62 Essex East,EV,2027-02-08,5.6
-EB14 Stockport,HEC,2027-02-08,7.82
-EB14 Stockport,KAC,2027-02-08,5.07
-EB14 Stockport,EV,2027-02-08,6.6
-ED22 Cobham & Heathrow,HEC,2027-02-08,3.12
-ED22 Cobham & Heathrow,KAC,2027-02-08,8.07
-ED22 Cobham & Heathrow,EV,2027-02-08,6.11
-EA62 Blackpool & Lancaster,HEC,2027-02-08,3.89
-EA62 Blackpool & Lancaster,KAC,2027-02-08,3.47
-EA62 Blackpool & Lancaster,EV,2027-02-08,5.95
-EA62 Preston & Southport,HEC,2027-02-08,6.01
-EA62 Preston & Southport,KAC,2027-02-08,3.12
-EA62 Preston & Southport,EV,2027-02-08,8.54
-EB24 The Wirral,HEC,2027-02-08,8.01
-EB24 The Wirral,KAC,2027-02-08,5.31
-EB24 The Wirral,EV,2027-02-08,3.36
-EC91 Leicester,HEC,2027-02-08,7.52
-EC91 Leicester,KAC,2027-02-08,5.59
-EC91 Leicester,EV,2027-02-08,7.08
-ED41 Bromley & Dartford,HEC,2027-02-08,5.56
-ED41 Bromley & Dartford,KAC,2027-02-08,4.17
-ED41 Bromley & Dartford,EV,2027-02-08,7.59
-EB13 Manchester Centre,HEC,2027-02-08,8.3
-EB13 Manchester Centre,KAC,2027-02-08,3.87
-EB13 Manchester Centre,EV,2027-02-08,5.76
-EB12 Lancashire South,HEC,2027-02-08,4.73
-EB12 Lancashire South,KAC,2027-02-08,8.03
-EB12 Lancashire South,EV,2027-02-08,5.78
-ED44 Canterbury & Dover,HEC,2027-02-15,7.58
-ED44 Canterbury & Dover,KAC,2027-02-15,7.47
-ED44 Canterbury & Dover,EV,2027-02-15,4.02
-EB12 Altrincham,HEC,2027-02-15,7.53
-EB12 Altrincham,KAC,2027-02-15,4.98
-EB12 Altrincham,EV,2027-02-15,8.39
-EC62 Essex East,HEC,2027-02-15,5.55
-EC62 Essex East,KAC,2027-02-15,7.45
-EC62 Essex East,EV,2027-02-15,4.06
-EB14 Stockport,HEC,2027-02-15,4.22
-EB14 Stockport,KAC,2027-02-15,5.85
-EB14 Stockport,EV,2027-02-15,8.84
-ED22 Cobham & Heathrow,HEC,2027-02-15,5.65
-ED22 Cobham & Heathrow,KAC,2027-02-15,3.52
-ED22 Cobham & Heathrow,EV,2027-02-15,5.77
-EA62 Blackpool & Lancaster,HEC,2027-02-15,4.42
-EA62 Blackpool & Lancaster,KAC,2027-02-15,5.84
-EA62 Blackpool & Lancaster,EV,2027-02-15,5.77
-EA62 Preston & Southport,HEC,2027-02-15,5.34
-EA62 Preston & Southport,KAC,2027-02-15,4.59
-EA62 Preston & Southport,EV,2027-02-15,3.75
-EB24 The Wirral,HEC,2027-02-15,6.76
-EB24 The Wirral,KAC,2027-02-15,5.9
-EB24 The Wirral,EV,2027-02-15,3.97
-EC91 Leicester,HEC,2027-02-15,7.04
-EC91 Leicester,KAC,2027-02-15,2.69
-EC91 Leicester,EV,2027-02-15,6.88
-ED41 Bromley & Dartford,HEC,2027-02-15,7.07
-ED41 Bromley & Dartford,KAC,2027-02-15,7.6
-ED41 Bromley & Dartford,EV,2027-02-15,4.98
-EB13 Manchester Centre,HEC,2027-02-15,6.71
-EB13 Manchester Centre,KAC,2027-02-15,7.35
-EB13 Manchester Centre,EV,2027-02-15,8.51
-EB12 Lancashire South,HEC,2027-02-15,5.72
-EB12 Lancashire South,KAC,2027-02-15,2.85
-EB12 Lancashire South,EV,2027-02-15,5.46
-ED44 Canterbury & Dover,HEC,2027-02-22,5.87
-ED44 Canterbury & Dover,KAC,2027-02-22,7.6
-ED44 Canterbury & Dover,EV,2027-02-22,8.01
-EB12 Altrincham,HEC,2027-02-22,5.36
-EB12 Altrincham,KAC,2027-02-22,5.64
-EB12 Altrincham,EV,2027-02-22,5.32
-EC62 Essex East,HEC,2027-02-22,6.78
-EC62 Essex East,KAC,2027-02-22,4.98
-EC62 Essex East,EV,2027-02-22,6.67
-EB14 Stockport,HEC,2027-02-22,3.32
-EB14 Stockport,KAC,2027-02-22,5.16
-EB14 Stockport,EV,2027-02-22,8.04
-ED22 Cobham & Heathrow,HEC,2027-02-22,4.63
-ED22 Cobham & Heathrow,KAC,2027-02-22,6.95
-ED22 Cobham & Heathrow,EV,2027-02-22,6.64
-EA62 Blackpool & Lancaster,HEC,2027-02-22,7.82
-EA62 Blackpool & Lancaster,KAC,2027-02-22,7.56
-EA62 Blackpool & Lancaster,EV,2027-02-22,7.88
-EA62 Preston & Southport,HEC,2027-02-22,4.97
-EA62 Preston & Southport,KAC,2027-02-22,4.45
-EA62 Preston & Southport,EV,2027-02-22,7.12
-EB24 The Wirral,HEC,2027-02-22,6.79
-EB24 The Wirral,KAC,2027-02-22,7.87
-EB24 The Wirral,EV,2027-02-22,2.81
-EC91 Leicester,HEC,2027-02-22,2.88
-EC91 Leicester,KAC,2027-02-22,6.42
-EC91 Leicester,EV,2027-02-22,7.78
-ED41 Bromley & Dartford,HEC,2027-02-22,8.77
-ED41 Bromley & Dartford,KAC,2027-02-22,7.32
-ED41 Bromley & Dartford,EV,2027-02-22,4.99
-EB13 Manchester Centre,HEC,2027-02-22,3.02
-EB13 Manchester Centre,KAC,2027-02-22,6.58
-EB13 Manchester Centre,EV,2027-02-22,7.65
-EB12 Lancashire South,HEC,2027-02-22,5.21
-EB12 Lancashire South,KAC,2027-02-22,6.94
-EB12 Lancashire South,EV,2027-02-22,8.25
-ED44 Canterbury & Dover,HEC,2027-03-01,2.77
-ED44 Canterbury & Dover,KAC,2027-03-01,7.03
-ED44 Canterbury & Dover,EV,2027-03-01,4.28
-EB12 Altrincham,HEC,2027-03-01,4.62
-EB12 Altrincham,KAC,2027-03-01,3.37
-EB12 Altrincham,EV,2027-03-01,5.89
-EC62 Essex East,HEC,2027-03-01,5.74
-EC62 Essex East,KAC,2027-03-01,7.33
-EC62 Essex East,EV,2027-03-01,3.58
-EB14 Stockport,HEC,2027-03-01,3.12
-EB14 Stockport,KAC,2027-03-01,7.88
-EB14 Stockport,EV,2027-03-01,6.23
-ED22 Cobham & Heathrow,HEC,2027-03-01,3.92
-ED22 Cobham & Heathrow,KAC,2027-03-01,7.95
-ED22 Cobham & Heathrow,EV,2027-03-01,3.41
-EA62 Blackpool & Lancaster,HEC,2027-03-01,5.07
-EA62 Blackpool & Lancaster,KAC,2027-03-01,4.2
-EA62 Blackpool & Lancaster,EV,2027-03-01,3.92
-EA62 Preston & Southport,HEC,2027-03-01,2.51
-EA62 Preston & Southport,KAC,2027-03-01,7.57
-EA62 Preston & Southport,EV,2027-03-01,7.96
-EB24 The Wirral,HEC,2027-03-01,6.87
-EB24 The Wirral,KAC,2027-03-01,3.41
-EB24 The Wirral,EV,2027-03-01,5.16
-EC91 Leicester,HEC,2027-03-01,4.6
-EC91 Leicester,KAC,2027-03-01,6.01
-EC91 Leicester,EV,2027-03-01,6.33
-ED41 Bromley & Dartford,HEC,2027-03-01,4.86
-ED41 Bromley & Dartford,KAC,2027-03-01,4.04
-ED41 Bromley & Dartford,EV,2027-03-01,7.8
-EB13 Manchester Centre,HEC,2027-03-01,3.56
-EB13 Manchester Centre,KAC,2027-03-01,4.77
-EB13 Manchester Centre,EV,2027-03-01,5.19
-EB12 Lancashire South,HEC,2027-03-01,4.11
-EB12 Lancashire South,KAC,2027-03-01,5.74
-EB12 Lancashire South,EV,2027-03-01,5.93
-ED44 Canterbury & Dover,HEC,2027-03-08,8.65
-ED44 Canterbury & Dover,KAC,2027-03-08,4.29
-ED44 Canterbury & Dover,EV,2027-03-08,8.22
-EB12 Altrincham,HEC,2027-03-08,6.52
-EB12 Altrincham,KAC,2027-03-08,4.26
-EB12 Altrincham,EV,2027-03-08,5.9
-EC62 Essex East,HEC,2027-03-08,6.42
-EC62 Essex East,KAC,2027-03-08,7.12
-EC62 Essex East,EV,2027-03-08,2.9
-EB14 Stockport,HEC,2027-03-08,6.44
-EB14 Stockport,KAC,2027-03-08,5.33
-EB14 Stockport,EV,2027-03-08,8.14
-ED22 Cobham & Heathrow,HEC,2027-03-08,4.39
-ED22 Cobham & Heathrow,KAC,2027-03-08,7.52
-ED22 Cobham & Heathrow,EV,2027-03-08,6.04
-EA62 Blackpool & Lancaster,HEC,2027-03-08,4.44
-EA62 Blackpool & Lancaster,KAC,2027-03-08,6.12
-EA62 Blackpool & Lancaster,EV,2027-03-08,6.29
-EA62 Preston & Southport,HEC,2027-03-08,6.69
-EA62 Preston & Southport,KAC,2027-03-08,6.58
-EA62 Preston & Southport,EV,2027-03-08,6.69
-EB24 The Wirral,HEC,2027-03-08,7.73
-EB24 The Wirral,KAC,2027-03-08,6.38
-EB24 The Wirral,EV,2027-03-08,8.1
-EC91 Leicester,HEC,2027-03-08,6.21
-EC91 Leicester,KAC,2027-03-08,4.48
-EC91 Leicester,EV,2027-03-08,4.96
-ED41 Bromley & Dartford,HEC,2027-03-08,6.07
-ED41 Bromley & Dartford,KAC,2027-03-08,6.95
-ED41 Bromley & Dartford,EV,2027-03-08,3.08
-EB13 Manchester Centre,HEC,2027-03-08,4.16
-EB13 Manchester Centre,KAC,2027-03-08,7.31
-EB13 Manchester Centre,EV,2027-03-08,3.49
-EB12 Lancashire South,HEC,2027-03-08,3.45
-EB12 Lancashire South,KAC,2027-03-08,5.57
-EB12 Lancashire South,EV,2027-03-08,8.6
-ED44 Canterbury & Dover,HEC,2027-03-15,5.52
-ED44 Canterbury & Dover,KAC,2027-03-15,7.84
-ED44 Canterbury & Dover,EV,2027-03-15,7.67
-EB12 Altrincham,HEC,2027-03-15,4.07
-EB12 Altrincham,KAC,2027-03-15,7.48
-EB12 Altrincham,EV,2027-03-15,5.57
-EC62 Essex East,HEC,2027-03-15,7.08
-EC62 Essex East,KAC,2027-03-15,6.89
-EC62 Essex East,EV,2027-03-15,4.37
-EB14 Stockport,HEC,2027-03-15,3.31
-EB14 Stockport,KAC,2027-03-15,8.49
-EB14 Stockport,EV,2027-03-15,3.41
-ED22 Cobham & Heathrow,HEC,2027-03-15,8.58
-ED22 Cobham & Heathrow,KAC,2027-03-15,7.46
-ED22 Cobham & Heathrow,EV,2027-03-15,7.13
-EA62 Blackpool & Lancaster,HEC,2027-03-15,8.58
-EA62 Blackpool & Lancaster,KAC,2027-03-15,8.13
-EA62 Blackpool & Lancaster,EV,2027-03-15,7.59
-EA62 Preston & Southport,HEC,2027-03-15,4.54
-EA62 Preston & Southport,KAC,2027-03-15,7.2
-EA62 Preston & Southport,EV,2027-03-15,2.56
-EB24 The Wirral,HEC,2027-03-15,5.87
-EB24 The Wirral,KAC,2027-03-15,5.22
-EB24 The Wirral,EV,2027-03-15,6.34
-EC91 Leicester,HEC,2027-03-15,6.67
-EC91 Leicester,KAC,2027-03-15,6.1
-EC91 Leicester,EV,2027-03-15,7.2
-ED41 Bromley & Dartford,HEC,2027-03-15,8.42
-ED41 Bromley & Dartford,KAC,2027-03-15,3.14
-ED41 Bromley & Dartford,EV,2027-03-15,3.88
-EB13 Manchester Centre,HEC,2027-03-15,2.77
-EB13 Manchester Centre,KAC,2027-03-15,8.01
-EB13 Manchester Centre,EV,2027-03-15,5.73
-EB12 Lancashire South,HEC,2027-03-15,8.0
-EB12 Lancashire South,KAC,2027-03-15,3.86
-EB12 Lancashire South,EV,2027-03-15,2.78
-ED44 Canterbury & Dover,HEC,2027-03-22,7.18
-ED44 Canterbury & Dover,KAC,2027-03-22,8.3
-ED44 Canterbury & Dover,EV,2027-03-22,4.15
-EB12 Altrincham,HEC,2027-03-22,4.76
-EB12 Altrincham,KAC,2027-03-22,3.45
-EB12 Altrincham,EV,2027-03-22,8.39
-EC62 Essex East,HEC,2027-03-22,4.25
-EC62 Essex East,KAC,2027-03-22,5.59
-EC62 Essex East,EV,2027-03-22,3.13
-EB14 Stockport,HEC,2027-03-22,7.7
-EB14 Stockport,KAC,2027-03-22,3.48
-EB14 Stockport,EV,2027-03-22,5.07
-ED22 Cobham & Heathrow,HEC,2027-03-22,6.27
-ED22 Cobham & Heathrow,KAC,2027-03-22,6.73
-ED22 Cobham & Heathrow,EV,2027-03-22,8.49
-EA62 Blackpool & Lancaster,HEC,2027-03-22,5.2
-EA62 Blackpool & Lancaster,KAC,2027-03-22,6.87
-EA62 Blackpool & Lancaster,EV,2027-03-22,3.45
-EA62 Preston & Southport,HEC,2027-03-22,5.02
-EA62 Preston & Southport,KAC,2027-03-22,2.98
-EA62 Preston & Southport,EV,2027-03-22,5.4
-EB24 The Wirral,HEC,2027-03-22,4.91
-EB24 The Wirral,KAC,2027-03-22,8.33
-EB24 The Wirral,EV,2027-03-22,2.64
-EC91 Leicester,HEC,2027-03-22,4.6
-EC91 Leicester,KAC,2027-03-22,5.38
-EC91 Leicester,EV,2027-03-22,8.54
-ED41 Bromley & Dartford,HEC,2027-03-22,7.72
-ED41 Bromley & Dartford,KAC,2027-03-22,3.11
-ED41 Bromley & Dartford,EV,2027-03-22,6.38
-EB13 Manchester Centre,HEC,2027-03-22,5.69
-EB13 Manchester Centre,KAC,2027-03-22,8.19
-EB13 Manchester Centre,EV,2027-03-22,4.71
-EB12 Lancashire South,HEC,2027-03-22,4.96
-EB12 Lancashire South,KAC,2027-03-22,3.56
-EB12 Lancashire South,EV,2027-03-22,3.37
-ED44 Canterbury & Dover,HEC,2027-03-29,7.81
-ED44 Canterbury & Dover,KAC,2027-03-29,5.26
-ED44 Canterbury & Dover,EV,2027-03-29,6.65
-EB12 Altrincham,HEC,2027-03-29,6.39
-EB12 Altrincham,KAC,2027-03-29,6.11
-EB12 Altrincham,EV,2027-03-29,2.61
-EC62 Essex East,HEC,2027-03-29,7.32
-EC62 Essex East,KAC,2027-03-29,3.97
-EC62 Essex East,EV,2027-03-29,3.28
-EB14 Stockport,HEC,2027-03-29,6.1
-EB14 Stockport,KAC,2027-03-29,3.03
-EB14 Stockport,EV,2027-03-29,6.98
-ED22 Cobham & Heathrow,HEC,2027-03-29,3.68
-ED22 Cobham & Heathrow,KAC,2027-03-29,3.78
-ED22 Cobham & Heathrow,EV,2027-03-29,7.84
-EA62 Blackpool & Lancaster,HEC,2027-03-29,4.45
-EA62 Blackpool & Lancaster,KAC,2027-03-29,3.38
-EA62 Blackpool & Lancaster,EV,2027-03-29,8.0
-EA62 Preston & Southport,HEC,2027-03-29,2.62
-EA62 Preston & Southport,KAC,2027-03-29,7.55
-EA62 Preston & Southport,EV,2027-03-29,3.47
-EB24 The Wirral,HEC,2027-03-29,3.3
-EB24 The Wirral,KAC,2027-03-29,4.15
-EB24 The Wirral,EV,2027-03-29,3.46
-EC91 Leicester,HEC,2027-03-29,6.76
-EC91 Leicester,KAC,2027-03-29,2.69
-EC91 Leicester,EV,2027-03-29,2.68
-ED41 Bromley & Dartford,HEC,2027-03-29,7.24
-ED41 Bromley & Dartford,KAC,2027-03-29,4.09
-ED41 Bromley & Dartford,EV,2027-03-29,4.63
-EB13 Manchester Centre,HEC,2027-03-29,3.54
-EB13 Manchester Centre,KAC,2027-03-29,2.92
-EB13 Manchester Centre,EV,2027-03-29,7.14
-EB12 Lancashire South,HEC,2027-03-29,5.88
-EB12 Lancashire South,KAC,2027-03-29,6.99
-EB12 Lancashire South,EV,2027-03-29,5.23
+EC62 Essex East,HEC,2026-10-12,7.44
+EC62 Essex East,KAC,2026-10-12,5.83
+EC62 Essex East,EV,2026-10-12,4.76
+EB14 Stockport,HEC,2026-10-12,5.08
+EB14 Stockport,KAC,2026-10-12,3.51
+EB14 Stockport,EV,2026-10-12,3.94
+ED22 Cobham & Heathrow,HEC,2026-10-12,4.43
+ED22 Cobham & Heathrow,KAC,2026-10-12,5.6
+ED22 Cobham & Heathrow,EV,2026-10-12,3.96
+EA62 Blackpool & Lancaster,HEC,2026-10-12,4.06
+EA62 Blackpool & Lancaster,KAC,2026-10-12,3.37
+EA62 Blackpool & Lancaster,EV,2026-10-12,5.65
+EA62 Preston & Southport,HEC,2026-10-12,3.85
+EA62 Preston & Southport,KAC,2026-10-12,6.91
+EA62 Preston & Southport,EV,2026-10-12,6.87
+EB24 The Wirral,HEC,2026-10-12,3.42
+EB24 The Wirral,KAC,2026-10-12,3.93
+EB24 The Wirral,EV,2026-10-12,5.89
+EC91 Leicester,HEC,2026-10-12,3.81
+EC91 Leicester,KAC,2026-10-12,3.51
+EC91 Leicester,EV,2026-10-12,7.05
+ED41 Bromley & Dartford,HEC,2026-10-12,5.57
+ED41 Bromley & Dartford,KAC,2026-10-12,5.1
+ED41 Bromley & Dartford,EV,2026-10-12,6.41
+EB13 Manchester Centre,HEC,2026-10-12,6.68
+EB13 Manchester Centre,KAC,2026-10-12,3.7
+EB13 Manchester Centre,EV,2026-10-12,3.36
+EB12 Lancashire South,HEC,2026-10-12,4.82
+EB12 Lancashire South,KAC,2026-10-12,4.92
+EB12 Lancashire South,EV,2026-10-12,5.14
+ED44 Canterbury & Dover,HEC,2026-10-19,6.59
+ED44 Canterbury & Dover,KAC,2026-10-19,6.53
+ED44 Canterbury & Dover,EV,2026-10-19,7.71
+EB12 Altrincham,HEC,2026-10-19,3.77
+EB12 Altrincham,KAC,2026-10-19,4.88
+EB12 Altrincham,EV,2026-10-19,4.75
+EC62 Essex East,HEC,2026-10-19,7.31
+EC62 Essex East,KAC,2026-10-19,4.21
+EC62 Essex East,EV,2026-10-19,4.09
+EB14 Stockport,HEC,2026-10-19,5.42
+EB14 Stockport,KAC,2026-10-19,4.93
+EB14 Stockport,EV,2026-10-19,4.64
+ED22 Cobham & Heathrow,HEC,2026-10-19,4.25
+ED22 Cobham & Heathrow,KAC,2026-10-19,7.27
+ED22 Cobham & Heathrow,EV,2026-10-19,5.29
+EA62 Blackpool & Lancaster,HEC,2026-10-19,7.04
+EA62 Blackpool & Lancaster,KAC,2026-10-19,5.66
+EA62 Blackpool & Lancaster,EV,2026-10-19,3.52
+EA62 Preston & Southport,HEC,2026-10-19,7.83
+EA62 Preston & Southport,KAC,2026-10-19,7.04
+EA62 Preston & Southport,EV,2026-10-19,7.91
+EB24 The Wirral,HEC,2026-10-19,7.27
+EB24 The Wirral,KAC,2026-10-19,7.32
+EB24 The Wirral,EV,2026-10-19,3.88
+EC91 Leicester,HEC,2026-10-19,5.33
+EC91 Leicester,KAC,2026-10-19,4.13
+EC91 Leicester,EV,2026-10-19,4.97
+ED41 Bromley & Dartford,HEC,2026-10-19,3.59
+ED41 Bromley & Dartford,KAC,2026-10-19,5.0
+ED41 Bromley & Dartford,EV,2026-10-19,7.95
+EB13 Manchester Centre,HEC,2026-10-19,4.23
+EB13 Manchester Centre,KAC,2026-10-19,6.61
+EB13 Manchester Centre,EV,2026-10-19,5.25
+EB12 Lancashire South,HEC,2026-10-19,5.08
+EB12 Lancashire South,KAC,2026-10-19,7.73
+EB12 Lancashire South,EV,2026-10-19,8.14
+ED44 Canterbury & Dover,HEC,2026-10-26,6.31
+ED44 Canterbury & Dover,KAC,2026-10-26,6.96
+ED44 Canterbury & Dover,EV,2026-10-26,4.18
+EB12 Altrincham,HEC,2026-10-26,4.97
+EB12 Altrincham,KAC,2026-10-26,8.29
+EB12 Altrincham,EV,2026-10-26,6.18
+EC62 Essex East,HEC,2026-10-26,5.75
+EC62 Essex East,KAC,2026-10-26,7.17
+EC62 Essex East,EV,2026-10-26,3.48
+EB14 Stockport,HEC,2026-10-26,6.48
+EB14 Stockport,KAC,2026-10-26,5.67
+EB14 Stockport,EV,2026-10-26,7.34
+ED22 Cobham & Heathrow,HEC,2026-10-26,4.03
+ED22 Cobham & Heathrow,KAC,2026-10-26,8.2
+ED22 Cobham & Heathrow,EV,2026-10-26,3.62
+EA62 Blackpool & Lancaster,HEC,2026-10-26,4.43
+EA62 Blackpool & Lancaster,KAC,2026-10-26,6.08
+EA62 Blackpool & Lancaster,EV,2026-10-26,6.96
+EA62 Preston & Southport,HEC,2026-10-26,4.57
+EA62 Preston & Southport,KAC,2026-10-26,4.05
+EA62 Preston & Southport,EV,2026-10-26,7.44
+EB24 The Wirral,HEC,2026-10-26,4.51
+EB24 The Wirral,KAC,2026-10-26,6.46
+EB24 The Wirral,EV,2026-10-26,6.39
+EC91 Leicester,HEC,2026-10-26,5.53
+EC91 Leicester,KAC,2026-10-26,6.45
+EC91 Leicester,EV,2026-10-26,6.1
+ED41 Bromley & Dartford,HEC,2026-10-26,7.62
+ED41 Bromley & Dartford,KAC,2026-10-26,4.48
+ED41 Bromley & Dartford,EV,2026-10-26,7.04
+EB13 Manchester Centre,HEC,2026-10-26,4.53
+EB13 Manchester Centre,KAC,2026-10-26,5.11
+EB13 Manchester Centre,EV,2026-10-26,6.54
+EB12 Lancashire South,HEC,2026-10-26,4.71
+EB12 Lancashire South,KAC,2026-10-26,5.02
+EB12 Lancashire South,EV,2026-10-26,7.18
+ED44 Canterbury & Dover,HEC,2026-11-02,3.95
+ED44 Canterbury & Dover,KAC,2026-11-02,5.81
+ED44 Canterbury & Dover,EV,2026-11-02,8.41
+EB12 Altrincham,HEC,2026-11-02,8.44
+EB12 Altrincham,KAC,2026-11-02,3.75
+EB12 Altrincham,EV,2026-11-02,4.55
+EC62 Essex East,HEC,2026-11-02,5.01
+EC62 Essex East,KAC,2026-11-02,8.06
+EC62 Essex East,EV,2026-11-02,8.09
+EB14 Stockport,HEC,2026-11-02,7.99
+EB14 Stockport,KAC,2026-11-02,5.62
+EB14 Stockport,EV,2026-11-02,4.31
+ED22 Cobham & Heathrow,HEC,2026-11-02,7.64
+ED22 Cobham & Heathrow,KAC,2026-11-02,7.03
+ED22 Cobham & Heathrow,EV,2026-11-02,6.4
+EA62 Blackpool & Lancaster,HEC,2026-11-02,8.9
+EA62 Blackpool & Lancaster,KAC,2026-11-02,6.98
+EA62 Blackpool & Lancaster,EV,2026-11-02,3.37
+EA62 Preston & Southport,HEC,2026-11-02,7.48
+EA62 Preston & Southport,KAC,2026-11-02,4.84
+EA62 Preston & Southport,EV,2026-11-02,7.1
+EB24 The Wirral,HEC,2026-11-02,8.1
+EB24 The Wirral,KAC,2026-11-02,4.35
+EB24 The Wirral,EV,2026-11-02,4.2
+EC91 Leicester,HEC,2026-11-02,3.86
+EC91 Leicester,KAC,2026-11-02,6.34
+EC91 Leicester,EV,2026-11-02,4.97
+ED41 Bromley & Dartford,HEC,2026-11-02,6.77
+ED41 Bromley & Dartford,KAC,2026-11-02,7.49
+ED41 Bromley & Dartford,EV,2026-11-02,4.35
+EB13 Manchester Centre,HEC,2026-11-02,6.67
+EB13 Manchester Centre,KAC,2026-11-02,4.78
+EB13 Manchester Centre,EV,2026-11-02,6.03
+EB12 Lancashire South,HEC,2026-11-02,8.19
+EB12 Lancashire South,KAC,2026-11-02,8.04
+EB12 Lancashire South,EV,2026-11-02,4.13
+ED44 Canterbury & Dover,HEC,2026-11-09,5.74
+ED44 Canterbury & Dover,KAC,2026-11-09,5.21
+ED44 Canterbury & Dover,EV,2026-11-09,3.58
+EB12 Altrincham,HEC,2026-11-09,8.01
+EB12 Altrincham,KAC,2026-11-09,6.91
+EB12 Altrincham,EV,2026-11-09,5.06
+EC62 Essex East,HEC,2026-11-09,7.6
+EC62 Essex East,KAC,2026-11-09,6.49
+EC62 Essex East,EV,2026-11-09,6.13
+EB14 Stockport,HEC,2026-11-09,3.76
+EB14 Stockport,KAC,2026-11-09,4.12
+EB14 Stockport,EV,2026-11-09,8.71
+ED22 Cobham & Heathrow,HEC,2026-11-09,8.73
+ED22 Cobham & Heathrow,KAC,2026-11-09,6.32
+ED22 Cobham & Heathrow,EV,2026-11-09,8.15
+EA62 Blackpool & Lancaster,HEC,2026-11-09,6.49
+EA62 Blackpool & Lancaster,KAC,2026-11-09,4.41
+EA62 Blackpool & Lancaster,EV,2026-11-09,4.29
+EA62 Preston & Southport,HEC,2026-11-09,5.18
+EA62 Preston & Southport,KAC,2026-11-09,8.42
+EA62 Preston & Southport,EV,2026-11-09,8.23
+EB24 The Wirral,HEC,2026-11-09,8.23
+EB24 The Wirral,KAC,2026-11-09,8.52
+EB24 The Wirral,EV,2026-11-09,4.93
+EC91 Leicester,HEC,2026-11-09,5.16
+EC91 Leicester,KAC,2026-11-09,4.33
+EC91 Leicester,EV,2026-11-09,7.73
+ED41 Bromley & Dartford,HEC,2026-11-09,8.48
+ED41 Bromley & Dartford,KAC,2026-11-09,5.71
+ED41 Bromley & Dartford,EV,2026-11-09,6.99
+EB13 Manchester Centre,HEC,2026-11-09,4.64
+EB13 Manchester Centre,KAC,2026-11-09,8.89
+EB13 Manchester Centre,EV,2026-11-09,8.52
+EB12 Lancashire South,HEC,2026-11-09,8.94
+EB12 Lancashire South,KAC,2026-11-09,7.97
+EB12 Lancashire South,EV,2026-11-09,8.22
+ED44 Canterbury & Dover,HEC,2026-11-16,3.98
+ED44 Canterbury & Dover,KAC,2026-11-16,7.69
+ED44 Canterbury & Dover,EV,2026-11-16,5.7
+EB12 Altrincham,HEC,2026-11-16,9.41
+EB12 Altrincham,KAC,2026-11-16,8.43
+EB12 Altrincham,EV,2026-11-16,8.56
+EC62 Essex East,HEC,2026-11-16,8.67
+EC62 Essex East,KAC,2026-11-16,5.29
+EC62 Essex East,EV,2026-11-16,8.17
+EB14 Stockport,HEC,2026-11-16,4.49
+EB14 Stockport,KAC,2026-11-16,8.68
+EB14 Stockport,EV,2026-11-16,8.79
+ED22 Cobham & Heathrow,HEC,2026-11-16,5.23
+ED22 Cobham & Heathrow,KAC,2026-11-16,8.58
+ED22 Cobham & Heathrow,EV,2026-11-16,6.2
+EA62 Blackpool & Lancaster,HEC,2026-11-16,5.37
+EA62 Blackpool & Lancaster,KAC,2026-11-16,8.51
+EA62 Blackpool & Lancaster,EV,2026-11-16,5.15
+EA62 Preston & Southport,HEC,2026-11-16,3.96
+EA62 Preston & Southport,KAC,2026-11-16,4.91
+EA62 Preston & Southport,EV,2026-11-16,5.74
+EB24 The Wirral,HEC,2026-11-16,8.7
+EB24 The Wirral,KAC,2026-11-16,8.97
+EB24 The Wirral,EV,2026-11-16,5.23
+EC91 Leicester,HEC,2026-11-16,7.46
+EC91 Leicester,KAC,2026-11-16,6.17
+EC91 Leicester,EV,2026-11-16,9.13
+ED41 Bromley & Dartford,HEC,2026-11-16,6.56
+ED41 Bromley & Dartford,KAC,2026-11-16,8.81
+ED41 Bromley & Dartford,EV,2026-11-16,4.58
+EB13 Manchester Centre,HEC,2026-11-16,9.14
+EB13 Manchester Centre,KAC,2026-11-16,4.86
+EB13 Manchester Centre,EV,2026-11-16,8.84
+EB12 Lancashire South,HEC,2026-11-16,5.38
+EB12 Lancashire South,KAC,2026-11-16,4.49
+EB12 Lancashire South,EV,2026-11-16,6.01
+ED44 Canterbury & Dover,HEC,2026-11-23,8.27
+ED44 Canterbury & Dover,KAC,2026-11-23,5.76
+ED44 Canterbury & Dover,EV,2026-11-23,7.2
+EB12 Altrincham,HEC,2026-11-23,6.63
+EB12 Altrincham,KAC,2026-11-23,6.15
+EB12 Altrincham,EV,2026-11-23,7.22
+EC62 Essex East,HEC,2026-11-23,5.26
+EC62 Essex East,KAC,2026-11-23,7.81
+EC62 Essex East,EV,2026-11-23,3.9
+EB14 Stockport,HEC,2026-11-23,9.49
+EB14 Stockport,KAC,2026-11-23,6.86
+EB14 Stockport,EV,2026-11-23,8.35
+ED22 Cobham & Heathrow,HEC,2026-11-23,8.16
+ED22 Cobham & Heathrow,KAC,2026-11-23,7.98
+ED22 Cobham & Heathrow,EV,2026-11-23,6.1
+EA62 Blackpool & Lancaster,HEC,2026-11-23,4.27
+EA62 Blackpool & Lancaster,KAC,2026-11-23,7.87
+EA62 Blackpool & Lancaster,EV,2026-11-23,6.04
+EA62 Preston & Southport,HEC,2026-11-23,5.98
+EA62 Preston & Southport,KAC,2026-11-23,9.13
+EA62 Preston & Southport,EV,2026-11-23,8.33
+EB24 The Wirral,HEC,2026-11-23,5.63
+EB24 The Wirral,KAC,2026-11-23,5.67
+EB24 The Wirral,EV,2026-11-23,6.48
+EC91 Leicester,HEC,2026-11-23,6.38
+EC91 Leicester,KAC,2026-11-23,5.68
+EC91 Leicester,EV,2026-11-23,4.66
+ED41 Bromley & Dartford,HEC,2026-11-23,6.26
+ED41 Bromley & Dartford,KAC,2026-11-23,9.67
+ED41 Bromley & Dartford,EV,2026-11-23,7.63
+EB13 Manchester Centre,HEC,2026-11-23,8.83
+EB13 Manchester Centre,KAC,2026-11-23,7.44
+EB13 Manchester Centre,EV,2026-11-23,5.76
+EB12 Lancashire South,HEC,2026-11-23,7.02
+EB12 Lancashire South,KAC,2026-11-23,3.93
+EB12 Lancashire South,EV,2026-11-23,5.62
+ED44 Canterbury & Dover,HEC,2026-11-30,6.35
+ED44 Canterbury & Dover,KAC,2026-11-30,7.69
+ED44 Canterbury & Dover,EV,2026-11-30,7.68
+EB12 Altrincham,HEC,2026-11-30,6.71
+EB12 Altrincham,KAC,2026-11-30,6.42
+EB12 Altrincham,EV,2026-11-30,5.43
+EC62 Essex East,HEC,2026-11-30,7.05
+EC62 Essex East,KAC,2026-11-30,9.24
+EC62 Essex East,EV,2026-11-30,8.64
+EB14 Stockport,HEC,2026-11-30,4.96
+EB14 Stockport,KAC,2026-11-30,4.45
+EB14 Stockport,EV,2026-11-30,6.86
+ED22 Cobham & Heathrow,HEC,2026-11-30,7.79
+ED22 Cobham & Heathrow,KAC,2026-11-30,6.03
+ED22 Cobham & Heathrow,EV,2026-11-30,9.11
+EA62 Blackpool & Lancaster,HEC,2026-11-30,8.31
+EA62 Blackpool & Lancaster,KAC,2026-11-30,7.81
+EA62 Blackpool & Lancaster,EV,2026-11-30,5.34
+EA62 Preston & Southport,HEC,2026-11-30,5.39
+EA62 Preston & Southport,KAC,2026-11-30,4.2
+EA62 Preston & Southport,EV,2026-11-30,5.32
+EB24 The Wirral,HEC,2026-11-30,6.97
+EB24 The Wirral,KAC,2026-11-30,9.34
+EB24 The Wirral,EV,2026-11-30,4.61
+EC91 Leicester,HEC,2026-11-30,6.68
+EC91 Leicester,KAC,2026-11-30,7.72
+EC91 Leicester,EV,2026-11-30,5.01
+ED41 Bromley & Dartford,HEC,2026-11-30,7.86
+ED41 Bromley & Dartford,KAC,2026-11-30,7.23
+ED41 Bromley & Dartford,EV,2026-11-30,5.61
+EB13 Manchester Centre,HEC,2026-11-30,8.01
+EB13 Manchester Centre,KAC,2026-11-30,3.96
+EB13 Manchester Centre,EV,2026-11-30,8.49
+EB12 Lancashire South,HEC,2026-11-30,8.64
+EB12 Lancashire South,KAC,2026-11-30,4.47
+EB12 Lancashire South,EV,2026-11-30,6.54
+ED44 Canterbury & Dover,HEC,2026-12-07,5.04
+ED44 Canterbury & Dover,KAC,2026-12-07,9.83
+ED44 Canterbury & Dover,EV,2026-12-07,7.3
+EB12 Altrincham,HEC,2026-12-07,4.45
+EB12 Altrincham,KAC,2026-12-07,5.63
+EB12 Altrincham,EV,2026-12-07,9.22
+EC62 Essex East,HEC,2026-12-07,6.78
+EC62 Essex East,KAC,2026-12-07,9.01
+EC62 Essex East,EV,2026-12-07,8.1
+EB14 Stockport,HEC,2026-12-07,9.95
+EB14 Stockport,KAC,2026-12-07,7.57
+EB14 Stockport,EV,2026-12-07,9.66
+ED22 Cobham & Heathrow,HEC,2026-12-07,9.55
+ED22 Cobham & Heathrow,KAC,2026-12-07,7.89
+ED22 Cobham & Heathrow,EV,2026-12-07,8.38
+EA62 Blackpool & Lancaster,HEC,2026-12-07,6.93
+EA62 Blackpool & Lancaster,KAC,2026-12-07,9.45
+EA62 Blackpool & Lancaster,EV,2026-12-07,7.27
+EA62 Preston & Southport,HEC,2026-12-07,9.96
+EA62 Preston & Southport,KAC,2026-12-07,8.69
+EA62 Preston & Southport,EV,2026-12-07,7.33
+EB24 The Wirral,HEC,2026-12-07,5.95
+EB24 The Wirral,KAC,2026-12-07,5.59
+EB24 The Wirral,EV,2026-12-07,8.36
+EC91 Leicester,HEC,2026-12-07,8.64
+EC91 Leicester,KAC,2026-12-07,7.44
+EC91 Leicester,EV,2026-12-07,7.97
+ED41 Bromley & Dartford,HEC,2026-12-07,6.05
+ED41 Bromley & Dartford,KAC,2026-12-07,4.44
+ED41 Bromley & Dartford,EV,2026-12-07,5.95
+EB13 Manchester Centre,HEC,2026-12-07,5.55
+EB13 Manchester Centre,KAC,2026-12-07,6.24
+EB13 Manchester Centre,EV,2026-12-07,7.44
+EB12 Lancashire South,HEC,2026-12-07,4.94
+EB12 Lancashire South,KAC,2026-12-07,5.39
+EB12 Lancashire South,EV,2026-12-07,8.51
+ED44 Canterbury & Dover,HEC,2026-12-14,8.7
+ED44 Canterbury & Dover,KAC,2026-12-14,4.5
+ED44 Canterbury & Dover,EV,2026-12-14,6.5
+EB12 Altrincham,HEC,2026-12-14,7.5
+EB12 Altrincham,KAC,2026-12-14,6.96
+EB12 Altrincham,EV,2026-12-14,5.29
+EC62 Essex East,HEC,2026-12-14,7.03
+EC62 Essex East,KAC,2026-12-14,9.73
+EC62 Essex East,EV,2026-12-14,7.97
+EB14 Stockport,HEC,2026-12-14,8.84
+EB14 Stockport,KAC,2026-12-14,9.84
+EB14 Stockport,EV,2026-12-14,8.68
+ED22 Cobham & Heathrow,HEC,2026-12-14,6.57
+ED22 Cobham & Heathrow,KAC,2026-12-14,4.32
+ED22 Cobham & Heathrow,EV,2026-12-14,6.37
+EA62 Blackpool & Lancaster,HEC,2026-12-14,8.89
+EA62 Blackpool & Lancaster,KAC,2026-12-14,9.24
+EA62 Blackpool & Lancaster,EV,2026-12-14,10.11
+EA62 Preston & Southport,HEC,2026-12-14,6.56
+EA62 Preston & Southport,KAC,2026-12-14,8.99
+EA62 Preston & Southport,EV,2026-12-14,7.64
+EB24 The Wirral,HEC,2026-12-14,7.75
+EB24 The Wirral,KAC,2026-12-14,5.58
+EB24 The Wirral,EV,2026-12-14,5.69
+EC91 Leicester,HEC,2026-12-14,6.68
+EC91 Leicester,KAC,2026-12-14,4.55
+EC91 Leicester,EV,2026-12-14,6.1
+ED41 Bromley & Dartford,HEC,2026-12-14,8.33
+ED41 Bromley & Dartford,KAC,2026-12-14,6.95
+ED41 Bromley & Dartford,EV,2026-12-14,5.2
+EB13 Manchester Centre,HEC,2026-12-14,6.94
+EB13 Manchester Centre,KAC,2026-12-14,5.14
+EB13 Manchester Centre,EV,2026-12-14,8.14
+EB12 Lancashire South,HEC,2026-12-14,4.19
+EB12 Lancashire South,KAC,2026-12-14,6.65
+EB12 Lancashire South,EV,2026-12-14,7.7
+ED44 Canterbury & Dover,HEC,2026-12-21,4.47
+ED44 Canterbury & Dover,KAC,2026-12-21,8.73
+ED44 Canterbury & Dover,EV,2026-12-21,5.19
+EB12 Altrincham,HEC,2026-12-21,7.25
+EB12 Altrincham,KAC,2026-12-21,4.68
+EB12 Altrincham,EV,2026-12-21,6.55
+EC62 Essex East,HEC,2026-12-21,5.68
+EC62 Essex East,KAC,2026-12-21,6.63
+EC62 Essex East,EV,2026-12-21,8.96
+EB14 Stockport,HEC,2026-12-21,6.96
+EB14 Stockport,KAC,2026-12-21,8.75
+EB14 Stockport,EV,2026-12-21,9.75
+ED22 Cobham & Heathrow,HEC,2026-12-21,5.73
+ED22 Cobham & Heathrow,KAC,2026-12-21,4.77
+ED22 Cobham & Heathrow,EV,2026-12-21,4.57
+EA62 Blackpool & Lancaster,HEC,2026-12-21,7.58
+EA62 Blackpool & Lancaster,KAC,2026-12-21,10.26
+EA62 Blackpool & Lancaster,EV,2026-12-21,6.74
+EA62 Preston & Southport,HEC,2026-12-21,8.6
+EA62 Preston & Southport,KAC,2026-12-21,9.19
+EA62 Preston & Southport,EV,2026-12-21,8.82
+EB24 The Wirral,HEC,2026-12-21,9.47
+EB24 The Wirral,KAC,2026-12-21,10.63
+EB24 The Wirral,EV,2026-12-21,5.64
+EC91 Leicester,HEC,2026-12-21,4.45
+EC91 Leicester,KAC,2026-12-21,5.26
+EC91 Leicester,EV,2026-12-21,5.19
+ED41 Bromley & Dartford,HEC,2026-12-21,8.25
+ED41 Bromley & Dartford,KAC,2026-12-21,8.05
+ED41 Bromley & Dartford,EV,2026-12-21,5.52
+EB13 Manchester Centre,HEC,2026-12-21,8.43
+EB13 Manchester Centre,KAC,2026-12-21,8.87
+EB13 Manchester Centre,EV,2026-12-21,5.36
+EB12 Lancashire South,HEC,2026-12-21,8.42
+EB12 Lancashire South,KAC,2026-12-21,8.91
+EB12 Lancashire South,EV,2026-12-21,5.08
+ED44 Canterbury & Dover,HEC,2026-12-28,9.95
+ED44 Canterbury & Dover,KAC,2026-12-28,10.94
+ED44 Canterbury & Dover,EV,2026-12-28,4.9
+EB12 Altrincham,HEC,2026-12-28,4.34
+EB12 Altrincham,KAC,2026-12-28,6.41
+EB12 Altrincham,EV,2026-12-28,9.02
+EC62 Essex East,HEC,2026-12-28,10.57
+EC62 Essex East,KAC,2026-12-28,6.67
+EC62 Essex East,EV,2026-12-28,8.61
+EB14 Stockport,HEC,2026-12-28,4.94
+EB14 Stockport,KAC,2026-12-28,9.2
+EB14 Stockport,EV,2026-12-28,8.16
+ED22 Cobham & Heathrow,HEC,2026-12-28,4.92
+ED22 Cobham & Heathrow,KAC,2026-12-28,9.06
+ED22 Cobham & Heathrow,EV,2026-12-28,10.14
+EA62 Blackpool & Lancaster,HEC,2026-12-28,8.47
+EA62 Blackpool & Lancaster,KAC,2026-12-28,5.31
+EA62 Blackpool & Lancaster,EV,2026-12-28,10.52
+EA62 Preston & Southport,HEC,2026-12-28,9.03
+EA62 Preston & Southport,KAC,2026-12-28,6.71
+EA62 Preston & Southport,EV,2026-12-28,6.81
+EB24 The Wirral,HEC,2026-12-28,6.89
+EB24 The Wirral,KAC,2026-12-28,7.79
+EB24 The Wirral,EV,2026-12-28,6.29
+EC91 Leicester,HEC,2026-12-28,10.01
+EC91 Leicester,KAC,2026-12-28,10.0
+EC91 Leicester,EV,2026-12-28,5.22
+ED41 Bromley & Dartford,HEC,2026-12-28,10.98
+ED41 Bromley & Dartford,KAC,2026-12-28,8.79
+ED41 Bromley & Dartford,EV,2026-12-28,9.68
+EB13 Manchester Centre,HEC,2026-12-28,9.1
+EB13 Manchester Centre,KAC,2026-12-28,7.08
+EB13 Manchester Centre,EV,2026-12-28,9.36
+EB12 Lancashire South,HEC,2026-12-28,10.29
+EB12 Lancashire South,KAC,2026-12-28,6.04
+EB12 Lancashire South,EV,2026-12-28,9.71
+ED44 Canterbury & Dover,HEC,2027-01-04,8.02
+ED44 Canterbury & Dover,KAC,2027-01-04,7.48
+ED44 Canterbury & Dover,EV,2027-01-04,7.44
+EB12 Altrincham,HEC,2027-01-04,9.2
+EB12 Altrincham,KAC,2027-01-04,6.12
+EB12 Altrincham,EV,2027-01-04,9.93
+EC62 Essex East,HEC,2027-01-04,9.87
+EC62 Essex East,KAC,2027-01-04,4.79
+EC62 Essex East,EV,2027-01-04,9.75
+EB14 Stockport,HEC,2027-01-04,6.14
+EB14 Stockport,KAC,2027-01-04,7.28
+EB14 Stockport,EV,2027-01-04,8.53
+ED22 Cobham & Heathrow,HEC,2027-01-04,6.57
+ED22 Cobham & Heathrow,KAC,2027-01-04,4.74
+ED22 Cobham & Heathrow,EV,2027-01-04,10.21
+EA62 Blackpool & Lancaster,HEC,2027-01-04,5.63
+EA62 Blackpool & Lancaster,KAC,2027-01-04,5.54
+EA62 Blackpool & Lancaster,EV,2027-01-04,9.91
+EA62 Preston & Southport,HEC,2027-01-04,6.84
+EA62 Preston & Southport,KAC,2027-01-04,10.35
+EA62 Preston & Southport,EV,2027-01-04,9.01
+EB24 The Wirral,HEC,2027-01-04,5.89
+EB24 The Wirral,KAC,2027-01-04,4.33
+EB24 The Wirral,EV,2027-01-04,10.13
+EC91 Leicester,HEC,2027-01-04,4.96
+EC91 Leicester,KAC,2027-01-04,8.88
+EC91 Leicester,EV,2027-01-04,7.52
+ED41 Bromley & Dartford,HEC,2027-01-04,9.73
+ED41 Bromley & Dartford,KAC,2027-01-04,8.92
+ED41 Bromley & Dartford,EV,2027-01-04,8.78
+EB13 Manchester Centre,HEC,2027-01-04,7.83
+EB13 Manchester Centre,KAC,2027-01-04,9.72
+EB13 Manchester Centre,EV,2027-01-04,4.85
+EB12 Lancashire South,HEC,2027-01-04,5.7
+EB12 Lancashire South,KAC,2027-01-04,9.2
+EB12 Lancashire South,EV,2027-01-04,6.47
+ED44 Canterbury & Dover,HEC,2027-01-11,8.54
+ED44 Canterbury & Dover,KAC,2027-01-11,7.77
+ED44 Canterbury & Dover,EV,2027-01-11,7.62
+EB12 Altrincham,HEC,2027-01-11,6.94
+EB12 Altrincham,KAC,2027-01-11,9.62
+EB12 Altrincham,EV,2027-01-11,6.36
+EC62 Essex East,HEC,2027-01-11,9.33
+EC62 Essex East,KAC,2027-01-11,6.36
+EC62 Essex East,EV,2027-01-11,5.91
+EB14 Stockport,HEC,2027-01-11,5.13
+EB14 Stockport,KAC,2027-01-11,5.81
+EB14 Stockport,EV,2027-01-11,5.04
+ED22 Cobham & Heathrow,HEC,2027-01-11,8.11
+ED22 Cobham & Heathrow,KAC,2027-01-11,9.53
+ED22 Cobham & Heathrow,EV,2027-01-11,5.41
+EA62 Blackpool & Lancaster,HEC,2027-01-11,5.68
+EA62 Blackpool & Lancaster,KAC,2027-01-11,7.58
+EA62 Blackpool & Lancaster,EV,2027-01-11,8.85
+EA62 Preston & Southport,HEC,2027-01-11,11.18
+EA62 Preston & Southport,KAC,2027-01-11,7.48
+EA62 Preston & Southport,EV,2027-01-11,6.51
+EB24 The Wirral,HEC,2027-01-11,5.16
+EB24 The Wirral,KAC,2027-01-11,5.55
+EB24 The Wirral,EV,2027-01-11,5.64
+EC91 Leicester,HEC,2027-01-11,5.66
+EC91 Leicester,KAC,2027-01-11,4.41
+EC91 Leicester,EV,2027-01-11,7.93
+ED41 Bromley & Dartford,HEC,2027-01-11,6.18
+ED41 Bromley & Dartford,KAC,2027-01-11,10.48
+ED41 Bromley & Dartford,EV,2027-01-11,8.11
+EB13 Manchester Centre,HEC,2027-01-11,9.11
+EB13 Manchester Centre,KAC,2027-01-11,5.29
+EB13 Manchester Centre,EV,2027-01-11,10.21
+EB12 Lancashire South,HEC,2027-01-11,7.7
+EB12 Lancashire South,KAC,2027-01-11,9.94
+EB12 Lancashire South,EV,2027-01-11,7.78
+ED44 Canterbury & Dover,HEC,2027-01-18,7.67
+ED44 Canterbury & Dover,KAC,2027-01-18,7.52
+ED44 Canterbury & Dover,EV,2027-01-18,5.6
+EB12 Altrincham,HEC,2027-01-18,4.84
+EB12 Altrincham,KAC,2027-01-18,10.59
+EB12 Altrincham,EV,2027-01-18,7.59
+EC62 Essex East,HEC,2027-01-18,9.89
+EC62 Essex East,KAC,2027-01-18,6.7
+EC62 Essex East,EV,2027-01-18,4.85
+EB14 Stockport,HEC,2027-01-18,8.8
+EB14 Stockport,KAC,2027-01-18,4.66
+EB14 Stockport,EV,2027-01-18,5.45
+ED22 Cobham & Heathrow,HEC,2027-01-18,8.31
+ED22 Cobham & Heathrow,KAC,2027-01-18,6.32
+ED22 Cobham & Heathrow,EV,2027-01-18,11.13
+EA62 Blackpool & Lancaster,HEC,2027-01-18,5.11
+EA62 Blackpool & Lancaster,KAC,2027-01-18,8.98
+EA62 Blackpool & Lancaster,EV,2027-01-18,8.2
+EA62 Preston & Southport,HEC,2027-01-18,9.79
+EA62 Preston & Southport,KAC,2027-01-18,5.68
+EA62 Preston & Southport,EV,2027-01-18,7.58
+EB24 The Wirral,HEC,2027-01-18,7.33
+EB24 The Wirral,KAC,2027-01-18,7.27
+EB24 The Wirral,EV,2027-01-18,9.71
+EC91 Leicester,HEC,2027-01-18,10.89
+EC91 Leicester,KAC,2027-01-18,6.45
+EC91 Leicester,EV,2027-01-18,8.58
+ED41 Bromley & Dartford,HEC,2027-01-18,8.59
+ED41 Bromley & Dartford,KAC,2027-01-18,9.28
+ED41 Bromley & Dartford,EV,2027-01-18,10.75
+EB13 Manchester Centre,HEC,2027-01-18,5.89
+EB13 Manchester Centre,KAC,2027-01-18,5.67
+EB13 Manchester Centre,EV,2027-01-18,8.36
+EB12 Lancashire South,HEC,2027-01-18,5.59
+EB12 Lancashire South,KAC,2027-01-18,5.57
+EB12 Lancashire South,EV,2027-01-18,4.84
+ED44 Canterbury & Dover,HEC,2027-01-25,4.3
+ED44 Canterbury & Dover,KAC,2027-01-25,7.02
+ED44 Canterbury & Dover,EV,2027-01-25,8.44
+EB12 Altrincham,HEC,2027-01-25,6.4
+EB12 Altrincham,KAC,2027-01-25,5.76
+EB12 Altrincham,EV,2027-01-25,8.81
+EC62 Essex East,HEC,2027-01-25,8.76
+EC62 Essex East,KAC,2027-01-25,7.39
+EC62 Essex East,EV,2027-01-25,8.9
+EB14 Stockport,HEC,2027-01-25,10.36
+EB14 Stockport,KAC,2027-01-25,9.34
+EB14 Stockport,EV,2027-01-25,8.18
+ED22 Cobham & Heathrow,HEC,2027-01-25,8.98
+ED22 Cobham & Heathrow,KAC,2027-01-25,10.04
+ED22 Cobham & Heathrow,EV,2027-01-25,7.12
+EA62 Blackpool & Lancaster,HEC,2027-01-25,7.62
+EA62 Blackpool & Lancaster,KAC,2027-01-25,8.49
+EA62 Blackpool & Lancaster,EV,2027-01-25,10.06
+EA62 Preston & Southport,HEC,2027-01-25,9.84
+EA62 Preston & Southport,KAC,2027-01-25,4.67
+EA62 Preston & Southport,EV,2027-01-25,5.19
+EB24 The Wirral,HEC,2027-01-25,6.26
+EB24 The Wirral,KAC,2027-01-25,8.91
+EB24 The Wirral,EV,2027-01-25,7.7
+EC91 Leicester,HEC,2027-01-25,5.96
+EC91 Leicester,KAC,2027-01-25,4.93
+EC91 Leicester,EV,2027-01-25,8.86
+ED41 Bromley & Dartford,HEC,2027-01-25,8.59
+ED41 Bromley & Dartford,KAC,2027-01-25,10.27
+ED41 Bromley & Dartford,EV,2027-01-25,7.51
+EB13 Manchester Centre,HEC,2027-01-25,7.84
+EB13 Manchester Centre,KAC,2027-01-25,4.91
+EB13 Manchester Centre,EV,2027-01-25,4.65
+EB12 Lancashire South,HEC,2027-01-25,6.87
+EB12 Lancashire South,KAC,2027-01-25,6.67
+EB12 Lancashire South,EV,2027-01-25,6.12
+ED44 Canterbury & Dover,HEC,2027-02-01,4.99
+ED44 Canterbury & Dover,KAC,2027-02-01,10.65
+ED44 Canterbury & Dover,EV,2027-02-01,9.45
+EB12 Altrincham,HEC,2027-02-01,8.25
+EB12 Altrincham,KAC,2027-02-01,10.71
+EB12 Altrincham,EV,2027-02-01,10.29
+EC62 Essex East,HEC,2027-02-01,8.78
+EC62 Essex East,KAC,2027-02-01,5.94
+EC62 Essex East,EV,2027-02-01,4.59
+EB14 Stockport,HEC,2027-02-01,9.13
+EB14 Stockport,KAC,2027-02-01,7.14
+EB14 Stockport,EV,2027-02-01,8.15
+ED22 Cobham & Heathrow,HEC,2027-02-01,10.37
+ED22 Cobham & Heathrow,KAC,2027-02-01,5.34
+ED22 Cobham & Heathrow,EV,2027-02-01,8.29
+EA62 Blackpool & Lancaster,HEC,2027-02-01,8.16
+EA62 Blackpool & Lancaster,KAC,2027-02-01,7.33
+EA62 Blackpool & Lancaster,EV,2027-02-01,4.79
+EA62 Preston & Southport,HEC,2027-02-01,6.43
+EA62 Preston & Southport,KAC,2027-02-01,6.57
+EA62 Preston & Southport,EV,2027-02-01,8.86
+EB24 The Wirral,HEC,2027-02-01,9.88
+EB24 The Wirral,KAC,2027-02-01,6.44
+EB24 The Wirral,EV,2027-02-01,8.55
+EC91 Leicester,HEC,2027-02-01,6.38
+EC91 Leicester,KAC,2027-02-01,10.57
+EC91 Leicester,EV,2027-02-01,9.82
+ED41 Bromley & Dartford,HEC,2027-02-01,8.16
+ED41 Bromley & Dartford,KAC,2027-02-01,7.0
+ED41 Bromley & Dartford,EV,2027-02-01,6.59
+EB13 Manchester Centre,HEC,2027-02-01,6.42
+EB13 Manchester Centre,KAC,2027-02-01,10.84
+EB13 Manchester Centre,EV,2027-02-01,6.79
+EB12 Lancashire South,HEC,2027-02-01,7.94
+EB12 Lancashire South,KAC,2027-02-01,10.3
+EB12 Lancashire South,EV,2027-02-01,8.81
+ED44 Canterbury & Dover,HEC,2027-02-08,7.86
+ED44 Canterbury & Dover,KAC,2027-02-08,7.09
+ED44 Canterbury & Dover,EV,2027-02-08,5.27
+EB12 Altrincham,HEC,2027-02-08,6.26
+EB12 Altrincham,KAC,2027-02-08,8.83
+EB12 Altrincham,EV,2027-02-08,8.43
+EC62 Essex East,HEC,2027-02-08,9.26
+EC62 Essex East,KAC,2027-02-08,5.31
+EC62 Essex East,EV,2027-02-08,7.41
+EB14 Stockport,HEC,2027-02-08,9.75
+EB14 Stockport,KAC,2027-02-08,6.89
+EB14 Stockport,EV,2027-02-08,8.49
+ED22 Cobham & Heathrow,HEC,2027-02-08,4.81
+ED22 Cobham & Heathrow,KAC,2027-02-08,10.02
+ED22 Cobham & Heathrow,EV,2027-02-08,7.99
+EA62 Blackpool & Lancaster,HEC,2027-02-08,5.65
+EA62 Blackpool & Lancaster,KAC,2027-02-08,5.24
+EA62 Blackpool & Lancaster,EV,2027-02-08,7.88
+EA62 Preston & Southport,HEC,2027-02-08,7.96
+EA62 Preston & Southport,KAC,2027-02-08,4.89
+EA62 Preston & Southport,EV,2027-02-08,10.58
+EB24 The Wirral,HEC,2027-02-08,10.01
+EB24 The Wirral,KAC,2027-02-08,7.17
+EB24 The Wirral,EV,2027-02-08,5.19
+EC91 Leicester,HEC,2027-02-08,9.49
+EC91 Leicester,KAC,2027-02-08,7.49
+EC91 Leicester,EV,2027-02-08,9.08
+ED41 Bromley & Dartford,HEC,2027-02-08,7.43
+ED41 Bromley & Dartford,KAC,2027-02-08,5.98
+ED41 Bromley & Dartford,EV,2027-02-08,9.58
+EB13 Manchester Centre,HEC,2027-02-08,10.3
+EB13 Manchester Centre,KAC,2027-02-08,5.62
+EB13 Manchester Centre,EV,2027-02-08,7.63
+EB12 Lancashire South,HEC,2027-02-08,6.53
+EB12 Lancashire South,KAC,2027-02-08,10.03
+EB12 Lancashire South,EV,2027-02-08,7.72
+ED44 Canterbury & Dover,HEC,2027-02-15,9.32
+ED44 Canterbury & Dover,KAC,2027-02-15,9.21
+ED44 Canterbury & Dover,EV,2027-02-15,5.64
+EB12 Altrincham,HEC,2027-02-15,9.38
+EB12 Altrincham,KAC,2027-02-15,6.68
+EB12 Altrincham,EV,2027-02-15,10.26
+EC62 Essex East,HEC,2027-02-15,7.27
+EC62 Essex East,KAC,2027-02-15,9.23
+EC62 Essex East,EV,2027-02-15,5.68
+EB14 Stockport,HEC,2027-02-15,5.88
+EB14 Stockport,KAC,2027-02-15,7.54
+EB14 Stockport,EV,2027-02-15,10.73
+ED22 Cobham & Heathrow,HEC,2027-02-15,7.43
+ED22 Cobham & Heathrow,KAC,2027-02-15,5.23
+ED22 Cobham & Heathrow,EV,2027-02-15,7.5
+EA62 Blackpool & Lancaster,HEC,2027-02-15,6.05
+EA62 Blackpool & Lancaster,KAC,2027-02-15,7.58
+EA62 Blackpool & Lancaster,EV,2027-02-15,7.5
+EA62 Preston & Southport,HEC,2027-02-15,7.09
+EA62 Preston & Southport,KAC,2027-02-15,6.34
+EA62 Preston & Southport,EV,2027-02-15,5.47
+EB24 The Wirral,HEC,2027-02-15,8.53
+EB24 The Wirral,KAC,2027-02-15,7.63
+EB24 The Wirral,EV,2027-02-15,5.67
+EC91 Leicester,HEC,2027-02-15,8.78
+EC91 Leicester,KAC,2027-02-15,4.28
+EC91 Leicester,EV,2027-02-15,8.63
+ED41 Bromley & Dartford,HEC,2027-02-15,8.91
+ED41 Bromley & Dartford,KAC,2027-02-15,9.44
+ED41 Bromley & Dartford,EV,2027-02-15,6.73
+EB13 Manchester Centre,HEC,2027-02-15,8.53
+EB13 Manchester Centre,KAC,2027-02-15,9.11
+EB13 Manchester Centre,EV,2027-02-15,10.34
+EB12 Lancashire South,HEC,2027-02-15,7.51
+EB12 Lancashire South,KAC,2027-02-15,4.55
+EB12 Lancashire South,EV,2027-02-15,7.17
+ED44 Canterbury & Dover,HEC,2027-02-22,7.38
+ED44 Canterbury & Dover,KAC,2027-02-22,9.14
+ED44 Canterbury & Dover,EV,2027-02-22,9.63
+EB12 Altrincham,HEC,2027-02-22,6.97
+EB12 Altrincham,KAC,2027-02-22,7.19
+EB12 Altrincham,EV,2027-02-22,6.9
+EC62 Essex East,HEC,2027-02-22,8.33
+EC62 Essex East,KAC,2027-02-22,6.52
+EC62 Essex East,EV,2027-02-22,8.29
+EB14 Stockport,HEC,2027-02-22,4.8
+EB14 Stockport,KAC,2027-02-22,6.66
+EB14 Stockport,EV,2027-02-22,9.55
+ED22 Cobham & Heathrow,HEC,2027-02-22,6.21
+ED22 Cobham & Heathrow,KAC,2027-02-22,8.57
+ED22 Cobham & Heathrow,EV,2027-02-22,8.25
+EA62 Blackpool & Lancaster,HEC,2027-02-22,9.43
+EA62 Blackpool & Lancaster,KAC,2027-02-22,9.12
+EA62 Blackpool & Lancaster,EV,2027-02-22,9.5
+EA62 Preston & Southport,HEC,2027-02-22,6.58
+EA62 Preston & Southport,KAC,2027-02-22,6.01
+EA62 Preston & Southport,EV,2027-02-22,8.75
+EB24 The Wirral,HEC,2027-02-22,8.29
+EB24 The Wirral,KAC,2027-02-22,9.46
+EB24 The Wirral,EV,2027-02-22,4.39
+EC91 Leicester,HEC,2027-02-22,4.4
+EC91 Leicester,KAC,2027-02-22,8.01
+EC91 Leicester,EV,2027-02-22,9.3
+ED41 Bromley & Dartford,HEC,2027-02-22,10.39
+ED41 Bromley & Dartford,KAC,2027-02-22,8.95
+ED41 Bromley & Dartford,EV,2027-02-22,6.5
+EB13 Manchester Centre,HEC,2027-02-22,4.52
+EB13 Manchester Centre,KAC,2027-02-22,8.2
+EB13 Manchester Centre,EV,2027-02-22,9.2
+EB12 Lancashire South,HEC,2027-02-22,6.77
+EB12 Lancashire South,KAC,2027-02-22,8.57
+EB12 Lancashire South,EV,2027-02-22,9.89
+ED44 Canterbury & Dover,HEC,2027-03-01,4.18
+ED44 Canterbury & Dover,KAC,2027-03-01,8.29
+ED44 Canterbury & Dover,EV,2027-03-01,5.67
+EB12 Altrincham,HEC,2027-03-01,5.95
+EB12 Altrincham,KAC,2027-03-01,4.76
+EB12 Altrincham,EV,2027-03-01,7.29
+EC62 Essex East,HEC,2027-03-01,7.04
+EC62 Essex East,KAC,2027-03-01,8.66
+EC62 Essex East,EV,2027-03-01,5.0
+EB14 Stockport,HEC,2027-03-01,4.59
+EB14 Stockport,KAC,2027-03-01,9.22
+EB14 Stockport,EV,2027-03-01,7.57
+ED22 Cobham & Heathrow,HEC,2027-03-01,5.29
+ED22 Cobham & Heathrow,KAC,2027-03-01,9.25
+ED22 Cobham & Heathrow,EV,2027-03-01,4.83
+EA62 Blackpool & Lancaster,HEC,2027-03-01,6.38
+EA62 Blackpool & Lancaster,KAC,2027-03-01,5.65
+EA62 Blackpool & Lancaster,EV,2027-03-01,5.27
+EA62 Preston & Southport,HEC,2027-03-01,3.9
+EA62 Preston & Southport,KAC,2027-03-01,8.93
+EA62 Preston & Southport,EV,2027-03-01,9.27
+EB24 The Wirral,HEC,2027-03-01,8.26
+EB24 The Wirral,KAC,2027-03-01,4.78
+EB24 The Wirral,EV,2027-03-01,6.52
+EC91 Leicester,HEC,2027-03-01,5.98
+EC91 Leicester,KAC,2027-03-01,7.34
+EC91 Leicester,EV,2027-03-01,7.66
+ED41 Bromley & Dartford,HEC,2027-03-01,6.18
+ED41 Bromley & Dartford,KAC,2027-03-01,5.44
+ED41 Bromley & Dartford,EV,2027-03-01,9.14
+EB13 Manchester Centre,HEC,2027-03-01,4.9
+EB13 Manchester Centre,KAC,2027-03-01,6.12
+EB13 Manchester Centre,EV,2027-03-01,6.49
+EB12 Lancashire South,HEC,2027-03-01,5.56
+EB12 Lancashire South,KAC,2027-03-01,7.04
+EB12 Lancashire South,EV,2027-03-01,7.27
+ED44 Canterbury & Dover,HEC,2027-03-08,9.64
+ED44 Canterbury & Dover,KAC,2027-03-08,5.49
+ED44 Canterbury & Dover,EV,2027-03-08,9.19
+EB12 Altrincham,HEC,2027-03-08,7.62
+EB12 Altrincham,KAC,2027-03-08,5.5
+EB12 Altrincham,EV,2027-03-08,7.01
+EC62 Essex East,HEC,2027-03-08,7.46
+EC62 Essex East,KAC,2027-03-08,8.19
+EC62 Essex East,EV,2027-03-08,4.22
+EB14 Stockport,HEC,2027-03-08,7.59
+EB14 Stockport,KAC,2027-03-08,6.44
+EB14 Stockport,EV,2027-03-08,9.18
+ED22 Cobham & Heathrow,HEC,2027-03-08,5.64
+ED22 Cobham & Heathrow,KAC,2027-03-08,8.59
+ED22 Cobham & Heathrow,EV,2027-03-08,7.12
+EA62 Blackpool & Lancaster,HEC,2027-03-08,5.58
+EA62 Blackpool & Lancaster,KAC,2027-03-08,7.17
+EA62 Blackpool & Lancaster,EV,2027-03-08,7.4
+EA62 Preston & Southport,HEC,2027-03-08,7.78
+EA62 Preston & Southport,KAC,2027-03-08,7.61
+EA62 Preston & Southport,EV,2027-03-08,7.81
+EB24 The Wirral,HEC,2027-03-08,8.78
+EB24 The Wirral,KAC,2027-03-08,7.49
+EB24 The Wirral,EV,2027-03-08,9.13
+EC91 Leicester,HEC,2027-03-08,7.26
+EC91 Leicester,KAC,2027-03-08,5.71
+EC91 Leicester,EV,2027-03-08,6.07
+ED41 Bromley & Dartford,HEC,2027-03-08,7.2
+ED41 Bromley & Dartford,KAC,2027-03-08,8.02
+ED41 Bromley & Dartford,EV,2027-03-08,4.35
+EB13 Manchester Centre,HEC,2027-03-08,5.33
+EB13 Manchester Centre,KAC,2027-03-08,8.42
+EB13 Manchester Centre,EV,2027-03-08,4.7
+EB12 Lancashire South,HEC,2027-03-08,4.76
+EB12 Lancashire South,KAC,2027-03-08,6.66
+EB12 Lancashire South,EV,2027-03-08,9.61
+ED44 Canterbury & Dover,HEC,2027-03-15,6.37
+ED44 Canterbury & Dover,KAC,2027-03-15,8.51
+ED44 Canterbury & Dover,EV,2027-03-15,8.4
+EB12 Altrincham,HEC,2027-03-15,5.09
+EB12 Altrincham,KAC,2027-03-15,8.21
+EB12 Altrincham,EV,2027-03-15,6.51
+EC62 Essex East,HEC,2027-03-15,7.79
+EC62 Essex East,KAC,2027-03-15,7.64
+EC62 Essex East,EV,2027-03-15,5.31
+EB14 Stockport,HEC,2027-03-15,4.44
+EB14 Stockport,KAC,2027-03-15,9.16
+EB14 Stockport,EV,2027-03-15,4.51
+ED22 Cobham & Heathrow,HEC,2027-03-15,9.25
+ED22 Cobham & Heathrow,KAC,2027-03-15,8.14
+ED22 Cobham & Heathrow,EV,2027-03-15,7.93
+EA62 Blackpool & Lancaster,HEC,2027-03-15,9.24
+EA62 Blackpool & Lancaster,KAC,2027-03-15,8.77
+EA62 Blackpool & Lancaster,EV,2027-03-15,8.35
+EA62 Preston & Southport,HEC,2027-03-15,5.47
+EA62 Preston & Southport,KAC,2027-03-15,7.94
+EA62 Preston & Southport,EV,2027-03-15,3.7
+EB24 The Wirral,HEC,2027-03-15,6.76
+EB24 The Wirral,KAC,2027-03-15,6.13
+EB24 The Wirral,EV,2027-03-15,7.11
+EC91 Leicester,HEC,2027-03-15,7.49
+EC91 Leicester,KAC,2027-03-15,6.96
+EC91 Leicester,EV,2027-03-15,7.9
+ED41 Bromley & Dartford,HEC,2027-03-15,9.1
+ED41 Bromley & Dartford,KAC,2027-03-15,4.23
+ED41 Bromley & Dartford,EV,2027-03-15,4.9
+EB13 Manchester Centre,HEC,2027-03-15,3.96
+EB13 Manchester Centre,KAC,2027-03-15,8.72
+EB13 Manchester Centre,EV,2027-03-15,6.57
+EB12 Lancashire South,HEC,2027-03-15,8.67
+EB12 Lancashire South,KAC,2027-03-15,4.9
+EB12 Lancashire South,EV,2027-03-15,3.86
+ED44 Canterbury & Dover,HEC,2027-03-22,7.56
+ED44 Canterbury & Dover,KAC,2027-03-22,8.65
+ED44 Canterbury & Dover,EV,2027-03-22,4.9
+EB12 Altrincham,HEC,2027-03-22,5.43
+EB12 Altrincham,KAC,2027-03-22,4.38
+EB12 Altrincham,EV,2027-03-22,8.7
+EC62 Essex East,HEC,2027-03-22,5.01
+EC62 Essex East,KAC,2027-03-22,6.24
+EC62 Essex East,EV,2027-03-22,4.07
+EB14 Stockport,HEC,2027-03-22,8.04
+EB14 Stockport,KAC,2027-03-22,4.43
+EB14 Stockport,EV,2027-03-22,5.72
+ED22 Cobham & Heathrow,HEC,2027-03-22,6.76
+ED22 Cobham & Heathrow,KAC,2027-03-22,7.17
+ED22 Cobham & Heathrow,EV,2027-03-22,8.81
+EA62 Blackpool & Lancaster,HEC,2027-03-22,5.92
+EA62 Blackpool & Lancaster,KAC,2027-03-22,7.32
+EA62 Blackpool & Lancaster,EV,2027-03-22,4.35
+EA62 Preston & Southport,HEC,2027-03-22,5.73
+EA62 Preston & Southport,KAC,2027-03-22,3.87
+EA62 Preston & Southport,EV,2027-03-22,6.04
+EB24 The Wirral,HEC,2027-03-22,5.61
+EB24 The Wirral,KAC,2027-03-22,8.63
+EB24 The Wirral,EV,2027-03-22,3.59
+EC91 Leicester,HEC,2027-03-22,5.31
+EC91 Leicester,KAC,2027-03-22,6.09
+EC91 Leicester,EV,2027-03-22,8.85
+ED41 Bromley & Dartford,HEC,2027-03-22,8.09
+ED41 Bromley & Dartford,KAC,2027-03-22,4.04
+ED41 Bromley & Dartford,EV,2027-03-22,6.86
+EB13 Manchester Centre,HEC,2027-03-22,6.28
+EB13 Manchester Centre,KAC,2027-03-22,8.46
+EB13 Manchester Centre,EV,2027-03-22,5.46
+EB12 Lancashire South,HEC,2027-03-22,5.69
+EB12 Lancashire South,KAC,2027-03-22,4.41
+EB12 Lancashire South,EV,2027-03-22,4.32
+ED44 Canterbury & Dover,HEC,2027-03-29,7.84
+ED44 Canterbury & Dover,KAC,2027-03-29,5.67
+ED44 Canterbury & Dover,EV,2027-03-29,6.86
+EB12 Altrincham,HEC,2027-03-29,6.62
+EB12 Altrincham,KAC,2027-03-29,6.38
+EB12 Altrincham,EV,2027-03-29,3.44
+EC62 Essex East,HEC,2027-03-29,7.4
+EC62 Essex East,KAC,2027-03-29,4.59
+EC62 Essex East,EV,2027-03-29,4.02
+EB14 Stockport,HEC,2027-03-29,6.41
+EB14 Stockport,KAC,2027-03-29,3.85
+EB14 Stockport,EV,2027-03-29,7.08
+ED22 Cobham & Heathrow,HEC,2027-03-29,4.32
+ED22 Cobham & Heathrow,KAC,2027-03-29,4.41
+ED22 Cobham & Heathrow,EV,2027-03-29,7.85
+EA62 Blackpool & Lancaster,HEC,2027-03-29,4.98
+EA62 Blackpool & Lancaster,KAC,2027-03-29,4.08
+EA62 Blackpool & Lancaster,EV,2027-03-29,7.97
+EA62 Preston & Southport,HEC,2027-03-29,3.5
+EA62 Preston & Southport,KAC,2027-03-29,7.56
+EA62 Preston & Southport,EV,2027-03-29,4.21
+EB24 The Wirral,HEC,2027-03-29,4.03
+EB24 The Wirral,KAC,2027-03-29,4.77
+EB24 The Wirral,EV,2027-03-29,4.13
+EC91 Leicester,HEC,2027-03-29,6.98
+EC91 Leicester,KAC,2027-03-29,3.53
+EC91 Leicester,EV,2027-03-29,3.55
+ED41 Bromley & Dartford,HEC,2027-03-29,7.33
+ED41 Bromley & Dartford,KAC,2027-03-29,4.73
+ED41 Bromley & Dartford,EV,2027-03-29,5.19
+EB13 Manchester Centre,HEC,2027-03-29,4.22
+EB13 Manchester Centre,KAC,2027-03-29,3.75
+EB13 Manchester Centre,EV,2027-03-29,7.27
+EB12 Lancashire South,HEC,2027-03-29,6.23
+EB12 Lancashire South,KAC,2027-03-29,7.12
+EB12 Lancashire South,EV,2027-03-29,5.61

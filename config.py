@@ -140,6 +140,27 @@ class EnvironmentConfig:
         """
         return f"{cls.get_catalog()}.{cls.get_schema()}.{cls.get_table_name(input_key)}"
 
+    SUBCALC_TABLE_NAMES: Dict[str, str] = {
+        "fte": "es_shiny_fte_calc",
+        "available_hours": "es_shiny_avlhr_calc",
+        "capacity": "es_shiny_capacity_calc",
+        "demand": "es_shiny_demand_calc",
+        "workload": "es_shiny_workload_calc",
+        "imbalance": "es_shiny_imbalance_calc",
+    }
+
+    @classmethod
+    def get_subcalc_table_name(cls, subcalc_key: str) -> str:
+        """Returns the Databricks/local table name for a sub-calculation dataset."""
+        key = str(subcalc_key or "").strip().lower()
+        default_name = cls.SUBCALC_TABLE_NAMES.get(key, f"es_shiny_{key}_calc")
+        return os.environ.get(f"TABLE_SUBCALC_{key.upper()}", default_name)
+
+    @classmethod
+    def get_full_subcalc_table_path(cls, subcalc_key: str) -> str:
+        """Returns full 3-level Unity Catalog path for a sub-calculation table."""
+        return f"{cls.get_catalog()}.{cls.get_schema()}.{cls.get_subcalc_table_name(subcalc_key)}"
+
     @classmethod
     def get_final_plan_table_name(cls) -> str:
         """Returns the Databricks table name for final scenario plan data."""

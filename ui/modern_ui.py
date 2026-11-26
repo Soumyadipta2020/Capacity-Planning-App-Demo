@@ -37,15 +37,20 @@ def create_modern_ui_page():
             except Exception:
                 pass
 
-    # Pre-load calculation modules data (fte, downtime, productivity -> capacity; demand -> imbalance)
+    scenarios_map = sm.get_all_scenarios()
+    first_scen_id = next(iter(scenarios_map), None)
+
+    # Pre-load ONLY the 6 sub-calculation datasets combined into final_data
     initial_calc_data = {}
-    for mod_key in ["imbalance", "capacity", "fte", "downtime", "productivity", "demand"]:
+    for mod_key in ["fte", "available_hours", "capacity", "demand", "workload", "imbalance"]:
         try:
-            initial_calc_data[mod_key] = get_calculation_module_data(mod_key)
+            res = clean_for_json(get_calculation_module_data(mod_key, scenario_id=first_scen_id))
+            if first_scen_id:
+                initial_calc_data[f"{first_scen_id}::{mod_key}"] = res
+            else:
+                initial_calc_data[mod_key] = res
         except Exception:
             pass
-
-    scenarios_map = sm.get_all_scenarios()
 
     try:
         scenario_log_rows = clean_for_json(load_scenario_log(engine=engine).to_dict(orient="records"))
@@ -53,7 +58,6 @@ def create_modern_ui_page():
         scenario_log_rows = []
 
     initial_final_bundle = None
-    first_scen_id = next(iter(scenarios_map), None)
     if first_scen_id:
         try:
             initial_final_bundle = clean_for_json(

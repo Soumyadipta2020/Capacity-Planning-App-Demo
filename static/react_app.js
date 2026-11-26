@@ -538,24 +538,35 @@ function parseDateFromOption(str) {
 // ================================================================================================
 function getDefaultGeographyData() {
     return [
-        { Region: "A", ACDM: "A1", territory: "EA11 Inverness & Aviemore" },
-        { Region: "A", ACDM: "A1", territory: "EA13 Dendee & Perth" },
-        { Region: "A", ACDM: "A1", territory: "EA12 Aberdeen North" },
-        { Region: "A", ACDM: "A2", territory: "EA21 Stirling & Falkirk" },
-        { Region: "A", ACDM: "A2", territory: "EA22 Edinburgh Central" },
-        { Region: "B", ACDM: "B1", territory: "EB11 Preston & Blackpool" },
-        { Region: "B", ACDM: "B1", territory: "EB14 Stockport & Peak" },
-        { Region: "B", ACDM: "B2", territory: "EB12 Altrincham" },
-        { Region: "B", ACDM: "B2", territory: "EB21 Manchester Central" },
-        { Region: "C", ACDM: "C1", territory: "EC91 Leicester" },
-        { Region: "C", ACDM: "C1", territory: "EC92 Nottingham & Derby" },
-        { Region: "C", ACDM: "C2", territory: "EC61 Norwich & Norfolk" },
-        { Region: "C", ACDM: "C2", territory: "EC62 Essex East" },
-        { Region: "D", ACDM: "D1", territory: "ED11 North London & Barnet" },
-        { Region: "D", ACDM: "D2", territory: "ED44 Canterbury & Dover" },
-        { Region: "D", ACDM: "D2", territory: "ED42 Eastbourne & Hastings" },
-        { Region: "E", ACDM: "E1", territory: "EE21 Bristol North & Bath" },
-        { Region: "E", ACDM: "E2", territory: "EE31 Exeter & Devon" }
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA1", Patch: "EA11 Inverness & Aviemore", "Patch Name": "Inverness & Aviemore" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA1", Patch: "EA12 Aberdeen North", "Patch Name": "Aberdeen North" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA1", Patch: "EA12 Aberdeen South", "Patch Name": "Aberdeen South" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA1", Patch: "EA13 Dundee & Perth", "Patch Name": "Dundee & Perth" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA1", Patch: "EA13 Fife", "Patch Name": "Fife" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA2", Patch: "EA21 Dunbartonshire & Glasgow North", "Patch Name": "Dunbartonshire & Glasgow North" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA2", Patch: "EA21 Stirling & Falkirk", "Patch Name": "Stirling & Falkirk" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA3", Patch: "EA31 Clyde Coast", "Patch Name": "Clyde Coast" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA3", Patch: "EA31 Glasgow South & Renfrewshire", "Patch Name": "Glasgow South & Renfrewshire" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA3", Patch: "EA32 South West Ayrshire", "Patch Name": "South West Ayrshire" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA3", Patch: "EA33 Dumfriesshire", "Patch Name": "Dumfriesshire" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA4", Patch: "EA41 East Lothian Coast", "Patch Name": "East Lothian Coast" },
+        { "Region Code": "B", Region: "North West", "Area Code": "EB1", Patch: "EB12 Altrincham", "Patch Name": "Altrincham" },
+        { "Region Code": "B", Region: "North West", "Area Code": "EB1", Patch: "EB13 Manchester Centre", "Patch Name": "Manchester Centre" },
+        { "Region Code": "B", Region: "North West", "Area Code": "EB1", Patch: "EB14 Stockport", "Patch Name": "Stockport" },
+        { "Region Code": "B", Region: "North West", "Area Code": "EB2", Patch: "EB24 The Wirral", "Patch Name": "The Wirral" },
+        { "Region Code": "B", Region: "North West", "Area Code": "EB4", Patch: "EB43 Hereford & Worcs", "Patch Name": "Hereford & Worcs" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC9", Patch: "EC91 Leicester", "Patch Name": "Leicester" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC6", Patch: "EC62 Essex East", "Patch Name": "Essex East" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC4", Patch: "EC41 Reading", "Patch Name": "Reading" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC3", Patch: "EC31 New Forest", "Patch Name": "New Forest" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC2", Patch: "EC22 Cheltenham & Gloucester", "Patch Name": "Cheltenham & Gloucester" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC8", Patch: "EC81 Peterborough", "Patch Name": "Peterborough" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC1", Patch: "EC11 Cornwall", "Patch Name": "Cornwall" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC1", Patch: "EC13 Devon South", "Patch Name": "Devon South" },
+        { "Region Code": "D", Region: "London and South East", "Area Code": "ED1", Patch: "ED11 Chiswick & City", "Patch Name": "Chiswick & City" },
+        { "Region Code": "D", Region: "London and South East", "Area Code": "ED2", Patch: "ED22 Cobham & Heathrow", "Patch Name": "Cobham & Heathrow" },
+        { "Region Code": "D", Region: "London and South East", "Area Code": "ED4", Patch: "ED41 Bromley & Dartford", "Patch Name": "Bromley & Dartford" },
+        { "Region Code": "D", Region: "London and South East", "Area Code": "ED4", Patch: "ED44 Canterbury & Dover", "Patch Name": "Canterbury & Dover" }
     ];
 }
 
@@ -612,30 +623,76 @@ function buildGeographyHierarchy(rows) {
         name: "National",
         regions: {}
     };
+    const regionNameByCode = {
+        A: "Scotland and Northern England",
+        B: "North West",
+        C: "Midlands",
+        D: "London and South East",
+        E: "South West"
+    };
+    const regionCodeByName = {
+        "scotland and northern england": "A",
+        "north west": "B",
+        "midlands": "C",
+        "london and south east": "D",
+        "south west": "E"
+    };
 
     rows.forEach(r => {
-        const region = (r.Region || r.region || "A").toString().trim();
-        const acdm = (r.ACDM || r.acdm || (region + "1")).toString().trim();
-        const territory = (r.territory || r.Territory || r.patch || "Unknown Territory").toString().trim();
+        const rawArea = (r["Area Code"] || r.AreaCode || r.area_code || r.ACDM || r.acdm || "").toString().trim();
+        const rawRegion = (r.Region || r.region || "").toString().trim();
+        let regCode = (r["Region Code"] || r.RegionCode || r.region_code || "").toString().trim().toUpperCase();
+        if (!regCode) {
+            if (/^[A-E]$/i.test(rawRegion)) {
+                regCode = rawRegion.toUpperCase();
+            } else if (regionCodeByName[rawRegion.toLowerCase()]) {
+                regCode = regionCodeByName[rawRegion.toLowerCase()];
+            } else if (/^E[A-E]/i.test(rawArea)) {
+                regCode = rawArea[1].toUpperCase();
+            }
+        }
+        const regName = (rawRegion && !/^[A-E]$/i.test(rawRegion))
+            ? rawRegion
+            : (regionNameByCode[regCode] || (regCode ? `Region ${regCode}` : "Unmapped"));
+        const regKey = regCode || regName || "A";
+        const areaCode = rawArea || `${regKey}1`;
+        const territory = (r.Patch || r.patch || r.territory || r.Territory || r["Patch Name"] || "Unknown Territory").toString().trim();
 
-        if (!national.regions[region]) {
-            national.regions[region] = {
-                id: region,
-                name: `Region ${region}`,
+        if (!national.regions[regKey]) {
+            national.regions[regKey] = {
+                id: regKey,
+                code: regCode || regKey,
+                name: regName,
                 acdms: {}
             };
         }
-        if (!national.regions[region].acdms[acdm]) {
-            national.regions[region].acdms[acdm] = {
-                id: acdm,
-                name: `ACDM ${acdm}`,
+        if (!national.regions[regKey].acdms[areaCode]) {
+            national.regions[regKey].acdms[areaCode] = {
+                id: areaCode,
+                name: areaCode,
+                regionCode: regCode || regKey,
+                regionName: regName,
                 territories: []
             };
         }
-        if (!national.regions[region].acdms[acdm].territories.includes(territory)) {
-            national.regions[region].acdms[acdm].territories.push(territory);
+        if (territory && !national.regions[regKey].acdms[areaCode].territories.includes(territory)) {
+            national.regions[regKey].acdms[areaCode].territories.push(territory);
         }
     });
+
+    // Sort regions, area codes, and territories deterministically
+    const sortedRegions = {};
+    Object.keys(national.regions).sort().forEach(rk => {
+        const regObj = national.regions[rk];
+        const sortedAcdms = {};
+        Object.keys(regObj.acdms).sort().forEach(ak => {
+            const areaObj = regObj.acdms[ak];
+            areaObj.territories.sort();
+            sortedAcdms[ak] = areaObj;
+        });
+        sortedRegions[rk] = { ...regObj, acdms: sortedAcdms };
+    });
+    national.regions = sortedRegions;
 
     return national;
 }
@@ -706,6 +763,8 @@ function ModernCapacityApp() {
     const [finalBundleCache, setFinalBundleCache] = useState({});
     const [selectedScenarioId, setSelectedScenarioId] = useState("LV NOV V.1 2026");
     const [comparisonScenarioId, setComparisonScenarioId] = useState("LV NOV V.2 2026");
+    const [analyticsBaselineScenarioId, setAnalyticsBaselineScenarioId] = useState("LV NOV V.1 2026");
+    const [analyticsComparisonScenarioId, setAnalyticsComparisonScenarioId] = useState("LV NOV V.2 2026");
     const [diffBaselineScenarioId, setDiffBaselineScenarioId] = useState("LV NOV V.1 2026");
     const [diffComparisonScenarioId, setDiffComparisonScenarioId] = useState("LV NOV V.2 2026");
     const [geographyDatasets, setGeographyDatasets] = useState({});
@@ -727,7 +786,22 @@ function ModernCapacityApp() {
     // Calculation Modules Modal State (FTE, Downtime, Productivity -> Capacity; Demand -> Imbalance)
     const [isCalcModalOpen, setIsCalcModalOpen] = useState(false);
     const [selectedCalcModule, setSelectedCalcModule] = useState('imbalance');
-    const [calcModulesCache, setCalcModulesCache] = useState({});
+    const initialCalcCache = useMemo(() => {
+        const init = window.INITIAL_CAPACITY_DATA || {};
+        const raw = init.initialCalcModulesData || {};
+        const scenId = Object.keys(init.scenarios || {})[0] || '';
+        const out = {};
+        const allowed = new Set(['fte', 'available_hours', 'capacity', 'demand', 'workload', 'imbalance']);
+        Object.entries(raw).forEach(([k, v]) => {
+            const modK = k.includes('::') ? k.split('::').pop() : k;
+            if (allowed.has(modK) && v) {
+                const keyOut = k.includes('::') ? k : `${(v.scenarioId || scenId || 'default')}::${modK}`;
+                out[keyOut] = v;
+            }
+        });
+        return out;
+    }, []);
+    const [calcModulesCache, setCalcModulesCache] = useState(initialCalcCache);
     const [isCalcLoading, setIsCalcLoading] = useState(false);
 
     // Export to Power BI Modal State (Private / Public with Name of Choice)
@@ -739,7 +813,9 @@ function ModernCapacityApp() {
     const [indayWorkloadData, setIndayWorkloadData] = useState([]);
     const [demCapSubTab, setDemCapSubTab] = useState('imbalance');
     const [imbalanceFilter, setImbalanceFilter] = useState('');
-    const [selectedTerritory, setSelectedTerritory] = useState('All');
+    const [insightsTerritory, setInsightsTerritory] = useState('All');
+    const [insightsStartDate, setInsightsStartDate] = useState('2026-11-02');
+    const [insightsEndDate, setInsightsEndDate] = useState('2027-12-27');
 
     // Copilot Chat
     const [copilotMessages, setCopilotMessages] = useState([
@@ -769,9 +845,11 @@ function ModernCapacityApp() {
                 const ids = Object.keys(init.scenarios);
                 if (ids.length > 0) {
                     setSelectedScenarioId(ids[0]);
+                    setAnalyticsBaselineScenarioId(ids[0]);
                     setDiffBaselineScenarioId(ids[0]);
                     const second = ids[1] || ids[0];
                     setComparisonScenarioId(second);
+                    setAnalyticsComparisonScenarioId(second);
                     setDiffComparisonScenarioId(second);
                 }
             }
@@ -892,9 +970,10 @@ function ModernCapacityApp() {
 
             window.Shiny.addCustomMessageHandler('response_calc_module_data', function(data) {
                 if (data && data.moduleKey) {
+                    const cacheKey = `${data.scenarioId || selectedScenarioId || 'default'}::${data.moduleKey}`;
                     setCalcModulesCache(prev => ({
                         ...prev,
-                        [data.moduleKey]: data
+                        [cacheKey]: data
                     }));
                     setIsCalcLoading(false);
                 }
@@ -947,24 +1026,27 @@ function ModernCapacityApp() {
         }
     };
 
-    // Request Calculation Module Data (FTE, Downtime, Productivity, Capacity, Demand, Imbalance)
-    const handleRequestCalcModule = (mod) => {
+    // Request Calculation Module Data (FTE, Available Hours, Capacity, Demand, Workload, Imbalance)
+    const handleRequestCalcModule = (mod, scenarioOverride = null) => {
+        const scenId = scenarioOverride || selectedScenarioId;
+        const cacheKey = `${scenId || 'default'}::${mod}`;
         setSelectedCalcModule(mod);
-        if (calcModulesCache[mod]) return;
+        if (calcModulesCache[cacheKey]) return;
         setIsCalcLoading(true);
         if (window.Shiny && window.Shiny.setInputValue) {
             window.Shiny.setInputValue('request_calc_module_data', {
                 moduleKey: mod,
+                scenarioId: scenId,
                 requestId: Date.now()
             }, { priority: 'event' });
         }
         setTimeout(() => {
             setCalcModulesCache(prev => {
-                if (prev[mod]) return prev;
-                return { ...prev, [mod]: getClientFallbackCalcModule(mod) };
+                if (prev[cacheKey]) return prev;
+                return { ...prev, [cacheKey]: getClientFallbackCalcModule(mod, scenId) };
             });
             setIsCalcLoading(false);
-        }, 1000);
+        }, 1200);
     };
 
     // Current scenario object
@@ -1538,7 +1620,7 @@ function ModernCapacityApp() {
                                     ? 'bg-blue-500/20 text-blue-300 border-blue-500/40 hover:bg-blue-500/30'
                                     : 'bg-blue-50 hover:bg-[#005eb8] text-[#005eb8] hover:text-white border-blue-200 hover:border-[#005eb8]'
                             }`}
-                            title="View Calculation Modules (FTE, Downtime, Productivity, Capacity, Demand, Imbalance)"
+                            title="View Calculation Modules (FTE, Available Hours, Capacity, Demand, Workload, Imbalance)"
                         >
                             <IconEye className="w-3.5 h-3.5 text-current" />
                             <span>View Calculations</span>
@@ -1674,8 +1756,8 @@ function ModernCapacityApp() {
                             scenarios={scenarios}
                             selectedScenarioId={selectedScenarioId}
                             inputsState={inputsState}
-                            baselineScenarioId={diffBaselineScenarioId}
-                            comparisonScenarioId={diffComparisonScenarioId}
+                            baselineScenarioId={analyticsBaselineScenarioId}
+                            comparisonScenarioId={analyticsComparisonScenarioId}
                             presentation={decisionStudioView}
                             onPresentationChange={setDecisionStudioView}
                         />
@@ -1688,8 +1770,12 @@ function ModernCapacityApp() {
                             onConfigureInputs={() => setActiveTab('inputs')}
                             onCompareScenario={() => setActiveTab('comparison')}
                             imbalanceData={imbalanceData}
-                            selectedTerritory={selectedTerritory}
-                            setSelectedTerritory={setSelectedTerritory}
+                            selectedTerritory={insightsTerritory}
+                            setSelectedTerritory={setInsightsTerritory}
+                            trajectoryStartDate={insightsStartDate}
+                            setTrajectoryStartDate={setInsightsStartDate}
+                            trajectoryEndDate={insightsEndDate}
+                            setTrajectoryEndDate={setInsightsEndDate}
                             showToast={showToast}
                         />
                     )}
@@ -1865,14 +1951,15 @@ function ModernCapacityApp() {
                 </div>
             )}
 
-            {/* FLOATING WINDOW: CALCULATION MODULES MODAL (FTE, DOWNTIME, PRODUCTIVITY -> CAPACITY; DEMAND -> IMBALANCE) */}
+            {/* FLOATING WINDOW: CALCULATION MODULES MODAL (6 SUB-CALCULATIONS COMBINING INTO FINAL DATA) */}
             {isCalcModalOpen && (
                 <CalculationModulesModal
                     isOpen={isCalcModalOpen}
                     activeModule={selectedCalcModule}
-                    onChangeModule={(mod) => handleRequestCalcModule(mod)}
+                    scenarioId={selectedScenarioId}
+                    onChangeModule={(mod) => handleRequestCalcModule(mod, selectedScenarioId)}
                     onClose={() => setIsCalcModalOpen(false)}
-                    data={calcModulesCache[selectedCalcModule] || getClientFallbackCalcModule(selectedCalcModule)}
+                    data={calcModulesCache[`${selectedScenarioId || 'default'}::${selectedCalcModule}`] || getClientFallbackCalcModule(selectedCalcModule, selectedScenarioId)}
                     loading={isCalcLoading}
                     showToast={showToast}
                 />
@@ -2923,35 +3010,35 @@ const TRAJECTORY_HORIZON_WEEKS = [
 ];
 
 const BASE_TRAJECTORY_WEEK_META = {
-    "2026-09-14": { demand: 4580, capacity: 4920, weekNum: 38, label: "Sep 14" },
-    "2026-09-21": { demand: 4610, capacity: 4950, weekNum: 39, label: "Sep 21" },
-    "2026-09-28": { demand: 4650, capacity: 4980, weekNum: 40, label: "Sep 28" },
-    "2026-10-05": { demand: 4710, capacity: 5020, weekNum: 41, label: "Oct 05" },
-    "2026-10-12": { demand: 4780, capacity: 5050, weekNum: 42, label: "Oct 12" },
-    "2026-10-19": { demand: 4820, capacity: 5010, weekNum: 43, label: "Oct 19" },
-    "2026-10-26": { demand: 4890, capacity: 4810, weekNum: 44, label: "Oct 26" },
-    "2026-11-02": { demand: 4850, capacity: 5080, weekNum: 45, label: "Nov 02" },
-    "2026-11-09": { demand: 4810, capacity: 5120, weekNum: 46, label: "Nov 09" },
-    "2026-11-16": { demand: 4770, capacity: 5160, weekNum: 47, label: "Nov 16" },
-    "2026-11-23": { demand: 4720, capacity: 5100, weekNum: 48, label: "Nov 23" },
-    "2026-11-30": { demand: 4680, capacity: 5050, weekNum: 49, label: "Nov 30" },
-    "2026-12-07": { demand: 4630, capacity: 4990, weekNum: 50, label: "Dec 07" },
-    "2026-12-14": { demand: 4590, capacity: 4940, weekNum: 51, label: "Dec 14" },
-    "2026-12-21": { demand: 4520, capacity: 4880, weekNum: 52, label: "Dec 21" },
-    "2026-12-28": { demand: 4450, capacity: 4750, weekNum: 53, label: "Dec 28" },
-    "2027-01-04": { demand: 4920, capacity: 5180, weekNum: 1, label: "Jan 04" },
-    "2027-01-11": { demand: 4980, capacity: 5220, weekNum: 2, label: "Jan 11" },
-    "2027-01-18": { demand: 4950, capacity: 5200, weekNum: 3, label: "Jan 18" },
-    "2027-01-25": { demand: 4910, capacity: 5150, weekNum: 4, label: "Jan 25" },
-    "2027-02-01": { demand: 4860, capacity: 5100, weekNum: 5, label: "Feb 01" },
-    "2027-02-08": { demand: 4820, capacity: 5080, weekNum: 6, label: "Feb 08" },
-    "2027-02-15": { demand: 4790, capacity: 5050, weekNum: 7, label: "Feb 15" },
-    "2027-02-22": { demand: 4750, capacity: 5020, weekNum: 8, label: "Feb 22" },
-    "2027-03-01": { demand: 4680, capacity: 4980, weekNum: 9, label: "Mar 01" },
-    "2027-03-08": { demand: 4620, capacity: 4950, weekNum: 10, label: "Mar 08" },
-    "2027-03-15": { demand: 4580, capacity: 4910, weekNum: 11, label: "Mar 15" },
-    "2027-03-22": { demand: 4540, capacity: 4880, weekNum: 12, label: "Mar 22" },
-    "2027-03-29": { demand: 4510, capacity: 4850, weekNum: 13, label: "Mar 29" }
+    "2026-09-14": { demand: 3820, capacity: 4120, weekNum: 38, label: "Sep 14" },
+    "2026-09-21": { demand: 3940, capacity: 4180, weekNum: 39, label: "Sep 21" },
+    "2026-09-28": { demand: 4120, capacity: 4290, weekNum: 40, label: "Sep 28" },
+    "2026-10-05": { demand: 4380, capacity: 4210, weekNum: 41, label: "Oct 05" },
+    "2026-10-12": { demand: 4510, capacity: 4280, weekNum: 42, label: "Oct 12" },
+    "2026-10-19": { demand: 4320, capacity: 4590, weekNum: 43, label: "Oct 19" },
+    "2026-10-26": { demand: 4460, capacity: 4720, weekNum: 44, label: "Oct 26" },
+    "2026-11-02": { demand: 4780, capacity: 5060, weekNum: 45, label: "Nov 02" },
+    "2026-11-09": { demand: 4920, capacity: 5180, weekNum: 46, label: "Nov 09" },
+    "2026-11-16": { demand: 5280, capacity: 4960, weekNum: 47, label: "Nov 16" },
+    "2026-11-23": { demand: 5390, capacity: 5040, weekNum: 48, label: "Nov 23" },
+    "2026-11-30": { demand: 5020, capacity: 5310, weekNum: 49, label: "Nov 30" },
+    "2026-12-07": { demand: 5480, capacity: 5190, weekNum: 50, label: "Dec 07" },
+    "2026-12-14": { demand: 5620, capacity: 5240, weekNum: 51, label: "Dec 14" },
+    "2026-12-21": { demand: 5140, capacity: 5410, weekNum: 52, label: "Dec 21" },
+    "2026-12-28": { demand: 4980, capacity: 5290, weekNum: 53, label: "Dec 28" },
+    "2027-01-04": { demand: 5690, capacity: 5340, weekNum: 1, label: "Jan 04" },
+    "2027-01-11": { demand: 5780, capacity: 5410, weekNum: 2, label: "Jan 11" },
+    "2027-01-18": { demand: 5640, capacity: 5380, weekNum: 3, label: "Jan 18" },
+    "2027-01-25": { demand: 5260, capacity: 5540, weekNum: 4, label: "Jan 25" },
+    "2027-02-01": { demand: 5180, capacity: 5480, weekNum: 5, label: "Feb 01" },
+    "2027-02-08": { demand: 5420, capacity: 5120, weekNum: 6, label: "Feb 08" },
+    "2027-02-15": { demand: 5310, capacity: 5040, weekNum: 7, label: "Feb 15" },
+    "2027-02-22": { demand: 4840, capacity: 5150, weekNum: 8, label: "Feb 22" },
+    "2027-03-01": { demand: 4690, capacity: 4980, weekNum: 9, label: "Mar 01" },
+    "2027-03-08": { demand: 4890, capacity: 4620, weekNum: 10, label: "Mar 08" },
+    "2027-03-15": { demand: 4380, capacity: 4690, weekNum: 11, label: "Mar 15" },
+    "2027-03-22": { demand: 4210, capacity: 4520, weekNum: 12, label: "Mar 22" },
+    "2027-03-29": { demand: 4050, capacity: 4360, weekNum: 13, label: "Mar 29" }
 };
 
 // Dynamic Scenario Analytics Engine: Computes tailored KPIs, trajectory profiles,
@@ -3248,7 +3335,7 @@ function getIsoWeekNumber(isoDate) {
     return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 }
 
-function ScenarioExecutiveInsightsView({ scenario, finalBundle = null, onConfigureInputs, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, showToast }) {
+function ScenarioExecutiveInsightsView({ scenario, finalBundle = null, onConfigureInputs, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, trajectoryStartDate: propStartDate, setTrajectoryStartDate: propSetStartDate, trajectoryEndDate: propEndDate, setTrajectoryEndDate: propSetEndDate, showToast }) {
     const fallbackAnalytics = useMemo(() => computeScenarioAnalytics(scenario), [scenario]);
     const finalRows = useMemo(() => unpackFinalScenarioData(finalBundle?.finalData), [finalBundle]);
     const isFinalReady = finalRows.length > 0;
@@ -3264,8 +3351,10 @@ function ScenarioExecutiveInsightsView({ scenario, finalBundle = null, onConfigu
         return sorted.length > 0 ? sorted : TRAJECTORY_HORIZON_WEEKS;
     }, [finalRows, isFinalReady]);
 
-    const [trajectoryStartDate, setTrajectoryStartDate] = useState("2026-11-02");
-    const [trajectoryEndDate, setTrajectoryEndDate] = useState("2027-12-27");
+    const trajectoryStartDate = propStartDate || "2026-11-02";
+    const setTrajectoryStartDate = propSetStartDate || (() => {});
+    const trajectoryEndDate = propEndDate || "2027-12-27";
+    const setTrajectoryEndDate = propSetEndDate || (() => {});
     const [trajectoryHoveredIdx, setTrajectoryHoveredIdx] = useState(null);
 
     useEffect(() => {
@@ -8215,130 +8304,72 @@ function InputTableViewModal({
 // ================================================================================================
 // CLIENT FALLBACK FOR CALCULATION MODULES (FTE, DOWNTIME, PRODUCTIVITY -> CAPACITY; DEMAND -> IMBALANCE)
 // ================================================================================================
-function getClientFallbackCalcModule(modKey) {
+function getClientFallbackCalcModule(modKey, scenarioId = '') {
     const key = (modKey || 'imbalance').toLowerCase();
     const patches = [
-        "ED44 Canterbury & Dover", "EB12 Altrincham", "EC62 Essex East", 
-        "EB14 Stockport", "ED22 Cobham & Heathrow", "EA62 Blackpool & Lancaster",
-        "EA62 Preston & Southport", "EB24 The Wirral", "EC91 Leicester",
-        "ED41 Bromley & Dartford", "EB13 Manchester Centre", "EB12 Lancashire South",
-        "EB43 Hereford & Worcs", "EA11 Inverness & Aviemore", "EC41 Reading"
+        "EA11 Inverness & Aviemore", "EA21 Stirling & Falkirk", "EB12 Altrincham",
+        "EB24 The Wirral", "EC81 Peterborough", "EC91 Leicester",
+        "ED11 Chiswick & City", "ED44 Canterbury & Dover"
     ];
-    const skills = ["HEC", "KAC", "EV"];
-    
+    const skills = ["HEC", "KAC"];
+    const demoKey = scenarioId || "LV NOV V.1 2026";
+
     if (key === 'imbalance') {
-        const columns = ["Patch", "Skill", "Weekcomm", "Demand Hours", "Capacity Hours", "Net Imbalance (Hours)", "Net Imbalance (FTE)", "Coverage Ratio (%)", "Status", "Calculation Stage", "Operational Recommendation"];
-        const rows = patches.map((p, i) => {
-            const skill = skills[i % skills.length];
-            const dem = Math.round(1100 + i * 45.5);
-            const capFactor = [1.05, 0.94, 1.01, 1.08, 0.92, 1.06, 0.98, 1.03][i % 8];
-            const cap = Math.round(dem * capFactor * 10) / 10;
-            const diff = Math.round((cap - dem) * 10) / 10;
-            const fte = Math.round((diff / 37.5) * 100) / 100;
-            const cov = Math.round((cap / dem) * 1000) / 10;
-            const status = cov >= 102 ? "Surplus" : (cov <= 98 ? "Deficit" : "Balanced");
-            const action = status === "Surplus" ? "Mutual aid export to adjacent patch" : (status === "Deficit" ? "Authorize weekend surge overtime" : "Within normal operating tolerance");
-            return {
-                "Patch": p,
-                "Skill": skill,
-                "Weekcomm": "2026-10-05",
-                "Demand Hours": dem,
-                "Capacity Hours": cap,
-                "Net Imbalance (Hours)": diff,
-                "Net Imbalance (FTE)": fte,
-                "Coverage Ratio (%)": `${cov}%`,
-                "Status": status,
-                "Calculation Stage": i % 2 === 0 ? "post_sp" : "pre_sp",
-                "Operational Recommendation": action
-            };
+        const columns = ["key", "patch", "skill", "metric", "type", "weekcomm", "values"];
+        const rows = [];
+        patches.forEach((p, i) => {
+            const sk = skills[i % 2];
+            const imbPre = Math.round((85 - i * 18) * 100) / 100;
+            const imbPost = Math.round((imbPre + 24.5) * 100) / 100;
+            rows.push({ key: demoKey, patch: p, skill: sk, metric: "DL_FTE", type: "pre_sp", weekcomm: "2026-11-02", values: Math.round((imbPre / 37.5) * 1000) / 1000 });
+            rows.push({ key: demoKey, patch: p, skill: sk, metric: "imb_presp", type: "pre_sp", weekcomm: "2026-11-02", values: imbPre });
+            rows.push({ key: demoKey, patch: p, skill: sk, metric: "DL_FTE", type: "post_sp", weekcomm: "2026-11-02", values: Math.round((imbPost / 37.5) * 1000) / 1000 });
+            rows.push({ key: demoKey, patch: p, skill: sk, metric: "imb_postsp", type: "post_sp", weekcomm: "2026-11-02", values: imbPost });
         });
-        return { success: true, moduleKey: 'imbalance', columns, rows, totalRows: rows.length };
+        return { success: true, moduleKey: 'imbalance', tableName: 'es_shiny_imbalance_calc', keyCol: 'imbalance_key', columns, rows, totalRows: rows.length };
+    } else if (key === 'available_hours' || key === 'avlhr') {
+        const columns = ["key", "patch", "skill", "group", "weekcomm", "values"];
+        const rows = patches.map((p, i) => ({
+            key: demoKey, patch: p, skill: skills[i % 2], group: skills[i % 2], weekcomm: "2026-11-02", values: Math.round((710 + i * 28.5) * 100) / 100
+        }));
+        return { success: true, moduleKey: 'available_hours', tableName: 'es_shiny_avlhr_calc', keyCol: 'avl_key', columns, rows, totalRows: rows.length };
     } else if (key === 'capacity') {
-        const columns = ["Patch", "Skill", "Weekcomm", "Effective FTE", "Contract Shift (Hrs/Wk)", "Gross Capacity Hours", "Downtime Rate (%)", "Downtime Hours", "Net Available Hours", "Productivity Pace (Jobs/Day)", "Net Capacity (Jobs)", "Engine Status"];
-        const rows = patches.map((p, i) => {
-            const skill = skills[i % skills.length];
-            const fte = Math.round((30 + i * 1.5) * 10) / 10;
-            const gross = Math.round(fte * 37.5 * 10) / 10;
-            const downPct = Math.round((12.5 + (i % 5) * 0.8) * 10) / 10;
-            const downHrs = Math.round(gross * (downPct / 100.0) * 10) / 10;
-            const avail = Math.round((gross - downHrs) * 10) / 10;
-            const pace = skill === 'HEC' ? 3.8 : (skill === 'KAC' ? 3.5 : 2.2);
-            const jobs = Math.round(avail * (pace / 7.5));
-            return {
-                "Patch": p,
-                "Skill": skill,
-                "Weekcomm": "2026-10-05",
-                "Effective FTE": fte,
-                "Contract Shift (Hrs/Wk)": 37.5,
-                "Gross Capacity Hours": gross,
-                "Downtime Rate (%)": `${downPct}%`,
-                "Downtime Hours": downHrs,
-                "Net Available Hours": avail,
-                "Productivity Pace (Jobs/Day)": pace,
-                "Net Capacity (Jobs)": jobs,
-                "Engine Status": "Calculated & Verified"
-            };
-        });
-        return { success: true, moduleKey: 'capacity', columns, rows, totalRows: rows.length };
-    } else if (key === 'productivity') {
-        const columns = ["Skill", "Work Code", "Product", "Standard Task Duration (Hrs)", "Productivity Pace (Jobs/Day)", "Weekly Output Target (Jobs)", "Benchmark Year", "Ramp Factor"];
-        const rows = [
-            {"Skill": "HEC", "Work Code": "W00", "Product": "Gas Heating Breakdown Repair", "Standard Task Duration (Hrs)": 1.45, "Productivity Pace (Jobs/Day)": 3.8, "Weekly Output Target (Jobs)": 19, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "HEC", "Work Code": "W01", "Product": "First Time Fix Gas Appliance", "Standard Task Duration (Hrs)": 1.25, "Productivity Pace (Jobs/Day)": 4.0, "Weekly Output Target (Jobs)": 20, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "HEC", "Work Code": "W17", "Product": "S&R EHI Bonding Leads", "Standard Task Duration (Hrs)": 1.85, "Productivity Pace (Jobs/Day)": 3.2, "Weekly Output Target (Jobs)": 16, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "HEC", "Work Code": "W18", "Product": "CHI Fuse Board Upgrade", "Standard Task Duration (Hrs)": 2.10, "Productivity Pace (Jobs/Day)": 2.8, "Weekly Output Target (Jobs)": 14, "Benchmark Year": 2026, "Ramp Factor": "95%"},
-            {"Skill": "HEC", "Work Code": "W20", "Product": "H Code Heating System Powerflush", "Standard Task Duration (Hrs)": 1.95, "Productivity Pace (Jobs/Day)": 3.0, "Weekly Output Target (Jobs)": 15, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "HEC", "Work Code": "W23", "Product": "Electrical Heating Circuit Repair", "Standard Task Duration (Hrs)": 1.65, "Productivity Pace (Jobs/Day)": 3.4, "Weekly Output Target (Jobs)": 17, "Benchmark Year": 2026, "Ramp Factor": "90%"},
-            {"Skill": "HEC", "Work Code": "W26", "Product": "Breakdown Assist Tier 1", "Standard Task Duration (Hrs)": 1.35, "Productivity Pace (Jobs/Day)": 3.8, "Weekly Output Target (Jobs)": 19, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "HEC", "Work Code": "W31", "Product": "EICR Domestic Electrical Inspection", "Standard Task Duration (Hrs)": 2.50, "Productivity Pace (Jobs/Day)": 2.2, "Weekly Output Target (Jobs)": 11, "Benchmark Year": 2026, "Ramp Factor": "95%"},
-            {"Skill": "KAC", "Work Code": "W01", "Product": "KAC Whitegoods Appliance Repair", "Standard Task Duration (Hrs)": 1.55, "Productivity Pace (Jobs/Day)": 3.5, "Weekly Output Target (Jobs)": 18, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "KAC", "Work Code": "W17", "Product": "KAC Appliance Annual Safety Check", "Standard Task Duration (Hrs)": 1.15, "Productivity Pace (Jobs/Day)": 4.2, "Weekly Output Target (Jobs)": 21, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "EV", "Work Code": "W23", "Product": "EV Charging Point Home Installation", "Standard Task Duration (Hrs)": 2.75, "Productivity Pace (Jobs/Day)": 2.2, "Weekly Output Target (Jobs)": 11, "Benchmark Year": 2026, "Ramp Factor": "85%"},
-            {"Skill": "EV", "Work Code": "W26", "Product": "EV Fast Charger Commissioning", "Standard Task Duration (Hrs)": 1.90, "Productivity Pace (Jobs/Day)": 2.6, "Weekly Output Target (Jobs)": 13, "Benchmark Year": 2026, "Ramp Factor": "90%"}
-        ];
-        return { success: true, moduleKey: 'productivity', columns, rows, totalRows: rows.length };
-    } else if (key === 'downtime') {
-        const columns = ["patch", "skill", "metric", "level2", "weekcomm", "values"];
-        const rows = [
-            {"patch": "EA11 Aberdeen North", "skill": "HEC", "metric": "Training", "level2": "GFF3 HEC SIPD Training %", "weekcomm": "2025-01-06", "values": 0.0},
-            {"patch": "EB12 Altrincham", "skill": "HEC", "metric": "Sickness", "level2": "Short Term Absence %", "weekcomm": "2025-01-06", "values": 3.5},
-            {"patch": "EC62 Essex East", "skill": "EV", "metric": "Annual Leave", "level2": "Bank Holiday Overlay %", "weekcomm": "2025-01-06", "values": 5.0},
-            {"patch": "ED44 Canterbury & Dover", "skill": "HEC", "metric": "Meeting", "level2": "Toolbox Talk & Safety %", "weekcomm": "2025-01-06", "values": 2.0},
-            {"patch": "EA12 Dundee & Perth", "skill": "HEC", "metric": "Training", "level2": "Heat Pump Upskilling %", "weekcomm": "2025-01-06", "values": 4.5},
-            {"patch": "EB14 Stockport", "skill": "KAC", "metric": "Sickness", "level2": "Long Term Sick Factor %", "weekcomm": "2025-01-06", "values": 2.8}
-        ];
-        return { success: true, moduleKey: 'downtime', columns, rows, totalRows: rows.length };
+        const columns = ["key", "patch", "skill", "group", "weekcomm", "values"];
+        const rows = patches.map((p, i) => ({
+            key: demoKey, patch: p, skill: skills[i % 2], group: skills[i % 2], weekcomm: "2026-11-02", values: Math.round((660 + i * 26.2) * 100) / 100
+        }));
+        return { success: true, moduleKey: 'capacity', tableName: 'es_shiny_capacity_calc', keyCol: 'capacity_key', columns, rows, totalRows: rows.length };
+    } else if (key === 'workload') {
+        const columns = ["key", "patch", "skill", "weekcomm", "values"];
+        const rows = patches.map((p, i) => ({
+            key: demoKey, patch: p, skill: skills[i % 2], weekcomm: "2026-11-02", values: Math.round((630 + i * 24.0) * 100) / 100
+        }));
+        return { success: true, moduleKey: 'workload', tableName: 'es_shiny_workload_calc', keyCol: 'workload_key', columns, rows, totalRows: rows.length };
     } else if (key === 'fte') {
-        const columns = ["Status", "Pay Id", "Labour Type", "WMIS Patch", "Skill", "Allocation", "Hours", "Effective FTE"];
-        const rows = [
-            {"Status": "Active", "Pay Id": "139276", "Labour Type": "Engineer", "WMIS Patch": "EA11 Inverness & Aviemore", "Skill": "KAC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
-            {"Status": "Active", "Pay Id": "967219", "Labour Type": "Engineer", "WMIS Patch": "EC41 Reading", "Skill": "HEC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
-            {"Status": "Active", "Pay Id": "966554", "Labour Type": "Engineer", "WMIS Patch": "EC13 Devon South", "Skill": "HEC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
-            {"Status": "Active", "Pay Id": "884102", "Labour Type": "Apprentice", "WMIS Patch": "EB12 Altrincham", "Skill": "HEC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
-            {"Status": "Active", "Pay Id": "452199", "Labour Type": "Contractor", "WMIS Patch": "EC62 Essex East", "Skill": "EV", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
-            {"Status": "Leaver", "Pay Id": "950718", "Labour Type": "Engineer", "WMIS Patch": "0", "Skill": "KAC", "Allocation": 100, "Hours": 0, "Effective FTE": 0.0}
-        ];
-        return { success: true, moduleKey: 'fte', columns, rows, totalRows: rows.length };
+        const columns = ["key", "patch", "skill", "group", "weekcomm", "values"];
+        const rows = patches.map((p, i) => ({
+            key: demoKey, patch: p, skill: skills[i % 2], group: skills[i % 2], weekcomm: "2026-11-02", values: Math.round((21.5 + i * 1.2) * 100) / 100
+        }));
+        return { success: true, moduleKey: 'fte', tableName: 'es_shiny_fte_calc', keyCol: 'fte_key', columns, rows, totalRows: rows.length };
     } else {
         // demand
-        const columns = ["Region Code", "Area Code", "Patch", "Skill", "Type", "Work Code", "Product", "Weekcomm", "Values"];
+        const columns = ["key", "patch", "skill", "work_code", "product", "weekcomm", "values"];
         const rows = [
-            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA11 Inverness & Aviemore", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00 Gas Breakdown", "Weekcomm": "2025-01-06", "Values": 15},
-            {"Region Code": "B", "Area Code": "EB1", "Patch": "EB12 Altrincham", "Skill": "KAC", "Type": "Patch", "Work Code": "W01", "Product": "W01 First Time Fix", "Weekcomm": "2025-01-06", "Values": 14},
-            {"Region Code": "B", "Area Code": "EB1", "Patch": "EB14 Stockport", "Skill": "HEC", "Type": "Patch", "Work Code": "W17", "Product": "W17 S&R Bonding", "Weekcomm": "2025-01-06", "Values": 28},
-            {"Region Code": "C", "Area Code": "EC6", "Patch": "EC62 Essex East", "Skill": "EV", "Type": "Patch", "Work Code": "W23", "Product": "W23 Electrical Heating", "Weekcomm": "2025-01-06", "Values": 19},
-            {"Region Code": "D", "Area Code": "ED4", "Patch": "ED44 Canterbury & Dover", "Skill": "HEC", "Type": "Patch", "Work Code": "W26", "Product": "W26 Breakdown Assist", "Weekcomm": "2025-01-06", "Values": 35}
+            { key: demoKey, patch: "EA11 Inverness & Aviemore", skill: "HEC", work_code: "W01", product: "First Time Fix", weekcomm: "2026-11-02", values: 112.4 },
+            { key: demoKey, patch: "EC81 Peterborough", skill: "HEC", work_code: "W13", product: "Service Annual Visit", weekcomm: "2026-11-02", values: 104.8 },
+            { key: demoKey, patch: "EB12 Altrincham", skill: "KAC", work_code: "W06", product: "KAC Breakdown", weekcomm: "2026-11-02", values: 68.5 }
         ];
-        return { success: true, moduleKey: 'demand', columns, rows, totalRows: rows.length };
+        return { success: true, moduleKey: 'demand', tableName: 'es_shiny_demand_calc', keyCol: 'demand_key', columns, rows, totalRows: rows.length };
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-// FLOATING WINDOW: CALCULATION MODULES MODAL (IMBALANCE, CAPACITY, FTE, DOWNTIME, PRODUCTIVITY, DEMAND)
+// FLOATING WINDOW: CALCULATION MODULES MODAL (IMBALANCE, WORKLOAD, CAPACITY, AVAILABLE HOURS, FTE, DEMAND)
 // ------------------------------------------------------------------------------------------------
 function CalculationModulesModal({
     isOpen,
     activeModule = 'imbalance',
+    scenarioId = '',
     onChangeModule,
     onClose,
     data,
@@ -8373,51 +8404,63 @@ function CalculationModulesModal({
     const moduleMeta = {
         imbalance: {
             title: "Imbalance Calculation Module",
+            tableName: "es_shiny_imbalance_calc",
+            keyCol: "imbalance_key",
             category: "Combined Master Engine",
-            role: "Combines Capacity and Demand to calculate patch surpluses, deficits, and coverage ratios",
-            formula: "Net Imbalance (Hours) = Capacity Hours - Demand Hours | Coverage Ratio = (Capacity / Demand) * 100%",
-            feedsInto: "Executive Planning & Overtime Authorization",
-            stagePill: "Master Combined"
+            role: "Combines Capacity (Productive hrs + SP) and Workload (workload hrs) into pre-SP and post-SP imbalances (DL_FTE, imb_presp, imb_postsp)",
+            formula: "imb_presp = Productive hrs - Workload hrs | imb_postsp = (Productive hrs + SP) - Workload hrs | DL_FTE = Imbalance Hours / 37.5",
+            feedsInto: "Final Scenario Data (es_powerbi_model_checker_plan)",
+            stagePill: "imbalance_key"
         },
-        capacity: {
-            title: "Capacity Calculation Module",
-            category: "Capacity Engine",
-            role: "Calculates Net Available Productive Hours and Capacity Jobs from FTE, Downtime, and Productivity",
-            formula: "Available Productive Hours = Gross FTE Hours - Downtime Hours | Net Capacity (Jobs) = Available Hours * Productivity Pace",
-            feedsInto: "Imbalance Calculation Module",
-            stagePill: "Capacity Engine"
-        },
-        fte: {
-            title: "FTE Calculation Module",
-            category: "Resource Feed",
-            role: "Determines total effective field headcount, contractual hours, and inter-patch mutual aid transfers",
-            formula: "Effective FTE = Active Headcount + Recruitment Cohorts - Leavers ± Inter-Patch Transfers",
-            feedsInto: "Capacity Calculation Module",
-            stagePill: "Feed ➔ Capacity"
-        },
-        downtime: {
-            title: "Downtime Overlays Calculation Module",
-            category: "Non-Productive Factors Feed",
-            role: "Calculates planned and unplanned downtime (absence, sickness, training, meetings, storm stand-down)",
-            formula: "Total Downtime Hours = Gross Contract Hours * (Sickness% + Holiday% + Training% + Meeting% + Weather%)",
-            feedsInto: "Capacity Calculation Module",
-            stagePill: "Feed ➔ Capacity"
-        },
-        productivity: {
-            title: "Productivity Calculation Module",
-            category: "Efficiency & Benchmark Feed",
-            role: "Determines standard task completion durations, productive paces, and learning curve ramps by skill",
-            formula: "Productivity Pace (jobs/day) = 7.5 Shift Hours / Standard Task Duration (Hours/Job)",
-            feedsInto: "Capacity Calculation Module",
-            stagePill: "Feed ➔ Capacity"
+        workload: {
+            title: "Workload Calculation Module",
+            tableName: "es_shiny_workload_calc",
+            keyCol: "workload_key",
+            category: "Workload Aggregation Engine",
+            role: "Aggregates weekly Demand Hours by patch, skill, and weekcomm into total skill workload hours",
+            formula: "Workload Hours (patch, skill, weekcomm) = Σ Demand Hours (es_shiny_demand_calc)",
+            feedsInto: "Imbalance Calculation Module & Final Data",
+            stagePill: "workload_key"
         },
         demand: {
             title: "Demand Calculation Module",
-            category: "Customer Workload Engine",
-            role: "Forecasts customer breakdown volume, task mix, and converts job demand into required labor hours",
-            formula: "Total Demand Hours = Σ (Forecasted Jobs by Work Code * Standard Task Duration)",
-            feedsInto: "Imbalance Calculation Module",
-            stagePill: "Demand Engine"
+            tableName: "es_shiny_demand_calc",
+            keyCol: "demand_key",
+            category: "Customer Demand Engine",
+            role: "Weekly demand hours per patch, skill, work_code, and product aligned with Final Data Demand Hours",
+            formula: "Demand Hours (work_code, product) = Forecasted Jobs * Standard Task Duration * Seasonal Curve",
+            feedsInto: "Workload Calculation Module & Final Data",
+            stagePill: "demand_key"
+        },
+        capacity: {
+            title: "Capacity Calculation Module",
+            tableName: "es_shiny_capacity_calc",
+            keyCol: "capacity_key",
+            category: "Capacity Engine",
+            role: "Calculates Productive Capacity Hours from Available Hours minus Downtime Overlay Hours",
+            formula: "Productive Capacity Hours = Available Hours (es_shiny_avlhr_calc) - Downtime Overlay Hours",
+            feedsInto: "Imbalance Calculation Module & Final Data",
+            stagePill: "capacity_key"
+        },
+        available_hours: {
+            title: "Available Hours Calculation Module",
+            tableName: "es_shiny_avlhr_calc",
+            keyCol: "avl_key",
+            category: "Availability Engine",
+            role: "Converts FTE into Core Hours & Available Hours (Core Hrs + Overtime - Sickness/Holiday/Training/Meeting/Other)",
+            formula: "Core Hrs = (FTE * 37.5) - (Holiday + Sickness + Training + Meeting + Other) | Available Hrs = Core Hrs + Overtime",
+            feedsInto: "Capacity Calculation Module & Final Data",
+            stagePill: "avl_key"
+        },
+        fte: {
+            title: "FTE Calculation Module",
+            tableName: "es_shiny_fte_calc",
+            keyCol: "fte_key",
+            category: "Resource Feed",
+            role: "Weekly active headcount & recruitment cohort ramps by patch, skill, and group",
+            formula: "Effective FTE = Active Headcount + Recruitment Cohorts - Attrition ± Inter-Patch Transfers",
+            feedsInto: "Available Hours Module & Final Data",
+            stagePill: "fte_key"
         }
     };
 
@@ -8510,27 +8553,20 @@ function CalculationModulesModal({
                                     className="text-xs sm:text-sm font-extrabold text-[#005eb8] dark:text-[#80c6ff] bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2.5 py-1 shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[340px] sm:max-w-[460px] truncate"
                                     title="Select Calculation Module to View"
                                 >
-                                    <optgroup label="1. Master Combined Calculation">
-                                        <option value="imbalance">Imbalance Calculation (Capacity vs Demand)</option>
+                                    <optgroup label="1. Master Combined Sub-Calculation">
+                                        <option value="imbalance">Imbalance Calculation (es_shiny_imbalance_calc · imbalance_key)</option>
                                     </optgroup>
-                                    <optgroup label="2. Capacity Engine (FTE + Downtime + Productivity)">
-                                        <option value="capacity">Capacity Calculation (Net Available Hours & Jobs)</option>
-                                        <option value="fte">FTE Calculation Module (Headcount & Transfers)</option>
-                                        <option value="downtime">Downtime Calculation Module (Overlays & Sickness)</option>
-                                        <option value="productivity">Productivity Calculation Module (Task Duration & Pace)</option>
+                                    <optgroup label="2. Supply Chain: FTE → Available Hours → Capacity">
+                                        <option value="fte">FTE Calculation (es_shiny_fte_calc · fte_key)</option>
+                                        <option value="available_hours">Available Hours Calculation (es_shiny_avlhr_calc · avl_key)</option>
+                                        <option value="capacity">Capacity Calculation (es_shiny_capacity_calc · capacity_key)</option>
                                     </optgroup>
-                                    <optgroup label="3. Demand Engine (Combines with Capacity)">
-                                        <option value="demand">Demand Calculation Module (Forecasted Workload & Hours)</option>
+                                    <optgroup label="3. Demand Chain: Demand → Workload">
+                                        <option value="demand">Demand Calculation (es_shiny_demand_calc · demand_key)</option>
+                                        <option value="workload">Workload Calculation (es_shiny_workload_calc · workload_key)</option>
                                     </optgroup>
                                 </select>
-
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#005eb8] border border-blue-200">
-                                    {currentMeta.stagePill}
-                                </span>
                             </div>
-                            <p className="text-[11px] text-slate-500 mt-0.5 truncate" title={currentMeta.role}>
-                                {currentMeta.role}
-                            </p>
                         </div>
                     </div>
 
@@ -8635,37 +8671,22 @@ function CalculationModulesModal({
                                     : 'bg-white dark:bg-[#081324] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-[#112649] border border-slate-200 dark:border-[#18365d]'
                             }`}
                         >
-                            <span>FTE Module</span>
+                            <span>FTE</span>
                         </button>
 
-                        <span className="text-slate-400 dark:text-[#7d93b2] font-black">+</span>
+                        <span className="text-blue-500 dark:text-[#80c6ff] font-black text-sm">➔</span>
 
-                        {/* Feed 2: Downtime */}
+                        {/* Feed 2: Available Hours */}
                         <button
                             type="button"
-                            onClick={() => onChangeModule('downtime')}
+                            onClick={() => onChangeModule('available_hours')}
                             className={`px-2.5 py-0.5 rounded-md font-bold text-[11px] transition flex items-center gap-1 cursor-pointer ${
-                                activeModule === 'downtime'
+                                activeModule === 'available_hours'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
                                     : 'bg-white dark:bg-[#081324] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-[#112649] border border-slate-200 dark:border-[#18365d]'
                             }`}
                         >
-                            <span>Downtime Overlays</span>
-                        </button>
-
-                        <span className="text-slate-400 dark:text-[#7d93b2] font-black">+</span>
-
-                        {/* Feed 3: Productivity */}
-                        <button
-                            type="button"
-                            onClick={() => onChangeModule('productivity')}
-                            className={`px-2.5 py-0.5 rounded-md font-bold text-[11px] transition flex items-center gap-1 cursor-pointer ${
-                                activeModule === 'productivity'
-                                    ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-white dark:bg-[#081324] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-[#112649] border border-slate-200 dark:border-[#18365d]'
-                            }`}
-                        >
-                            <span>Productivity Rates</span>
+                            <span>Available Hrs</span>
                         </button>
 
                         <span className="text-blue-500 dark:text-[#80c6ff] font-black text-sm">➔</span>
@@ -8681,12 +8702,12 @@ function CalculationModulesModal({
                             }`}
                         >
                             <IconCapacity className="w-3.5 h-3.5 text-current" />
-                            <span>Capacity Calculation</span>
+                            <span>Capacity</span>
                         </button>
 
                         <span className="text-slate-400 dark:text-[#7d93b2] font-black">|</span>
 
-                        {/* Engine 2: Demand */}
+                        {/* Engine 2: Demand -> Workload */}
                         <button
                             type="button"
                             onClick={() => onChangeModule('demand')}
@@ -8697,7 +8718,21 @@ function CalculationModulesModal({
                             }`}
                         >
                             <IconDemand className="w-3.5 h-3.5 text-current" />
-                            <span>Demand Calculation</span>
+                            <span>Demand</span>
+                        </button>
+
+                        <span className="text-blue-500 dark:text-[#80c6ff] font-black text-sm">➔</span>
+
+                        <button
+                            type="button"
+                            onClick={() => onChangeModule('workload')}
+                            className={`px-2.5 py-0.5 rounded-md font-black text-[11px] transition flex items-center gap-1 cursor-pointer ${
+                                activeModule === 'workload'
+                                    ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
+                                    : 'bg-blue-50 dark:bg-[#081324] text-[#005eb8] dark:text-[#80c6ff] hover:bg-blue-100 dark:hover:bg-[#112649] border border-blue-200 dark:border-[#18365d]'
+                            }`}
+                        >
+                            <span>Workload</span>
                         </button>
 
                         <span className="text-blue-500 dark:text-[#80c6ff] font-black text-sm">➔</span>
@@ -8713,7 +8748,7 @@ function CalculationModulesModal({
                             }`}
                         >
                             <IconScale className="w-3.5 h-3.5 text-current" />
-                            <span>Imbalance (Combined)</span>
+                            <span>Imbalance</span>
                         </button>
                     </div>
 
@@ -10237,11 +10272,7 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
 function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, sourceFileName, onClose, onNavigateToInputs, compact = false }) {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [expanded, setExpanded] = useState({
-        "national": true,
-        "region-A": true,
-        "acdm-A-A1": true
-    });
+    const [expanded, setExpanded] = useState({});
     const containerRef = useRef(null);
 
     // Outside click and Escape key listeners to close dropdown
@@ -10282,10 +10313,9 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
 
     // Helper to get formatted scope text
     const getScopeDisplay = () => {
-        if (!selectedGeo) return "National";
-        if (selectedGeo.type === 'national') return "National";
-        if (selectedGeo.type === 'region') return `Region ${selectedGeo.id}`;
-        if (selectedGeo.type === 'acdm') return `ACDM ${selectedGeo.id}`;
+        if (!selectedGeo || selectedGeo.type === 'national') return "National";
+        if (selectedGeo.type === 'region') return selectedGeo.name || selectedGeo.label || `Region ${selectedGeo.id}`;
+        if (selectedGeo.type === 'acdm') return `Area ${selectedGeo.id}`;
         if (selectedGeo.type === 'territory') return selectedGeo.label || selectedGeo.id;
         return selectedGeo.label || "National";
     };
@@ -10380,8 +10410,8 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                         </button>
                     </div>
 
-                    {/* Scrollable Tree Area */}
-                    <div className="p-2 max-h-72 overflow-y-auto space-y-0.5 text-xs">
+                    {/* Scrollable Tree Area: National -> Region -> Area Code -> Territory */}
+                    <div className="p-2 max-h-72 overflow-y-auto space-y-0.5 text-xs bg-white dark:bg-[#0c1b31]">
                         {/* 1. National Level */}
                         <div className="space-y-0.5">
                             <div
@@ -10390,19 +10420,20 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                 }}
                                 className={`flex items-center gap-1.5 py-1.5 px-2 rounded-lg cursor-pointer transition select-none ${
                                     isNationalSelected
-                                        ? 'bg-blue-50/80 font-bold text-slate-900'
-                                        : 'hover:bg-slate-100 text-slate-800'
+                                        ? 'bg-blue-50/80 dark:bg-[#17355d] font-bold text-slate-900 dark:text-white'
+                                        : 'hover:bg-slate-100 dark:hover:bg-[#112649] text-slate-800 dark:text-slate-100'
                                 }`}
                             >
                                 {/* Chevron */}
                                 <button
                                     type="button"
+                                    aria-label={expanded['national'] ? "Collapse National" : "Expand National"}
                                     onClick={(e) => toggleExpand('national', e)}
-                                    className="w-5 h-5 flex items-center justify-center text-slate-600 hover:text-slate-900 flex-shrink-0 cursor-pointer"
-                                    title={expanded['national'] ? "Collapse" : "Expand"}
+                                    className="w-5 h-5 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex-shrink-0 cursor-pointer"
+                                    title={expanded['national'] ? "Collapse National" : "Expand National to see Regions"}
                                 >
                                     <svg
-                                        className={`w-3.5 h-3.5 transition-transform duration-150 ${expanded['national'] || isFiltered ? 'rotate-90 text-slate-800' : 'text-slate-500'}`}
+                                        className={`w-3.5 h-3.5 transition-transform duration-150 ${expanded['national'] || isFiltered ? 'rotate-90 text-slate-800 dark:text-[#80c6ff]' : 'text-slate-500 dark:text-slate-400'}`}
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -10415,11 +10446,11 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                 <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                                     <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
                                         isNationalSelected
-                                            ? 'border-slate-800 bg-white'
-                                            : 'border-slate-400 bg-white hover:border-slate-600'
+                                            ? 'border-slate-800 dark:border-[#80c6ff] bg-white dark:bg-[#081324]'
+                                            : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-[#081324] hover:border-slate-600'
                                     }`}>
                                         {isNationalSelected && (
-                                            <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                            <span className="w-2 h-2 rounded-full bg-slate-900 dark:bg-[#80c6ff]" />
                                         )}
                                     </span>
                                 </div>
@@ -10428,8 +10459,8 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                 <span className="truncate flex-1 font-semibold text-xs">
                                     National
                                 </span>
-                                <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">
-                                    {totalTerritories} terr
+                                <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono flex-shrink-0">
+                                    {regions.length} reg · {totalTerritories} terr
                                 </span>
                             </div>
 
@@ -10440,30 +10471,47 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                         const regKey = `region-${region.id}`;
                                         const acdmList = Object.values(region.acdms || {});
                                         const regTerritoriesCount = acdmList.reduce((acc, a) => acc + (a.territories || []).length, 0);
-                                        const isRegActive = selectedGeo && selectedGeo.type === 'region' && selectedGeo.id === region.id;
+                                        const regMatchesFilter = !isFiltered
+                                            || (region.name || '').toLowerCase().includes(term)
+                                            || (region.code || region.id || '').toLowerCase().includes(term)
+                                            || acdmList.some(a =>
+                                                a.id.toLowerCase().includes(term)
+                                                || (a.territories || []).some(t => t.toLowerCase().includes(term))
+                                            );
+                                        if (!regMatchesFilter) return null;
+
+                                        const isRegActive = selectedGeo && selectedGeo.type === 'region' && (selectedGeo.id === region.id || selectedGeo.code === region.code);
                                         const isRegExpanded = expanded[regKey] || isFiltered;
 
                                         return (
                                             <div key={regKey} className="space-y-0.5">
                                                 <div
                                                     onClick={() => {
-                                                        handleSelectAndClose({ type: 'region', id: region.id, label: `Region ${region.id}`, count: regTerritoriesCount }, false);
+                                                        handleSelectAndClose({
+                                                            type: 'region',
+                                                            id: region.code || region.id,
+                                                            code: region.code || region.id,
+                                                            name: region.name,
+                                                            label: region.name || `Region ${region.id}`,
+                                                            count: regTerritoriesCount
+                                                        }, false);
                                                     }}
                                                     className={`flex items-center gap-1.5 py-1.5 pl-6 pr-2 rounded-lg cursor-pointer transition select-none ${
                                                         isRegActive
-                                                            ? 'bg-blue-50/80 font-bold text-slate-900'
-                                                            : 'hover:bg-slate-100 text-slate-800'
+                                                            ? 'bg-blue-50/80 dark:bg-[#17355d] font-bold text-slate-900 dark:text-white'
+                                                            : 'hover:bg-slate-100 dark:hover:bg-[#112649] text-slate-800 dark:text-slate-100'
                                                     }`}
                                                 >
                                                     {/* Chevron */}
                                                     <button
                                                         type="button"
+                                                        aria-label={isRegExpanded ? `Collapse ${region.name}` : `Expand ${region.name}`}
                                                         onClick={(e) => toggleExpand(regKey, e)}
-                                                        className="w-5 h-5 flex items-center justify-center text-slate-600 hover:text-slate-900 flex-shrink-0 cursor-pointer"
-                                                        title={isRegExpanded ? "Collapse" : "Expand"}
+                                                        className="w-5 h-5 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex-shrink-0 cursor-pointer"
+                                                        title={isRegExpanded ? "Collapse Region" : "Expand Region to see Area Codes"}
                                                     >
                                                         <svg
-                                                            className={`w-3.5 h-3.5 transition-transform duration-150 ${isRegExpanded ? 'rotate-90 text-slate-800' : 'text-slate-500'}`}
+                                                            className={`w-3.5 h-3.5 transition-transform duration-150 ${isRegExpanded ? 'rotate-90 text-slate-800 dark:text-[#80c6ff]' : 'text-slate-500 dark:text-slate-400'}`}
                                                             fill="none"
                                                             viewBox="0 0 24 24"
                                                             stroke="currentColor"
@@ -10476,54 +10524,68 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                                     <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                                                         <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
                                                             isRegActive
-                                                                ? 'border-slate-800 bg-white'
-                                                                : 'border-slate-400 bg-white hover:border-slate-600'
+                                                                ? 'border-slate-800 dark:border-[#80c6ff] bg-white dark:bg-[#081324]'
+                                                                : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-[#081324] hover:border-slate-600'
                                                         }`}>
                                                             {isRegActive && (
-                                                                <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                                                <span className="w-2 h-2 rounded-full bg-slate-900 dark:bg-[#80c6ff]" />
                                                             )}
                                                         </span>
                                                     </div>
 
                                                     {/* Label */}
-                                                    <span className="truncate flex-1 font-medium text-xs">
-                                                        Region {region.id}
+                                                    <span className="truncate flex-1 font-medium text-xs" title={`${region.name} (${region.code || region.id})`}>
+                                                        {region.name || `Region ${region.id}`}
                                                     </span>
-                                                    <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">
-                                                        {regTerritoriesCount} terr
+                                                    <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono flex-shrink-0">
+                                                        {acdmList.length} area · {regTerritoriesCount} terr
                                                     </span>
                                                 </div>
 
-                                                {/* 3. ACDM Level (under Region) */}
+                                                {/* 3. Area Code Level (under Region) */}
                                                 {isRegExpanded && (
                                                     <div className="space-y-0.5">
                                                         {acdmList.map(acdm => {
                                                             const acdmKey = `acdm-${region.id}-${acdm.id}`;
                                                             const territories = acdm.territories || [];
-                                                            const isAcdmActive = selectedGeo && selectedGeo.type === 'acdm' && selectedGeo.id === acdm.id && selectedGeo.region === region.id;
+                                                            const areaMatchesFilter = !isFiltered
+                                                                || acdm.id.toLowerCase().includes(term)
+                                                                || (region.name || '').toLowerCase().includes(term)
+                                                                || territories.some(t => t.toLowerCase().includes(term));
+                                                            if (!areaMatchesFilter) return null;
+
+                                                            const isAcdmActive = selectedGeo && selectedGeo.type === 'acdm' && selectedGeo.id === acdm.id;
                                                             const isAcdmExpanded = expanded[acdmKey] || isFiltered;
 
                                                             return (
                                                                 <div key={acdmKey} className="space-y-0.5">
                                                                     <div
                                                                         onClick={() => {
-                                                                            handleSelectAndClose({ type: 'acdm', id: acdm.id, region: region.id, label: `ACDM ${acdm.id} (Reg ${region.id})`, count: territories.length }, false);
+                                                                            handleSelectAndClose({
+                                                                                type: 'acdm',
+                                                                                id: acdm.id,
+                                                                                region: region.code || region.id,
+                                                                                regionName: region.name,
+                                                                                label: `Area ${acdm.id} (${region.code || region.id})`,
+                                                                                count: territories.length
+                                                                            }, false);
                                                                         }}
                                                                         className={`flex items-center gap-1.5 py-1 pl-11 pr-2 rounded-lg cursor-pointer transition select-none ${
                                                                             isAcdmActive
-                                                                                ? 'bg-blue-50/80 font-bold text-slate-900'
-                                                                                : 'hover:bg-slate-100 text-slate-700'
+                                                                                ? 'bg-blue-50/80 dark:bg-[#17355d] font-bold text-slate-900 dark:text-white'
+                                                                                : 'hover:bg-slate-100 dark:hover:bg-[#112649] text-slate-700 dark:text-slate-200'
                                                                         }`}
                                                                     >
                                                                         {/* Chevron */}
                                                                         <button
                                                                             type="button"
+                                                                            aria-label={isAcdmExpanded ? `Collapse Area ${acdm.id}` : `Expand Area ${acdm.id}`}
                                                                             onClick={(e) => toggleExpand(acdmKey, e)}
-                                                                            className="w-5 h-5 flex items-center justify-center text-slate-600 hover:text-slate-900 flex-shrink-0 cursor-pointer"
-                                                                            title={isAcdmExpanded ? "Collapse" : "Expand"}
+                                                                            className="w-5 h-5 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex-shrink-0 cursor-pointer"
+                                                                            title={isAcdmExpanded ? "Collapse Area Code" : "Expand Area Code to see Territories"}
                                                                         >
                                                                             <svg
-                                                                                className={`w-3.5 h-3.5 transition-transform duration-150 ${isAcdmExpanded ? 'rotate-90 text-slate-800' : 'text-slate-500'}`}
+                                                                                className={`w-3.5 h-3.5 transition-transform duration-150 ${isAcdmExpanded ? 'rotate-90 text-slate-800 dark:text-[#80c6ff]' : 'text-slate-500 dark:text-slate-400'}`}
                                                                                 fill="none"
                                                                                 viewBox="0 0 24 24"
                                                                                 stroke="currentColor"
@@ -10536,30 +10598,30 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                                                         <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                                                                             <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
                                                                                 isAcdmActive
-                                                                                    ? 'border-slate-800 bg-white'
-                                                                                    : 'border-slate-400 bg-white hover:border-slate-600'
+                                                                                    ? 'border-slate-800 dark:border-[#80c6ff] bg-white dark:bg-[#081324]'
+                                                                                    : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-[#081324] hover:border-slate-600'
                                                                             }`}>
                                                                                 {isAcdmActive && (
-                                                                                    <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                                                                    <span className="w-2 h-2 rounded-full bg-slate-900 dark:bg-[#80c6ff]" />
                                                                                 )}
                                                                             </span>
                                                                         </div>
 
                                                                         {/* Label */}
                                                                         <span className="truncate flex-1 font-medium text-xs">
-                                                                            ACDM {acdm.id}
+                                                                            Area {acdm.id}
                                                                         </span>
-                                                                        <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">
+                                                                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono flex-shrink-0">
                                                                             {territories.length} terr
                                                                         </span>
                                                                     </div>
 
-                                                                    {/* 4. Territory Level (under ACDM) */}
+                                                                    {/* 4. Territory Level (under Area Code) */}
                                                                     {isAcdmExpanded && (
                                                                         <div className="space-y-0.5">
                                                                             {territories.map(t => {
                                                                                 const isTerrSelected = selectedGeo && selectedGeo.type === 'territory' && selectedGeo.id === t;
-                                                                                if (isFiltered && !t.toLowerCase().includes(term) && !acdm.id.toLowerCase().includes(term) && !region.id.toLowerCase().includes(term)) {
+                                                                                if (isFiltered && !t.toLowerCase().includes(term) && !acdm.id.toLowerCase().includes(term) && !(region.name || '').toLowerCase().includes(term)) {
                                                                                     return null;
                                                                                 }
 
@@ -10567,12 +10629,20 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                                                                     <div
                                                                                         key={t}
                                                                                         onClick={() => {
-                                                                                            handleSelectAndClose({ type: 'territory', id: t, region: region.id, acdm: acdm.id, label: t, count: 1 }, false);
+                                                                                            handleSelectAndClose({
+                                                                                                type: 'territory',
+                                                                                                id: t,
+                                                                                                region: region.code || region.id,
+                                                                                                regionName: region.name,
+                                                                                                acdm: acdm.id,
+                                                                                                label: t,
+                                                                                                count: 1
+                                                                                            }, false);
                                                                                         }}
                                                                                         className={`flex items-center gap-1.5 py-1 pl-16 pr-2 rounded-lg cursor-pointer transition select-none ${
                                                                                             isTerrSelected
-                                                                                                ? 'bg-blue-100/80 font-bold text-slate-900'
-                                                                                                : 'hover:bg-slate-100 text-slate-600'
+                                                                                                ? 'bg-blue-100/80 dark:bg-[#17355d] font-bold text-slate-900 dark:text-white'
+                                                                                                : 'hover:bg-slate-100 dark:hover:bg-[#112649] text-slate-600 dark:text-slate-300'
                                                                                         }`}
                                                                                     >
                                                                                         {/* Empty spacer where chevron would be to align radio buttons */}
@@ -10582,11 +10652,11 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                                                                         <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                                                                                             <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
                                                                                                 isTerrSelected
-                                                                                                    ? 'border-slate-800 bg-white'
-                                                                                                    : 'border-slate-400 bg-white hover:border-slate-600'
+                                                                                                    ? 'border-slate-800 dark:border-[#80c6ff] bg-white dark:bg-[#081324]'
+                                                                                                    : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-[#081324] hover:border-slate-600'
                                                                                             }`}>
                                                                                                 {isTerrSelected && (
-                                                                                                    <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                                                                                    <span className="w-2 h-2 rounded-full bg-slate-900 dark:bg-[#80c6ff]" />
                                                                                                 )}
                                                                                             </span>
                                                                                         </div>
@@ -10614,10 +10684,10 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                     </div>
 
                     {/* Popover Footer Bar */}
-                    <div className="p-2 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-600">
+                    <div className="p-2 border-t border-slate-100 dark:border-[#18365d] bg-slate-50 dark:bg-[#081324] flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
                         <div className="truncate text-[11px]">
-                            <span className="font-semibold text-slate-500">Source:</span>{" "}
-                            <span className="font-mono text-slate-700">{sourceFileName || "geography_mapping"}</span>
+                            <span className="font-semibold text-slate-500 dark:text-slate-400">Source:</span>{" "}
+                            <span className="font-mono text-slate-700 dark:text-slate-200">{sourceFileName || "geography_mapping"}</span>
                             {onNavigateToInputs && (
                                 <button
                                     type="button"
@@ -10625,7 +10695,7 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                         setIsOpen(false);
                                         onNavigateToInputs();
                                     }}
-                                    className="text-blue-600 hover:underline ml-1.5 font-bold cursor-pointer"
+                                    className="text-blue-600 dark:text-[#80c6ff] hover:underline ml-1.5 font-bold cursor-pointer"
                                 >
                                     Change in Inputs →
                                 </button>
@@ -12179,7 +12249,7 @@ function ScenarioComparisonView({
         type: 'national',
         id: 'national',
         label: 'National',
-        count: totalTerritoriesCount || 18
+        count: totalTerritoriesCount || 29
     });
 
     useEffect(() => {
@@ -12376,7 +12446,11 @@ function ScenarioComparisonView({
         const rowMatchesGeo = (r) => {
             if (!selectedGeo || selectedGeo.type === 'national') return true;
             if (selectedGeo.type === 'region' && r.region) {
-                if (normGeo(r.region) === normGeo(selectedGeo.label) || normGeo(r.region) === normGeo(selectedGeo.id)) return true;
+                if (
+                    normGeo(r.region) === normGeo(selectedGeo.name)
+                    || normGeo(r.region) === normGeo(selectedGeo.label)
+                    || normGeo(r.region) === normGeo(selectedGeo.id)
+                ) return true;
             }
             if (selectedGeo.type === 'acdm' && r.area_code) {
                 if (normGeo(r.area_code) === normGeo(selectedGeo.id) || normGeo(r.area_code) === normGeo(selectedGeo.label)) return true;
@@ -13311,8 +13385,8 @@ function DemVsCapView({
 
     // Weekly Demand vs Capacity Profile (12-Week Horizon)
     const weeklyProfileData = useMemo(() => {
-        const rawDemand = [4650, 4710, 4780, 4820, 4890, 4850, 4810, 4770, 4720, 4680, 4630, 4590];
-        const rawCapacity = [4980, 5020, 5050, 5010, 4810, 5080, 5120, 5160, 5100, 5050, 4990, 4940];
+        const rawDemand = [4120, 4380, 4510, 4320, 4460, 4780, 4920, 5280, 5390, 5020, 5480, 5620];
+        const rawCapacity = [4290, 4210, 4280, 4590, 4720, 5060, 5180, 4960, 5040, 5310, 5190, 5240];
         const dScale = analytics?.demandScale || 1.0;
         const cScale = analytics?.capacityScale || 1.0;
         
@@ -13343,11 +13417,11 @@ function DemVsCapView({
     const regionalWeeklyRollup = useMemo(() => {
         const regScale = (analytics?.netBufferFte !== undefined) ? (analytics.netBufferFte / 73.3) : 1.0;
         const regions = [
-            { code: 'A', name: 'Region A (Scotland & NE)', base: [14.2, 14.8, 15.1, 14.5, 13.9, 14.2, 14.9, 15.3, 14.7, 14.4, 14.1, 13.8] },
-            { code: 'B', name: 'Region B (North / NW)', base: [28.5, 29.1, 28.2, 27.8, 26.5, 28.4, 29.5, 30.1, 29.2, 28.8, 28.1, 27.9] },
-            { code: 'C', name: 'Region C (Midlands)', base: [-1.2, 1.5, -0.8, -2.4, -4.1, -1.8, 2.1, 3.4, 2.8, 1.9, 0.8, 0.4] },
-            { code: 'D', name: 'Region D (South East)', base: [22.8, 23.4, 22.1, 21.9, 20.8, 22.5, 23.8, 24.2, 23.5, 22.9, 22.4, 21.8] },
-            { code: 'E', name: 'Region E (South West)', base: [11.9, 12.3, 11.8, 11.2, 10.5, 11.8, 12.5, 12.9, 12.4, 12.1, 11.6, 11.2] }
+            { code: 'A', name: 'Region A (Scotland & NE)', base: [14.2, -3.8, -5.1, 14.5, 13.9, 14.2, 14.9, -4.3, -2.7, 14.4, -3.1, -4.8] },
+            { code: 'B', name: 'Region B (North / NW)', base: [28.5, -6.1, -8.2, 27.8, 26.5, 28.4, 29.5, -5.1, -6.2, 28.8, -4.1, -7.9] },
+            { code: 'C', name: 'Region C (Midlands)', base: [-1.2, -5.5, -6.8, 2.4, 4.1, -1.8, 2.1, -3.4, -2.8, 1.9, -2.8, -3.4] },
+            { code: 'D', name: 'Region D (South East)', base: [22.8, -4.4, -6.1, 21.9, 20.8, 22.5, 23.8, -3.2, -4.5, 22.9, -2.4, -5.8] },
+            { code: 'E', name: 'Region E (South West)', base: [11.9, -2.3, -3.8, 11.2, 10.5, 11.8, 12.5, -2.9, -3.4, 12.1, -1.6, -3.2] }
         ];
         
         return regions.map(reg => {
@@ -13812,7 +13886,6 @@ function DemVsCapView({
                                     value={searchQuery}
                                     onChange={(e) => {
                                         setSearchQuery(e.target.value);
-                                        if (setFilterText) setFilterText(e.target.value);
                                     }}
                                     className="text-xs pl-7 pr-3 py-1 bg-white border border-slate-200 rounded-md w-60 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-2xs"
                                 />

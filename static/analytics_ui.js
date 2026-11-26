@@ -341,6 +341,68 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
   const choose = (label,key,values) => <label>{label}<select aria-label={label} value={filter[key] || 'All'} onChange={e=>change(key,e.target.value)}>
     <option value="All">All {key==='patch'?'patches':key+'s'}</option>{values.map(v=><option key={v}>{v}</option>)}
   </select></label>;
+  const geoMappingRows = React.useMemo(() => {
+    if (bundle?.geographyRows && bundle.geographyRows.length) return bundle.geographyRows;
+    if (geography.length) {
+      return geography.map(g => ({
+        'Region Code': g.region,
+        'Region': g.regionName || g.region,
+        'Area Code': g.area,
+        'Patch': g.patch
+      }));
+    }
+    return window.getDefaultGeographyData ? window.getDefaultGeographyData() : [];
+  }, [bundle, geography]);
+  const geoHierarchy = React.useMemo(() => (
+    window.buildGeographyHierarchy ? window.buildGeographyHierarchy(geoMappingRows) : null
+  ), [geoMappingRows]);
+  const selectedGeoNode = React.useMemo(() => {
+    if (selected('patch')) {
+      return {
+        type: 'territory',
+        id: filter.patch,
+        region: selected('region') ? filter.region : '',
+        acdm: selected('area') ? filter.area : '',
+        label: filter.patch,
+        count: 1
+      };
+    }
+    if (selected('area')) {
+      return {
+        type: 'acdm',
+        id: filter.area,
+        region: selected('region') ? filter.region : '',
+        label: 'Area ' + filter.area,
+        count: patches.length
+      };
+    }
+    if (selected('region')) {
+      const regObj = geoHierarchy?.regions?.[filter.region];
+      return {
+        type: 'region',
+        id: filter.region,
+        code: filter.region,
+        name: regObj?.name || ('Region ' + filter.region),
+        label: regObj?.name || ('Region ' + filter.region),
+        count: Object.values(regObj?.acdms || {}).reduce((acc, a) => acc + (a.territories || []).length, 0)
+      };
+    }
+    const totalTerr = Object.values(geoHierarchy?.regions || {}).reduce((acc, r) =>
+      acc + Object.values(r.acdms || {}).reduce((tAcc, a) => tAcc + (a.territories || []).length, 0), 0);
+    return { type: 'national', id: 'national', label: 'National (All UK)', count: totalTerr || geography.length };
+  }, [filter.region, filter.area, filter.patch, geoHierarchy, patches.length, geography.length]);
+  const handleSelectGeoHierarchy = (geo) => {
+    if (!geo || geo.type === 'national') {
+      setFilter({ ...filter, region: 'All', area: 'All', patch: 'All', skill: 'All' });
+    } else if (geo.type === 'region') {
+      setFilter({ ...filter, region: geo.code || geo.id || 'All', area: 'All', patch: 'All', skill: 'All' });
+    } else if (geo.type === 'acdm') {
+      setFilter({ ...filter, region: geo.region || 'All', area: geo.id || 'All', patch: 'All', skill: 'All' });
+    } else if (geo.type === 'territory') {
+      setFilter({ ...filter, region: geo.region || 'All', area: geo.acdm || 'All', patch: geo.id || 'All', skill: 'All' });
+    }
+  };
+  const GeographySelector = window.GeographyHierarchySelector;
   const rowValue = (row,key) => ['month','quarter','year'].includes(key)
     ? A.calendarPeriod(row.week,key) : row[key] || '';
   const split = (cells,key) => {
@@ -670,7 +732,18 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
             <label>Plan<select aria-label="Plan" value={scenarioId} onChange={e=>setScenarioId(e.target.value)}>
               <option value="__draft">Draft inputs</option>{Object.keys(scenarios).map(id=><option key={id}>{id}</option>)}
             </select></label>
-            {choose('Area','area',areas)}
+            {GeographySelector && geoHierarchy ? (
+              <div className="min-w-0 flex flex-col gap-1">
+                <span>Geography</span>
+                <GeographySelector
+                  hierarchy={geoHierarchy}
+                  selectedGeo={selectedGeoNode}
+                  onSelectGeo={handleSelectGeoHierarchy}
+                  sourceFileName={bundle?.scenarioLog?.geog_map || 'geography_mapping'}
+                  compact={true}
+                />
+              </div>
+            ) : choose('Area','area',areas)}
           </div>
           <DecisionStudioPeriodControls A={A} weeks={planningWeeks} filter={filter} setFilter={setFilter}/>
         </div>
@@ -678,7 +751,8 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
         {focusedPeriod && <button type="button" className="ds-drill-link" onClick={()=>setFocusedPeriod('')}>
           Clear period focus · {decisionPeriodLabel(focusedPeriod)}</button>}
         <div className="ds-filter-fields">
-          {choose('Region','region',regions)}{choose('Patch','patch',patches)}{choose('Skill','skill',skills)}
+          {(!GeographySelector || !geoHierarchy) && <>{choose('Region','region',regions)}{choose('Patch','patch',patches)}</>}
+          {choose('Skill','skill',skills)}
           <label>Compare with<select aria-label="Compare with" value={comparisonEnabled && baselineId!==scenarioId ? baselineId : ''}
             onChange={e=>{setMetric(null);setComparisonEnabled(!!e.target.value);if(e.target.value)setBaselineId(e.target.value);}}>
             <option value="">No baseline</option>{Object.keys(scenarios).filter(id=>id!==scenarioId).map(id=><option key={id}>{id}</option>)}

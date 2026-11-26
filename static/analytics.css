@@ -1102,6 +1102,7 @@ html.dark .ds-workspace [data-measure="shortage"] {--ds-measure-accent:var(--ds-
   display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;
   background:#005eb8;color:#fff;font-size:12px;font-weight:750;flex-shrink:0;
 }
+.analytics-workspace .ds-controls {overflow:visible;}
 .analytics-workspace .ds-filter-main {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:10px 14px;}
 .analytics-workspace .ds-filter-body {display:grid;gap:10px;min-width:0;}
 .analytics-workspace .ds-filter-body[hidden] {display:none;}

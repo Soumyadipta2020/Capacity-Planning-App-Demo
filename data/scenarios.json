@@ -59,7 +59,7 @@
       "job_time_assumptions": "job_time_assumptions_standard_v2",
       "hec_on_kac_demand": "hec_on_kac_crosskill_v1_2026",
       "hec_on_ev_demand": "hec_on_ev_demand_transfer_v1",
-      "geography_mapping": "geography_patch_mapping_2026_v1",
+      "geography_mapping": "es_shiny_geog_mapping_input2_2026-02-18 13:04:22",
       "week_to_month": "week_to_month_standard_v1"
     }
   },

@@ -15,17 +15,26 @@
   }, {}));
   const sum = (rows, key) => rows.reduce((a, r) => a + (num(r[key]) ?? 0), 0);
   const normalize = row => Object.fromEntries(Object.entries(row).map(([k, v]) => [k.toLowerCase().replace(/[ _]/g, ''), v]));
+  const REGION_NAME_TO_CODE = {
+    'scotland and northern england': 'A',
+    'north west': 'B',
+    'midlands': 'C',
+    'london and south east': 'D',
+    'south west': 'E'
+  };
+  const reg = v => {
+    const raw = text(v).replace(/^Region\s*/i, '');
+    if (/^[A-E]$/i.test(raw)) return raw.toUpperCase();
+    return REGION_NAME_TO_CODE[raw.toLowerCase()] || '';
+  };
   const normalizeSource = (source, row) => {
     const n = normalize(row);
     if (source === 'geography_mapping') {
       n.territory = text(n.territory || n.patch);
+      n.regionname = text(row?.Region || row?.region || n.region || '');
       n.region = reg(n.regioncode) || reg(n.region);
     }
     return n;
-  };
-  const reg = v => {
-    const s = text(v).replace(/^Region\s*/i, '');
-    return /^[A-E]$/.test(s) ? s : '';
   };
   const addWeeks = (date, n) => {
     const d = new Date(date + 'T00:00:00Z');
@@ -124,7 +133,7 @@
         issues.push({ source: 'geography_mapping', row: i + 1, kind: 'Invalid geography', detail: 'Territory or region missing' });
       } else {
         map.set(p, region);
-        geography.set(p, { patch: p, area, region, label: text(n.patchname) || p });
+        geography.set(p, { patch: p, area, region, regionName: n.regionname || region, label: text(n.patchname) || p });
       }
     });
 

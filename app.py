@@ -342,9 +342,10 @@ def server(input, output, session):
             return
         
         module_key = req.get("moduleKey", "imbalance")
+        scenario_id = req.get("scenarioId") or None
         request_id = req.get("requestId", None)
-        
-        result = get_calculation_module_data(module_key)
+
+        result = get_calculation_module_data(module_key, scenario_id=scenario_id)
         if request_id is not None:
             result["requestId"] = request_id
             

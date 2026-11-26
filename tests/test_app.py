@@ -276,10 +276,11 @@ try:
         assert "View Calculations" in js_content, "'View Calculations' button missing in react_app.js"
         print("Verified front-end CalculationModulesModal, dropdown switcher, and 'View Calculations' buttons in react_app.js!")
 
-        # Verify get_calculation_module_data works for all 6 calculation modules:
-        # 1. imbalance, 2. capacity, 3. fte, 4. downtime, 5. productivity, 6. demand
+        # Verify get_calculation_module_data works for ONLY the 6 sub-calculation modules:
+        # fte, available_hours, capacity, demand, workload, imbalance
         from data_manager import get_calculation_module_data, CALC_MODULE_METADATA
-        calc_modules = ["imbalance", "capacity", "fte", "downtime", "productivity", "demand"]
+        calc_modules = ["fte", "available_hours", "capacity", "demand", "workload", "imbalance"]
+        assert set(CALC_MODULE_METADATA.keys()) == set(calc_modules), f"Unexpected modules in CALC_MODULE_METADATA: {set(CALC_MODULE_METADATA.keys())}"
         for mod_k in calc_modules:
             assert mod_k in CALC_MODULE_METADATA, f"Module {mod_k} missing in CALC_MODULE_METADATA"
             cdata = get_calculation_module_data(mod_k)

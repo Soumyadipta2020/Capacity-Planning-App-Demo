@@ -588,10 +588,15 @@ def get_weekly_synthetic_data(input_key: str) -> pd.DataFrame:
         ]
         rows = []
         for w in TRAJECTORY_HORIZON_WEEKS:
+            doy = datetime.strptime(w, "%Y-%m-%d").timetuple().tm_yday
+            theta = 2.0 * math.pi * ((doy - 12.0) / 365.25)
+            # Lower holiday/training overlays in winter, higher in summer/shoulder
+            season = 1.0 - 0.28 * math.cos(theta)
             for p in PATCHES[:12]:
                 for sk in SKILLS:
                     for m_name, lvl2, base_val in metrics:
-                        val = 0.0 if base_val == 0.0 else round(base_val + random.uniform(-0.005, 0.005), 8)
+                        s_mult = 1.0 + 0.15 * math.cos(theta) if m_name == "Sickness" else season
+                        val = 0.0 if base_val == 0.0 else round(base_val * s_mult + random.uniform(-0.004, 0.004), 8)
                         rows.append({
                             "patch": p,
                             "skill": sk,
@@ -612,10 +617,14 @@ def get_weekly_synthetic_data(input_key: str) -> pd.DataFrame:
         ]
         rows = []
         for w in TRAJECTORY_HORIZON_WEEKS:
+            doy = datetime.strptime(w, "%Y-%m-%d").timetuple().tm_yday
+            theta = 2.0 * math.pi * ((doy - 12.0) / 365.25)
+            season = 1.0 - 0.30 * math.cos(theta)
             for p in PATCHES[:12]:
                 for sk in SKILLS:
                     for m_name, lvl2, base_val in metrics:
-                        val = 0.0 if base_val == 0.0 else round(max(0.0, base_val + random.uniform(-4.0, 6.0)), 1)
+                        s_mult = 1.0 + 0.15 * math.cos(theta) if m_name == "Sickness" else season
+                        val = 0.0 if base_val == 0.0 else round(max(0.0, base_val * s_mult + random.uniform(-3.0, 4.0)), 1)
                         rows.append({
                             "patch": p,
                             "skill": sk,
@@ -674,9 +683,13 @@ def get_weekly_synthetic_data(input_key: str) -> pd.DataFrame:
     elif input_key == "overtime":
         rows = []
         for w in TRAJECTORY_HORIZON_WEEKS:
+            doy = datetime.strptime(w, "%Y-%m-%d").timetuple().tm_yday
+            theta = 2.0 * math.pi * ((doy - 12.0) / 365.25)
+            # Higher overtime in peak winter, lower in summer/shoulder
+            winter_ovt = 1.0 + 0.45 * math.cos(theta)
             for p in PATCHES[:12]:
                 for sk in SKILLS:
-                    val = round(random.uniform(2.5, 8.5), 8)
+                    val = round(max(1.0, random.uniform(3.0, 7.5) * winter_ovt), 8)
                     rows.append({
                         "Patch": p,
                         "Skill": sk,
@@ -720,9 +733,13 @@ def get_weekly_synthetic_data(input_key: str) -> pd.DataFrame:
     elif input_key == "ctr_capacity":
         rows = []
         for w in TRAJECTORY_HORIZON_WEEKS:
+            doy = datetime.strptime(w, "%Y-%m-%d").timetuple().tm_yday
+            theta = 2.0 * math.pi * ((doy - 12.0) / 365.25)
+            winter_sp = 1.0 + 0.50 * math.cos(theta)
             for p in PATCHES[:12]:
                 for sk in SKILLS:
-                    val = random.choice([0.0, 0.0, 12.0, 24.0, 36.0])
+                    base_sp = random.choice([0.0, 12.0, 24.0, 36.0])
+                    val = round(max(0.0, base_sp * winter_sp), 2)
                     rows.append({
                         "Patch": p,
                         "Skill": sk,
@@ -772,10 +789,14 @@ def get_weekly_synthetic_data(input_key: str) -> pd.DataFrame:
     elif input_key == "demand_input":
         rows = []
         for w in TRAJECTORY_HORIZON_WEEKS:
+            doy = datetime.strptime(w, "%Y-%m-%d").timetuple().tm_yday
+            theta = 2.0 * math.pi * ((doy - 12.0) / 365.25)
+            winter_dem = 1.0 + 0.30 * math.cos(theta)
             for p in PATCHES[:12]:
                 for sk in SKILLS:
                     for wcode, prod in [("W00", "Partnerships"), ("W01", "Gas Servicing"), ("W17", "Appliance Maintenance")]:
-                        jobs = random.choice([0, 0, 15, 28, 42])
+                        base_jobs = random.choice([0, 0, 15, 28, 42])
+                        jobs = int(round(base_jobs * winter_dem)) if base_jobs > 0 else 0
                         rows.append({
                             "Region Code": p[:1],
                             "Area Code": p[:3],
@@ -1084,56 +1105,68 @@ CALC_MODULE_METADATA = {
     "imbalance": {
         "name": "Imbalance Calculation Module",
         "title": "Imbalance Calculation Module",
+        "table": "es_shiny_imbalance_calc",
+        "keyCol": "imbalance_key",
         "category": "Combined Master Engine",
-        "role": "Combines Capacity and Demand to calculate patch surpluses, deficits, and coverage ratios",
-        "formula": "Net Imbalance (Hours) = Capacity Hours - Demand Hours | Coverage Ratio = (Capacity / Demand) * 100% | Net Imbalance (FTE) = Net Imbalance Hours / 37.5",
-        "feedsInto": "Executive Planning, Patch Rebalancing & Overtime Authorization",
-        "inputs": ["Capacity Calculation Output", "Demand Calculation Output"]
+        "role": "Combines Capacity (`Productive hrs` + `SP`) and Workload (`workload hrs`) into pre-SP and post-SP imbalances (`DL_FTE`, `imb_presp`, `imb_postsp`)",
+        "formula": "imb_presp = Productive hrs - Workload hrs | imb_postsp = (Productive hrs + SP) - Workload hrs | DL_FTE = Imbalance Hours / 37.5",
+        "feedsInto": "Final Scenario Data (es_powerbi_model_checker_plan) & Decision Studio",
+        "inputs": ["Capacity Calculation (es_shiny_capacity_calc)", "Workload Calculation (es_shiny_workload_calc)", "SP Contractors"]
     },
-    "capacity": {
-        "name": "Capacity Calculation Module",
-        "title": "Capacity Calculation Module",
-        "category": "Capacity Engine",
-        "role": "Calculates Net Available Productive Hours and Capacity Jobs from FTE, Downtime, and Productivity",
-        "formula": "Available Hours = Gross FTE Hours - Downtime Hours | Net Capacity (Jobs) = Available Hours * Productivity Pace",
-        "feedsInto": "Imbalance Calculation Module",
-        "inputs": ["FTE Calculation Module", "Downtime Calculation Module", "Productivity Calculation Module"]
-    },
-    "fte": {
-        "name": "FTE Calculation Module",
-        "title": "FTE Calculation Module",
-        "category": "Resource & Staffing Feed",
-        "role": "Determines total effective field headcount, contractual hours, and mutual aid transfers",
-        "formula": "Effective FTE = Active Headcount + Recruitment Cohorts - Leavers ± Inter-Patch Transfers",
-        "feedsInto": "Capacity Calculation Module",
-        "inputs": ["resource_plan", "fte_transfer", "recruitment_grounded", "recruitment_ungrounded", "attrition"]
-    },
-    "downtime": {
-        "name": "Downtime Overlays Calculation Module",
-        "title": "Downtime Overlays Calculation Module",
-        "category": "Non-Productive Factors Feed",
-        "role": "Calculates planned and unplanned non-productive downtime (absence, sickness, training, meetings)",
-        "formula": "Total Downtime Hours = Gross Contract Hours * (Sickness% + Holiday% + Training% + Meeting% + Weather%)",
-        "feedsInto": "Capacity Calculation Module",
-        "inputs": ["downtime_overlays_percentage", "downtime_overlays_hours", "downtime_overlays_hours_fte", "baseline_assumptions"]
-    },
-    "productivity": {
-        "name": "Productivity Calculation Module",
-        "title": "Productivity Calculation Module",
-        "category": "Efficiency & Benchmark Feed",
-        "role": "Determines standard task completion durations, productive paces, and learning curve ramps by skill",
-        "formula": "Productivity Pace (jobs/day) = Daily Shift Hours (7.5) / Standard Task Duration (Hours/Job)",
-        "feedsInto": "Capacity Calculation Module",
-        "inputs": ["baseline_productivity", "job_time_assumptions", "recruitment_config"]
+    "workload": {
+        "name": "Workload Calculation Module",
+        "title": "Workload Calculation Module",
+        "table": "es_shiny_workload_calc",
+        "keyCol": "workload_key",
+        "category": "Workload Aggregation Engine",
+        "role": "Aggregates detailed Demand Hours by patch, skill, and weekcomm into total skill workload hours",
+        "formula": "Workload Hours (patch, skill, weekcomm) = Σ Demand Hours (es_shiny_demand_calc)",
+        "feedsInto": "Imbalance Calculation Module & Final Scenario Data",
+        "inputs": ["Demand Calculation (es_shiny_demand_calc)", "baseline_productivity", "geography_mapping"]
     },
     "demand": {
         "name": "Demand Calculation Module",
         "title": "Demand Calculation Module",
+        "table": "es_shiny_demand_calc",
+        "keyCol": "demand_key",
         "category": "Customer Workload Engine",
-        "role": "Forecasts customer breakdown volume, task mix, and converts job demand into required labor hours",
-        "formula": "Total Demand Hours = Σ (Forecasted Jobs by Work Code * Standard Task Duration)",
-        "feedsInto": "Imbalance Calculation Module",
+        "role": "Forecasts weekly customer demand hours across every patch, skill, work_code, and product category",
+        "formula": "Demand Hours (work_code, product) = Forecasted Jobs * Standard Task Duration * Seasonal Curve",
+        "feedsInto": "Workload Calculation Module & Final Scenario Data",
         "inputs": ["demand_input", "job_time_assumptions", "hec_on_kac_demand", "hec_on_ev_demand"]
+    },
+    "capacity": {
+        "name": "Capacity Calculation Module",
+        "title": "Capacity Calculation Module",
+        "table": "es_shiny_capacity_calc",
+        "keyCol": "capacity_key",
+        "category": "Capacity Engine",
+        "role": "Calculates Productive Capacity Hours from Available Hours minus operational Downtime Overlay Hours",
+        "formula": "Productive Capacity Hours = Available Hours (es_shiny_avlhr_calc) - Downtime Overlay Hours",
+        "feedsInto": "Imbalance Calculation Module & Final Scenario Data",
+        "inputs": ["Available Hours Calculation (es_shiny_avlhr_calc)", "downtime_overlays_percentage", "baseline_productivity", "ctr_capacity"]
+    },
+    "available_hours": {
+        "name": "Available Hours Calculation Module",
+        "title": "Available Hours Calculation Module",
+        "table": "es_shiny_avlhr_calc",
+        "keyCol": "avl_key",
+        "category": "Availability Engine",
+        "role": "Converts effective FTE into Core & Available Hours after Holiday, Sickness, Training, Meeting, Other, and Overtime",
+        "formula": "Core Hrs = (FTE * 37.5) - (Holiday + Sickness + Training + Meeting + Other) | Available Hrs = Core Hrs + Overtime",
+        "feedsInto": "Capacity Calculation Module & Final Scenario Data",
+        "inputs": ["FTE Calculation (es_shiny_fte_calc)", "baseline_assumptions", "overtime", "training_snm"]
+    },
+    "fte": {
+        "name": "FTE Calculation Module",
+        "title": "FTE Calculation Module",
+        "table": "es_shiny_fte_calc",
+        "keyCol": "fte_key",
+        "category": "Resource & Staffing Feed",
+        "role": "Determines weekly active FTE and recruitment cohort ramps by patch, skill, and group",
+        "formula": "Effective FTE = Active Headcount + Recruitment Cohorts - Attrition ± Inter-Patch Transfers",
+        "feedsInto": "Available Hours Calculation Module & Final Scenario Data",
+        "inputs": ["resource_plan", "fte_transfer", "recruitment_grounded", "recruitment_ungrounded", "attrition"]
     }
 }
 
@@ -1234,36 +1267,44 @@ def _generate_demand_calc_df() -> pd.DataFrame:
     df = SampleDataGenerator.get_demand_jobs_data()
     return df
 
-def get_calculation_module_data(module_key: str) -> Dict[str, Any]:
+def get_calculation_module_data(module_key: str, scenario_id: Optional[str] = None) -> Dict[str, Any]:
     """
-    Returns structured tabular data and operational metadata for a selected calculation module:
-    fte, downtime, productivity, capacity, demand, imbalance.
+    Returns structured tabular data and operational metadata for one of the 6 sub-calculation modules:
+    fte, available_hours, capacity, demand, workload, imbalance (backed directly by `es_shiny_*_calc`
+    datasets keyed from `es_shiny_scenario_log` and combined into `es_powerbi_model_checker_plan`).
     """
     key = module_key.lower().strip() if module_key else "imbalance"
-    meta = CALC_MODULE_METADATA.get(key, CALC_MODULE_METADATA["imbalance"])
-    
+    if key == "avlhr":
+        key = "available_hours"
+    if key not in CALC_MODULE_METADATA:
+        key = "imbalance"
+    meta = CALC_MODULE_METADATA[key]
+
     try:
-        if key == "imbalance":
-            df = _generate_imbalance_calc_df()
-        elif key == "capacity":
-            df = _generate_capacity_calc_df()
-        elif key == "fte":
-            df = _generate_fte_calc_df()
-        elif key == "downtime":
-            df = _generate_downtime_calc_df()
-        elif key == "productivity":
-            df = _generate_productivity_calc_df()
-        elif key == "demand":
-            df = _generate_demand_calc_df()
-        else:
-            df = _generate_imbalance_calc_df()
-            
-        columns, rows = sanitize_dataframe_for_json(df)
-        
+        from engine.scenario_data_engine import SUBCALC_SPECS, load_subcalc_for_scenario
+
+        resolved_scen = str(scenario_id or "").strip()
+        target_key = key if key in SUBCALC_SPECS else "imbalance"
+        df, resolved_scen, calc_key_val, _ = load_subcalc_for_scenario(target_key, scenario_id=resolved_scen or None)
+
+        if "weekcomm" in df.columns and "patch" in df.columns:
+            df = df.sort_values(["weekcomm", "patch"], kind="mergesort").reset_index(drop=True)
+
+        total_rows_full = len(df)
+        max_preview_rows = 5000
+        truncated = total_rows_full > max_preview_rows
+        df_view = df.head(max_preview_rows) if truncated else df
+
+        columns, rows = sanitize_dataframe_for_json(df_view)
+
         return {
             "success": True,
             "moduleKey": key,
             "moduleName": meta["name"],
+            "tableName": meta.get("table", ""),
+            "keyCol": meta.get("keyCol", ""),
+            "calcKey": calc_key_val,
+            "scenarioId": resolved_scen,
             "category": meta["category"],
             "role": meta["role"],
             "formula": meta["formula"],
@@ -1271,7 +1312,9 @@ def get_calculation_module_data(module_key: str) -> Dict[str, Any]:
             "inputs": meta["inputs"],
             "columns": columns,
             "rows": rows,
-            "totalRows": len(rows),
+            "totalRows": total_rows_full,
+            "shownRows": len(rows),
+            "truncated": truncated,
             "error": None
         }
     except Exception as e:
@@ -1279,6 +1322,10 @@ def get_calculation_module_data(module_key: str) -> Dict[str, Any]:
             "success": False,
             "moduleKey": key,
             "moduleName": meta["name"],
+            "tableName": meta.get("table", ""),
+            "keyCol": meta.get("keyCol", ""),
+            "calcKey": "",
+            "scenarioId": scenario_id or "",
             "category": meta["category"],
             "role": meta["role"],
             "formula": meta["formula"],
@@ -1287,6 +1334,8 @@ def get_calculation_module_data(module_key: str) -> Dict[str, Any]:
             "columns": [],
             "rows": [],
             "totalRows": 0,
+            "shownRows": 0,
+            "truncated": False,
             "error": str(e)
         }
 
@@ -1366,8 +1415,9 @@ class ScenarioManager:
         from engine.scenario_data_engine import (
             append_scenario_log_entry,
             build_scenario_log_row,
-            generate_scenario_final_rows,
+            generate_subcalc_bundle_for_scenario,
             save_final_scenario_rows,
+            save_subcalc_bundle,
         )
 
         scenarios = self.get_all_scenarios()
@@ -1415,13 +1465,14 @@ class ScenarioManager:
         )
         append_scenario_log_entry(log_row, engine=engine)
 
-        df_final = generate_scenario_final_rows(
+        subcalc_bundle = generate_subcalc_bundle_for_scenario(
             scenario_key=scenario_id,
             create_datestamp=now_iso,
             inputs=inputs or {},
             log_row=log_row,
         )
-        save_final_scenario_rows(scenario_id, df_final, engine=engine)
+        save_subcalc_bundle(subcalc_bundle, log_row, engine=engine)
+        save_final_scenario_rows(scenario_id, subcalc_bundle["final_data"], engine=engine)
 
         return scenario_id
 
@@ -1486,28 +1537,30 @@ class SampleDataGenerator:
             {"Patch": "EC41 Reading", "Skill": "HEC", "Metric": "DL_FTE", "Type": "post_sp"}
         ]
         
-        # Exact values from screenshot row 2 to 7
+        # Mixed surplus and deficit weeks across patches and horizon
         sample_values = [
-            [-0.0173, -0.1431, -0.2717, -0.4692, -0.8923, -0.2042, -0.3122, -0.2449, -0.2100, -0.1950, -0.1800, -0.1700],
-            [3.2941, 2.9939, 2.1902, 1.6973, 1.9911, 3.5244, 3.4477, 3.8701, 3.6500, 3.5000, 3.4000, 3.3500],
-            [41.5807, 32.2399, 33.1615, 28.9343, 23.9211, 35.0622, 35.3835, 28.6424, 29.1000, 30.2000, 31.0000, 30.5000],
-            [3.1014, 2.7310, 2.4880, 2.0533, 1.8481, 3.4252, 3.3091, 3.7751, 3.5000, 3.4000, 3.3000, 3.2000],
-            [2.9365, 2.8386, 2.7449, 2.6118, 2.2623, 2.6056, 2.4967, 2.4583, 2.4000, 2.3500, 2.3000, 2.2500],
-            [0.7078, 0.5499, 0.5695, 0.4832, 0.3997, 0.5547, 0.5604, 0.4172, 0.4500, 0.4300, 0.4200, 0.4000]
+            [1.45, -1.85, -2.65, 1.95, 2.40, -1.55, -2.20, 1.75, 2.15, -1.90, 1.85, 2.30],
+            [3.2941, -2.4500, -3.1902, 1.6973, 2.9911, -1.5244, -2.4477, 3.8701, 2.6500, -2.5000, 3.4000, 3.3500],
+            [12.5807, -14.2399, -18.1615, 9.9343, 14.9211, -11.0622, -16.3835, 15.6424, 11.1000, -13.2000, 14.0000, 16.5000],
+            [3.1014, -2.7310, -2.4880, 2.0533, 1.8481, -2.4252, -3.3091, 3.7751, 3.5000, -2.4000, 3.3000, 3.2000],
+            [2.9365, -1.8386, -2.7449, 2.6118, 2.2623, -1.6056, -2.4967, 2.4583, 2.4000, -1.3500, 2.3000, 2.2500],
+            [0.7078, -0.5499, -0.5695, 0.4832, 0.3997, -0.5547, -0.5604, 0.4172, 0.4500, -0.4300, 0.4200, 0.4000]
         ]
-        
+
+        week_signs = [1, -1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1]
         for idx, row in enumerate(rows):
             if idx == 0:
-                for c in DATE_COLS:
-                    row[c] = round(random.uniform(-0.5, 0.5), 4)
+                for c_idx, c in enumerate(DATE_COLS):
+                    row[c] = round(week_signs[c_idx] * random.uniform(0.35, 0.95), 4)
             elif idx <= len(sample_values):
                 vals = sample_values[idx - 1]
                 for c_idx, c in enumerate(DATE_COLS):
                     row[c] = vals[c_idx] if c_idx < len(vals) else round(vals[-1] + random.uniform(-0.1, 0.1), 4)
             else:
-                base = random.choice([2.5, -0.5, 1.2, 5.0, 18.0])
-                for c in DATE_COLS:
-                    row[c] = round(base + random.uniform(-0.3, 0.3), 4)
+                mag = random.choice([1.2, 2.5, 3.8, 5.0, 6.5])
+                for c_idx, c in enumerate(DATE_COLS):
+                    sign = week_signs[c_idx] if (idx + c_idx) % 4 != 0 else -week_signs[c_idx]
+                    row[c] = round(sign * mag + random.uniform(-0.3, 0.3), 4)
                     
         return pd.DataFrame(rows)
 

@@ -136,19 +136,91 @@ CALC_KEY_INPUTS: Dict[str, List[str]] = {
     ],
 }
 
+# Canonical schemas for the 6 sub-calculation tables matching Databricks (`sample_images/`)
+SUBCALC_SPECS: Dict[str, Dict[str, Any]] = {
+    "fte": {
+        "table": "es_shiny_fte_calc",
+        "log_col": "fte_key",
+        "columns": ["key", "patch", "skill", "group", "weekcomm", "values"],
+        "numeric_cols": ["values"],
+    },
+    "available_hours": {
+        "table": "es_shiny_avlhr_calc",
+        "log_col": "avl_key",
+        "columns": ["key", "patch", "skill", "group", "weekcomm", "values"],
+        "numeric_cols": ["values"],
+    },
+    "capacity": {
+        "table": "es_shiny_capacity_calc",
+        "log_col": "capacity_key",
+        "columns": ["key", "patch", "skill", "group", "weekcomm", "values"],
+        "numeric_cols": ["values"],
+    },
+    "demand": {
+        "table": "es_shiny_demand_calc",
+        "log_col": "demand_key",
+        "columns": ["key", "patch", "skill", "work_code", "product", "weekcomm", "values"],
+        "numeric_cols": ["values"],
+    },
+    "workload": {
+        "table": "es_shiny_workload_calc",
+        "log_col": "workload_key",
+        "columns": ["key", "patch", "skill", "weekcomm", "values"],
+        "numeric_cols": ["values"],
+    },
+    "imbalance": {
+        "table": "es_shiny_imbalance_calc",
+        "log_col": "imbalance_key",
+        "columns": ["key", "patch", "skill", "metric", "type", "weekcomm", "values"],
+        "numeric_cols": ["values"],
+    },
+}
+
+IMBALANCE_METRIC_COMBINATIONS: List[Tuple[str, str, str]] = [
+    ("HEC", "DL_FTE", "pre_sp"),
+    ("KAC", "DL_FTE", "pre_sp"),
+    ("HEC", "DL_FTE", "post_sp"),
+    ("KAC", "imb_presp", "pre_sp"),
+    ("KAC", "DL_FTE", "post_sp"),
+    ("HEC", "imb_presp", "pre_sp"),
+    ("KAC", "imb_postsp", "post_sp"),
+    ("HEC", "imb_postsp", "post_sp"),
+]
+
 # Plan horizon: week 2nd Nov, 2026 to week 27th Dec, 2027 (both Mondays)
 PLAN_START_WEEK = "2026-11-02"
 PLAN_END_WEEK = "2027-12-27"
 
-# Representative patches across all 4 UK regions (A, B, C, D) in geography_mapping
+# All 29 patches across all 4 UK regions (A, B, C, D) and 17 Area Codes in default geography_mapping
 FINAL_DATA_PATCHES: List[str] = [
     "EA11 Inverness & Aviemore",
+    "EA12 Aberdeen North",
+    "EA12 Aberdeen South",
+    "EA13 Dundee & Perth",
+    "EA13 Fife",
+    "EA21 Dunbartonshire & Glasgow North",
     "EA21 Stirling & Falkirk",
+    "EA31 Clyde Coast",
+    "EA31 Glasgow South & Renfrewshire",
+    "EA32 South West Ayrshire",
+    "EA33 Dumfriesshire",
+    "EA41 East Lothian Coast",
     "EB12 Altrincham",
+    "EB13 Manchester Centre",
+    "EB14 Stockport",
     "EB24 The Wirral",
-    "EC81 Peterborough",
+    "EB43 Hereford & Worcs",
     "EC91 Leicester",
+    "EC62 Essex East",
+    "EC41 Reading",
+    "EC31 New Forest",
+    "EC22 Cheltenham & Gloucester",
+    "EC81 Peterborough",
+    "EC11 Cornwall",
+    "EC13 Devon South",
     "ED11 Chiswick & City",
+    "ED22 Cobham & Heathrow",
+    "ED41 Bromley & Dartford",
     "ED44 Canterbury & Dover",
 ]
 
@@ -345,7 +417,15 @@ def get_scenario_log_path() -> Path:
 
 
 def get_final_plan_path() -> Path:
-    return EnvironmentConfig.get_data_dir() / "es_powerbi_model_checker_plan.csv"
+    csv_path = EnvironmentConfig.get_data_dir() / "es_powerbi_model_checker_plan.csv"
+    compressed_path = csv_path.with_suffix(f"{csv_path.suffix}.gz")
+    return csv_path if csv_path.exists() or not compressed_path.exists() else compressed_path
+
+
+def get_subcalc_path(subcalc_key: str) -> Path:
+    key = str(subcalc_key or "").strip().lower()
+    table_name = EnvironmentConfig.get_subcalc_table_name(key)
+    return EnvironmentConfig.get_data_dir() / f"{table_name}.csv"
 
 
 # ---------------------------------------------------------------------------
@@ -381,16 +461,16 @@ def _measure_selected_input_signal(input_key: str, version_name: str) -> Optiona
                     and not any(tok in str(c).lower() for tok in ("year", "code", "id"))
                 ]
                 total = float(df[num_cols].fillna(0).values.sum()) if num_cols else float(len(df))
-                # Normalize into a stable multiplier [0.85, 1.20]
+                # Normalize into a balanced multiplier [0.97, 1.035]
                 sig = (abs(total) % 1000.0) / 1000.0
-                return 0.88 + 0.28 * sig + min(0.06, len(df) / 100000.0)
+                return 0.97 + 0.05 * sig + min(0.015, len(df) / 400000.0)
             except Exception:
                 return None
     return None
 
 
 def _compute_scenario_multipliers(scenario_key: str, inputs: Dict[str, str], log_row: Dict[str, str]) -> Dict[str, float]:
-    """Derives demand, capacity, overtime, downtime, and recruitment multipliers from scenario inputs & calc keys."""
+    """Derives demand, capacity, overtime, downtime, and recruitment multipliers deterministically from each stage key."""
     dem_sig = _measure_selected_input_signal("demand_input", inputs.get("demand_input", ""))
     job_sig = _measure_selected_input_signal("job_time_assumptions", inputs.get("job_time_assumptions", ""))
     res_sig = _measure_selected_input_signal("resource_plan", inputs.get("resource_plan", ""))
@@ -399,36 +479,38 @@ def _compute_scenario_multipliers(scenario_key: str, inputs: Dict[str, str], log
     dwt_sig = _measure_selected_input_signal("downtime_overlays_hours", inputs.get("downtime_overlays_hours", ""))
     rec_sig = _measure_selected_input_signal("recruitment_ungrounded", inputs.get("recruitment_ungrounded", ""))
 
-    demand_mult = dem_sig if dem_sig is not None else _stable_factor(log_row.get("demand_key", scenario_key), 0.92, 1.14)
+    dem_key = log_row.get("demand_key", scenario_key)
+    fte_key = log_row.get("fte_key", scenario_key)
+    avl_key = log_row.get("avl_key", scenario_key)
+    cap_key = log_row.get("capacity_key", scenario_key)
+
+    demand_mult = dem_sig if dem_sig is not None else _stable_factor(dem_key, 0.97, 1.03)
     if job_sig is not None:
         demand_mult = 0.65 * demand_mult + 0.35 * job_sig
+    if "q3" in dem_key.lower() or "v2" in dem_key.lower():
+        demand_mult *= 1.032
 
-    cap_mult = res_sig if res_sig is not None else _stable_factor(log_row.get("fte_key", scenario_key), 0.92, 1.12)
-    overtime_mult = ovt_sig if ovt_sig is not None else _stable_factor(log_row.get("avl_key", scenario_key), 0.85, 1.25)
-    contractor_mult = ctr_sig if ctr_sig is not None else _stable_factor(log_row.get("capacity_key", scenario_key), 0.85, 1.22)
-    downtime_mult = dwt_sig if dwt_sig is not None else _stable_factor(inputs.get("downtime_overlays_percentage", scenario_key), 0.88, 1.15)
-    recruit_mult = rec_sig if rec_sig is not None else _stable_factor(inputs.get("recruitment_grounded", scenario_key), 0.85, 1.25)
+    cap_mult = res_sig if res_sig is not None else _stable_factor(fte_key, 0.97, 1.03)
+    if "v2" in fte_key.lower() or "v.2" in fte_key.lower():
+        cap_mult *= 0.992
+    elif "2026_q3_v2" in fte_key.lower():
+        cap_mult *= 0.995
 
-    # Differentiate well-known plan types cleanly (LV NOV V.1, LV NOV V.2, GFF2, HV)
-    key_upper = scenario_key.upper()
-    if key_upper.startswith("HV"):
-        demand_mult *= 1.08
-        overtime_mult *= 1.15
-        contractor_mult *= 1.18
-    elif "V.2" in key_upper:
-        demand_mult *= 1.09
-        cap_mult *= 0.93
-        overtime_mult *= 1.12
-        recruit_mult *= 1.10
-    elif key_upper.startswith("GFF2"):
-        demand_mult *= 0.98
-        cap_mult *= 0.95
-        downtime_mult *= 0.94
-        contractor_mult *= 1.10
-    elif "V.3" in key_upper:
-        cap_mult *= 1.04
-        downtime_mult *= 0.94
-        recruit_mult *= 1.12
+    overtime_mult = ovt_sig if ovt_sig is not None else _stable_factor(avl_key, 0.95, 1.08)
+    if "v2" in avl_key.lower():
+        overtime_mult *= 1.04
+
+    contractor_mult = ctr_sig if ctr_sig is not None else _stable_factor(cap_key, 0.95, 1.08)
+    if "allocations_v1" in cap_key.lower():
+        contractor_mult *= 1.04
+
+    downtime_mult = dwt_sig if dwt_sig is not None else _stable_factor(avl_key + "|dwt", 0.95, 1.05)
+    if "approved_q3" in cap_key.lower():
+        downtime_mult *= 0.96
+
+    recruit_mult = rec_sig if rec_sig is not None else _stable_factor(fte_key + "|rec", 0.95, 1.08)
+    if "upside_v2" in fte_key.lower():
+        recruit_mult *= 1.04
 
     return {
         "demand": round(demand_mult, 4),
@@ -474,22 +556,35 @@ def _infer_geo_for_patch(patch: str, geo_lookup: Dict[str, Tuple[str, str]]) -> 
     return reg_names.get(reg_code, "National"), area or "UNM"
 
 
-def generate_scenario_final_rows(
+def generate_subcalc_bundle_for_scenario(
     scenario_key: str,
     create_datestamp: str,
     inputs: Dict[str, str],
     log_row: Optional[Dict[str, str]] = None,
     patches: Optional[List[str]] = None,
-) -> pd.DataFrame:
+) -> Dict[str, pd.DataFrame]:
     """
-    Generates all weekly ('W') and monthly ('M') rows for a scenario in `es_powerbi_model_checker_plan`
-    covering 2026-11-02 through 2027-12-27 across all 125 distinct combinations.
+    Runs the 6 chained sub-calculation engines keyed by the columns in `es_shiny_scenario_log`:
+      1. FTE (`fte_key`)             -> `es_shiny_fte_calc`
+      2. Available Hours (`avl_key`) -> `es_shiny_avlhr_calc`
+      3. Capacity (`capacity_key`)   -> `es_shiny_capacity_calc`
+      4. Demand (`demand_key`)       -> `es_shiny_demand_calc`
+      5. Workload (`workload_key`)   -> `es_shiny_workload_calc`
+      6. Imbalance (`imbalance_key`) -> `es_shiny_imbalance_calc`
+    Then combines them into `final_data` (`es_powerbi_model_checker_plan`).
     """
     if log_row is None:
         log_row = build_scenario_log_row(scenario_key, create_datestamp, "", inputs)
 
-    patch_list = patches or FINAL_DATA_PATCHES
+    fte_key = str(log_row.get("fte_key") or scenario_key)
+    avl_key = str(log_row.get("avl_key") or scenario_key)
+    capacity_key = str(log_row.get("capacity_key") or scenario_key)
+    demand_key = str(log_row.get("demand_key") or scenario_key)
+    workload_key = str(log_row.get("workload_key") or scenario_key)
+    imbalance_key = str(log_row.get("imbalance_key") or scenario_key)
+
     geo_lookup = _resolve_patch_geo_lookup(inputs)
+    patch_list = patches or (list(geo_lookup.keys()) if geo_lookup else FINAL_DATA_PATCHES)
     patch_geo = {p: _infer_geo_for_patch(p, geo_lookup) for p in patch_list}
     weeks = get_plan_weeks(PLAN_START_WEEK, PLAN_END_WEEK)
     mult = _compute_scenario_multipliers(scenario_key, inputs, log_row)
@@ -508,7 +603,6 @@ def generate_scenario_final_rows(
         elif flg == "FTE" and "Recruitment" in sk:
             recruit_combos.append(combo)
 
-    # Deterministic work-code weights
     def _work_weight(sk: str, met: str) -> float:
         major = {
             "W01": 4.2, "W13": 4.0, "W06": 2.8, "W26": 2.4, "W02": 2.1,
@@ -521,141 +615,107 @@ def generate_scenario_final_rows(
     hec_dem_tot_w = sum(w for w, _ in hec_dem_weights)
     kac_dem_tot_w = sum(w for w, _ in kac_dem_weights)
 
-    patch_scales = {
-        p: round(_stable_factor(f"patch:{p}", 0.78, 1.32), 4)
-        for p in patch_list
-    }
-    patch_cap_bias = {
-        p: round(_stable_factor(f"cap_bias:{p}", 0.90, 1.15), 4)
-        for p in patch_list
-    }
-    patch_dem_bias = {
-        p: round(_stable_factor(f"dem_bias:{p}", 0.92, 1.09), 4)
-        for p in patch_list
-    }
+    patch_scales = {p: round(_stable_factor(f"patch:{p}", 0.78, 1.32), 4) for p in patch_list}
+    patch_cap_bias = {p: round(_stable_factor(f"cap_bias:{p}", 0.90, 1.15), 4) for p in patch_list}
+    patch_dem_bias = {p: round(_stable_factor(f"dem_bias:{p}", 0.92, 1.09), 4) for p in patch_list}
 
-    seed_int = int(hashlib.sha256(f"{scenario_key}|{log_row.get('imbalance_key', '')}".encode("utf-8")).hexdigest()[:8], 16)
-    rng = random.Random(seed_int)
+    def _rng_from(key_str: str) -> random.Random:
+        seed_int = int(hashlib.sha256(key_str.encode("utf-8")).hexdigest()[:8], 16)
+        return random.Random(seed_int)
 
-    weekly_rows: List[Dict[str, Any]] = []
+    # ------------------------------------------------------------------
+    # Stage 1: FTE Sub-Calculation (`es_shiny_fte_calc`, keyed by `fte_key`)
+    # ------------------------------------------------------------------
+    rng_fte = _rng_from(f"fte|{fte_key}")
+    fte_calc_rows: List[Dict[str, Any]] = []
+    fte_lookup: Dict[Tuple[str, str, str], float] = {}
 
     for w_idx, w in enumerate(weeks):
-        # Continuous seasonal curve anchored to exact day-of-year (no discrete monthly step jumps).
-        # Peaks in winter (~mid-Jan, doy=12), dips in summer (~mid-Jul, doy=194).
         wk_date = datetime.strptime(w, "%Y-%m-%d").date()
         doy = wk_date.timetuple().tm_yday
         theta = 2.0 * math.pi * ((doy - 12.0) / 365.25)
 
-        # Realistic week-to-week operational fluctuations around the smooth seasonal curve
-        dem_fluct = 1.0 + 0.032 * math.sin(w_idx * 1.15 + 0.4) + 0.022 * math.cos(w_idx * 2.15 - 0.7) + rng.uniform(-0.024, 0.024)
-        winter_wave = (1.0 + 0.24 * math.cos(theta)) * dem_fluct
-        growth_trend = 1.0 + 0.0008 * w_idx
-
-        cap_fluct = 1.0 + 0.020 * math.sin(w_idx * 0.65 + 1.1) + 0.012 * math.cos(w_idx * 1.55) + rng.uniform(-0.015, 0.015)
-        holiday_wave = 0.088 + 0.036 * (-math.cos(theta - 0.15)) + 0.008 * math.sin(w_idx * 0.95)
-        sickness_wave = 0.042 + 0.016 * math.cos(theta) + 0.005 * math.cos(w_idx * 1.35)
-        overlay_wave = (0.056 + 0.014 * (-math.cos(theta))) * (1.0 + 0.10 * math.cos(w_idx * 0.85))
-        overtime_wave = (0.046 + 0.036 * max(0.0, math.cos(theta))) * (1.0 + 0.14 * math.sin(w_idx * 1.25))
-        sp_wave = (0.044 + 0.024 * max(0.0, math.cos(theta))) * (1.0 + 0.11 * math.sin(w_idx * 0.9))
-
-        for p_idx, patch in enumerate(patch_list):
-            region_val, area_code_val = patch_geo[patch]
+        # Seasonal staffing flex: slightly higher active FTE availability in winter, lower in summer
+        cap_fluct_w = (
+            (1.0 + 0.050 * math.cos(theta))
+            * (1.0 + 0.022 * math.sin(w_idx * 0.72 + 0.5) + 0.014 * math.cos(w_idx * 1.45 - 0.3))
+            + rng_fte.uniform(-0.012, 0.012)
+        )
+        for patch in patch_list:
             p_scale = patch_scales[patch]
             p_cap_b = patch_cap_bias[patch]
-            p_dem_b = patch_dem_bias[patch]
-            patch_jitter = 1.0 + rng.uniform(-0.022, 0.022)
-            dem_patch_jitter = 1.0 + rng.uniform(-0.028, 0.028)
+            patch_jitter = 1.0 + rng_fte.uniform(-0.022, 0.022)
 
             for sk in ("HEC", "KAC"):
                 is_hec = sk == "HEC"
-                base_fte = (23.4 if is_hec else 13.5) * p_scale * p_cap_b * mult["capacity"]
-                # Smooth staffing trajectory + continuous weekly variability (no staircase steps)
-                fte_val = round(base_fte * (1.0 + 0.0014 * w_idx) * cap_fluct * patch_jitter, 4)
+                base_fte = (22.6 if is_hec else 13.1) * p_scale * p_cap_b * mult["capacity"]
+                fte_val = round(base_fte * (1.0 + 0.0010 * w_idx) * cap_fluct_w * patch_jitter, 4)
+                fte_lookup[(patch, sk, w)] = fte_val
+                fte_calc_rows.append({
+                    "key": fte_key, "patch": patch, "skill": sk, "group": sk, "weekcomm": w, "values": fte_val
+                })
+
+            for r_idx, combo in enumerate(recruit_combos):
+                r_skill, r_group, _, _, _ = combo
+                is_ungrounded = r_group == "Ungrounded"
+                cohort_start = 12 if is_ungrounded else (r_idx % 16) * 2
+                if w_idx < cohort_start:
+                    r_fte = 0.0
+                else:
+                    age = w_idx - cohort_start
+                    ramp = min(1.0, (age + 1) / 8.0)
+                    base_r = (0.95 if is_ungrounded else 0.45) * p_scale * mult["recruit"]
+                    r_fte = round(base_r * ramp * (0.85 + 0.3 * _stable_factor(f"{patch}:{r_group}", 0.0, 1.0)), 4)
+                fte_calc_rows.append({
+                    "key": fte_key, "patch": patch, "skill": r_skill, "group": r_group, "weekcomm": w, "values": r_fte
+                })
+
+    df_fte = pd.DataFrame(fte_calc_rows, columns=SUBCALC_SPECS["fte"]["columns"])
+
+    # ------------------------------------------------------------------
+    # Stage 2: Available Hours Sub-Calculation (`es_shiny_avlhr_calc`, keyed by `avl_key`)
+    # ------------------------------------------------------------------
+    rng_avl = _rng_from(f"avl|{fte_key}|{avl_key}")
+    avlhr_calc_rows: List[Dict[str, Any]] = []
+    avl_breakdown_rows: List[Dict[str, Any]] = []
+    overlay_rows: List[Dict[str, Any]] = []
+    overlay_totals: Dict[Tuple[str, str, str], float] = {}
+    avl_lookup: Dict[Tuple[str, str, str], float] = {}
+    gross_lookup: Dict[Tuple[str, str, str], float] = {}
+
+    for w_idx, w in enumerate(weeks):
+        wk_date = datetime.strptime(w, "%Y-%m-%d").date()
+        doy = wk_date.timetuple().tm_yday
+        theta = 2.0 * math.pi * ((doy - 12.0) / 365.25)
+
+        # Winter: lower annual leave & training/overlays, higher overtime surge
+        # Summer: higher annual leave & training/overlays, minimal overtime
+        holiday_wave = 0.084 + 0.038 * (-math.cos(theta - 0.15)) + 0.008 * math.sin(w_idx * 0.95)
+        sickness_wave = 0.043 + 0.015 * math.cos(theta) + 0.005 * math.cos(w_idx * 1.35)
+        overlay_wave = (0.052 + 0.024 * (-math.cos(theta))) * (1.0 + 0.12 * math.cos(w_idx * 0.85))
+        overtime_wave = max(0.008, (0.064 + 0.050 * math.cos(theta)) * (1.0 + 0.18 * math.sin(w_idx * 1.15 + 0.4)))
+
+        for p_idx, patch in enumerate(patch_list):
+            region_val, area_code_val = patch_geo[patch]
+            for sk in ("HEC", "KAC"):
+                fte_val = fte_lookup[(patch, sk, w)]
                 gross_hrs = round(fte_val * 37.5, 4)
+                gross_lookup[(patch, sk, w)] = gross_hrs
 
-                # Available Hours breakdown (continuous seasonal holiday & sickness curves + small weekly variation)
-                holiday_hrs = round(gross_hrs * max(0.03, holiday_wave * (1.0 + rng.uniform(-0.05, 0.05))), 4)
-                sickness_hrs = round(gross_hrs * max(0.015, sickness_wave * (1.0 + rng.uniform(-0.06, 0.06))), 4)
-                training_hrs = round(gross_hrs * (0.028 * (1.0 + 0.12 * math.sin(w_idx * 0.72 + p_idx))), 4)
-                meeting_hrs = round(gross_hrs * (0.019 * (1.0 + 0.09 * math.cos(w_idx * 1.08 + p_idx))), 4)
-                other_hrs = round(gross_hrs * (0.016 * (1.0 + 0.10 * math.sin(w_idx * 1.42))), 4)
+                holiday_hrs = round(gross_hrs * max(0.025, holiday_wave * (1.0 + rng_avl.uniform(-0.05, 0.05))), 4)
+                sickness_hrs = round(gross_hrs * max(0.015, sickness_wave * (1.0 + rng_avl.uniform(-0.06, 0.06))), 4)
+                training_hrs = round(gross_hrs * max(0.012, 0.030 * (1.0 - 0.35 * math.cos(theta)) * (1.0 + 0.12 * math.sin(w_idx * 0.72 + p_idx))), 4)
+                meeting_hrs = round(gross_hrs * max(0.010, 0.020 * (1.0 - 0.25 * math.cos(theta)) * (1.0 + 0.09 * math.cos(w_idx * 1.08 + p_idx))), 4)
+                other_hrs = round(gross_hrs * max(0.008, 0.017 * (1.0 - 0.25 * math.cos(theta)) * (1.0 + 0.10 * math.sin(w_idx * 1.42))), 4)
                 core_hrs = round(max(0.0, gross_hrs - (holiday_hrs + sickness_hrs + training_hrs + meeting_hrs + other_hrs)), 4)
-
-                overtime_hrs = round(gross_hrs * overtime_wave * mult["overtime"] * (1.0 + rng.uniform(-0.06, 0.06)), 4)
+                overtime_hrs = round(gross_hrs * overtime_wave * mult["overtime"] * (1.0 + rng_avl.uniform(-0.06, 0.06)), 4)
                 available_hrs = round(core_hrs + overtime_hrs, 4)
 
-                # Downtime Overlay Hours breakdown
-                ov_combos = overlay_combos_by_skill[sk]
-                target_overlay_total = gross_hrs * overlay_wave * mult["downtime"] * (1.0 + rng.uniform(-0.05, 0.05))
-                ov_weights = [_stable_factor(f"{c[2]}:{c[3]}:{w_idx}", 0.5, 1.5) for c in ov_combos]
-                ov_w_sum = sum(ov_weights) or 1.0
-                actual_overlay_total = 0.0
-                for ov_w, combo in zip(ov_weights, ov_combos):
-                    ov_val = round(target_overlay_total * (ov_w / ov_w_sum), 4)
-                    actual_overlay_total += ov_val
-                    weekly_rows.append({
-                        "region": region_val,
-                        "area_code": area_code_val,
-                        "patch": patch,
-                        "skill": combo[0],
-                        "group": combo[1],
-                        "metric": combo[2],
-                        "level2": combo[3],
-                        "flag": combo[4],
-                        "period": "W",
-                        "weekcomm": w,
-                        "value": ov_val,
-                        "version": scenario_key,
-                        "create_datestamp": create_datestamp,
-                    })
-
-                productive_hrs = round(max(0.0, available_hrs - actual_overlay_total), 4)
-                sp_hrs = round(gross_hrs * sp_wave * mult["contractor"] * (1.0 + rng.uniform(-0.06, 0.06)), 4)
-
-                # Demand Hours breakdown (high & tight in winter peak -> shortfalls, lower in summer -> surpluses)
-                base_demand = (645.0 if is_hec else 370.0) * p_scale * p_dem_b * winter_wave * growth_trend * mult["demand"] * dem_patch_jitter
-                dem_pairs = hec_dem_weights if is_hec else kac_dem_weights
-                dem_w_sum = hec_dem_tot_w if is_hec else kac_dem_tot_w
-                total_demand_hrs = 0.0
-                for dw, combo in dem_pairs:
-                    item_noise = 1.0 + rng.uniform(-0.04, 0.04)
-                    d_val = round(base_demand * (dw / dem_w_sum) * item_noise, 4)
-                    total_demand_hrs += d_val
-                    weekly_rows.append({
-                        "region": region_val,
-                        "area_code": area_code_val,
-                        "patch": patch,
-                        "skill": combo[0],
-                        "group": combo[1],
-                        "metric": combo[2],
-                        "level2": combo[3],
-                        "flag": combo[4],
-                        "period": "W",
-                        "weekcomm": w,
-                        "value": d_val,
-                        "version": scenario_key,
-                        "create_datestamp": create_datestamp,
-                    })
-
-                total_demand_hrs = round(total_demand_hrs, 4)
-
-                # Workload Hours
-                weekly_rows.append({
-                    "region": region_val, "area_code": area_code_val,
-                    "patch": patch, "skill": sk, "group": sk, "metric": "workload hrs",
-                    "level2": "-", "flag": "Workload Hours", "period": "W", "weekcomm": w,
-                    "value": total_demand_hrs, "version": scenario_key, "create_datestamp": create_datestamp,
+                avl_lookup[(patch, sk, w)] = available_hrs
+                avlhr_calc_rows.append({
+                    "key": avl_key, "patch": patch, "skill": sk, "group": sk, "weekcomm": w, "values": available_hrs
                 })
 
-                # FTE
-                weekly_rows.append({
-                    "region": region_val, "area_code": area_code_val,
-                    "patch": patch, "skill": sk, "group": sk, "metric": "FTE",
-                    "level2": "-", "flag": "FTE", "period": "W", "weekcomm": w,
-                    "value": fte_val, "version": scenario_key, "create_datestamp": create_datestamp,
-                })
-
-                # Available Hours family (9 metrics)
                 for met_name, met_val in (
                     ("Gross Hrs", gross_hrs),
                     ("Core Hrs", core_hrs),
@@ -667,78 +727,259 @@ def generate_scenario_final_rows(
                     ("Other", other_hrs),
                     ("Meeting", meeting_hrs),
                 ):
-                    weekly_rows.append({
+                    avl_breakdown_rows.append({
                         "region": region_val, "area_code": area_code_val,
                         "patch": patch, "skill": sk, "group": sk, "metric": met_name,
                         "level2": "-", "flag": "Available Hours", "period": "W", "weekcomm": w,
                         "value": met_val, "version": scenario_key, "create_datestamp": create_datestamp,
                     })
 
-                # Capacity Hours family (Productive hrs + SP)
-                weekly_rows.append({
-                    "region": region_val, "area_code": area_code_val,
-                    "patch": patch, "skill": sk, "group": sk, "metric": "Productive hrs",
-                    "level2": "-", "flag": "Capacity Hours", "period": "W", "weekcomm": w,
-                    "value": productive_hrs, "version": scenario_key, "create_datestamp": create_datestamp,
+                ov_combos = overlay_combos_by_skill[sk]
+                target_overlay_total = gross_hrs * overlay_wave * mult["downtime"] * (1.0 + rng_avl.uniform(-0.05, 0.05))
+                ov_weights = [_stable_factor(f"{c[2]}:{c[3]}:{w_idx}", 0.5, 1.5) for c in ov_combos]
+                ov_w_sum = sum(ov_weights) or 1.0
+                actual_overlay_total = 0.0
+                for ov_w, combo in zip(ov_weights, ov_combos):
+                    ov_val = round(target_overlay_total * (ov_w / ov_w_sum), 4)
+                    actual_overlay_total += ov_val
+                    overlay_rows.append({
+                        "region": region_val, "area_code": area_code_val,
+                        "patch": patch, "skill": combo[0], "group": combo[1],
+                        "metric": combo[2], "level2": combo[3], "flag": combo[4],
+                        "period": "W", "weekcomm": w, "value": ov_val,
+                        "version": scenario_key, "create_datestamp": create_datestamp,
+                    })
+                overlay_totals[(patch, sk, w)] = actual_overlay_total
+
+    df_avlhr = pd.DataFrame(avlhr_calc_rows, columns=SUBCALC_SPECS["available_hours"]["columns"])
+
+    # ------------------------------------------------------------------
+    # Stage 3: Capacity Sub-Calculation (`es_shiny_capacity_calc`, keyed by `capacity_key`)
+    # ------------------------------------------------------------------
+    rng_cap = _rng_from(f"cap|{avl_key}|{capacity_key}")
+    capacity_calc_rows: List[Dict[str, Any]] = []
+    cap_lookup: Dict[Tuple[str, str, str], float] = {}
+    sp_lookup: Dict[Tuple[str, str, str], float] = {}
+    sp_plan_rows: List[Dict[str, Any]] = []
+
+    for w_idx, w in enumerate(weeks):
+        wk_date = datetime.strptime(w, "%Y-%m-%d").date()
+        doy = wk_date.timetuple().tm_yday
+        theta = 2.0 * math.pi * ((doy - 12.0) / 365.25)
+        sp_wave = max(0.010, (0.064 + 0.054 * math.cos(theta)) * (1.0 + 0.16 * math.sin(w_idx * 0.95 - 0.3)))
+
+        for patch in patch_list:
+            region_val, area_code_val = patch_geo[patch]
+            for sk in ("HEC", "KAC"):
+                available_hrs = avl_lookup[(patch, sk, w)]
+                actual_overlay_total = overlay_totals[(patch, sk, w)]
+                productive_hrs = round(max(0.0, available_hrs - actual_overlay_total), 4)
+                sp_hrs = round(gross_lookup[(patch, sk, w)] * sp_wave * mult["contractor"] * (1.0 + rng_cap.uniform(-0.06, 0.06)), 4)
+
+                cap_lookup[(patch, sk, w)] = productive_hrs
+                sp_lookup[(patch, sk, w)] = sp_hrs
+
+                capacity_calc_rows.append({
+                    "key": capacity_key, "patch": patch, "skill": sk, "group": sk, "weekcomm": w, "values": productive_hrs
                 })
-                weekly_rows.append({
+                sp_plan_rows.append({
                     "region": region_val, "area_code": area_code_val,
                     "patch": patch, "skill": sk, "group": "General", "metric": "SP",
                     "level2": "-", "flag": "Capacity Hours", "period": "W", "weekcomm": w,
                     "value": sp_hrs, "version": scenario_key, "create_datestamp": create_datestamp,
                 })
 
-            # Recruitment FTE rows
-            for r_idx, combo in enumerate(recruit_combos):
-                r_skill, r_group, r_met, r_lvl2, r_flag = combo
-                is_ungrounded = r_group == "Ungrounded"
-                # Staggered cohort ramp across the 61-week horizon
-                cohort_start = 12 if is_ungrounded else (r_idx % 16) * 2
-                if w_idx < cohort_start:
-                    r_fte = 0.0
-                else:
-                    age = w_idx - cohort_start
-                    ramp = min(1.0, (age + 1) / 8.0)
-                    base_r = (0.95 if is_ungrounded else 0.45) * p_scale * mult["recruit"]
-                    r_fte = round(base_r * ramp * (0.85 + 0.3 * _stable_factor(f"{patch}:{r_group}", 0.0, 1.0)), 4)
+    df_capacity = pd.DataFrame(capacity_calc_rows, columns=SUBCALC_SPECS["capacity"]["columns"])
 
-                weekly_rows.append({
-                    "region": region_val,
-                    "area_code": area_code_val,
-                    "patch": patch,
-                    "skill": r_skill,
-                    "group": r_group,
-                    "metric": r_met,
-                    "level2": r_lvl2,
-                    "flag": r_flag,
-                    "period": "W",
-                    "weekcomm": w,
-                    "value": r_fte,
-                    "version": scenario_key,
-                    "create_datestamp": create_datestamp,
-                })
+    # ------------------------------------------------------------------
+    # Stage 4: Demand Sub-Calculation (`es_shiny_demand_calc`, keyed by `demand_key`)
+    # ------------------------------------------------------------------
+    rng_dem = _rng_from(f"dem|{demand_key}")
+    demand_calc_rows: List[Dict[str, Any]] = []
 
-    df_weekly = pd.DataFrame(weekly_rows, columns=FINAL_DATA_COLUMNS)
+    for w_idx, w in enumerate(weeks):
+        wk_date = datetime.strptime(w, "%Y-%m-%d").date()
+        doy = wk_date.timetuple().tm_yday
+        theta = 2.0 * math.pi * ((doy - 12.0) / 365.25)
 
-    # Build monthly ('M') rows by aggregating weekly rows per month:
-    # - FTE rows -> mean across weeks in that month
-    # - Hours rows -> sum across weeks in that month
+        dem_fluct = 1.0 + 0.058 * math.sin(w_idx * 0.85 - 0.4) + 0.038 * math.cos(w_idx * 1.65 + 0.7) + rng_dem.uniform(-0.018, 0.018)
+        winter_wave = (1.0 + 0.24 * math.cos(theta)) * dem_fluct
+        growth_trend = 1.0 + 0.0005 * w_idx
+
+        for patch in patch_list:
+            p_scale = patch_scales[patch]
+            p_dem_b = patch_dem_bias[patch]
+            dem_patch_jitter = 1.0 + rng_dem.uniform(-0.028, 0.028)
+
+            for sk in ("HEC", "KAC"):
+                is_hec = sk == "HEC"
+                base_demand = (740.0 if is_hec else 425.0) * p_scale * p_dem_b * winter_wave * growth_trend * mult["demand"] * dem_patch_jitter
+                dem_pairs = hec_dem_weights if is_hec else kac_dem_weights
+                dem_w_sum = hec_dem_tot_w if is_hec else kac_dem_tot_w
+                for dw, combo in dem_pairs:
+                    item_noise = 1.0 + rng_dem.uniform(-0.04, 0.04)
+                    d_val = round(base_demand * (dw / dem_w_sum) * item_noise, 4)
+                    demand_calc_rows.append({
+                        "key": demand_key,
+                        "patch": patch,
+                        "skill": combo[0],
+                        "work_code": combo[2],
+                        "product": combo[3],
+                        "weekcomm": w,
+                        "values": d_val,
+                    })
+
+    df_demand = pd.DataFrame(demand_calc_rows, columns=SUBCALC_SPECS["demand"]["columns"])
+
+    # ------------------------------------------------------------------
+    # Stage 5: Workload Sub-Calculation (`es_shiny_workload_calc`, keyed by `workload_key`)
+    # Computed directly by summing Demand Hours per (patch, skill, weekcomm).
+    # ------------------------------------------------------------------
+    df_work_agg = (
+        df_demand.groupby(["patch", "skill", "weekcomm"], as_index=False)["values"]
+        .sum()
+    )
+    df_work_agg["values"] = df_work_agg["values"].round(4)
+    df_work_agg.insert(0, "key", workload_key)
+    df_workload = df_work_agg[SUBCALC_SPECS["workload"]["columns"]].copy()
+
+    work_lookup: Dict[Tuple[str, str, str], float] = {
+        (row.patch, row.skill, row.weekcomm): float(row.values)
+        for row in df_workload.itertuples(index=False)
+    }
+
+    # ------------------------------------------------------------------
+    # Stage 6: Imbalance Sub-Calculation (`es_shiny_imbalance_calc`, keyed by `imbalance_key`)
+    # Combines Capacity (`Productive hrs` + `SP`) and Workload (`workload hrs`).
+    # Emits all 8 distinct (skill, metric, type) combinations per patch & weekcomm.
+    # ------------------------------------------------------------------
+    imbalance_calc_rows: List[Dict[str, Any]] = []
+    for w in weeks:
+        for patch in patch_list:
+            for sk in ("HEC", "KAC"):
+                prod_h = cap_lookup[(patch, sk, w)]
+                sp_h = sp_lookup[(patch, sk, w)]
+                work_h = work_lookup[(patch, sk, w)]
+                imb_pre = round(prod_h - work_h, 4)
+                imb_post = round((prod_h + sp_h) - work_h, 4)
+                dl_fte_pre = round(imb_pre / 37.5, 4)
+                dl_fte_post = round(imb_post / 37.5, 4)
+                for met_name, typ_name, val_num in (
+                    ("DL_FTE", "pre_sp", dl_fte_pre),
+                    ("imb_presp", "pre_sp", imb_pre),
+                    ("DL_FTE", "post_sp", dl_fte_post),
+                    ("imb_postsp", "post_sp", imb_post),
+                ):
+                    imbalance_calc_rows.append({
+                        "key": imbalance_key,
+                        "patch": patch,
+                        "skill": sk,
+                        "metric": met_name,
+                        "type": typ_name,
+                        "weekcomm": w,
+                        "values": val_num,
+                    })
+
+    df_imbalance = pd.DataFrame(imbalance_calc_rows, columns=SUBCALC_SPECS["imbalance"]["columns"])
+
+    # ------------------------------------------------------------------
+    # Combine all Sub-Calculations into `es_powerbi_model_checker_plan`
+    # ------------------------------------------------------------------
+    def _attach_geo(df_src: pd.DataFrame) -> Tuple[List[str], List[str]]:
+        regs = [patch_geo[p][0] for p in df_src["patch"].tolist()]
+        areas = [patch_geo[p][1] for p in df_src["patch"].tolist()]
+        return regs, areas
+
+    fte_regs, fte_areas = _attach_geo(df_fte)
+    df_plan_fte = pd.DataFrame({
+        "region": fte_regs,
+        "area_code": fte_areas,
+        "patch": df_fte["patch"].values,
+        "skill": df_fte["skill"].values,
+        "group": df_fte["group"].values,
+        "metric": "FTE",
+        "level2": "-",
+        "flag": "FTE",
+        "period": "W",
+        "weekcomm": df_fte["weekcomm"].values,
+        "value": df_fte["values"].values,
+        "version": scenario_key,
+        "create_datestamp": create_datestamp,
+    })
+
+    cap_regs, cap_areas = _attach_geo(df_capacity)
+    df_plan_cap = pd.DataFrame({
+        "region": cap_regs,
+        "area_code": cap_areas,
+        "patch": df_capacity["patch"].values,
+        "skill": df_capacity["skill"].values,
+        "group": df_capacity["group"].values,
+        "metric": "Productive hrs",
+        "level2": "-",
+        "flag": "Capacity Hours",
+        "period": "W",
+        "weekcomm": df_capacity["weekcomm"].values,
+        "value": df_capacity["values"].values,
+        "version": scenario_key,
+        "create_datestamp": create_datestamp,
+    })
+
+    dem_regs, dem_areas = _attach_geo(df_demand)
+    df_plan_dem = pd.DataFrame({
+        "region": dem_regs,
+        "area_code": dem_areas,
+        "patch": df_demand["patch"].values,
+        "skill": df_demand["skill"].values,
+        "group": df_demand["skill"].values,
+        "metric": df_demand["work_code"].values,
+        "level2": df_demand["product"].values,
+        "flag": "Demand Hours",
+        "period": "W",
+        "weekcomm": df_demand["weekcomm"].values,
+        "value": df_demand["values"].values,
+        "version": scenario_key,
+        "create_datestamp": create_datestamp,
+    })
+
+    wrk_regs, wrk_areas = _attach_geo(df_workload)
+    df_plan_wrk = pd.DataFrame({
+        "region": wrk_regs,
+        "area_code": wrk_areas,
+        "patch": df_workload["patch"].values,
+        "skill": df_workload["skill"].values,
+        "group": df_workload["skill"].values,
+        "metric": "workload hrs",
+        "level2": "-",
+        "flag": "Workload Hours",
+        "period": "W",
+        "weekcomm": df_workload["weekcomm"].values,
+        "value": df_workload["values"].values,
+        "version": scenario_key,
+        "create_datestamp": create_datestamp,
+    })
+
+    df_weekly = pd.concat(
+        [
+            pd.DataFrame(avl_breakdown_rows, columns=FINAL_DATA_COLUMNS),
+            pd.DataFrame(overlay_rows, columns=FINAL_DATA_COLUMNS),
+            df_plan_cap[FINAL_DATA_COLUMNS],
+            pd.DataFrame(sp_plan_rows, columns=FINAL_DATA_COLUMNS),
+            df_plan_dem[FINAL_DATA_COLUMNS],
+            df_plan_wrk[FINAL_DATA_COLUMNS],
+            df_plan_fte[FINAL_DATA_COLUMNS],
+        ],
+        ignore_index=True,
+    )
+
+    # Monthly ('M') aggregation: mean for FTE, sum for Hours
     df_m_src = df_weekly.copy()
     df_m_src["month_comm"] = df_m_src["weekcomm"].str.slice(0, 7) + "-01"
 
     key_cols = ["region", "area_code", "patch", "skill", "group", "metric", "level2", "flag", "month_comm", "version", "create_datestamp"]
     is_fte = df_m_src["flag"] == "FTE"
 
-    df_m_fte = (
-        df_m_src[is_fte]
-        .groupby(key_cols, as_index=False)["value"]
-        .mean()
-    )
-    df_m_hrs = (
-        df_m_src[~is_fte]
-        .groupby(key_cols, as_index=False)["value"]
-        .sum()
-    )
+    df_m_fte = df_m_src[is_fte].groupby(key_cols, as_index=False)["value"].mean()
+    df_m_hrs = df_m_src[~is_fte].groupby(key_cols, as_index=False)["value"].sum()
 
     df_monthly = pd.concat([df_m_hrs, df_m_fte], ignore_index=True)
     df_monthly["period"] = "M"
@@ -746,8 +987,38 @@ def generate_scenario_final_rows(
     df_monthly["value"] = df_monthly["value"].round(4)
     df_monthly = df_monthly[FINAL_DATA_COLUMNS]
 
-    df_all = pd.concat([df_weekly, df_monthly], ignore_index=True)
-    return df_all
+    df_final = pd.concat([df_weekly, df_monthly], ignore_index=True)
+
+    return {
+        "fte": df_fte,
+        "available_hours": df_avlhr,
+        "capacity": df_capacity,
+        "demand": df_demand,
+        "workload": df_workload,
+        "imbalance": df_imbalance,
+        "final_data": df_final,
+    }
+
+
+def generate_scenario_final_rows(
+    scenario_key: str,
+    create_datestamp: str,
+    inputs: Dict[str, str],
+    log_row: Optional[Dict[str, str]] = None,
+    patches: Optional[List[str]] = None,
+) -> pd.DataFrame:
+    """
+    Generates all weekly ('W') and monthly ('M') rows for a scenario in `es_powerbi_model_checker_plan`
+    by combining the 6 sub-calculation modules (`fte`, `available_hours`, `capacity`, `demand`, `workload`, `imbalance`).
+    """
+    bundle = generate_subcalc_bundle_for_scenario(
+        scenario_key=scenario_key,
+        create_datestamp=create_datestamp,
+        inputs=inputs,
+        log_row=log_row,
+        patches=patches,
+    )
+    return bundle["final_data"]
 
 
 # ---------------------------------------------------------------------------
@@ -858,6 +1129,116 @@ def save_final_scenario_rows(version: str, df_new_rows: pd.DataFrame, engine=Non
             engine.save_final_plan_version_to_databricks(version, df_new_rows[FINAL_DATA_COLUMNS])
         except Exception as e:
             print(f"[Databricks] Final plan save warning: {e}")
+
+
+def load_subcalc_data(subcalc_key: str, calc_key: Optional[str] = None, engine=None) -> pd.DataFrame:
+    """Loads one of the 6 sub-calculation datasets (`fte`, `available_hours`, `capacity`, `demand`, `workload`, `imbalance`)."""
+    spec = SUBCALC_SPECS[subcalc_key]
+    cols = spec["columns"]
+
+    if engine is not None and engine.is_databricks_active():
+        try:
+            df_db = engine.load_subcalc_table(subcalc_key, calc_key_value=calc_key)
+            if df_db is not None:
+                return df_db
+        except Exception as e:
+            print(f"[Databricks] Sub-calc '{subcalc_key}' read fallback: {e}")
+
+    path = get_subcalc_path(subcalc_key)
+    if not path.exists():
+        return pd.DataFrame(columns=cols)
+
+    df = pd.read_csv(path)
+    if calc_key:
+        df = df[df["key"].astype(str) == str(calc_key)]
+    for col in cols:
+        if col not in df.columns:
+            df[col] = 0.0 if col == "values" else ""
+    return df[cols]
+
+
+def save_subcalc_key_rows(subcalc_key: str, calc_key: str, df_new_rows: pd.DataFrame, engine=None) -> None:
+    """Upserts rows for a specific `key` in a sub-calculation table (deduplicated by `key`)."""
+    spec = SUBCALC_SPECS[subcalc_key]
+    cols = spec["columns"]
+    path = get_subcalc_path(subcalc_key)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    clean_new = df_new_rows[cols].copy()
+    if path.exists():
+        df_existing = pd.read_csv(path)
+        df_existing = df_existing[df_existing["key"].astype(str) != str(calc_key)]
+        df_combined = pd.concat([df_existing, clean_new], ignore_index=True)
+    else:
+        df_combined = clean_new
+
+    df_combined.to_csv(path, index=False)
+
+    if engine is not None and engine.is_databricks_active():
+        try:
+            engine.save_subcalc_key_to_databricks(subcalc_key, calc_key, clean_new)
+        except Exception as e:
+            print(f"[Databricks] Sub-calc '{subcalc_key}' save warning: {e}")
+
+
+def save_subcalc_bundle(subcalc_bundle: Dict[str, pd.DataFrame], log_row: Dict[str, str], engine=None) -> None:
+    """Persists all 6 sub-calculation DataFrames for a scenario's log keys."""
+    for subcalc_key, spec in SUBCALC_SPECS.items():
+        if subcalc_key in subcalc_bundle and not subcalc_bundle[subcalc_key].empty:
+            calc_key_val = str(log_row.get(spec["log_col"], "") or "")
+            if calc_key_val:
+                save_subcalc_key_rows(subcalc_key, calc_key_val, subcalc_bundle[subcalc_key], engine=engine)
+
+
+def load_subcalc_for_scenario(
+    subcalc_key: str,
+    scenario_id: Optional[str] = None,
+    engine=None,
+) -> Tuple[pd.DataFrame, str, str, Dict[str, str]]:
+    """
+    Loads the active scenario's sub-calculation rows from the corresponding `es_shiny_*_calc` dataset
+    filtered by its `*_key` column in `es_shiny_scenario_log`.
+    Returns: (df, resolved_scenario_id, resolved_calc_key, log_row)
+    """
+    spec = SUBCALC_SPECS[subcalc_key]
+    df_log = load_scenario_log(engine=engine)
+    log_row: Dict[str, str] = {}
+    resolved_id = str(scenario_id or "").strip()
+
+    if not df_log.empty:
+        active_log = df_log[df_log["delete_flag"] != "Y"] if "delete_flag" in df_log.columns else df_log
+        if active_log.empty:
+            active_log = df_log
+        if resolved_id:
+            match = active_log[active_log["key"] == resolved_id]
+            if match.empty:
+                match = df_log[df_log["key"] == resolved_id]
+            if not match.empty:
+                log_row = match.iloc[-1].to_dict()
+        if not log_row and not active_log.empty:
+            log_row = active_log.iloc[0].to_dict()
+            resolved_id = str(log_row.get("key", ""))
+
+    calc_key_val = str(log_row.get(spec["log_col"], "") or "")
+    df = load_subcalc_data(subcalc_key, calc_key=calc_key_val or None, engine=engine)
+
+    # Ensure on-the-fly population if key isn't materialized yet
+    if df.empty and resolved_id and log_row:
+        inputs = {
+            inp_k: log_row.get(l_col, "")
+            for l_col, inp_k in LOG_COL_TO_INPUT_KEY.items()
+            if log_row.get(l_col)
+        }
+        bundle = generate_subcalc_bundle_for_scenario(
+            scenario_key=resolved_id,
+            create_datestamp=log_row.get("last_update", ""),
+            inputs=inputs,
+            log_row=log_row,
+        )
+        save_subcalc_bundle(bundle, log_row, engine=engine)
+        df = bundle[subcalc_key]
+
+    return df, resolved_id, calc_key_val, log_row
 
 
 def delete_scenario_from_log_and_plan(version: str, engine=None) -> None:
@@ -1074,6 +1455,7 @@ def get_default_scenario_definitions() -> List[Dict[str, Any]]:
     base_inputs = {k: v[0] for k, v in DEFAULT_INPUT_OPTIONS.items()}
     v2_inputs = {
         **{k: (v[1] if len(v) > 1 else v[0]) for k, v in DEFAULT_INPUT_OPTIONS.items()},
+        "geography_mapping": base_inputs.get("geography_mapping", ""),
         "resource_plan": "Resource Plan V2_2026-06-15",
         "demand_input": "demand_forecast_q3_unconstrained_v2",
         "overtime": "overtime_allowance_q3_v2",
@@ -1134,14 +1516,21 @@ def ensure_default_scenarios_and_final_data(force_rebuild: bool = False) -> Dict
 
     defs = get_default_scenario_definitions()
     expected_ids = {d["id"] for d in defs}
+    subcalc_paths_exist = all(get_subcalc_path(k).exists() for k in SUBCALC_SPECS)
 
-    if not force_rebuild and log_path.exists() and plan_path.exists() and scen_json_path.exists():
+    if not force_rebuild and subcalc_paths_exist and log_path.exists() and plan_path.exists() and scen_json_path.exists():
         try:
             header_cols = set(pd.read_csv(plan_path, nrows=0).columns)
-            if {"region", "area_code"}.issubset(header_cols):
-                df_existing_plan = pd.read_csv(plan_path, usecols=["version", "period", "weekcomm"])
+            if {"region", "area_code", "patch"}.issubset(header_cols):
+                df_existing_plan = pd.read_csv(plan_path, usecols=["version", "period", "weekcomm", "patch"])
                 versions = set(df_existing_plan["version"].astype(str).unique())
-                if expected_ids.issubset(versions) and PLAN_START_WEEK in set(df_existing_plan["weekcomm"].astype(str)) and PLAN_END_WEEK in set(df_existing_plan["weekcomm"].astype(str)):
+                patches_present = set(df_existing_plan["patch"].astype(str).unique())
+                if (
+                    expected_ids.issubset(versions)
+                    and set(FINAL_DATA_PATCHES).issubset(patches_present)
+                    and PLAN_START_WEEK in set(df_existing_plan["weekcomm"].astype(str))
+                    and PLAN_END_WEEK in set(df_existing_plan["weekcomm"].astype(str))
+                ):
                     return {
                         "status": "existing",
                         "versions": sorted(versions),
@@ -1152,6 +1541,7 @@ def ensure_default_scenarios_and_final_data(force_rebuild: bool = False) -> Dict
 
     log_rows: List[Dict[str, str]] = []
     plan_frames: List[pd.DataFrame] = []
+    subcalc_frames_by_key: Dict[str, Dict[str, pd.DataFrame]] = {k: {} for k in SUBCALC_SPECS}
     scenarios_dict: Dict[str, Any] = {}
 
     for s in defs:
@@ -1163,13 +1553,18 @@ def ensure_default_scenarios_and_final_data(force_rebuild: bool = False) -> Dict
             delete_flag="N",
         )
         log_rows.append(log_row)
-        df_s = generate_scenario_final_rows(
+        bundle = generate_subcalc_bundle_for_scenario(
             scenario_key=s["id"],
             create_datestamp=s["created_at"],
             inputs=s["inputs"],
             log_row=log_row,
         )
-        plan_frames.append(df_s)
+        for subcalc_key, spec in SUBCALC_SPECS.items():
+            ck_val = str(log_row.get(spec["log_col"], "") or "")
+            if ck_val and ck_val not in subcalc_frames_by_key[subcalc_key]:
+                subcalc_frames_by_key[subcalc_key][ck_val] = bundle[subcalc_key]
+
+        plan_frames.append(bundle["final_data"])
         scenarios_dict[s["id"]] = s
 
     df_log = pd.DataFrame(log_rows, columns=SCENARIO_LOG_COLUMNS)
@@ -1178,6 +1573,10 @@ def ensure_default_scenarios_and_final_data(force_rebuild: bool = False) -> Dict
     log_path.parent.mkdir(parents=True, exist_ok=True)
     df_log.to_csv(log_path, index=False)
     df_plan.to_csv(plan_path, index=False)
+    for subcalc_key, keyed_dict in subcalc_frames_by_key.items():
+        cols = SUBCALC_SPECS[subcalc_key]["columns"]
+        df_sub = pd.concat(list(keyed_dict.values()), ignore_index=True)[cols] if keyed_dict else pd.DataFrame(columns=cols)
+        df_sub.to_csv(get_subcalc_path(subcalc_key), index=False)
     scen_json_path.write_text(json.dumps(scenarios_dict, indent=2), encoding="utf-8")
 
     return {
@@ -1185,4 +1584,5 @@ def ensure_default_scenarios_and_final_data(force_rebuild: bool = False) -> Dict
         "versions": [s["id"] for s in defs],
         "logRows": len(df_log),
         "planRows": len(df_plan),
+        "subcalcTables": {k: sum(len(v) for v in kd.values()) for k, kd in subcalc_frames_by_key.items()},
     }
