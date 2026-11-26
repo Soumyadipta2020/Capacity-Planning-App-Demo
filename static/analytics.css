@@ -1755,11 +1755,37 @@ html.dark .analytics-workspace .ds-kpi-note {
 }
 
 .analytics-workspace .ds-outlook-metric {
+  position: relative;
+  overflow: hidden;
   padding: 10px 14px;
   border-radius: 12px;
   gap: 10px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.analytics-workspace .ds-outlook-metric > .ds-kpi-icon,
+.analytics-workspace .ds-outlook-metric > .ds-kpi-content,
+.analytics-workspace .ds-outlook-metric > .ds-kpi-chevron {
+  position: relative;
+  z-index: 1;
+}
+
+.analytics-workspace .ds-kpi-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.analytics-workspace .ds-kpi-footer .ds-kpi-note {
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .analytics-workspace .ds-outlook-metric[data-measure="gap"] {

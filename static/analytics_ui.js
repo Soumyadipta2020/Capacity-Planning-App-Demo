@@ -1,4 +1,46 @@
 /* Leadership investigations, backed only by the strict selected-version loader. */
+function DsWaveBackground({ strokeColor, fillColor, id = "ds-wave-grad" }) {
+  return (
+    <svg
+      className="absolute right-0 bottom-0 w-[38%] max-w-[140px] h-[65%] pointer-events-none select-none overflow-hidden"
+      viewBox="0 0 200 80"
+      preserveAspectRatio="none"
+    >
+      <defs>
+        <linearGradient id={`${id}-mask-grad`} x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0" />
+          <stop offset="30%" stopColor="#fff" stopOpacity="0.35" />
+          <stop offset="70%" stopColor="#fff" stopOpacity="0.85" />
+          <stop offset="100%" stopColor="#fff" stopOpacity="1" />
+        </linearGradient>
+        <mask id={`${id}-fade-mask`} maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="80">
+          <rect x="0" y="0" width="200" height="80" fill={`url(#${id}-mask-grad)`} />
+        </mask>
+        <linearGradient id={`${id}-vfill`} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={fillColor} stopOpacity="0.20" />
+          <stop offset="65%" stopColor={fillColor} stopOpacity="0.05" />
+          <stop offset="100%" stopColor={fillColor} stopOpacity="0.0" />
+        </linearGradient>
+      </defs>
+      <g mask={`url(#${id}-fade-mask)`}>
+        <path
+          d="M 0,62 C 18,60 32,46 45,46 C 58,46 68,58 80,58 C 98,58 114,28 130,28 C 146,28 154,52 165,52 C 178,52 190,36 200,36 L 200,80 L 0,80 Z"
+          fill={`url(#${id}-vfill)`}
+        />
+        <path
+          d="M 0,62 C 18,60 32,46 45,46 C 58,46 68,58 80,58 C 98,58 114,28 130,28 C 146,28 154,52 165,52 C 178,52 190,36 200,36"
+          fill="none"
+          stroke={strokeColor}
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.9"
+        />
+      </g>
+    </svg>
+  );
+}
+
 function AnalyticsField({
   title,
   children
@@ -767,26 +809,96 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
     {bundle && !busy && !imbalance && model.rows.length>0 && <>
         <section className="ds-outlook-metrics" aria-label="Planning horizon totals">
           {[
-            ['gap','Net capacity gap',gapLabel(totals.gap),[
-              totals.grossShortfall>Math.max(0,-(totals.gap ?? 0)) && format(totals.grossShortfall)+' h gross shortfall',
-              totals.partial && totals.comparable+' of '+totals.assessed.length+' groups assessed'
-            ].filter(Boolean).join(' · ') || periodTitle],
-            ['demand','Required hours',format(totals.demand),totals.partialByMeasure.demand?'Some job durations are missing':'Forecast work'],
-            ['capacity','Available capacity',format(totals.capacity),totals.partialByMeasure.capacity
-              ? (totals.capacity!=null?'Assessed locations only':'Downtime could not be assessed'):'After downtime and cover'],
-            ['fte','Allocated FTE',format(totals.fte),'Average per roster week']
-          ].map(([key,label,value,note])=><button type="button" className="ds-outlook-metric" key={key} data-measure={key}
-            data-available={totals[key]!=null}
-            data-tone={key==='gap' ? (totals.gap<0?'short':totals.gap>0?'spare':'neutral') : key}
-            onClick={()=>openMetric(key,totals,periodTitle,beforeRows ? summary(beforeRows) : null)}>
-            <span className="ds-kpi-icon"><AnalyticsIcon name={{gap:'scale',demand:'demand',capacity:'bolt',fte:'users'}[key]} size={16}/></span>
-            <span className="ds-kpi-content">
-              <span className="ds-metric-title">{label}</span>
-              <strong>{value}{['capacity','demand'].includes(key) && totals[key]!=null && <small> h</small>}</strong>
-              <span className="ds-kpi-note">{note}</span>
-            </span>
-            <AnalyticsIcon name="chevron" size={13} className="ds-kpi-chevron"/>
-          </button>)}
+            {
+              key: 'gap',
+              label: 'Net capacity gap',
+              value: gapLabel(totals.gap),
+              unit: null,
+              note: [
+                totals.grossShortfall>Math.max(0,-(totals.gap ?? 0)) && format(totals.grossShortfall)+' h gross shortfall',
+                totals.partial && totals.comparable+' of '+totals.assessed.length+' groups assessed'
+              ].filter(Boolean).join(' · ') || periodTitle,
+              badgeType: totals.gap < 0 ? 'drop' : (totals.gap > 0 ? 'positive' : 'neutral'),
+              badgeIcon: totals.gap < 0 ? '▼' : (totals.gap > 0 ? '▲' : '●'),
+              badgeText: totals.gap < 0 ? 'Net Deficit' : (totals.gap > 0 ? 'Net Surplus' : 'Balanced'),
+              cardClass: totals.gap < 0 ? 'diff-kpi-card-shortfall' : 'diff-kpi-card-net',
+              iconGlow: totals.gap < 0 ? 'glow-icon-rose' : 'glow-icon-emerald',
+              waveColor: totals.gap < 0 ? '#f43f5e' : '#10b981'
+            },
+            {
+              key: 'demand',
+              label: 'Required hours',
+              value: format(totals.demand),
+              unit: totals.demand != null ? 'hrs' : null,
+              note: totals.partialByMeasure.demand ? 'Some job durations are missing' : 'Forecast work',
+              badgeType: 'info',
+              badgeIcon: '●',
+              badgeText: 'Demand',
+              cardClass: 'diff-kpi-card-demand',
+              iconGlow: 'glow-icon-blue',
+              waveColor: '#38bdf8'
+            },
+            {
+              key: 'capacity',
+              label: 'Available capacity',
+              value: format(totals.capacity),
+              unit: totals.capacity != null ? 'hrs' : null,
+              note: totals.partialByMeasure.capacity
+                ? (totals.capacity!=null?'Assessed locations only':'Downtime could not be assessed') : 'After downtime & cover',
+              badgeType: 'purple',
+              badgeIcon: '●',
+              badgeText: 'Net Avail',
+              cardClass: 'diff-kpi-card-capacity',
+              iconGlow: 'glow-icon-purple',
+              waveColor: '#c084fc'
+            },
+            {
+              key: 'fte',
+              label: 'Allocated FTE',
+              value: format(totals.fte),
+              unit: totals.fte != null ? 'FTE' : null,
+              note: 'Average per roster week',
+              badgeType: 'amber',
+              badgeIcon: '●',
+              badgeText: 'Roster',
+              cardClass: 'diff-kpi-card-scope',
+              iconGlow: 'glow-icon-amber',
+              waveColor: '#fbbf24'
+            }
+          ].map(({key,label,value,unit,note,badgeType,badgeIcon,badgeText,cardClass,iconGlow,waveColor}) => {
+            const badgeClasses = badgeType === 'positive'
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-[#062c1f] dark:text-[#34d399] dark:border-[#10b981]/40'
+              : badgeType === 'drop'
+                ? 'bg-rose-50 text-rose-700 border-rose-200/60 dark:bg-[#2c0b0e] dark:text-[#f87171] dark:border-[#ef4444]/40'
+                : badgeType === 'info'
+                  ? 'bg-blue-50 text-blue-700 border-blue-200/60 dark:bg-[#061d3a] dark:text-[#60a5fa] dark:border-[#2563eb]/40'
+                  : badgeType === 'purple'
+                    ? 'bg-purple-50 text-purple-700 border-purple-200/60 dark:bg-[#1a0f36] dark:text-[#c084fc] dark:border-[#7c3aed]/40'
+                    : badgeType === 'amber'
+                      ? 'bg-amber-50 text-amber-700 border-amber-200/60 dark:bg-[#241504] dark:text-[#fbbf24] dark:border-[#d97706]/40'
+                      : 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-[#0c1b31] dark:text-[#94a3b8] dark:border-[#18365d]';
+            return (
+              <button type="button" className={`ds-outlook-metric glow-card ${cardClass} relative overflow-hidden`} key={key} data-measure={key}
+                data-available={totals[key]!=null}
+                data-tone={key==='gap' ? (totals.gap<0?'short':totals.gap>0?'spare':'neutral') : key}
+                onClick={()=>openMetric(key,totals,periodTitle,beforeRows ? summary(beforeRows) : null)}>
+                <DsWaveBackground strokeColor={waveColor} fillColor={waveColor} id={`ds-wave-${key}`} />
+                <span className={`ds-kpi-icon glow-icon ${iconGlow}`}><AnalyticsIcon name={{gap:'scale',demand:'demand',capacity:'bolt',fte:'users'}[key]} size={16}/></span>
+                <span className="ds-kpi-content">
+                  <span className="ds-metric-title">{label}</span>
+                  <strong>{value}{unit && <small> {unit}</small>}</strong>
+                  <span className="ds-kpi-footer">
+                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap flex-shrink-0 ${badgeClasses}`}>
+                      <span className="text-[8px]">{badgeIcon}</span>
+                      <span>{badgeText}</span>
+                    </span>
+                    <span className="ds-kpi-note">{note}</span>
+                  </span>
+                </span>
+                <AnalyticsIcon name="chevron" size={13} className="ds-kpi-chevron"/>
+              </button>
+            );
+          })}
         </section>
         <div className="ds-outlook-grid">
           <DecisionStudioDemandTrend Trend={V.Trend} chart={chart} periodSwitch={periodSwitch('Outlook period')}

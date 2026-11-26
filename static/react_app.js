@@ -69,7 +69,8 @@ function IconScale({ className = "w-4 h-4" }) {
 function IconMatrix({ className = "w-4 h-4" }) {
     return (
         <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth="2" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9h18M3 15h18M9 3v18M15 3v18" />
         </svg>
     );
 }
@@ -1320,7 +1321,7 @@ function ModernCapacityApp() {
                     ? 'bg-[#060b17] border-r border-[#18365d] shadow-[4px_0_24px_rgba(2,6,23,0.6)]' 
                     : 'bg-white border-r border-slate-200/90 shadow-[2px_0_12px_rgba(0,0,0,0.02)]'
             } ${
-                isSidebarCollapsed ? 'w-20' : 'w-64'
+                isSidebarCollapsed ? 'w-20' : 'w-52'
             }`}>
                 {/* Brand Header */}
                 <div className={`h-14 flex items-center justify-center px-4 border-b flex-shrink-0 ${
@@ -1339,7 +1340,7 @@ function ModernCapacityApp() {
                         isDarkMode ? 'border-[#18365d] bg-[#091528]/80' : 'border-slate-100 bg-slate-50/40'
                     }`}>
                         <div className="flex items-center justify-center gap-2">
-                            <span className={`text-[10px] font-medium lowercase ${isDarkMode ? 'text-[#7d93b2]' : 'text-slate-400'}`}>environment</span>
+                            <span className={`text-[10px] font-medium ${isDarkMode ? 'text-[#7d93b2]' : 'text-slate-400'}`}>Environment:</span>
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 ${
                                 envInfo.is_databricks 
                                     ? 'bg-rose-50 text-rose-700 border border-rose-200' 
@@ -1349,7 +1350,7 @@ function ModernCapacityApp() {
                                     envInfo.stage === 'prod' ? 'bg-emerald-500' :
                                     envInfo.stage === 'uat' ? 'bg-amber-500' : 'bg-blue-600'
                                 }`}></span>
-                                <span>{envInfo.is_databricks ? `databricks (${envInfo.stage || 'dev'})` : `vscode (${envInfo.stage || 'dev'})`}</span>
+                                <span>{envInfo.is_databricks ? `Databricks (${envInfo.stage || 'dev'})` : 'VS Code'}</span>
                             </span>
                         </div>
                         {clusterInfo && clusterInfo.state && clusterInfo.state !== 'LOCAL' && (
@@ -1379,9 +1380,9 @@ function ModernCapacityApp() {
                 {/* Navigation Menu (All 8 Original Tabs with Modern SVG Icons) */}
                 <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
                     {[
-                        { id: 'insights', label: 'Executive Insights', icon: <IconDashboard />, badge: 'Home' },
-                        { id: 'inputs', label: 'Inputs & Parameters', icon: <IconSliders />, badge: '21 Files', hasSubmenu: true },
-                        { id: 'comparison', label: 'Scenario Diff & Variance', icon: <IconScale /> },
+                        { id: 'insights', label: 'Executive Insights', icon: <IconDashboard /> },
+                        { id: 'inputs', label: 'Inputs & Parameters', icon: <IconSliders />, hasSubmenu: true },
+                        { id: 'comparison', label: 'Scenario Difference', icon: <IconScale /> },
                         { id: 'dem_cap', label: 'Dem vs Cap Matrix', icon: <IconMatrix /> },
                         { id: 'decision_studio', label: 'Decision Studio', icon: <IconBarChart />, hasSubmenu: true },
                     ].map(tab => {
@@ -1389,12 +1390,12 @@ function ModernCapacityApp() {
                         const submenuOpen = tab.hasSubmenu && isActive && !isSidebarCollapsed;
                         const submenuId = `capacity-navigation-${tab.id}`;
                         const subItems = tab.id === 'inputs' ? [
-                            { id: 'inputs_selection', label: 'Scenario & Input Selection', shortLabel: 'Scenario & Inputs', icon: <IconSliders className="w-3.5 h-3.5 flex-shrink-0" />, badge: '21' },
-                            { id: 'bulk_upload', label: 'Bulk Upload', shortLabel: 'Bulk Upload', icon: <IconUpload className="w-3.5 h-3.5 flex-shrink-0" />, badge: 'Ingest' },
-                            { id: 'download_templates', label: 'Download Templates', shortLabel: 'Download Templates', icon: <IconDownload className="w-3.5 h-3.5 flex-shrink-0" />, badge: '21 Ready' },
+                            { id: 'inputs_selection', label: 'Scenario & Input Selection', shortLabel: 'Scenario & Inputs', icon: <IconDatabase className="w-3.5 h-3.5 flex-shrink-0" /> },
+                            { id: 'bulk_upload', label: 'Bulk Upload', shortLabel: 'Bulk Upload', icon: <IconUpload className="w-3.5 h-3.5 flex-shrink-0" /> },
+                            { id: 'download_templates', label: 'Download Templates', shortLabel: 'Download Templates', icon: <IconDownload className="w-3.5 h-3.5 flex-shrink-0" /> },
                         ] : tab.id === 'decision_studio' ? [
-                            { id: 'summary', label: 'Capacity Drilldown', shortLabel: 'Capacity Drilldown', icon: <IconBarChart className="w-3.5 h-3.5 flex-shrink-0" /> },
-                            { id: 'imbalance', label: 'Imbalances', shortLabel: 'Imbalances', icon: <IconScale className="w-3.5 h-3.5 flex-shrink-0" /> },
+                            { id: 'summary', label: 'Capacity Drilldown', shortLabel: 'Capacity Drilldown', icon: <IconTrendingUp className="w-3.5 h-3.5 flex-shrink-0" /> },
+                            { id: 'imbalance', label: 'Imbalances', shortLabel: 'Imbalances', icon: <IconAlertCircle className="w-3.5 h-3.5 flex-shrink-0" /> },
                         ] : [];
                         return (
                             <div key={tab.id} className="space-y-1">
@@ -12266,7 +12267,6 @@ function ScenarioComparisonView({
     const [diffPayload, setDiffPayload] = useState(null);
     const [diffLoading, setDiffLoading] = useState(false);
     const [diffError, setDiffError] = useState('');
-    const [showLogDetails, setShowLogDetails] = useState(false);
 
     // Fetch scenario diff data ONLY from es_powerbi_model_checker_plan + es_shiny_scenario_log
     useEffect(() => {
@@ -12385,21 +12385,9 @@ function ScenarioComparisonView({
         return matches.size > 0 ? matches : new Set([selectedGeo.label || selectedGeo.id]);
     }, [selectedGeo, diffPayload, geoRows]);
 
-    // Scenario log metadata lookup for Baseline and Comparison
+    // Scenario metadata lookup for Baseline and Comparison
     const scen1 = scenarios[baselineScenarioId] || {};
     const scen2 = scenarios[comparisonScenarioId] || {};
-    const log1 = useMemo(() => {
-        if (diffPayload?.scenarioLogs?.[baselineScenarioId]) return diffPayload.scenarioLogs[baselineScenarioId];
-        return scenarioLog.find(r => r.key === baselineScenarioId && r.delete_flag !== 'Y')
-            || scenarioLog.find(r => r.key === baselineScenarioId)
-            || null;
-    }, [diffPayload, scenarioLog, baselineScenarioId]);
-    const log2 = useMemo(() => {
-        if (diffPayload?.scenarioLogs?.[comparisonScenarioId]) return diffPayload.scenarioLogs[comparisonScenarioId];
-        return scenarioLog.find(r => r.key === comparisonScenarioId && r.delete_flag !== 'Y')
-            || scenarioLog.find(r => r.key === comparisonScenarioId)
-            || null;
-    }, [diffPayload, scenarioLog, comparisonScenarioId]);
 
     const handleSwapScenarios = () => {
         const tmp = baselineScenarioId;
@@ -12742,73 +12730,10 @@ function ScenarioComparisonView({
                             </div>
                         </div>
 
-                        {/* Row 3: Scenario Log & Calculation Keys Traceability Strip */}
-                        <div className="pt-2 border-t border-slate-100 dark:border-[#18365d]/80 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-                            <div className="flex flex-wrap items-center gap-2 text-slate-600 dark:text-slate-300">
-                                <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-[#005eb8] dark:text-[#80c6ff] font-bold border border-blue-200/70 dark:border-blue-800/60">
-                                    Source: es_powerbi_model_checker_plan ({periodMode === 'M' ? 'Monthly M' : 'Weekly W'})
-                                </span>
+                        {(diffLoading || diffError) && (
+                            <div className="pt-2 border-t border-slate-100 dark:border-[#18365d]/80 flex flex-wrap items-center gap-2 text-[11px]">
                                 {diffLoading && <span className="text-amber-600 dark:text-amber-400 font-semibold animate-pulse">Loading final scenario data...</span>}
                                 {diffError && <span className="text-rose-600 dark:text-rose-400 font-semibold">{diffError}</span>}
-                                {log1 && log2 && (
-                                    <span className="text-slate-500 dark:text-slate-400">
-                                        Calc Keys Changed:{' '}
-                                        <strong className="text-slate-800 dark:text-white">
-                                            {['fte_key', 'avl_key', 'capacity_key', 'demand_key', 'workload_key', 'imbalance_key'].filter(k => (log1[k] || '') !== (log2[k] || '')).length} / 6
-                                        </strong>
-                                    </span>
-                                )}
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setShowLogDetails(v => !v)}
-                                className="text-[11px] font-bold text-[#005eb8] dark:text-[#80c6ff] hover:underline cursor-pointer"
-                            >
-                                {showLogDetails ? 'Hide Scenario Log & Calc Keys ▴' : 'Inspect Scenario Log & Calc Keys ▾'}
-                            </button>
-                        </div>
-
-                        {showLogDetails && (
-                            <div className="mt-2 p-3 rounded-xl bg-slate-50 dark:bg-[#08162b] border border-slate-200 dark:border-[#18365d] text-[11px] space-y-2 overflow-x-auto">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div>
-                                        <div className="font-bold text-slate-800 dark:text-white">{baselineScenarioId} (Baseline)</div>
-                                        <div className="text-slate-500 dark:text-slate-400">Created: {log1?.last_update || scen1.created_at || '—'} · Remarks: {log1?.remarks || scen1.remarks || '—'}</div>
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-slate-800 dark:text-white">{comparisonScenarioId} (Final)</div>
-                                        <div className="text-slate-500 dark:text-slate-400">Created: {log2?.last_update || scen2.created_at || '—'} · Remarks: {log2?.remarks || scen2.remarks || '—'}</div>
-                                    </div>
-                                </div>
-                                {log1 && log2 && (
-                                    <table className="w-full text-left border-collapse text-[10px] font-mono">
-                                        <thead>
-                                            <tr className="border-b border-slate-200 dark:border-[#18365d] text-slate-500 dark:text-slate-400">
-                                                <th className="py-1 pr-2">Calc Key</th>
-                                                <th className="py-1 pr-2">Status</th>
-                                                <th className="py-1 pr-2">Baseline Key Combination</th>
-                                                <th className="py-1">Final Key Combination</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100 dark:divide-[#18365d]">
-                                            {['fte_key', 'avl_key', 'capacity_key', 'demand_key', 'workload_key', 'imbalance_key'].map(k => {
-                                                const same = (log1[k] || '') === (log2[k] || '');
-                                                return (
-                                                    <tr key={k}>
-                                                        <td className="py-1 pr-2 font-bold text-slate-700 dark:text-slate-200">{k}</td>
-                                                        <td className="py-1 pr-2">
-                                                            <span className={`px-1.5 py-0.5 rounded font-sans font-bold ${same ? 'bg-slate-100 dark:bg-slate-800 text-slate-500' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'}`}>
-                                                                {same ? 'Match' : 'Changed'}
-                                                            </span>
-                                                        </td>
-                                                        <td className="py-1 pr-2 max-w-[260px] truncate text-slate-600 dark:text-slate-300" title={log1[k]}>{log1[k]}</td>
-                                                        <td className="py-1 max-w-[260px] truncate text-slate-600 dark:text-slate-300" title={log2[k]}>{log2[k]}</td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                )}
                             </div>
                         )}
                     </>
