@@ -29,6 +29,16 @@ from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 
 from config import EnvironmentConfig
+from engine.perf_cache import (
+    fast_pack_final_dataframe,
+    get_cached_packed_final,
+    get_cached_scenario_log,
+    get_verified_default_state,
+    invalidate_namespace,
+    load_partitioned_dataframe,
+    mark_default_state_verified,
+    path_signature,
+)
 
 # ---------------------------------------------------------------------------
 # Canonical Schemas
@@ -1037,11 +1047,14 @@ def load_scenario_log(engine=None) -> pd.DataFrame:
 
     path = get_scenario_log_path()
     if path.exists():
-        df = pd.read_csv(path, dtype=str).fillna("")
-        for col in SCENARIO_LOG_COLUMNS:
-            if col not in df.columns:
-                df[col] = ""
-        return df[SCENARIO_LOG_COLUMNS]
+        sig = path_signature(path)
+        def _load_log() -> pd.DataFrame:
+            df = pd.read_csv(path, dtype=str).fillna("")
+            for col in SCENARIO_LOG_COLUMNS:
+                if col not in df.columns:
+                    df[col] = ""
+            return df[SCENARIO_LOG_COLUMNS]
+        return get_cached_scenario_log(sig, _load_log)
     return pd.DataFrame(columns=SCENARIO_LOG_COLUMNS)
 
 
@@ -1055,6 +1068,7 @@ def save_scenario_log(df_log: pd.DataFrame, engine=None) -> None:
             out[col] = ""
     out = out[SCENARIO_LOG_COLUMNS]
     out.to_csv(path, index=False)
+    invalidate_namespace("scenario_log")
 
     if engine is not None and engine.is_databricks_active():
         try:
@@ -1093,22 +1107,30 @@ def load_final_scenario_data(
     if not path.exists():
         return pd.DataFrame(columns=FINAL_DATA_COLUMNS)
 
-    df = pd.read_csv(path)
-    if version:
-        df = df[df["version"] == version]
-    if period:
-        df = df[df["period"] == period]
-    if "region" not in df.columns or "area_code" not in df.columns:
-        geo_lookup = _resolve_patch_geo_lookup()
-        inferred = df["patch"].astype(str).map(lambda p: _infer_geo_for_patch(p, geo_lookup))
-        if "region" not in df.columns:
-            df["region"] = [x[0] for x in inferred]
-        if "area_code" not in df.columns:
-            df["area_code"] = [x[1] for x in inferred]
-    for col in FINAL_DATA_COLUMNS:
-        if col not in df.columns:
-            df[col] = 0.0 if col == "value" else ""
-    return df[FINAL_DATA_COLUMNS]
+    sig = path_signature(path)
+
+    def _raw_load_final() -> pd.DataFrame:
+        df = pd.read_csv(path, low_memory=False)
+        if "region" not in df.columns or "area_code" not in df.columns:
+            geo_lookup = _resolve_patch_geo_lookup()
+            inferred = df["patch"].astype(str).map(lambda p: _infer_geo_for_patch(p, geo_lookup))
+            if "region" not in df.columns:
+                df["region"] = [x[0] for x in inferred]
+            if "area_code" not in df.columns:
+                df["area_code"] = [x[1] for x in inferred]
+        for col in FINAL_DATA_COLUMNS:
+            if col not in df.columns:
+                df[col] = 0.0 if col == "value" else ""
+        return df[FINAL_DATA_COLUMNS]
+
+    return load_partitioned_dataframe(
+        "final_plan",
+        sig,
+        "version",
+        str(version) if version else None,
+        _raw_load_final,
+        period=str(period) if period else None,
+    )
 
 
 def save_final_scenario_rows(version: str, df_new_rows: pd.DataFrame, engine=None) -> None:
@@ -1116,13 +1138,14 @@ def save_final_scenario_rows(version: str, df_new_rows: pd.DataFrame, engine=Non
     path = get_final_plan_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
-        df_existing = pd.read_csv(path)
+        df_existing = load_final_scenario_data(version=None, engine=None)
         df_existing = df_existing[df_existing["version"] != version]
         df_combined = pd.concat([df_existing, df_new_rows[FINAL_DATA_COLUMNS]], ignore_index=True)
     else:
         df_combined = df_new_rows[FINAL_DATA_COLUMNS].copy()
 
     df_combined.to_csv(path, index=False)
+    invalidate_namespace("final_plan")
 
     if engine is not None and engine.is_databricks_active():
         try:
@@ -1148,13 +1171,24 @@ def load_subcalc_data(subcalc_key: str, calc_key: Optional[str] = None, engine=N
     if not path.exists():
         return pd.DataFrame(columns=cols)
 
-    df = pd.read_csv(path)
-    if calc_key:
-        df = df[df["key"].astype(str) == str(calc_key)]
-    for col in cols:
-        if col not in df.columns:
-            df[col] = 0.0 if col == "values" else ""
-    return df[cols]
+    sig = path_signature(path)
+
+    def _raw_load_subcalc() -> pd.DataFrame:
+        df = pd.read_csv(path, low_memory=False)
+        for col in cols:
+            if col not in df.columns:
+                df[col] = 0.0 if col == "values" else ""
+        if "key" in df.columns:
+            df["key"] = df["key"].astype(str)
+        return df[cols]
+
+    return load_partitioned_dataframe(
+        f"subcalc:{subcalc_key}",
+        sig,
+        "key",
+        str(calc_key) if calc_key else None,
+        _raw_load_subcalc,
+    )
 
 
 def save_subcalc_key_rows(subcalc_key: str, calc_key: str, df_new_rows: pd.DataFrame, engine=None) -> None:
@@ -1166,13 +1200,14 @@ def save_subcalc_key_rows(subcalc_key: str, calc_key: str, df_new_rows: pd.DataF
 
     clean_new = df_new_rows[cols].copy()
     if path.exists():
-        df_existing = pd.read_csv(path)
+        df_existing = load_subcalc_data(subcalc_key, calc_key=None, engine=None)
         df_existing = df_existing[df_existing["key"].astype(str) != str(calc_key)]
         df_combined = pd.concat([df_existing, clean_new], ignore_index=True)
     else:
         df_combined = clean_new
 
     df_combined.to_csv(path, index=False)
+    invalidate_namespace(f"subcalc:{subcalc_key}")
 
     if engine is not None and engine.is_databricks_active():
         try:
@@ -1250,9 +1285,10 @@ def delete_scenario_from_log_and_plan(version: str, engine=None) -> None:
 
     path = get_final_plan_path()
     if path.exists():
-        df = pd.read_csv(path)
+        df = load_final_scenario_data(version=None, engine=None)
         df = df[df["version"] != version]
         df.to_csv(path, index=False)
+        invalidate_namespace("final_plan")
 
     if engine is not None and engine.is_databricks_active():
         try:
@@ -1265,85 +1301,34 @@ def delete_scenario_from_log_and_plan(version: str, engine=None) -> None:
 # Compact Transport Payloads for Scenario Diff & Decision Studio
 # ---------------------------------------------------------------------------
 
-def _pack_final_dataframe(df: pd.DataFrame) -> Dict[str, Any]:
+def _pack_final_dataframe(df: pd.DataFrame, json_safe: bool = False) -> Dict[str, Any]:
     """Packs final_data DataFrame into a compact indexed payload (~6x smaller than record dicts)."""
-    if df is None or df.empty:
-        return {
-            "regions": [],
-            "areaCodes": [],
-            "patches": [],
-            "combos": [],
-            "periods": [],
-            "weeks": [],
-            "rows": [],
-            "rowCount": 0,
-        }
-
-    geo_lookup = _resolve_patch_geo_lookup()
-    if "region" not in df.columns or "area_code" not in df.columns:
+    if df is not None and not df.empty and ("region" not in df.columns or "area_code" not in df.columns):
         df = df.copy()
+        geo_lookup = _resolve_patch_geo_lookup()
         inferred = df["patch"].astype(str).map(lambda p: _infer_geo_for_patch(p, geo_lookup))
         if "region" not in df.columns:
             df["region"] = [x[0] for x in inferred]
         if "area_code" not in df.columns:
             df["area_code"] = [x[1] for x in inferred]
+    return fast_pack_final_dataframe(df, json_safe=json_safe)
 
-    regions = sorted(df["region"].astype(str).unique().tolist())
-    region_idx = {r: i for i, r in enumerate(regions)}
 
-    area_codes = sorted(df["area_code"].astype(str).unique().tolist())
-    area_idx = {a: i for i, a in enumerate(area_codes)}
+def _get_packed_final_for_version(version: str, engine=None, json_safe: bool = True) -> Dict[str, Any]:
+    """Return packed final_data for *version* using mtime+size cache when in local mode."""
+    use_db = engine is not None and engine.is_databricks_active()
+    if use_db:
+        df = load_final_scenario_data(version=version, engine=engine)
+        return _pack_final_dataframe(df, json_safe=json_safe)
 
-    patches = sorted(df["patch"].astype(str).unique().tolist())
-    patch_idx = {p: i for i, p in enumerate(patches)}
+    path = get_final_plan_path()
+    sig = path_signature(path)
 
-    periods = sorted(df["period"].astype(str).unique().tolist())
-    period_idx = {p: i for i, p in enumerate(periods)}
+    def _build() -> Dict[str, Any]:
+        df = load_final_scenario_data(version=version, engine=engine)
+        return _pack_final_dataframe(df, json_safe=json_safe)
 
-    weeks = sorted(df["weekcomm"].astype(str).unique().tolist())
-    week_idx = {w: i for i, w in enumerate(weeks)}
-
-    combo_tuples = (
-        df[["skill", "group", "metric", "level2", "flag"]]
-        .astype(str)
-        .drop_duplicates()
-        .itertuples(index=False, name=None)
-    )
-    combos = [list(t) for t in sorted(combo_tuples)]
-    combo_idx = {tuple(c): i for i, c in enumerate(combos)}
-
-    r_col = df["region"].astype(str).map(region_idx).tolist()
-    a_col = df["area_code"].astype(str).map(area_idx).tolist()
-    p_col = df["patch"].astype(str).map(patch_idx).tolist()
-    s_col = df["skill"].astype(str).tolist()
-    g_col = df["group"].astype(str).tolist()
-    m_col = df["metric"].astype(str).tolist()
-    l_col = df["level2"].astype(str).tolist()
-    f_col = df["flag"].astype(str).tolist()
-    per_col = df["period"].astype(str).map(period_idx).tolist()
-    w_col = df["weekcomm"].astype(str).map(week_idx).tolist()
-    v_col = [round(float(v), 4) if pd.notna(v) else 0.0 for v in df["value"].tolist()]
-
-    packed_rows = [
-        [p_col[i], combo_idx[(s_col[i], g_col[i], m_col[i], l_col[i], f_col[i])], per_col[i], w_col[i], v_col[i], r_col[i], a_col[i]]
-        for i in range(len(df))
-    ]
-
-    version_val = str(df["version"].iloc[0]) if "version" in df.columns and len(df) else ""
-    create_val = str(df["create_datestamp"].iloc[0]) if "create_datestamp" in df.columns and len(df) else ""
-
-    return {
-        "version": version_val,
-        "create_datestamp": create_val,
-        "regions": regions,
-        "areaCodes": area_codes,
-        "patches": patches,
-        "combos": combos,
-        "periods": periods,
-        "weeks": weeks,
-        "rows": packed_rows,
-        "rowCount": len(packed_rows),
-    }
+    return get_cached_packed_final(sig, version, None, _build)
 
 
 def _load_geography_rows(inputs: Optional[Dict[str, str]] = None) -> List[Dict[str, Any]]:
@@ -1365,8 +1350,8 @@ def get_decision_studio_bundle(scenario_id: str, engine=None, scenario_meta: Opt
     Loads ONLY final scenario data (`es_powerbi_model_checker_plan`) + `es_shiny_scenario_log`
     for Decision Studio.
     """
-    df = load_final_scenario_data(version=scenario_id, engine=engine)
-    if df.empty:
+    packed = _get_packed_final_for_version(scenario_id, engine=engine, json_safe=True)
+    if not packed or packed.get("rowCount", 0) == 0:
         raise ValueError(f"No final scenario data found in es_powerbi_model_checker_plan for '{scenario_id}'.")
 
     df_log = load_scenario_log(engine=engine)
@@ -1387,7 +1372,6 @@ def get_decision_studio_bundle(scenario_id: str, engine=None, scenario_meta: Opt
         }
 
     geog_rows = _load_geography_rows(inputs)
-    packed = _pack_final_dataframe(df)
 
     return {
         "success": True,
@@ -1410,12 +1394,11 @@ def get_scenario_diff_payload(
     Loads ONLY final scenario data (`es_powerbi_model_checker_plan`) + `es_shiny_scenario_log`
     for the Scenario Diff & Variance tab.
     """
-    df_base = load_final_scenario_data(version=baseline_version, engine=engine)
-    df_comp = load_final_scenario_data(version=comparison_version, engine=engine)
-
-    if df_base.empty:
+    packed_base = _get_packed_final_for_version(baseline_version, engine=engine, json_safe=True)
+    if not packed_base or packed_base.get("rowCount", 0) == 0:
         raise ValueError(f"No final scenario data found for baseline scenario '{baseline_version}'.")
-    if df_comp.empty:
+    packed_comp = _get_packed_final_for_version(comparison_version, engine=engine, json_safe=True)
+    if not packed_comp or packed_comp.get("rowCount", 0) == 0:
         raise ValueError(f"No final scenario data found for comparison scenario '{comparison_version}'.")
 
     df_log = load_scenario_log(engine=engine)
@@ -1437,8 +1420,8 @@ def get_scenario_diff_payload(
         "mode": "final_data",
         "baselineVersion": baseline_version,
         "comparisonVersion": comparison_version,
-        "baselineData": _pack_final_dataframe(df_base),
-        "comparisonData": _pack_final_dataframe(df_comp),
+        "baselineData": packed_base,
+        "comparisonData": packed_comp,
         "scenarioLogs": log_map,
         "geographyRows": geog_rows,
     }
@@ -1519,6 +1502,16 @@ def ensure_default_scenarios_and_final_data(force_rebuild: bool = False) -> Dict
     subcalc_paths_exist = all(get_subcalc_path(k).exists() for k in SUBCALC_SPECS)
 
     if not force_rebuild and subcalc_paths_exist and log_path.exists() and plan_path.exists() and scen_json_path.exists():
+        sig_tuple = (
+            path_signature(plan_path),
+            path_signature(log_path),
+            path_signature(scen_json_path),
+            tuple(path_signature(get_subcalc_path(k)) for k in SUBCALC_SPECS),
+            tuple(sorted(expected_ids)),
+        )
+        cached_verified = get_verified_default_state(sig_tuple)
+        if cached_verified is not None:
+            return cached_verified
         try:
             header_cols = set(pd.read_csv(plan_path, nrows=0).columns)
             if {"region", "area_code", "patch"}.issubset(header_cols):
@@ -1531,11 +1524,13 @@ def ensure_default_scenarios_and_final_data(force_rebuild: bool = False) -> Dict
                     and PLAN_START_WEEK in set(df_existing_plan["weekcomm"].astype(str))
                     and PLAN_END_WEEK in set(df_existing_plan["weekcomm"].astype(str))
                 ):
-                    return {
+                    result = {
                         "status": "existing",
                         "versions": sorted(versions),
                         "rows": len(df_existing_plan),
                     }
+                    mark_default_state_verified(sig_tuple, result)
+                    return result
         except Exception:
             pass
 
@@ -1578,6 +1573,9 @@ def ensure_default_scenarios_and_final_data(force_rebuild: bool = False) -> Dict
         df_sub = pd.concat(list(keyed_dict.values()), ignore_index=True)[cols] if keyed_dict else pd.DataFrame(columns=cols)
         df_sub.to_csv(get_subcalc_path(subcalc_key), index=False)
     scen_json_path.write_text(json.dumps(scenarios_dict, indent=2), encoding="utf-8")
+    invalidate_namespace("final_plan")
+    invalidate_namespace("subcalc_all")
+    invalidate_namespace("scenario_log")
 
     return {
         "status": "generated",

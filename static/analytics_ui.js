@@ -1830,7 +1830,9 @@ function AnalyticsWorkspace({
   baselineScenarioId,
   comparisonScenarioId,
   presentation:activePresentation,
-  onPresentationChange
+  onPresentationChange,
+  scenariosCacheBundles = {},
+  onCacheFinalBundle
 }) {
   const A = window.CapacityAnalytics;
   const V = window.AnalyticsViz;
@@ -1939,14 +1941,64 @@ function AnalyticsWorkspace({
     let disposed = false,
       timer,
       timeout;
+    const isDraft = scenarioId === '__draft';
+    const cachedCur = !isDraft && scenariosCacheBundles ? scenariosCacheBundles[scenarioId] : null;
+    const cachedBase = baselineToLoad && scenariosCacheBundles ? scenariosCacheBundles[baselineToLoad] : null;
+    if (cachedCur && cachedCur.success && (!baselineToLoad || (cachedBase && cachedBase.success))) {
+      setBusy(false);
+      setError('');
+      setBundle(cachedCur);
+      setBaseline(cachedBase || null);
+      setDetail(null);
+      return;
+    }
+    const fetchOneViaHttp = (id) => {
+      if (typeof window.__capApiFetch !== 'function') return null;
+      return new Promise((resolve) => {
+        const rid = `ds_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        window.__capApiFetch(
+          '/api/analytics_bundle',
+          { scenario_id: id, request_id: rid },
+          null,
+          null,
+          resolve,
+          resolve
+        );
+      });
+    };
     const load = () => {
-      if (!window.Shiny?.setInputValue) return;
+      if (isDraft && !window.Shiny?.setInputValue) return;
+      if (!isDraft && typeof window.__capApiFetch !== 'function' && !window.Shiny?.setInputValue) return;
       clearInterval(timer);
       setBusy(true);
       setError('');
-      setBundle(null);
-      setBaseline(null);
+      setBundle(cachedCur || null);
+      setBaseline(cachedBase || null);
       setDetail(null);
+      if (!isDraft && typeof window.__capApiFetch === 'function') {
+        const pCur = cachedCur ? Promise.resolve(cachedCur) : fetchOneViaHttp(scenarioId);
+        const pBase = baselineToLoad ? (cachedBase ? Promise.resolve(cachedBase) : fetchOneViaHttp(baselineToLoad)) : Promise.resolve(null);
+        Promise.all([pCur, pBase]).then(([curRes, baseRes]) => {
+          if (disposed) return;
+          if (curRes && !curRes.success) {
+            setError(prev => [prev, `current: ${curRes.error || 'Unable to load selected sources'}`].filter(Boolean).join(' · '));
+          } else if (curRes) {
+            setBundle(curRes);
+            if (typeof onCacheFinalBundle === 'function') onCacheFinalBundle(scenarioId, curRes);
+          }
+          if (baselineToLoad) {
+            if (baseRes && !baseRes.success) {
+              setError(prev => [prev, `baseline: ${baseRes.error || 'Unable to load selected sources'}`].filter(Boolean).join(' · '));
+            } else if (baseRes) {
+              setBaseline(baseRes);
+              if (typeof onCacheFinalBundle === 'function') onCacheFinalBundle(baselineToLoad, baseRes);
+            }
+          }
+          setBusy(false);
+        });
+        return;
+      }
+      if (!window.Shiny?.setInputValue) return;
       const stamp = `analytics-${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const loadBaseline = !!baselineToLoad;
       const requests = {[stamp + '-current']: 'current'};
@@ -1982,7 +2034,8 @@ function AnalyticsWorkspace({
       if (role === 'current') setBusy(false);
     };
     window.addEventListener('capacity-analytics-data', receive);
-    timer = setInterval(load, 250);
+    load();
+    timer = (!isDraft && typeof window.__capApiFetch === 'function') ? null : setInterval(load, 250);
     const deadline = setTimeout(() => {
       clearInterval(timer);
       if (!disposed) {

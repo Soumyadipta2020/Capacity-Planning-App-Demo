@@ -7,7 +7,9 @@ achieving a true 100% full-bleed edge-to-edge layout with zero left margin.
 
 import json
 import time
+from pathlib import Path
 from shiny import ui
+from config import EnvironmentConfig
 from data_manager import (
     DEFAULT_INPUT_OPTIONS,
     DEFAULT_REMARKS,
@@ -20,37 +22,61 @@ from data_manager import (
 from engine.data_engine import CapacityDataEngine
 from engine.scenario_data_engine import get_decision_studio_bundle, load_scenario_log
 
+def _get_static_cache_bust() -> int:
+    """Return deterministic cache-buster based on max static asset mtime so browser caches JS/CSS cleanly."""
+    import os
+    static_dir = Path(__file__).resolve().parent.parent / "static"
+    max_mtime = 0
+    try:
+        if static_dir.exists():
+            for entry in os.scandir(static_dir):
+                if entry.is_file():
+                    m = int(entry.stat().st_mtime)
+                    if m > max_mtime:
+                        max_mtime = m
+    except Exception:
+        pass
+    return max_mtime or 1
+
+
+_CACHED_UI_KEY = None
+_CACHED_UI_PAGE = None
+
+
+def get_cached_modern_ui_page():
+    """Return a cached modern UI page invalidated automatically on data or static edits."""
+    global _CACHED_UI_KEY, _CACHED_UI_PAGE
+    from engine.perf_cache import get_write_epoch, path_signature
+    from engine.scenario_data_engine import get_final_plan_path, get_scenario_log_path
+
+    ui_key = (
+        _get_static_cache_bust(),
+        EnvironmentConfig.get_environment_name(),
+        EnvironmentConfig.get_storage_mode(),
+        path_signature(EnvironmentConfig.get_data_dir() / "scenarios.json"),
+        path_signature(get_scenario_log_path()),
+        path_signature(get_final_plan_path()),
+        get_write_epoch("scenario_log"),
+        get_write_epoch("final_plan"),
+    )
+    if _CACHED_UI_PAGE is not None and _CACHED_UI_KEY == ui_key:
+        return _CACHED_UI_PAGE
+    page = create_modern_ui_page()
+    _CACHED_UI_KEY = ui_key
+    _CACHED_UI_PAGE = page
+    return page
+
+
 def create_modern_ui_page():
     """Generates the modern full-bleed HTML layout for the React client without container-fluid."""
+    import orjson
+    import pandas as pd
+
     sm = ScenarioManager()
     engine = CapacityDataEngine()
-    
-    # Pre-load initial table data for currently selected input versions
-    initial_table_data = {}
-    for cat_key, opts in DEFAULT_INPUT_OPTIONS.items():
-        if opts:
-            first_opt = opts[0]
-            try:
-                tbl = load_input_table_data(cat_key, first_opt)
-                if tbl.get("success"):
-                    initial_table_data[first_opt] = tbl
-            except Exception:
-                pass
 
     scenarios_map = sm.get_all_scenarios()
     first_scen_id = next(iter(scenarios_map), None)
-
-    # Pre-load ONLY the 6 sub-calculation datasets combined into final_data
-    initial_calc_data = {}
-    for mod_key in ["fte", "available_hours", "capacity", "demand", "workload", "imbalance"]:
-        try:
-            res = clean_for_json(get_calculation_module_data(mod_key, scenario_id=first_scen_id))
-            if first_scen_id:
-                initial_calc_data[f"{first_scen_id}::{mod_key}"] = res
-            else:
-                initial_calc_data[mod_key] = res
-        except Exception:
-            pass
 
     try:
         scenario_log_rows = clean_for_json(load_scenario_log(engine=engine).to_dict(orient="records"))
@@ -60,29 +86,41 @@ def create_modern_ui_page():
     initial_final_bundle = None
     if first_scen_id:
         try:
-            initial_final_bundle = clean_for_json(
-                get_decision_studio_bundle(first_scen_id, engine=engine, scenario_meta=scenarios_map.get(first_scen_id))
+            initial_final_bundle = get_decision_studio_bundle(
+                first_scen_id,
+                engine=engine,
+                scenario_meta=scenarios_map.get(first_scen_id),
             )
+            # For ultra-large scenarios (>350k packed rows), keep initial HTML tiny and let client stream gzipped /api/analytics_bundle
+            final_rows = (initial_final_bundle.get("finalData") or {}).get("rowCount", 0)
+            if final_rows > 350000:
+                initial_final_bundle = None
+            else:
+                initial_final_bundle["scenarioLog"] = clean_for_json(initial_final_bundle.get("scenarioLog") or {})
+                initial_final_bundle["geographyRows"] = clean_for_json(initial_final_bundle.get("geographyRows") or [])
         except Exception:
             initial_final_bundle = None
 
-    # Pre-serialize initial scenario data for the React client
+    # Keep initial payload lean: load input tables and calc modules lazily on demand via /api/* or WebSocket
     initial_data = {
-        "envInfo": engine.get_engine_status(),
-        "scenarios": scenarios_map,
+        "envInfo": clean_for_json(engine.get_engine_status()),
+        "scenarios": clean_for_json(scenarios_map),
         "scenarioLog": scenario_log_rows,
         "initialFinalBundle": initial_final_bundle,
         "inputOptions": DEFAULT_INPUT_OPTIONS,
         "remarksMap": DEFAULT_REMARKS,
-        "initialTableData": initial_table_data,
-        "initialCalcModulesData": initial_calc_data,
-        "imbalanceData": SampleDataGenerator.get_imbalance_data().to_dict(orient="records"),
-        "indayWorkloadData": SampleDataGenerator.get_inday_workload_data().to_dict(orient="records"),
-        "geographyDatasets": SampleDataGenerator.get_all_geography_files_data(),
+        "initialTableData": {},
+        "initialCalcModulesData": {},
+        "imbalanceData": clean_for_json(SampleDataGenerator.get_imbalance_data().to_dict(orient="records")),
+        "indayWorkloadData": clean_for_json(SampleDataGenerator.get_inday_workload_data().to_dict(orient="records")),
+        "geographyDatasets": clean_for_json(SampleDataGenerator.get_all_geography_files_data()),
     }
-    
-    initial_json = json.dumps(initial_data)
-    cache_bust = int(time.time())
+
+    initial_json = orjson.dumps(
+        initial_data,
+        default=lambda x: None if pd.isna(x) else str(x),
+    ).decode("utf-8")
+    cache_bust = _get_static_cache_bust()
 
     return ui.TagList(
         ui.tags.head(

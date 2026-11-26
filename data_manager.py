@@ -14,6 +14,15 @@ import numpy as np
 import pandas as pd
 
 from config import EnvironmentConfig
+from engine.perf_cache import (
+    fast_clean_for_json,
+    fast_sanitize_dataframe_for_json,
+    get_cached_calc_module,
+    get_cached_input_table,
+    get_write_epoch,
+    invalidate_namespace,
+    path_signature,
+)
 
 def clean_for_json(obj: Any) -> Any:
     """
@@ -21,17 +30,7 @@ def clean_for_json(obj: Any) -> Any:
     Replaces any float NaN, Inf, -Inf, pd.NA, or pd.NaT values with None (which serialize as 'null'),
     strictly preventing invalid non-standard 'NaN' tokens from appearing in JSON output.
     """
-    if isinstance(obj, dict):
-        return {k: clean_for_json(v) for k, v in obj.items()}
-    elif isinstance(obj, (list, tuple)):
-        return [clean_for_json(x) for x in obj]
-    elif isinstance(obj, float):
-        if math.isnan(obj) or math.isinf(obj):
-            return None
-        return obj
-    elif pd.isna(obj):
-        return None
-    return obj
+    return fast_clean_for_json(obj)
 
 def sanitize_dataframe_for_json(df: pd.DataFrame) -> Tuple[List[str], List[Dict[str, Any]]]:
     """
@@ -41,25 +40,7 @@ def sanitize_dataframe_for_json(df: pd.DataFrame) -> Tuple[List[str], List[Dict[
     """
     if df is None or not isinstance(df, pd.DataFrame) or df.empty:
         return (list(df.columns) if isinstance(df, pd.DataFrame) else []), []
-
-    columns = [str(c) for c in df.columns]
-    raw_rows = df.to_dict(orient="records")
-    clean_rows = []
-    for r in raw_rows:
-        clean_row = {}
-        for col in columns:
-            v = r.get(col)
-            if v is None:
-                clean_row[col] = None
-            elif pd.isna(v):
-                clean_row[col] = None
-            elif isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
-                clean_row[col] = None
-            else:
-                clean_row[col] = v
-        clean_rows.append(clean_row)
-        
-    return columns, clean_rows
+    return fast_sanitize_dataframe_for_json(df)
 
 # Common UK Patches and Skills from Field Capacity Planning
 PATCHES = [
@@ -971,24 +952,25 @@ def load_input_table_data(input_key: str, filename: str) -> Dict[str, Any]:
             }
             
     try:
-        if target_path.suffix.lower() in [".xlsx", ".xls"]:
-            df = pd.read_excel(target_path)
-        else:
-            df = pd.read_csv(target_path)
-            
-        # Clean null/NaN values for JSON serialization
-        columns, rows = sanitize_dataframe_for_json(df)
-        
-        return {
-            "success": True,
-            "inputKey": input_key,
-            "fileName": filename,
-            "filePath": target_path.name,
-            "columns": columns,
-            "rows": rows,
-            "totalRows": len(rows),
-            "error": None
-        }
+        def _read_and_sanitize() -> Dict[str, Any]:
+            if target_path.suffix.lower() in [".xlsx", ".xls"]:
+                df = pd.read_excel(target_path)
+            else:
+                df = pd.read_csv(target_path, low_memory=False)
+
+            columns, rows = sanitize_dataframe_for_json(df)
+            return {
+                "success": True,
+                "inputKey": input_key,
+                "fileName": filename,
+                "filePath": target_path.name,
+                "columns": columns,
+                "rows": rows,
+                "totalRows": len(rows),
+                "error": None
+            }
+
+        return get_cached_input_table(path_signature(target_path), input_key, filename, _read_and_sanitize)
     except Exception as e:
         return {
             "success": False,
@@ -1065,6 +1047,7 @@ def save_input_table_data(
             df.to_excel(target_path, index=False)
         else:
             df.to_csv(target_path, index=False)
+        invalidate_namespace("input_tables")
 
         # Route to Databricks Unity Catalog if compute is active
         try:
@@ -1281,42 +1264,61 @@ def get_calculation_module_data(module_key: str, scenario_id: Optional[str] = No
     meta = CALC_MODULE_METADATA[key]
 
     try:
-        from engine.scenario_data_engine import SUBCALC_SPECS, load_subcalc_for_scenario
+        from engine.data_engine import CapacityDataEngine
+        from engine.scenario_data_engine import (
+            SUBCALC_SPECS,
+            get_scenario_log_path,
+            get_subcalc_path,
+            load_subcalc_for_scenario,
+        )
 
         resolved_scen = str(scenario_id or "").strip()
         target_key = key if key in SUBCALC_SPECS else "imbalance"
-        df, resolved_scen, calc_key_val, _ = load_subcalc_for_scenario(target_key, scenario_id=resolved_scen or None)
-
-        if "weekcomm" in df.columns and "patch" in df.columns:
-            df = df.sort_values(["weekcomm", "patch"], kind="mergesort").reset_index(drop=True)
-
-        total_rows_full = len(df)
         max_preview_rows = 5000
-        truncated = total_rows_full > max_preview_rows
-        df_view = df.head(max_preview_rows) if truncated else df
 
-        columns, rows = sanitize_dataframe_for_json(df_view)
+        def _build_calc_payload() -> Dict[str, Any]:
+            df, res_scen, calc_key_val, _ = load_subcalc_for_scenario(target_key, scenario_id=resolved_scen or None)
 
-        return {
-            "success": True,
-            "moduleKey": key,
-            "moduleName": meta["name"],
-            "tableName": meta.get("table", ""),
-            "keyCol": meta.get("keyCol", ""),
-            "calcKey": calc_key_val,
-            "scenarioId": resolved_scen,
-            "category": meta["category"],
-            "role": meta["role"],
-            "formula": meta["formula"],
-            "feedsInto": meta["feedsInto"],
-            "inputs": meta["inputs"],
-            "columns": columns,
-            "rows": rows,
-            "totalRows": total_rows_full,
-            "shownRows": len(rows),
-            "truncated": truncated,
-            "error": None
-        }
+            if "weekcomm" in df.columns and "patch" in df.columns:
+                df = df.sort_values(["weekcomm", "patch"], kind="mergesort").reset_index(drop=True)
+
+            total_rows_full = len(df)
+            truncated = total_rows_full > max_preview_rows
+            df_view = df.head(max_preview_rows) if truncated else df
+
+            columns, rows = sanitize_dataframe_for_json(df_view)
+
+            return {
+                "success": True,
+                "moduleKey": key,
+                "moduleName": meta["name"],
+                "tableName": meta.get("table", ""),
+                "keyCol": meta.get("keyCol", ""),
+                "calcKey": calc_key_val,
+                "scenarioId": res_scen,
+                "category": meta["category"],
+                "role": meta["role"],
+                "formula": meta["formula"],
+                "feedsInto": meta["feedsInto"],
+                "inputs": meta["inputs"],
+                "columns": columns,
+                "rows": rows,
+                "totalRows": total_rows_full,
+                "shownRows": len(rows),
+                "truncated": truncated,
+                "error": None
+            }
+
+        eng = CapacityDataEngine.get_instance()
+        if eng.is_databricks_active():
+            return _build_calc_payload()
+
+        calc_sig = (
+            path_signature(get_subcalc_path(target_key)),
+            path_signature(get_scenario_log_path()),
+            get_write_epoch("scenario_log"),
+        )
+        return get_cached_calc_module(calc_sig, target_key, resolved_scen or None, max_preview_rows, _build_calc_payload)
     except Exception as e:
         return {
             "success": False,

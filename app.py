@@ -5,10 +5,16 @@ Supports Modern React 18 / Tailwind Frontend with PyShiny Backend.
 Dual Engine: PySpark on Databricks Unity Catalog (Production) vs Pandas on VS Code (Development).
 """
 
+import asyncio
 import os
 from pathlib import Path
 
+import orjson
+import pandas as pd
 from shiny import App, reactive, ui
+from starlette.middleware.gzip import GZipMiddleware
+from starlette.responses import Response
+from starlette.routing import Route
 
 from cluster_manager import register_cluster_handlers
 from config import EnvironmentConfig
@@ -39,6 +45,7 @@ from ui import (
     get_company_logo_html,
     get_env_badge_html,
 )
+from ui.modern_ui import get_cached_modern_ui_page
 
 WORKSPACE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = WORKSPACE_DIR / "static"
@@ -132,7 +139,8 @@ def create_classic_ui():
 if ui_mode == "classic":
     app_ui = create_classic_ui()
 else:
-    app_ui = create_modern_ui_page()
+    def app_ui(request):
+        return get_cached_modern_ui_page()
 
 def server(input, output, session):
     engine = CapacityDataEngine.get_instance()
@@ -162,32 +170,38 @@ def server(input, output, session):
         if not isinstance(request, dict):
             return
         request_id = request.get("requestId")
-        try:
+
+        def _compute_bundle():
             if request.get("draft"):
                 draft_inputs = request.get("inputs", {})
                 now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000+00:00")
                 log_row = build_scenario_log_row("Draft inputs", now_iso, "Unsaved draft inputs", draft_inputs)
                 df_draft = generate_scenario_final_rows("Draft inputs", now_iso, draft_inputs, log_row=log_row)
-                result = {
+                return {
                     "success": True,
                     "mode": "final_data",
                     "scenarioId": "Draft inputs",
                     "createDatestamp": now_iso,
                     "loadedAt": datetime.now(timezone.utc).isoformat(),
-                    "scenarioLog": log_row,
-                    "geographyRows": _load_geography_rows(draft_inputs),
-                    "finalData": _pack_final_dataframe(df_draft),
+                    "scenarioLog": clean_for_json(log_row),
+                    "geographyRows": clean_for_json(_load_geography_rows(draft_inputs)),
+                    "finalData": _pack_final_dataframe(df_draft, json_safe=True),
                 }
-            else:
-                scen_id = request.get("scenarioId", "")
-                scenario = sm.get_scenario(scen_id)
-                if not scenario:
-                    raise ValueError("Selected scenario no longer exists")
-                result = get_decision_studio_bundle(scen_id, engine=engine, scenario_meta=scenario)
+            scen_id = request.get("scenarioId", "")
+            scenario = sm.get_scenario(scen_id)
+            if not scenario:
+                raise ValueError("Selected scenario no longer exists")
+            bundle = get_decision_studio_bundle(scen_id, engine=engine, scenario_meta=scenario)
+            bundle["scenarioLog"] = clean_for_json(bundle.get("scenarioLog") or {})
+            bundle["geographyRows"] = clean_for_json(bundle.get("geographyRows") or [])
+            return bundle
+
+        try:
+            result = await asyncio.to_thread(_compute_bundle)
         except Exception as error:
             result = {"success": False, "error": str(error)}
         result["requestId"] = request_id
-        await session.send_custom_message("response_analytics_bundle", clean_for_json(result))
+        await session.send_custom_message("response_analytics_bundle", result)
 
     @reactive.effect
     @reactive.event(input.request_scenario_diff_data)
@@ -199,12 +213,19 @@ def server(input, output, session):
         request_id = request.get("requestId")
         baseline_id = request.get("baselineId", "")
         comparison_id = request.get("comparisonId", "")
+
+        def _compute_diff():
+            payload = get_scenario_diff_payload(baseline_id, comparison_id, engine=engine)
+            payload["scenarioLogs"] = clean_for_json(payload.get("scenarioLogs") or {})
+            payload["geographyRows"] = clean_for_json(payload.get("geographyRows") or [])
+            return payload
+
         try:
-            result = get_scenario_diff_payload(baseline_id, comparison_id, engine=engine)
+            result = await asyncio.to_thread(_compute_diff)
         except Exception as error:
             result = {"success": False, "error": str(error)}
         result["requestId"] = request_id
-        await session.send_custom_message("response_scenario_diff_data", clean_for_json(result))
+        await session.send_custom_message("response_scenario_diff_data", result)
 
     # Handle Scenario Save from React UI
     @reactive.effect
@@ -222,9 +243,9 @@ def server(input, output, session):
         remarks = data.get("remarks", "")
         inputs = data.get("inputs", {})
         
-        new_id = sm.save_scenario(plan_type, month, version, remarks, inputs, year=year)
+        new_id = await asyncio.to_thread(sm.save_scenario, plan_type, month, version, remarks, inputs, year=year)
         try:
-            log_rows = clean_for_json(load_scenario_log(engine=engine).to_dict(orient="records"))
+            log_rows = clean_for_json((await asyncio.to_thread(load_scenario_log, engine=engine)).to_dict(orient="records"))
         except Exception:
             log_rows = []
         
@@ -297,7 +318,7 @@ def server(input, output, session):
         file_name = req.get("fileName", "")
         request_id = req.get("requestId", None)
         
-        result = load_input_table_data(input_key, file_name)
+        result = await asyncio.to_thread(load_input_table_data, input_key, file_name)
         if request_id is not None:
             result["requestId"] = request_id
             
@@ -317,7 +338,7 @@ def server(input, output, session):
         columns = req.get("columns", [])
         request_id = req.get("requestId", None)
         
-        result = save_input_table_data(input_key, file_name, rows, columns)
+        result = await asyncio.to_thread(save_input_table_data, input_key, file_name, rows, columns)
         if request_id is not None:
             result["requestId"] = request_id
             
@@ -345,7 +366,7 @@ def server(input, output, session):
         scenario_id = req.get("scenarioId") or None
         request_id = req.get("requestId", None)
 
-        result = get_calculation_module_data(module_key, scenario_id=scenario_id)
+        result = await asyncio.to_thread(get_calculation_module_data, module_key, scenario_id=scenario_id)
         if request_id is not None:
             result["requestId"] = request_id
             
@@ -385,8 +406,101 @@ def server(input, output, session):
     # Register standard PyShiny server handlers (calculators, downloads, classic views)
     register_server_handlers(input, output, session)
 
-# Instantiate App with static assets path
+# ---------------------------------------------------------------------------
+# Fast GZip + orjson HTTP API Endpoints (bypasses slow WebSocket framing)
+# ---------------------------------------------------------------------------
+
+
+def _orjson_response(payload: dict, status_code: int = 200) -> Response:
+    body = orjson.dumps(payload, default=lambda x: None if pd.isna(x) else str(x))
+    return Response(
+        body,
+        status_code=status_code,
+        media_type="application/json",
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+async def _api_analytics_bundle(request):
+    from engine.scenario_data_engine import get_decision_studio_bundle
+
+    scenario_id = (request.query_params.get("scenario_id") or "").strip()
+    request_id = request.query_params.get("request_id")
+
+    def _run():
+        sm = ScenarioManager()
+        engine = CapacityDataEngine.get_instance()
+        scenario = sm.get_scenario(scenario_id)
+        if not scenario:
+            raise ValueError("Selected scenario no longer exists")
+        return get_decision_studio_bundle(scenario_id, engine=engine, scenario_meta=scenario)
+
+    try:
+        result = await asyncio.to_thread(_run)
+        if request_id is not None:
+            result["requestId"] = request_id
+        return _orjson_response(result)
+    except Exception as exc:
+        return _orjson_response({"success": False, "error": str(exc), "requestId": request_id}, status_code=200)
+
+
+async def _api_scenario_diff(request):
+    from engine.scenario_data_engine import get_scenario_diff_payload
+
+    baseline_id = (request.query_params.get("baseline_id") or "").strip()
+    comparison_id = (request.query_params.get("comparison_id") or "").strip()
+    request_id = request.query_params.get("request_id")
+
+    def _run():
+        engine = CapacityDataEngine.get_instance()
+        return get_scenario_diff_payload(baseline_id, comparison_id, engine=engine)
+
+    try:
+        result = await asyncio.to_thread(_run)
+        if request_id is not None:
+            result["requestId"] = request_id
+        return _orjson_response(result)
+    except Exception as exc:
+        return _orjson_response({"success": False, "error": str(exc), "requestId": request_id}, status_code=200)
+
+
+async def _api_input_file(request):
+    category = (request.query_params.get("category") or "").strip()
+    version = (request.query_params.get("version") or "").strip()
+    request_id = request.query_params.get("request_id")
+    try:
+        result = await asyncio.to_thread(load_input_table_data, category, version)
+        if request_id is not None:
+            result["requestId"] = request_id
+        return _orjson_response(result)
+    except Exception as exc:
+        return _orjson_response({"success": False, "error": str(exc), "requestId": request_id}, status_code=200)
+
+
+async def _api_calc_module(request):
+    module_key = (request.query_params.get("module") or "imbalance").strip()
+    scenario_id = (request.query_params.get("scenario_id") or "").strip() or None
+    request_id = request.query_params.get("request_id")
+    try:
+        result = await asyncio.to_thread(get_calculation_module_data, module_key, scenario_id=scenario_id)
+        if request_id is not None:
+            result["requestId"] = request_id
+        return _orjson_response(result)
+    except Exception as exc:
+        return _orjson_response({"success": False, "error": str(exc), "requestId": request_id}, status_code=200)
+
+
+# Instantiate App with static assets path + GZip + HTTP API routes
 app = App(app_ui, server, static_assets=STATIC_DIR)
+_api_routes = [
+    Route("/api/analytics_bundle", _api_analytics_bundle, methods=["GET"]),
+    Route("/api/scenario_diff", _api_scenario_diff, methods=["GET"]),
+    Route("/api/input_file", _api_input_file, methods=["GET"]),
+    Route("/api/calc_module", _api_calc_module, methods=["GET"]),
+]
+app.starlette_app.routes[:0] = _api_routes
+app.starlette_app.add_middleware(GZipMiddleware, minimum_size=1024, compresslevel=3)
+app.starlette_app.middleware_stack = app.starlette_app.build_middleware_stack()
 
 if __name__ == "__main__":
     import uvicorn

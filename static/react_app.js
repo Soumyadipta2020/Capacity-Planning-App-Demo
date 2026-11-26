@@ -5,6 +5,48 @@
 
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
+// Shared fast HTTP GZip + orjson API fetcher (with transparent Shiny WebSocket fallback)
+window.__capApiFetch = window.__capApiFetch || function __capApiFetch(apiPath, params, fallbackInputName, fallbackPayload, onSuccess, onError) {
+    try {
+        if (typeof window !== 'undefined' && window.fetch && window.location && /^https?:$/i.test(window.location.protocol)) {
+            const qs = new URLSearchParams();
+            Object.entries(params || {}).forEach(([k, v]) => {
+                if (v !== undefined && v !== null && v !== '') qs.set(k, String(v));
+            });
+            const url = `${apiPath}?${qs.toString()}`;
+            window.fetch(url, { credentials: 'same-origin' })
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.success) {
+                        onSuccess(data);
+                    } else if (data && data.error && onError) {
+                        onError(data);
+                    } else if (window.Shiny && window.Shiny.setInputValue && fallbackInputName) {
+                        window.Shiny.setInputValue(fallbackInputName, fallbackPayload, { priority: 'event' });
+                    } else if (onError) {
+                        onError(data || { success: false, error: 'Request failed' });
+                    }
+                })
+                .catch(() => {
+                    if (window.Shiny && window.Shiny.setInputValue && fallbackInputName) {
+                        window.Shiny.setInputValue(fallbackInputName, fallbackPayload, { priority: 'event' });
+                    } else if (onError) {
+                        onError({ success: false, error: 'Failed to load data' });
+                    }
+                });
+            return;
+        }
+    } catch (e) {}
+    if (window.Shiny && window.Shiny.setInputValue && fallbackInputName) {
+        window.Shiny.setInputValue(fallbackInputName, fallbackPayload, { priority: 'event' });
+    } else if (onError) {
+        onError({ success: false, error: 'Backend bridge unavailable' });
+    }
+};
+
 // ================================================================================================
 // MODERN SVG ICON COMPONENTS WITH CRISP VECTOR STYLING
 // ================================================================================================
@@ -992,25 +1034,22 @@ function ModernCapacityApp() {
     useEffect(() => {
         if (!selectedScenarioId || finalBundleCache[selectedScenarioId]) return;
         let disposed = false;
-        let timer = null;
-        const attempt = () => {
-            if (disposed || !window.Shiny?.setInputValue) return;
-            clearInterval(timer);
-            const reqId = `insights-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-            window.Shiny.setInputValue('request_analytics_bundle', {
-                requestId: reqId,
-                scenarioId: selectedScenarioId,
-                draft: false
-            }, { priority: 'event' });
-        };
-        if (window.Shiny?.setInputValue) {
-            attempt();
-        } else {
-            timer = setInterval(attempt, 300);
+        const reqId = `insights-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        if (typeof window.__capApiFetch === 'function') {
+            window.__capApiFetch(
+                '/api/analytics_bundle',
+                { scenario_id: selectedScenarioId, request_id: reqId },
+                'request_analytics_bundle',
+                { requestId: reqId, scenarioId: selectedScenarioId, draft: false },
+                (data) => {
+                    if (!disposed && data && data.success && data.scenarioId) {
+                        setFinalBundleCache(prev => ({ ...prev, [data.scenarioId]: data }));
+                    }
+                }
+            );
         }
         return () => {
             disposed = true;
-            if (timer) clearInterval(timer);
         };
     }, [selectedScenarioId, finalBundleCache]);
 
@@ -1034,20 +1073,36 @@ function ModernCapacityApp() {
         setSelectedCalcModule(mod);
         if (calcModulesCache[cacheKey]) return;
         setIsCalcLoading(true);
-        if (window.Shiny && window.Shiny.setInputValue) {
-            window.Shiny.setInputValue('request_calc_module_data', {
-                moduleKey: mod,
-                scenarioId: scenId,
-                requestId: Date.now()
-            }, { priority: 'event' });
+        let resolved = false;
+        const reqId = `calc_${mod}_${Date.now()}`;
+        if (typeof window.__capApiFetch === 'function') {
+            window.__capApiFetch(
+                '/api/calc_module',
+                { module: mod, scenario_id: scenId || '', request_id: reqId },
+                'request_calc_module_data',
+                { moduleKey: mod, scenarioId: scenId, requestId: reqId },
+                (data) => {
+                    resolved = true;
+                    if (data && data.moduleKey) {
+                        const resKey = `${data.scenarioId || scenId || 'default'}::${data.moduleKey}`;
+                        setCalcModulesCache(prev => ({ ...prev, [resKey]: data }));
+                    }
+                    setIsCalcLoading(false);
+                },
+                () => {
+                    resolved = true;
+                    setIsCalcLoading(false);
+                }
+            );
         }
         setTimeout(() => {
+            if (resolved) return;
             setCalcModulesCache(prev => {
                 if (prev[cacheKey]) return prev;
                 return { ...prev, [cacheKey]: getClientFallbackCalcModule(mod, scenId) };
             });
             setIsCalcLoading(false);
-        }, 1200);
+        }, 4000);
     };
 
     // Current scenario object
@@ -1761,6 +1816,12 @@ function ModernCapacityApp() {
                             comparisonScenarioId={analyticsComparisonScenarioId}
                             presentation={decisionStudioView}
                             onPresentationChange={setDecisionStudioView}
+                            scenariosCacheBundles={finalBundleCache}
+                            onCacheFinalBundle={(id, data) => {
+                                if (id && data && data.success) {
+                                    setFinalBundleCache(prev => (prev[id] === data ? prev : { ...prev, [id]: data }));
+                                }
+                            }}
                         />
                     )}
                     {/* TAB 1: EXECUTIVE SCENARIO INSIGHTS (HOMEPAGE) */}
@@ -3336,21 +3397,198 @@ function getIsoWeekNumber(isoDate) {
     return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 }
 
+function _isPackedFinalData(finalData) {
+    return Boolean(
+        finalData &&
+        Array.isArray(finalData.rows) &&
+        Array.isArray(finalData.combos) &&
+        Array.isArray(finalData.patches) &&
+        Array.isArray(finalData.weeks) &&
+        Array.isArray(finalData.periods) &&
+        (finalData.rows.length === 0 || Array.isArray(finalData.rows[0]))
+    );
+}
+
 function ScenarioExecutiveInsightsView({ scenario, finalBundle = null, onConfigureInputs, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, trajectoryStartDate: propStartDate, setTrajectoryStartDate: propSetStartDate, trajectoryEndDate: propEndDate, setTrajectoryEndDate: propSetEndDate, showToast }) {
     const fallbackAnalytics = useMemo(() => computeScenarioAnalytics(scenario), [scenario]);
-    const finalRows = useMemo(() => unpackFinalScenarioData(finalBundle?.finalData), [finalBundle]);
-    const isFinalReady = finalRows.length > 0;
+    const finalDataRaw = finalBundle?.finalData;
+    const isPackedFinal = useMemo(() => _isPackedFinalData(finalDataRaw), [finalDataRaw]);
+    const fallbackUnpackedRows = useMemo(
+        () => (isPackedFinal || !finalDataRaw ? [] : unpackFinalScenarioData(finalDataRaw)),
+        [isPackedFinal, finalDataRaw]
+    );
 
-    // Derive full weekly horizon (e.g., 2026-11-02 to 2027-12-27) from es_powerbi_model_checker_plan
-    const horizonWeeks = useMemo(() => {
-        if (!isFinalReady) return TRAJECTORY_HORIZON_WEEKS;
-        const set = new Set();
-        for (const r of finalRows) {
-            if (r.period === 'W' && r.weekcomm) set.add(r.weekcomm);
+    // Pre-aggregate once per bundle cleanly without allocating 271k JS objects
+    const packedHorizonAgg = useMemo(() => {
+        const availLossMetrics = new Set(['Holiday', 'Sickness', 'Training', 'Meeting', 'Other']);
+        const weekMap = new Map();
+        const byWeekDetails = new Map();
+        const ensureWeek = (w) => {
+            if (!weekMap.has(w)) {
+                weekMap.set(w, {
+                    demand: 0, capacity: 0, grossHrs: 0, downtime: 0, fte: 0,
+                    weekNum: getIsoWeekNumber(w), label: formatWeekShortLabel(w)
+                });
+                byWeekDetails.set(w, {
+                    totalDemand: 0, totalCapacity: 0, totalGross: 0, totalDowntime: 0,
+                    areas: new Set(), regions: new Map(), patches: new Map()
+                });
+            }
+            return [weekMap.get(w), byWeekDetails.get(w)];
+        };
+
+        if (isPackedFinal && finalDataRaw.rows.length > 0) {
+            const periods = finalDataRaw.periods || [];
+            const weeks = finalDataRaw.weeks || [];
+            const regions = finalDataRaw.regions || [];
+            const areaCodes = finalDataRaw.areaCodes || [];
+            const patches = finalDataRaw.patches || [];
+            const combos = finalDataRaw.combos || [];
+            const rows = finalDataRaw.rows || [];
+            const wPerIdx = periods.indexOf('W');
+            if (wPerIdx !== -1) {
+                // Classify each combo once (~75 combos instead of 271k rows)
+                const comboOp = new Int8Array(combos.length); // 0=skip, 1=dem, 2=cap, 3=gross, 4=fte, 5=dt
+                for (let c = 0; c < combos.length; c++) {
+                    const cb = combos[c];
+                    const skill = cb[0];
+                    if (skill !== 'HEC' && skill !== 'KAC') continue;
+                    const metric = cb[2];
+                    const flag = cb[4];
+                    if (flag === 'Demand Hours') comboOp[c] = 1;
+                    else if (flag === 'Capacity Hours') comboOp[c] = 2;
+                    else if (flag === 'Available Hours' && metric === 'Gross Hrs') comboOp[c] = 3;
+                    else if (flag === 'FTE') comboOp[c] = 4;
+                    else if (flag === 'Downtime Overlay Hours' || (flag === 'Available Hours' && availLossMetrics.has(metric))) comboOp[c] = 5;
+                }
+                const weekBuckets = new Array(weeks.length);
+                const weekDetailBuckets = new Array(weeks.length);
+                for (let i = 0; i < rows.length; i++) {
+                    const r = rows[i];
+                    if (r[2] !== wPerIdx) continue;
+                    const op = comboOp[r[1]];
+                    if (op === 0) continue;
+                    const wIdx = r[3];
+                    let wm = weekBuckets[wIdx];
+                    let wd;
+                    if (!wm) {
+                        const wStr = weeks[wIdx];
+                        if (!wStr) continue;
+                        [wm, wd] = ensureWeek(wStr);
+                        weekBuckets[wIdx] = wm;
+                        weekDetailBuckets[wIdx] = wd;
+                    } else {
+                        wd = weekDetailBuckets[wIdx];
+                    }
+                    const val = Number(r[4]) || 0;
+                    if (op === 4) {
+                        wm.fte += val;
+                        continue;
+                    }
+                    const aIdx = r.length > 6 ? r[6] : -1;
+                    const areaCode = aIdx >= 0 ? (areaCodes[aIdx] || '') : '';
+                    const regIdx = r.length > 5 ? r[5] : -1;
+                    const regName = (regIdx >= 0 && regions[regIdx]) ? regions[regIdx] : 'Unmapped';
+                    const pName = patches[r[0]] || 'Unknown';
+                    if (areaCode) wd.areas.add(areaCode);
+                    let rSt = wd.regions.get(regName);
+                    if (!rSt) {
+                        rSt = { demand: 0, capacity: 0, areas: new Set() };
+                        wd.regions.set(regName, rSt);
+                    }
+                    if (areaCode) rSt.areas.add(areaCode);
+                    let pSt = wd.patches.get(pName);
+                    if (!pSt) {
+                        pSt = { demand: 0, capacity: 0 };
+                        wd.patches.set(pName, pSt);
+                    }
+                    if (op === 1) {
+                        wm.demand += val;
+                        wd.totalDemand += val;
+                        rSt.demand += val;
+                        pSt.demand += val;
+                    } else if (op === 2) {
+                        wm.capacity += val;
+                        wd.totalCapacity += val;
+                        rSt.capacity += val;
+                        pSt.capacity += val;
+                    } else if (op === 3) {
+                        wm.grossHrs += val;
+                        wd.totalGross += val;
+                    } else if (op === 5) {
+                        wm.downtime += val;
+                        wd.totalDowntime += val;
+                    }
+                }
+            }
+        } else if (fallbackUnpackedRows.length > 0) {
+            for (let i = 0; i < fallbackUnpackedRows.length; i++) {
+                const r = fallbackUnpackedRows[i];
+                if (r.period !== 'W' || !r.weekcomm) continue;
+                const isCoreSkill = r.skill === 'HEC' || r.skill === 'KAC';
+                if (!isCoreSkill) continue;
+                const [wm, wd] = ensureWeek(r.weekcomm);
+                const val = Number(r.value) || 0;
+                if (r.flag === 'FTE') {
+                    wm.fte += val;
+                    continue;
+                }
+                if (r.area_code) wd.areas.add(r.area_code);
+                const regName = r.region || 'Unmapped';
+                let rSt = wd.regions.get(regName);
+                if (!rSt) {
+                    rSt = { demand: 0, capacity: 0, areas: new Set() };
+                    wd.regions.set(regName, rSt);
+                }
+                if (r.area_code) rSt.areas.add(r.area_code);
+                const pName = r.patch || 'Unknown';
+                let pSt = wd.patches.get(pName);
+                if (!pSt) {
+                    pSt = { demand: 0, capacity: 0 };
+                    wd.patches.set(pName, pSt);
+                }
+                if (r.flag === 'Demand Hours') {
+                    wm.demand += val; wd.totalDemand += val; rSt.demand += val; pSt.demand += val;
+                } else if (r.flag === 'Capacity Hours') {
+                    wm.capacity += val; wd.totalCapacity += val; rSt.capacity += val; pSt.capacity += val;
+                } else if (r.flag === 'Available Hours' && r.metric === 'Gross Hrs') {
+                    wm.grossHrs += val; wd.totalGross += val;
+                } else if (r.flag === 'Downtime Overlay Hours' || (r.flag === 'Available Hours' && availLossMetrics.has(r.metric))) {
+                    wm.downtime += val; wd.totalDowntime += val;
+                }
+            }
         }
-        const sorted = Array.from(set).sort();
-        return sorted.length > 0 ? sorted : TRAJECTORY_HORIZON_WEEKS;
-    }, [finalRows, isFinalReady]);
+
+        const horizonWeeksSorted = Array.from(weekMap.keys()).sort();
+        const weeklyTrajectoryMeta = {};
+        for (const w of horizonWeeksSorted) {
+            const m = weekMap.get(w);
+            const eff = m.grossHrs > 0 ? Number(((m.capacity / m.grossHrs) * 100).toFixed(1)) : 88.0;
+            const imbFte = Number(((m.capacity - m.demand) / 37.5).toFixed(1));
+            weeklyTrajectoryMeta[w] = {
+                demand: Math.round(m.demand),
+                capacity: Math.round(m.capacity),
+                grossHrs: Math.round(m.grossHrs),
+                downtime: Math.round(m.downtime),
+                fte: Number(m.fte.toFixed(1)),
+                efficiency: eff,
+                imbalanceFte: imbFte,
+                weekNum: m.weekNum,
+                label: m.label
+            };
+        }
+
+        return {
+            isFinalReady: horizonWeeksSorted.length > 0,
+            horizonWeeks: horizonWeeksSorted,
+            weekMap,
+            byWeekDetails,
+            weeklyTrajectoryMeta,
+        };
+    }, [isPackedFinal, finalDataRaw, fallbackUnpackedRows]);
+
+    const isFinalReady = packedHorizonAgg.isFinalReady;
+    const horizonWeeks = isFinalReady ? packedHorizonAgg.horizonWeeks : TRAJECTORY_HORIZON_WEEKS;
 
     const trajectoryStartDate = propStartDate || "2026-11-02";
     const setTrajectoryStartDate = propSetStartDate || (() => {});
@@ -3374,21 +3612,7 @@ function ScenarioExecutiveInsightsView({ scenario, finalBundle = null, onConfigu
     const analytics = useMemo(() => {
         if (!isFinalReady) return fallbackAnalytics;
 
-        const weekMap = new Map();
-        horizonWeeks.forEach(w => {
-            weekMap.set(w, {
-                demand: 0,
-                capacity: 0,
-                grossHrs: 0,
-                downtime: 0,
-                fte: 0,
-                weekNum: getIsoWeekNumber(w),
-                label: formatWeekShortLabel(w)
-            });
-        });
-
-        const availLossMetrics = new Set(['Holiday', 'Sickness', 'Training', 'Meeting', 'Other']);
-        const visibleSet = new Set(visibleTrajectoryWeeks);
+        const { weekMap, byWeekDetails, weeklyTrajectoryMeta } = packedHorizonAgg;
         const regionStats = new Map();
         const patchStats = new Map();
         const areaSet = new Set();
@@ -3398,81 +3622,36 @@ function ScenarioExecutiveInsightsView({ scenario, finalBundle = null, onConfigu
         let totalGross = 0;
         let totalDowntime = 0;
 
-        for (let i = 0; i < finalRows.length; i++) {
-            const r = finalRows[i];
-            if (r.period !== 'W' || !r.weekcomm) continue;
-            const wm = weekMap.get(r.weekcomm);
-            if (!wm) continue;
-            const val = Number(r.value) || 0;
-            const isCoreSkill = r.skill === 'HEC' || r.skill === 'KAC';
-
-            if (r.flag === 'Demand Hours' && isCoreSkill) {
-                wm.demand += val;
-            } else if (r.flag === 'Capacity Hours' && isCoreSkill) {
-                wm.capacity += val;
-            } else if (r.flag === 'Available Hours' && r.metric === 'Gross Hrs' && isCoreSkill) {
-                wm.grossHrs += val;
-            } else if (r.flag === 'FTE' && isCoreSkill) {
-                wm.fte += val;
-            } else if (
-                r.flag === 'Downtime Overlay Hours' ||
-                (r.flag === 'Available Hours' && availLossMetrics.has(r.metric))
-            ) {
-                wm.downtime += val;
-            }
-
-            if (!visibleSet.has(r.weekcomm) || !isCoreSkill) continue;
-
-            if (r.area_code) areaSet.add(r.area_code);
-            const regName = r.region || 'Unmapped';
-            if (!regionStats.has(regName)) {
-                regionStats.set(regName, { demand: 0, capacity: 0, areas: new Set() });
-            }
-            const rSt = regionStats.get(regName);
-            if (r.area_code) rSt.areas.add(r.area_code);
-
-            const pName = r.patch || 'Unknown';
-            if (!patchStats.has(pName)) {
-                patchStats.set(pName, { demand: 0, capacity: 0 });
-            }
-            const pSt = patchStats.get(pName);
-
-            if (r.flag === 'Demand Hours') {
-                totalDemand += val;
-                rSt.demand += val;
-                pSt.demand += val;
-            } else if (r.flag === 'Capacity Hours') {
-                totalCapacity += val;
-                rSt.capacity += val;
-                pSt.capacity += val;
-            } else if (r.flag === 'Available Hours' && r.metric === 'Gross Hrs') {
-                totalGross += val;
-            } else if (
-                r.flag === 'Downtime Overlay Hours' ||
-                (r.flag === 'Available Hours' && availLossMetrics.has(r.metric))
-            ) {
-                totalDowntime += val;
-            }
+        for (let i = 0; i < visibleTrajectoryWeeks.length; i++) {
+            const wd = byWeekDetails.get(visibleTrajectoryWeeks[i]);
+            if (!wd) continue;
+            totalDemand += wd.totalDemand;
+            totalCapacity += wd.totalCapacity;
+            totalGross += wd.totalGross;
+            totalDowntime += wd.totalDowntime;
+            wd.areas.forEach(a => areaSet.add(a));
+            wd.regions.forEach((st, regName) => {
+                let agg = regionStats.get(regName);
+                if (!agg) {
+                    agg = { demand: 0, capacity: 0, areas: new Set() };
+                    regionStats.set(regName, agg);
+                }
+                agg.demand += st.demand;
+                agg.capacity += st.capacity;
+                st.areas.forEach(a => agg.areas.add(a));
+            });
+            wd.patches.forEach((st, pName) => {
+                let agg = patchStats.get(pName);
+                if (!agg) {
+                    agg = { demand: 0, capacity: 0 };
+                    patchStats.set(pName, agg);
+                }
+                agg.demand += st.demand;
+                agg.capacity += st.capacity;
+            });
         }
 
         const nWeeks = Math.max(1, visibleTrajectoryWeeks.length);
-        const weeklyTrajectoryMeta = {};
-        for (const w of horizonWeeks) {
-            const m = weekMap.get(w);
-            const eff = m.grossHrs > 0 ? Number(((m.capacity / m.grossHrs) * 100).toFixed(1)) : 88.0;
-            const imbFte = Number(((m.capacity - m.demand) / 37.5).toFixed(1));
-            weeklyTrajectoryMeta[w] = {
-                demand: Math.round(m.demand),
-                capacity: Math.round(m.capacity),
-                grossHrs: Math.round(m.grossHrs),
-                downtime: Math.round(m.downtime),
-                fte: Number(m.fte.toFixed(1)),
-                efficiency: eff,
-                imbalanceFte: imbFte,
-                weekNum: m.weekNum,
-                label: m.label
-            };
-        }
 
         const totDemRound = Math.round(totalDemand);
         const netCapRound = Math.round(totalCapacity);
@@ -3608,7 +3787,7 @@ function ScenarioExecutiveInsightsView({ scenario, finalBundle = null, onConfigu
             },
             weeklyTrajectoryMeta
         };
-    }, [isFinalReady, fallbackAnalytics, finalRows, horizonWeeks, visibleTrajectoryWeeks, finalBundle]);
+    }, [isFinalReady, fallbackAnalytics, packedHorizonAgg, visibleTrajectoryWeeks, finalBundle]);
 
     const TRAJECTORY_WEEK_META = analytics.weeklyTrajectoryMeta;
 
@@ -6100,9 +6279,30 @@ function InputTableViewModal({
         });
     };
 
+    // O(1) lookup maps to prevent O(rows * cols) re-scans on mousemove/click/render
+    const rowIndexById = useMemo(() => {
+        const m = new Map();
+        for (let i = 0; i < tableRows.length; i++) {
+            m.set(tableRows[i].__rowId, i);
+        }
+        return m;
+    }, [tableRows]);
+
+    const selectedCountByCol = useMemo(() => {
+        const counts = Object.create(null);
+        selectedCellKeys.forEach(k => {
+            const sep = k.indexOf('__');
+            if (sep !== -1) {
+                const c = k.slice(sep + 2);
+                counts[c] = (counts[c] || 0) + 1;
+            }
+        });
+        return counts;
+    }, [selectedCellKeys]);
+
     // Cell Selection Coordinates
     const selectedColIndex = selectedCell ? columns.indexOf(selectedCell.colKey) : -1;
-    const selectedRowIndex = selectedCell ? tableRows.findIndex(r => r.__rowId === selectedCell.rowId) : -1;
+    const selectedRowIndex = selectedCell ? (rowIndexById.has(selectedCell.rowId) ? rowIndexById.get(selectedCell.rowId) : -1) : -1;
 
     const cellCoordinateLabel = selectedCell && selectedColIndex >= 0 && selectedRowIndex >= 0
         ? `${getColumnLetter(selectedColIndex)}${selectedRowIndex + 1}`
@@ -6111,23 +6311,24 @@ function InputTableViewModal({
     const handleSelectCell = useCallback((rowId, colKey) => {
         setSelectedCell({ rowId, colKey });
         setSelectedCellKeys(new Set([`${rowId}__${colKey}`]));
-        const rIdx = tableRows.findIndex(r => r.__rowId === rowId);
+        const rIdx = rowIndexById.has(rowId) ? rowIndexById.get(rowId) : -1;
         const cIdx = columns.indexOf(colKey);
         if (rIdx >= 0 && cIdx >= 0) {
             setAnchorCell({ rIdx, cIdx, rowId, colKey });
             setAnchorRowIdx(rIdx);
             setAnchorColIdx(cIdx);
         }
-        const row = tableRows.find(r => r.__rowId === rowId);
+        const row = rIdx >= 0 ? tableRows[rIdx] : null;
         const val = row ? row[colKey] : '';
         setFormulaBarValue(val === null || val === undefined ? '' : String(val));
-    }, [tableRows, columns]);
+    }, [tableRows, columns, rowIndexById]);
 
     const handleStartCellEdit = (rowId, colKey, initialText) => {
         setIsEditMode(true);
         handleSelectCell(rowId, colKey);
         setEditingCell({ rowId, colKey });
-        const row = tableRows.find(r => r.__rowId === rowId);
+        const rIdx = rowIndexById.has(rowId) ? rowIndexById.get(rowId) : -1;
+        const row = rIdx >= 0 ? tableRows[rIdx] : null;
         const val = initialText !== undefined ? initialText : (row ? row[colKey] : '');
         setCellDraftValue(val === null || val === undefined ? '' : String(val));
         setFormulaBarValue(val === null || val === undefined ? '' : String(val));
@@ -6180,7 +6381,7 @@ function InputTableViewModal({
         if (editingCell) return;
         if (e.button !== 0) return; // Left mouse only
 
-        const rIdx = tableRows.findIndex(r => r.__rowId === rowId);
+        const rIdx = rowIndexById.has(rowId) ? rowIndexById.get(rowId) : -1;
         const cIdx = columns.indexOf(colKey);
         if (rIdx === -1 || cIdx === -1) return;
 
@@ -6243,7 +6444,7 @@ function InputTableViewModal({
     const handleCellMouseEnter = (rowId, colKey) => {
         if (!isMouseDown || dragType !== 'cell' || !anchorCell) return;
 
-        const rIdx = tableRows.findIndex(r => r.__rowId === rowId);
+        const rIdx = rowIndexById.has(rowId) ? rowIndexById.get(rowId) : -1;
         const cIdx = columns.indexOf(colKey);
         if (rIdx === -1 || cIdx === -1) return;
 
@@ -6307,9 +6508,9 @@ function InputTableViewModal({
 
         // Normal Click: Select entire column across all rows
         const newSet = new Set();
-        tableRows.forEach(r => {
-            newSet.add(`${r.__rowId}__${colKey}`);
-        });
+        for (let i = 0; i < tableRows.length; i++) {
+            newSet.add(`${tableRows[i].__rowId}__${colKey}`);
+        }
         setSelectedCellKeys(newSet);
         setAnchorColIdx(cIdx);
         setAnchorRowIdx(null);
@@ -6331,18 +6532,19 @@ function InputTableViewModal({
         const minC = Math.min(anchorColIdx, cIdx);
         const maxC = Math.max(anchorColIdx, cIdx);
         const newSet = new Set();
-        tableRows.forEach(r => {
+        for (let r = 0; r < tableRows.length; r++) {
+            const rId = tableRows[r].__rowId;
             for (let c = minC; c <= maxC; c++) {
-                newSet.add(`${r.__rowId}__${columns[c]}`);
+                newSet.add(`${rId}__${columns[c]}`);
             }
-        });
+        }
         setSelectedCellKeys(newSet);
     };
 
     // 5. Row Header Mouse Down (Click, Shift+Click, Ctrl+Click, Drag)
     const handleRowHeaderMouseDown = (e, rowId) => {
         if (e.button !== 0) return;
-        const rIdx = tableRows.findIndex(r => r.__rowId === rowId);
+        const rIdx = rowIndexById.has(rowId) ? rowIndexById.get(rowId) : -1;
         if (rIdx === -1) return;
 
         // Shift + Click: Select range of rows across all columns!
@@ -6909,7 +7111,7 @@ function InputTableViewModal({
 
         if (!selectedCell) return;
 
-        const curRIdx = tableRows.findIndex(r => r.__rowId === selectedCell.rowId);
+        const curRIdx = rowIndexById.has(selectedCell.rowId) ? rowIndexById.get(selectedCell.rowId) : -1;
         const curCIdx = columns.indexOf(selectedCell.colKey);
         if (curRIdx === -1 || curCIdx === -1) return;
 
@@ -7917,8 +8119,9 @@ function InputTableViewModal({
                                     </th>
                                     {columns.map((col, cIdx) => {
                                         const isSorted = sortConfig.key === col;
-                                        const isColFullySelected = tableRows.length > 0 && tableRows.every(r => selectedCellKeys.has(`${r.__rowId}__${col}`));
-                                        const isColPartiallySelected = !isColFullySelected && tableRows.some(r => selectedCellKeys.has(`${r.__rowId}__${col}`));
+                                        const colSelCount = selectedCountByCol[col] || 0;
+                                        const isColFullySelected = tableRows.length > 0 && colSelCount === tableRows.length;
+                                        const isColPartiallySelected = !isColFullySelected && colSelCount > 0;
                                         const colLetter = getColumnLetter(cIdx);
                                         return (
                                             <th
@@ -9534,24 +9737,31 @@ function ScenarioInputsStudioView({
         if (!targetFile) return;
         if (tableDataCache[targetFile] && tableDataCache[targetFile].rows) return;
 
-        if (window.Shiny && window.Shiny.setInputValue) {
-            window.Shiny.setInputValue('request_input_file_data', {
-                inputKey: inputKey,
-                fileName: targetFile,
-                requestId: Date.now()
-            }, { priority: 'event' });
-        }
+        const reqId = `inp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        let done = false;
+        window.__capApiFetch(
+            '/api/input_file',
+            { category: inputKey, version: targetFile, request_id: reqId },
+            'request_input_file_data',
+            { inputKey: inputKey, fileName: targetFile, requestId: reqId },
+            (data) => {
+                done = true;
+                if (setTableDataCache && data && data.fileName) {
+                    setTableDataCache(prev => ({ ...prev, [data.fileName]: data }));
+                }
+            }
+        );
 
-        // Guaranteed fallback if server connection is detached or delayed
+        // Guaranteed fallback only if server connection is detached or delayed
         setTimeout(() => {
-            if (setTableDataCache) {
+            if (!done && setTableDataCache) {
                 setTableDataCache(prev => {
                     if (prev[targetFile] && prev[targetFile].rows) return prev;
                     const fallbackTbl = generateClientFallbackTable(inputKey, targetFile);
                     return { ...prev, [targetFile]: fallbackTbl };
                 });
             }
-        }, 1200);
+        }, 4000);
     };
 
     // Helper to open the compare modal directly for any input
@@ -9626,7 +9836,7 @@ function ScenarioInputsStudioView({
             return;
         }
 
-        // Open modal in loading state and request from PyShiny backend
+        // Open modal in loading state and fetch via fast /api/input_file (with PyShiny WS fallback)
         setViewModalState({
             isOpen: true,
             inputKey: inputKey,
@@ -9637,16 +9847,25 @@ function ScenarioInputsStudioView({
             error: null
         });
 
-        if (window.Shiny && window.Shiny.setInputValue) {
-            window.Shiny.setInputValue('request_input_file_data', {
-                inputKey: inputKey,
-                fileName: targetFile,
-                requestId: Date.now()
-            }, { priority: 'event' });
-        }
+        let done = false;
+        const reqId = `modal_${Date.now()}`;
+        window.__capApiFetch(
+            '/api/input_file',
+            { category: inputKey, version: targetFile, request_id: reqId },
+            'request_input_file_data',
+            { inputKey: inputKey, fileName: targetFile, requestId: reqId },
+            (data) => {
+                done = true;
+                if (setTableDataCache && data && data.fileName) {
+                    setTableDataCache(prev => ({ ...prev, [data.fileName]: data }));
+                }
+                setViewModalState(curr => (curr.isOpen && curr.fileName === targetFile ? { ...curr, loading: false } : curr));
+            }
+        );
 
         // Guaranteed fallback if server connection is detached or delayed
         setTimeout(() => {
+            if (done) return;
             if (setTableDataCache) {
                 setTableDataCache(prev => {
                     if (prev[targetFile]) return prev;
@@ -12311,7 +12530,31 @@ function ScenarioComparisonView({
         };
 
         window.addEventListener('capacity-scenario-diff-data', onResponse);
-        if (window.Shiny && window.Shiny.setInputValue) {
+        let resolvedViaHttp = false;
+        if (typeof window.__capApiFetch === 'function') {
+            window.__capApiFetch(
+                '/api/scenario_diff',
+                { baseline_id: baselineScenarioId, comparison_id: comparisonScenarioId, request_id: reqId },
+                'request_scenario_diff_data',
+                { baselineId: baselineScenarioId, comparisonId: comparisonScenarioId, requestId: reqId },
+                (data) => {
+                    if (disposed) return;
+                    resolvedViaHttp = true;
+                    setDiffLoading(false);
+                    if (!data.success) {
+                        setDiffError(data.error || 'Unable to load final scenario data.');
+                    } else {
+                        setDiffPayload(data);
+                    }
+                },
+                (err) => {
+                    if (disposed) return;
+                    resolvedViaHttp = true;
+                    setDiffLoading(false);
+                    setDiffError((err && err.error) || 'Unable to load final scenario data.');
+                }
+            );
+        } else if (window.Shiny && window.Shiny.setInputValue) {
             window.Shiny.setInputValue('request_scenario_diff_data', {
                 baselineId: baselineScenarioId,
                 comparisonId: comparisonScenarioId,
@@ -12320,7 +12563,7 @@ function ScenarioComparisonView({
         }
 
         const timer = setTimeout(() => {
-            if (!disposed) setDiffLoading(false);
+            if (!disposed && !resolvedViaHttp) setDiffLoading(false);
         }, 12000);
 
         return () => {
@@ -12330,18 +12573,45 @@ function ScenarioComparisonView({
         };
     }, [baselineScenarioId, comparisonScenarioId, scenarioDiffCache]);
 
-    const baseRows = useMemo(() => unpackFinalScenarioData(diffPayload?.baselineData), [diffPayload]);
-    const compRows = useMemo(() => unpackFinalScenarioData(diffPayload?.comparisonData), [diffPayload]);
+    const basePacked = diffPayload?.baselineData;
+    const compPacked = diffPayload?.comparisonData;
+    const isBasePacked = _isPackedFinalData(basePacked);
+    const isCompPacked = _isPackedFinalData(compPacked);
+    const baseFallbackRows = useMemo(
+        () => (isBasePacked || !basePacked ? [] : unpackFinalScenarioData(basePacked)),
+        [isBasePacked, basePacked]
+    );
+    const compFallbackRows = useMemo(
+        () => (isCompPacked || !compPacked ? [] : unpackFinalScenarioData(compPacked)),
+        [isCompPacked, compPacked]
+    );
 
-    // Derive available weeks/months from final scenario data for the active periodMode ('W' or 'M')
+    // Derive available weeks/months directly from packed arrays without allocating 543k objects
     const allWeeks = useMemo(() => {
         const set = new Set();
-        for (const r of baseRows) if (r.period === periodMode && r.weekcomm) set.add(r.weekcomm);
-        for (const r of compRows) if (r.period === periodMode && r.weekcomm) set.add(r.weekcomm);
+        const collectFrom = (packed, fallbackRows) => {
+            if (_isPackedFinalData(packed)) {
+                const perIdx = (packed.periods || []).indexOf(periodMode);
+                if (perIdx === -1) return;
+                const weeks = packed.weeks || [];
+                const seenIdx = new Uint8Array(weeks.length);
+                const rows = packed.rows || [];
+                for (let i = 0; i < rows.length; i++) {
+                    if (rows[i][2] === perIdx) seenIdx[rows[i][3]] = 1;
+                }
+                for (let j = 0; j < seenIdx.length; j++) {
+                    if (seenIdx[j] && weeks[j]) set.add(weeks[j]);
+                }
+            } else {
+                for (const r of fallbackRows) if (r.period === periodMode && r.weekcomm) set.add(r.weekcomm);
+            }
+        };
+        collectFrom(basePacked, baseFallbackRows);
+        collectFrom(compPacked, compFallbackRows);
         const sorted = Array.from(set).sort();
         if (sorted.length > 0) return sorted;
         return periodMode === 'M' ? ['2026-11-01', '2027-12-01'] : ['2026-11-02', '2027-12-27'];
-    }, [baseRows, compRows, periodMode]);
+    }, [basePacked, compPacked, baseFallbackRows, compFallbackRows, periodMode]);
 
     // Sync start/end bounds whenever periodMode or available dates change
     useEffect(() => {
@@ -12431,25 +12701,126 @@ function ScenarioComparisonView({
         };
 
         const normGeo = (v) => String(v || '').trim().toLowerCase();
-        const rowMatchesGeo = (r) => {
+        const geoMatchValues = (regionVal, areaVal, patchVal) => {
             if (!selectedGeo || selectedGeo.type === 'national') return true;
-            if (selectedGeo.type === 'region' && r.region) {
-                if (
-                    normGeo(r.region) === normGeo(selectedGeo.name)
-                    || normGeo(r.region) === normGeo(selectedGeo.label)
-                    || normGeo(r.region) === normGeo(selectedGeo.id)
-                ) return true;
+            if (selectedGeo.type === 'region' && regionVal) {
+                const nr = normGeo(regionVal);
+                if (nr === normGeo(selectedGeo.name) || nr === normGeo(selectedGeo.label) || nr === normGeo(selectedGeo.id)) return true;
             }
-            if (selectedGeo.type === 'acdm' && r.area_code) {
-                if (normGeo(r.area_code) === normGeo(selectedGeo.id) || normGeo(r.area_code) === normGeo(selectedGeo.label)) return true;
+            if (selectedGeo.type === 'acdm' && areaVal) {
+                const na = normGeo(areaVal);
+                if (na === normGeo(selectedGeo.id) || na === normGeo(selectedGeo.label)) return true;
             }
-            return !allowedPatches || allowedPatches.has(r.patch);
+            return !allowedPatches || allowedPatches.has(patchVal);
         };
 
-        const accumulate = (rows, byWeekMap, acc) => {
+        const accumulatePacked = (packed, byWeekMap, acc) => {
+            const periods = packed.periods || [];
+            const perIdx = periods.indexOf(periodMode);
+            if (perIdx === -1) return 0;
+            const weeks = packed.weeks || [];
+            const weekBucketByIdx = new Array(weeks.length);
+            for (let wi = 0; wi < weeks.length; wi++) {
+                if (weekSet.has(weeks[wi])) weekBucketByIdx[wi] = byWeekMap.get(weeks[wi]) || null;
+            }
+
+            const regions = packed.regions || [];
+            const areaCodes = packed.areaCodes || [];
+            const patches = packed.patches || [];
+            const regOk = regions.map(r => (selectedGeo && selectedGeo.type === 'region')
+                ? (normGeo(r) === normGeo(selectedGeo.name) || normGeo(r) === normGeo(selectedGeo.label) || normGeo(r) === normGeo(selectedGeo.id))
+                : false);
+            const areaOk = areaCodes.map(a => (selectedGeo && selectedGeo.type === 'acdm')
+                ? (normGeo(a) === normGeo(selectedGeo.id) || normGeo(a) === normGeo(selectedGeo.label))
+                : false);
+            const patchAllowed = patches.map(p => !allowedPatches || allowedPatches.has(p));
+            const isNational = !selectedGeo || selectedGeo.type === 'national';
+
+            // Pre-classify each combo once (~75 entries)
+            // op codes: 0=skip, 1=demand_hec, 2=demand_kac, 3=demand_other, 4=cap_prod, 5=cap_sp, 6=cap_other,
+            //           7..15 = gross, core, available, overtime, holiday, sickness, training, meeting, other, 16=dt_overlay
+            const combos = packed.combos || [];
+            const comboOp = new Int8Array(combos.length);
+            const comboDemCat = new Array(combos.length);
+            for (let ci = 0; ci < combos.length; ci++) {
+                const cb = combos[ci];
+                const sk = cb[0];
+                if (!skillMatches(sk)) continue;
+                const met = cb[2];
+                const fl = cb[4];
+                if (fl === 'Demand Hours') {
+                    comboDemCat[ci] = getDemandWaterfallCategory(met, sk);
+                    comboOp[ci] = sk === 'HEC' ? 1 : (sk === 'KAC' ? 2 : 3);
+                } else if (fl === 'Capacity Hours') {
+                    comboOp[ci] = met === 'Productive hrs' ? 4 : (met === 'SP' ? 5 : 6);
+                } else if (fl === 'Available Hours') {
+                    if (met === 'Gross Hrs') comboOp[ci] = 7;
+                    else if (met === 'Core Hrs') comboOp[ci] = 8;
+                    else if (met === 'Available Hrs') comboOp[ci] = 9;
+                    else if (met === 'Overtime') comboOp[ci] = 10;
+                    else if (met === 'Holiday') comboOp[ci] = 11;
+                    else if (met === 'Sickness') comboOp[ci] = 12;
+                    else if (met === 'Training') comboOp[ci] = 13;
+                    else if (met === 'Meeting') comboOp[ci] = 14;
+                    else if (met === 'Other') comboOp[ci] = 15;
+                } else if (fl === 'Downtime Overlay Hours') {
+                    comboOp[ci] = 16;
+                }
+            }
+
+            const rows = packed.rows || [];
+            for (let i = 0; i < rows.length; i++) {
+                const r = rows[i];
+                if (r[2] !== perIdx) continue;
+                const bucket = weekBucketByIdx[r[3]];
+                if (!bucket) continue;
+                const op = comboOp[r[1]];
+                if (op === 0) continue;
+                if (!isNational) {
+                    const matched = (r.length > 5 && regOk[r[5]]) || (r.length > 6 && areaOk[r[6]]) || patchAllowed[r[0]];
+                    if (!matched) continue;
+                }
+                const val = Number(r[4]) || 0;
+                if (op === 1) {
+                    bucket.demand += val;
+                    acc.hecDemand += val;
+                    const dc = comboDemCat[r[1]];
+                    if (dc) acc.demandCategories[dc] = (acc.demandCategories[dc] || 0) + val;
+                } else if (op === 2) {
+                    bucket.demand += val;
+                    acc.kacDemand += val;
+                    const dc = comboDemCat[r[1]];
+                    if (dc) acc.demandCategories[dc] = (acc.demandCategories[dc] || 0) + val;
+                } else if (op === 3) {
+                    bucket.demand += val;
+                    const dc = comboDemCat[r[1]];
+                    if (dc) acc.demandCategories[dc] = (acc.demandCategories[dc] || 0) + val;
+                } else if (op === 4) {
+                    bucket.capacity += val;
+                    acc.productive += val;
+                } else if (op === 5) {
+                    bucket.capacity += val;
+                    acc.sp += val;
+                } else if (op === 6) {
+                    bucket.capacity += val;
+                } else if (op === 7) acc.gross += val;
+                else if (op === 8) acc.core += val;
+                else if (op === 9) acc.available += val;
+                else if (op === 10) acc.overtime += val;
+                else if (op === 11) acc.holiday += val;
+                else if (op === 12) acc.sickness += val;
+                else if (op === 13) acc.training += val;
+                else if (op === 14) acc.meeting += val;
+                else if (op === 15) acc.other += val;
+                else if (op === 16) acc.downtimeOverlays += val;
+            }
+            return rows.length;
+        };
+
+        const accumulateUnpacked = (rows, byWeekMap, acc) => {
             for (const r of rows) {
                 if (r.period !== periodMode || !weekSet.has(r.weekcomm)) continue;
-                if (!rowMatchesGeo(r)) continue;
+                if (!geoMatchValues(r.region, r.area_code, r.patch)) continue;
                 if (!skillMatches(r.skill)) continue;
 
                 const bucket = byWeekMap.get(r.weekcomm);
@@ -12481,10 +12852,11 @@ function ScenarioComparisonView({
                     acc.downtimeOverlays += val;
                 }
             }
+            return rows.length;
         };
 
-        accumulate(baseRows, bByWeek, bComp);
-        accumulate(compRows, cByWeek, cComp);
+        const baseCount = isBasePacked ? accumulatePacked(basePacked, bByWeek, bComp) : accumulateUnpacked(baseFallbackRows, bByWeek, bComp);
+        const compCount = isCompPacked ? accumulatePacked(compPacked, cByWeek, cComp) : accumulateUnpacked(compFallbackRows, cByWeek, cComp);
 
         const list = visibleWeeks.map((w) => {
             const b = bByWeek.get(w) || { demand: 0, capacity: 0 };
@@ -12499,9 +12871,9 @@ function ScenarioComparisonView({
 
         return {
             weeklyData: list,
-            bridgeStats: (baseRows.length && compRows.length) ? { base: bComp, comp: cComp } : null
+            bridgeStats: (baseCount && compCount) ? { base: bComp, comp: cComp } : null
         };
-    }, [baseRows, compRows, visibleWeeks, periodMode, selectedGeo, allowedPatches, skillFilter]);
+    }, [basePacked, compPacked, isBasePacked, isCompPacked, baseFallbackRows, compFallbackRows, visibleWeeks, periodMode, selectedGeo, allowedPatches, skillFilter]);
 
     const totals = useMemo(() => {
         let totD1 = 0, totD2 = 0, totC1 = 0, totC2 = 0, totDelta = 0;

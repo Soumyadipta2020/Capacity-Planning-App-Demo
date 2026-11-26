@@ -59,9 +59,7 @@
     const month = date.slice(0,7);
     return interval === 'quarter' ? month.slice(0,4)+'-Q'+Math.ceil(Number(month.slice(5))/3) : month;
   }
-  const planningKey = (row, level) => JSON.stringify([
-    row.region, level !== 'region' ? row.area : '', level === 'patch' ? row.patch : '', row.skill, row.week
-  ]);
+  const planningKey = (row, level) => `${row.region || ''}\u0001${level !== 'region' ? (row.area || '') : ''}\u0001${level === 'patch' ? (row.patch || '') : ''}\u0001${row.skill || ''}\u0001${row.week || ''}`;
   const key = r => [r.patch, r.skill, r.workCode, r.week].join('|');
   const rowsOf = (bundle, source) => bundle?.sources?.[source]?.success ? bundle.sources[source].rows || [] : [];
   const KEYS = {
@@ -120,7 +118,12 @@
     return out;
   }
 
+  const _finalExtractCache = typeof WeakMap === 'function' ? new WeakMap() : null;
+
   function extractFinalBundle(bundle) {
+    if (_finalExtractCache && bundle && _finalExtractCache.has(bundle)) {
+      return _finalExtractCache.get(bundle);
+    }
     const issues = [];
     const map = new Map();
     const geography = new Map();
@@ -137,14 +140,7 @@
       }
     });
 
-    const allFinalRows = unpackFinalPayload(bundle.finalData);
-    const weeklyRows = [];
     const monthlyFinalRows = [];
-    for (const row of allFinalRows) {
-      if (row.period === 'M') monthlyFinalRows.push(row);
-      else weeklyRows.push(row);
-    }
-
     const facts = {
       geography_mapping: (bundle.geographyRows || []).map((raw, i) => {
         const n = normalizeSource('geography_mapping', raw);
@@ -169,144 +165,327 @@
       baseline_productivity: [
         { source: 'baseline_productivity', row: 1, raw: { Skill: 'HEC', Values: 3.8 }, patch: '', area: '', region: 'All', skill: 'HEC', week: '', workCode: '', value: 3.8, category: '', n: { skill: 'HEC', values: 3.8 } },
         { source: 'baseline_productivity', row: 2, raw: { Skill: 'KAC', Values: 3.5 }, patch: '', area: '', region: 'All', skill: 'KAC', week: '', workCode: '', value: 3.5, category: '', n: { skill: 'KAC', values: 3.5 } }
-      ],
-      final_plan: allFinalRows
+      ]
     };
 
     const grossByCell = new Map();
     const weekSet = new Set();
     const availLossMetrics = new Set(['Holiday', 'Sickness', 'Training', 'Meeting', 'Other']);
 
-    for (let i = 0; i < weeklyRows.length; i++) {
-      const r = weeklyRows[i];
-      if (r.flag === 'Available Hours' && r.metric === 'Gross Hrs') {
-        grossByCell.set([r.patch, r.skill, r.weekcomm].join('|'), r.value);
-      }
-      if (r.weekcomm) weekSet.add(r.weekcomm);
-    }
+    const fd = bundle.finalData;
+    const isPacked = fd && Array.isArray(fd.rows) && Array.isArray(fd.combos) && Array.isArray(fd.patches)
+      && (fd.rows.length === 0 || Array.isArray(fd.rows[0]));
 
-    for (const w of [...weekSet].sort()) {
-      facts.week_to_month.push({
-        source: 'week_to_month',
-        row: facts.week_to_month.length + 1,
-        raw: { Weekcomm: w, FiscalYear: w.slice(0, 4), FiscalMonth: w.slice(0, 7) },
-        patch: '', area: '', region: 'All', skill: '', week: w, workCode: '', value: 1, category: '',
-        n: { weekcomm: w, fiscalyear: w.slice(0, 4), fiscalmonth: w.slice(0, 7) }
+    if (isPacked) {
+      Object.defineProperty(facts, 'final_plan', {
+        enumerable: false,
+        configurable: true,
+        get() { return unpackFinalPayload(fd); }
       });
-    }
 
-    let rowIdx = 0;
-    for (const r of weeklyRows) {
-      rowIdx++;
-      const gMap = geography.get(r.patch);
-      const rowArea = r.area_code || gMap?.area || '';
-      const rowRegion = r.region ? reg(r.region) : (gMap?.region || 'Unmapped');
-      if (r.patch && rowRegion !== 'Unmapped' && !geography.has(r.patch)) {
-        map.set(r.patch, rowRegion);
-        geography.set(r.patch, { patch: r.patch, area: rowArea, region: rowRegion, label: r.patch });
+      const regions = fd.regions || [];
+      const areaCodes = fd.areaCodes || [];
+      const patches = fd.patches || [];
+      const combos = fd.combos || [];
+      const periods = fd.periods || [];
+      const weeks = fd.weeks || [];
+      const rows = fd.rows || [];
+      const version = fd.version || '';
+      const create_datestamp = fd.create_datestamp || '';
+      const mPerIdx = periods.indexOf('M');
+
+      // Classify combos once (~75 combos vs 271k rows)
+      // 0=skip, 1=gross_hrs, 2=demand, 3=fte_core, 4=fte_recr, 5=downtime, 6=overtime, 7=sp_cap
+      const comboKind = new Uint8Array(combos.length);
+      const comboUpperSkill = new Array(combos.length);
+      const comboTargetSkill = new Array(combos.length);
+      for (let ci = 0; ci < combos.length; ci++) {
+        const c = combos[ci];
+        const skill = c[0] || '';
+        const group = c[1] || '';
+        const metric = c[2] || '';
+        const flag = c[4] || '';
+        comboUpperSkill[ci] = skill.toUpperCase();
+        if (flag === 'Available Hours' && metric === 'Gross Hrs') comboKind[ci] = 1;
+        else if (flag === 'Demand Hours') comboKind[ci] = 2;
+        else if (flag === 'FTE' && (skill === 'HEC' || skill === 'KAC')) comboKind[ci] = 3;
+        else if (flag === 'FTE' && skill.includes('Recruitment')) {
+          comboKind[ci] = 4;
+          comboTargetSkill[ci] = skill.replace(/\s*Recruitment$/i, '').trim().toUpperCase();
+        } else if (flag === 'Downtime Overlay Hours' || (flag === 'Available Hours' && availLossMetrics.has(metric))) {
+          comboKind[ci] = 5;
+        } else if (flag === 'Available Hours' && metric === 'Overtime') comboKind[ci] = 6;
+        else if (flag === 'Capacity Hours' && metric === 'SP') comboKind[ci] = 7;
       }
-      const g = { area: rowArea, region: rowRegion };
-      const base = {
-        row: rowIdx,
-        raw: r,
-        patch: r.patch,
-        area: g.area,
-        region: g.region,
-        skill: r.skill.toUpperCase(),
-        week: r.weekcomm,
-        workCode: r.metric,
-        value: r.value,
-        category: r.metric
-      };
 
-      if (r.flag === 'Demand Hours') {
-        const jobTime = {
-          ...base,
-          source: 'job_time_assumptions',
-          value: 1,
-          n: { patch: r.patch, skill: r.skill, workcode: r.metric, weekcomm: r.weekcomm, values: 1 }
+      const seenWeekIdx = new Uint8Array(weeks.length);
+      for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        if (r[2] === mPerIdx) continue;
+        seenWeekIdx[r[3]] = 1;
+        if (comboKind[r[1]] === 1) {
+          const pName = patches[r[0]] || '';
+          const sk = combos[r[1]][0] || '';
+          const wk = weeks[r[3]] || '';
+          grossByCell.set(`${pName}|${sk}|${wk}`, Number(r[4]) || 0);
+        }
+      }
+      for (let wi = 0; wi < seenWeekIdx.length; wi++) {
+        if (seenWeekIdx[wi] && weeks[wi]) weekSet.add(weeks[wi]);
+      }
+
+      for (const w of [...weekSet].sort()) {
+        facts.week_to_month.push({
+          source: 'week_to_month',
+          row: facts.week_to_month.length + 1,
+          raw: { Weekcomm: w, FiscalYear: w.slice(0, 4), FiscalMonth: w.slice(0, 7) },
+          patch: '', area: '', region: 'All', skill: '', week: w, workCode: '', value: 1, category: '',
+          n: { weekcomm: w, fiscalyear: w.slice(0, 4), fiscalmonth: w.slice(0, 7) }
+        });
+      }
+
+      let rowIdx = 0;
+      for (let i = 0; i < rows.length; i++) {
+        const rr = rows[i];
+        const perIdx = rr[2];
+        const ci = rr[1];
+        const c = combos[ci] || [];
+        const patchName = patches[rr[0]] || '';
+        const areaStr = rr.length > 6 ? (areaCodes[rr[6]] || '') : '';
+        const regStr = rr.length > 5 ? (regions[rr[5]] || '') : '';
+        const wkStr = weeks[rr[3]] || '';
+        const val = Number(rr[4]) || 0;
+
+        if (perIdx === mPerIdx) {
+          monthlyFinalRows.push({
+            region: regStr, area_code: areaStr, patch: patchName,
+            skill: c[0] || '', group: c[1] || '', metric: c[2] || '', level2: c[3] || '', flag: c[4] || '',
+            period: 'M', weekcomm: wkStr, value: val, version, create_datestamp
+          });
+          continue;
+        }
+
+        rowIdx++;
+        const gMap = geography.get(patchName);
+        const rowArea = areaStr || gMap?.area || '';
+        const rowRegion = regStr ? reg(regStr) : (gMap?.region || 'Unmapped');
+        if (patchName && rowRegion !== 'Unmapped' && !geography.has(patchName)) {
+          map.set(patchName, rowRegion);
+          geography.set(patchName, { patch: patchName, area: rowArea, region: rowRegion, label: patchName });
+        }
+
+        const kind = comboKind[ci];
+        if (kind === 0 || kind === 1) continue;
+
+        const skill = c[0] || '';
+        const group = c[1] || '';
+        const metric = c[2] || '';
+        const level2 = c[3] || '';
+        const flag = c[4] || '';
+        const rawObj = {
+          region: regStr, area_code: areaStr, patch: patchName,
+          skill, group, metric, level2, flag,
+          period: periods[perIdx] || 'W', weekcomm: wkStr, value: val, version, create_datestamp
         };
-        facts.job_time_assumptions.push(jobTime);
-        facts.demand_input.push({
-          ...base,
-          source: 'demand_input',
-          jobs: r.value,
-          jobTime,
-          matched: true,
-          n: { patch: r.patch, skill: r.skill, workcode: r.metric, product: r.level2, weekcomm: r.weekcomm, values: r.value }
+        const base = {
+          row: rowIdx, raw: rawObj, patch: patchName, area: rowArea, region: rowRegion,
+          skill: comboUpperSkill[ci], week: wkStr, workCode: metric, value: val, category: metric
+        };
+
+        if (kind === 2) {
+          const jobTime = {
+            ...base, source: 'job_time_assumptions', value: 1,
+            n: { patch: patchName, skill, workcode: metric, weekcomm: wkStr, values: 1 }
+          };
+          facts.job_time_assumptions.push(jobTime);
+          facts.demand_input.push({
+            ...base, source: 'demand_input', jobs: val, jobTime, matched: true,
+            n: { patch: patchName, skill, workcode: metric, product: level2, weekcomm: wkStr, values: val }
+          });
+        } else if (kind === 3) {
+          const gross = grossByCell.get(`${patchName}|${skill}|${wkStr}`);
+          const hrs = gross !== undefined ? gross : val * 37.5;
+          facts.resource_plan.push({
+            ...base, source: 'resource_plan',
+            n: { payid: `${patchName}|${skill}`, wmis: patchName, skill, status: 'Active', hours: hrs, allocation: 100, labourtype: group, update: wkStr }
+          });
+        } else if (kind === 4) {
+          const targetSkill = comboTargetSkill[ci];
+          const isUngrounded = group === 'Ungrounded';
+          const srcName = isUngrounded ? 'recruitment_ungrounded' : 'recruitment_grounded';
+          facts[srcName].push({
+            ...base, source: srcName, skill: targetSkill,
+            n: { cohort: group, skill: targetSkill, region: rowRegion, weekcomm: wkStr, headcount: val, probability: isUngrounded ? 50 : 100 }
+          });
+        } else if (kind === 5) {
+          const cat = flag === 'Available Hours' ? `Base ${metric}` : metric;
+          const lvl2 = flag === 'Available Hours' ? 'Available Hours Deduction' : level2;
+          facts.downtime_overlays_hours.push({
+            ...base, source: 'downtime_overlays_hours', category: cat,
+            n: { patch: patchName, skill, metric: cat, level2: lvl2, weekcomm: wkStr, values: val }
+          });
+          const gross = grossByCell.get(`${patchName}|${skill}|${wkStr}`) || 0;
+          const pctVal = gross > 0 ? (val / gross) * 100 : 0;
+          const perFteVal = gross > 0 ? (val / (gross / 37.5)) : 0;
+          facts.downtime_overlays_percentage.push({
+            ...base, source: 'downtime_overlays_percentage', category: cat, value: pctVal,
+            n: { patch: patchName, skill, metric: cat, level2: lvl2, weekcomm: wkStr, values: pctVal }
+          });
+          facts.downtime_overlays_hours_fte.push({
+            ...base, source: 'downtime_overlays_hours_fte', category: cat, value: perFteVal,
+            n: { patch: patchName, skill, metric: cat, level2: lvl2, weekcomm: wkStr, values: perFteVal }
+          });
+        } else if (kind === 6) {
+          facts.overtime.push({
+            ...base, source: 'overtime',
+            n: { region: rowRegion, patch: patchName, skill, weekcomm: wkStr, authorized: 'Yes', overtimehours: val }
+          });
+        } else if (kind === 7) {
+          facts.ctr_capacity.push({
+            ...base, source: 'ctr_capacity',
+            n: { region: rowRegion, patch: patchName, skill, weekcomm: wkStr, status: 'Active', agency: 'General SP', contractorhours: val }
+          });
+        }
+      }
+    } else {
+      const allFinalRows = unpackFinalPayload(fd);
+      facts.final_plan = allFinalRows;
+      const weeklyRows = [];
+      for (const row of allFinalRows) {
+        if (row.period === 'M') monthlyFinalRows.push(row);
+        else weeklyRows.push(row);
+      }
+      for (let i = 0; i < weeklyRows.length; i++) {
+        const r = weeklyRows[i];
+        if (r.flag === 'Available Hours' && r.metric === 'Gross Hrs') {
+          grossByCell.set([r.patch, r.skill, r.weekcomm].join('|'), r.value);
+        }
+        if (r.weekcomm) weekSet.add(r.weekcomm);
+      }
+
+      for (const w of [...weekSet].sort()) {
+        facts.week_to_month.push({
+          source: 'week_to_month',
+          row: facts.week_to_month.length + 1,
+          raw: { Weekcomm: w, FiscalYear: w.slice(0, 4), FiscalMonth: w.slice(0, 7) },
+          patch: '', area: '', region: 'All', skill: '', week: w, workCode: '', value: 1, category: '',
+          n: { weekcomm: w, fiscalyear: w.slice(0, 4), fiscalmonth: w.slice(0, 7) }
         });
-      } else if (r.flag === 'FTE' && (r.skill === 'HEC' || r.skill === 'KAC')) {
-        const gross = grossByCell.get([r.patch, r.skill, r.weekcomm].join('|'));
-        const hrs = gross !== undefined ? gross : r.value * 37.5;
-        facts.resource_plan.push({
-          ...base,
-          source: 'resource_plan',
-          n: {
-            payid: `${r.patch}|${r.skill}`,
-            wmis: r.patch,
-            skill: r.skill,
-            status: 'Active',
-            hours: hrs,
-            allocation: 100,
-            labourtype: r.group,
-            update: r.weekcomm
-          }
-        });
-      } else if (r.flag === 'FTE' && r.skill.includes('Recruitment')) {
-        const targetSkill = r.skill.replace(/\s*Recruitment$/i, '').trim().toUpperCase();
-        const isUngrounded = r.group === 'Ungrounded';
-        const srcName = isUngrounded ? 'recruitment_ungrounded' : 'recruitment_grounded';
-        facts[srcName].push({
-          ...base,
-          source: srcName,
-          skill: targetSkill,
-          n: {
-            cohort: r.group,
+      }
+
+      let rowIdx = 0;
+      for (const r of weeklyRows) {
+        rowIdx++;
+        const gMap = geography.get(r.patch);
+        const rowArea = r.area_code || gMap?.area || '';
+        const rowRegion = r.region ? reg(r.region) : (gMap?.region || 'Unmapped');
+        if (r.patch && rowRegion !== 'Unmapped' && !geography.has(r.patch)) {
+          map.set(r.patch, rowRegion);
+          geography.set(r.patch, { patch: r.patch, area: rowArea, region: rowRegion, label: r.patch });
+        }
+        const g = { area: rowArea, region: rowRegion };
+        const base = {
+          row: rowIdx,
+          raw: r,
+          patch: r.patch,
+          area: g.area,
+          region: g.region,
+          skill: r.skill.toUpperCase(),
+          week: r.weekcomm,
+          workCode: r.metric,
+          value: r.value,
+          category: r.metric
+        };
+
+        if (r.flag === 'Demand Hours') {
+          const jobTime = {
+            ...base,
+            source: 'job_time_assumptions',
+            value: 1,
+            n: { patch: r.patch, skill: r.skill, workcode: r.metric, weekcomm: r.weekcomm, values: 1 }
+          };
+          facts.job_time_assumptions.push(jobTime);
+          facts.demand_input.push({
+            ...base,
+            source: 'demand_input',
+            jobs: r.value,
+            jobTime,
+            matched: true,
+            n: { patch: r.patch, skill: r.skill, workcode: r.metric, product: r.level2, weekcomm: r.weekcomm, values: r.value }
+          });
+        } else if (r.flag === 'FTE' && (r.skill === 'HEC' || r.skill === 'KAC')) {
+          const gross = grossByCell.get([r.patch, r.skill, r.weekcomm].join('|'));
+          const hrs = gross !== undefined ? gross : r.value * 37.5;
+          facts.resource_plan.push({
+            ...base,
+            source: 'resource_plan',
+            n: {
+              payid: `${r.patch}|${r.skill}`,
+              wmis: r.patch,
+              skill: r.skill,
+              status: 'Active',
+              hours: hrs,
+              allocation: 100,
+              labourtype: r.group,
+              update: r.weekcomm
+            }
+          });
+        } else if (r.flag === 'FTE' && r.skill.includes('Recruitment')) {
+          const targetSkill = r.skill.replace(/\s*Recruitment$/i, '').trim().toUpperCase();
+          const isUngrounded = r.group === 'Ungrounded';
+          const srcName = isUngrounded ? 'recruitment_ungrounded' : 'recruitment_grounded';
+          facts[srcName].push({
+            ...base,
+            source: srcName,
             skill: targetSkill,
-            region: g.region,
-            weekcomm: r.weekcomm,
-            headcount: r.value,
-            probability: isUngrounded ? 50 : 100
-          }
-        });
-      } else if (r.flag === 'Downtime Overlay Hours' || (r.flag === 'Available Hours' && availLossMetrics.has(r.metric))) {
-        const cat = r.flag === 'Available Hours' ? `Base ${r.metric}` : r.metric;
-        const lvl2 = r.flag === 'Available Hours' ? 'Available Hours Deduction' : r.level2;
-        facts.downtime_overlays_hours.push({
-          ...base,
-          source: 'downtime_overlays_hours',
-          category: cat,
-          n: { patch: r.patch, skill: r.skill, metric: cat, level2: lvl2, weekcomm: r.weekcomm, values: r.value }
-        });
-        const gross = grossByCell.get([r.patch, r.skill, r.weekcomm].join('|')) || 0;
-        const pctVal = gross > 0 ? (r.value / gross) * 100 : 0;
-        const perFteVal = gross > 0 ? (r.value / (gross / 37.5)) : 0;
-        facts.downtime_overlays_percentage.push({
-          ...base,
-          source: 'downtime_overlays_percentage',
-          category: cat,
-          value: pctVal,
-          n: { patch: r.patch, skill: r.skill, metric: cat, level2: lvl2, weekcomm: r.weekcomm, values: pctVal }
-        });
-        facts.downtime_overlays_hours_fte.push({
-          ...base,
-          source: 'downtime_overlays_hours_fte',
-          category: cat,
-          value: perFteVal,
-          n: { patch: r.patch, skill: r.skill, metric: cat, level2: lvl2, weekcomm: r.weekcomm, values: perFteVal }
-        });
-      } else if (r.flag === 'Available Hours' && r.metric === 'Overtime') {
-        facts.overtime.push({
-          ...base,
-          source: 'overtime',
-          n: { region: g.region, patch: r.patch, skill: r.skill, weekcomm: r.weekcomm, authorized: 'Yes', overtimehours: r.value }
-        });
-      } else if (r.flag === 'Capacity Hours' && r.metric === 'SP') {
-        facts.ctr_capacity.push({
-          ...base,
-          source: 'ctr_capacity',
-          n: { region: g.region, patch: r.patch, skill: r.skill, weekcomm: r.weekcomm, status: 'Active', agency: 'General SP', contractorhours: r.value }
-        });
+            n: {
+              cohort: r.group,
+              skill: targetSkill,
+              region: g.region,
+              weekcomm: r.weekcomm,
+              headcount: r.value,
+              probability: isUngrounded ? 50 : 100
+            }
+          });
+        } else if (r.flag === 'Downtime Overlay Hours' || (r.flag === 'Available Hours' && availLossMetrics.has(r.metric))) {
+          const cat = r.flag === 'Available Hours' ? `Base ${r.metric}` : r.metric;
+          const lvl2 = r.flag === 'Available Hours' ? 'Available Hours Deduction' : r.level2;
+          facts.downtime_overlays_hours.push({
+            ...base,
+            source: 'downtime_overlays_hours',
+            category: cat,
+            n: { patch: r.patch, skill: r.skill, metric: cat, level2: lvl2, weekcomm: r.weekcomm, values: r.value }
+          });
+          const gross = grossByCell.get([r.patch, r.skill, r.weekcomm].join('|')) || 0;
+          const pctVal = gross > 0 ? (r.value / gross) * 100 : 0;
+          const perFteVal = gross > 0 ? (r.value / (gross / 37.5)) : 0;
+          facts.downtime_overlays_percentage.push({
+            ...base,
+            source: 'downtime_overlays_percentage',
+            category: cat,
+            value: pctVal,
+            n: { patch: r.patch, skill: r.skill, metric: cat, level2: lvl2, weekcomm: r.weekcomm, values: pctVal }
+          });
+          facts.downtime_overlays_hours_fte.push({
+            ...base,
+            source: 'downtime_overlays_hours_fte',
+            category: cat,
+            value: perFteVal,
+            n: { patch: r.patch, skill: r.skill, metric: cat, level2: lvl2, weekcomm: r.weekcomm, values: perFteVal }
+          });
+        } else if (r.flag === 'Available Hours' && r.metric === 'Overtime') {
+          facts.overtime.push({
+            ...base,
+            source: 'overtime',
+            n: { region: g.region, patch: r.patch, skill: r.skill, weekcomm: r.weekcomm, authorized: 'Yes', overtimehours: r.value }
+          });
+        } else if (r.flag === 'Capacity Hours' && r.metric === 'SP') {
+          facts.ctr_capacity.push({
+            ...base,
+            source: 'ctr_capacity',
+            n: { region: g.region, patch: r.patch, skill: r.skill, weekcomm: r.weekcomm, status: 'Active', agency: 'General SP', contractorhours: r.value }
+          });
+        }
       }
     }
 
@@ -336,7 +515,7 @@
       baseline_productivity: makeSrc(facts.baseline_productivity, 'Baseline Productivity')
     };
 
-    return {
+    const result = {
       isFinalData: true,
       facts,
       issues,
@@ -347,6 +526,10 @@
       monthlyFinalRows,
       scenarioLog: log
     };
+    if (_finalExtractCache && bundle) {
+      _finalExtractCache.set(bundle, result);
+    }
+    return result;
   }
 
   function extract(bundle) {
@@ -475,9 +658,9 @@
       exclusions = new Set(),
       routes = [];
     const childScope = [filter.area, filter.patch].some(value => value && value !== 'All');
-    const regionKey = r => JSON.stringify([r.region, r.skill, r.week]);
+    const regionKey = r => `${r.region || ''}\u0001${r.skill || ''}\u0001${r.week || ''}`;
     const rosterByLocation = new Map();
-    const locationKey = r => JSON.stringify([r.region, r.area, r.patch, r.skill, r.week]);
+    const locationKey = r => `${r.region || ''}\u0001${r.area || ''}\u0001${r.patch || ''}\u0001${r.skill || ''}\u0001${r.week || ''}`;
     const change = geographic ? shock.planningChange : null;
     const affected = row => change && planningKey(row, change.level) === change.id;
     // Resolve both sides before narrowing a donor/recipient view.
@@ -957,7 +1140,7 @@
     const target = group.cells.find(cell => cell.rosterKnown) || group.cells[0];
     const planningChange = {id:group.id,level,rosterScale:roster ? (roster+rosterDelta)/roster : 1,
       downtimeScale:driver === 'downtime' ? (downtime-amount)/downtime : 1, overtime:driver === 'overtime' ? amount : 0,
-      overtimeLocation:JSON.stringify([target.region,target.area,target.patch,target.skill,target.week])};
+      overtimeLocation:`${target.region || ''}\u0001${target.area || ''}\u0001${target.patch || ''}\u0001${target.skill || ''}\u0001${target.week || ''}`};
     const result = model(data,filter,assumptions,{planningChange},true);
     return planningSummary(result.rows.filter(row => planningKey(row,level) === group.id),level,assumptions).assessed[0] || null;
   }

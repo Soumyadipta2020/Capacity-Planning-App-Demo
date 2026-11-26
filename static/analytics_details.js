@@ -255,9 +255,16 @@ function AnalyticsRecordBrowser({
   const [layout, setLayout] = React.useState('cards'),
     [skill, setSkill] = React.useState('All'),
     [region, setRegion] = React.useState('All');
-  const skills = [...new Set(rows.map(r => r.skill).filter(Boolean))].sort(),
-    regions = [...new Set(rows.map(r => r.region).filter(Boolean))].sort();
-  const filtered = rows.filter(r => (skill === 'All' || r.skill === skill) && (region === 'All' || r.region === region) && JSON.stringify(r.raw).toLowerCase().includes(query.toLowerCase()));
+  const skills = React.useMemo(() => [...new Set(rows.map(r => r.skill).filter(Boolean))].sort(), [rows]),
+    regions = React.useMemo(() => [...new Set(rows.map(r => r.region).filter(Boolean))].sort(), [rows]);
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return rows.filter(r =>
+      (skill === 'All' || r.skill === skill) &&
+      (region === 'All' || r.region === region) &&
+      (!q || Object.values(r.raw || {}).some(v => v != null && String(v).toLowerCase().includes(q)))
+    );
+  }, [rows, skill, region, query]);
   const pageSize = 6,
     pages = Math.max(1, Math.ceil(filtered.length / pageSize)),
     current = Math.min(page, pages - 1);
@@ -292,7 +299,13 @@ function AnalyticsDiffBrowser({
   const [status, setStatus] = React.useState('All'),
     [selectedKey, setSelectedKey] = React.useState(null),
     [page, setPage] = React.useState(0);
-  const filtered = rows.filter(r => (status === 'All' || r.status.startsWith(status)) && JSON.stringify(r).toLowerCase().includes(query.toLowerCase()));
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return rows.filter(r =>
+      (status === 'All' || r.status.startsWith(status)) &&
+      (!q || (r.key && r.key.toLowerCase().includes(q)) || JSON.stringify(r).toLowerCase().includes(q))
+    );
+  }, [rows, status, query]);
   const pages = Math.max(1, Math.ceil(filtered.length / 30)),
     current = Math.min(page, pages - 1),
     visible = filtered.slice(current * 30, (current + 1) * 30);
@@ -333,7 +346,13 @@ function AnalyticsIssueBrowser({
   const [kind, setKind] = React.useState('All'),
     [page, setPage] = React.useState(0);
   const kinds = [...new Set(issues.map(r => r.kind || 'Evidence issue'))];
-  const filtered = issues.filter(r => (kind === 'All' || (r.kind || 'Evidence issue') === kind) && JSON.stringify(r).toLowerCase().includes(query.toLowerCase()));
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return issues.filter(r =>
+      (kind === 'All' || (r.kind || 'Evidence issue') === kind) &&
+      (!q || Object.values(r).some(v => v != null && String(v).toLowerCase().includes(q)))
+    );
+  }, [issues, kind, query]);
   const pages = Math.max(1, Math.ceil(filtered.length / 8)),
     current = Math.min(page, pages - 1);
   return <><div className="av-inline-notice"><AnalyticsIcon name="info" size={14} className="text-current flex-shrink-0" /><span>These checks explain the limits of the source evidence. They do not represent observed service failures.</span></div><div className="av-record-toolbar"><label className="av-search-field"><AnalyticsIcon name="search" size={14} className="text-slate-400 dark:text-[#80c6ff]" /><input aria-label="Search evidence issues" placeholder="Find a patch, input or evidence issue…" value={query} onChange={e => {
