@@ -1,9 +1,12 @@
-Weekcomm,Calendar Month,Fiscal Month,Fiscal Year,Weeks In Month
-2026-09-28,October,P07,FY26,4
-2026-10-05,October,P07,FY26,4
-2026-10-12,October,P07,FY26,4
-2026-10-19,October,P07,FY26,4
-2026-10-26,November,P08,FY26,4
-2026-11-02,November,P08,FY26,4
-2026-11-09,November,P08,FY26,4
-2026-11-16,November,P08,FY26,4
+Month,Week,Day,Weekcomm,England Holiday,Scotland Holiday,England Percentage,Scotland Percentage
+January,2024-01-29,Monday,2024-01-29,,,0.6,0.6
+January,2024-01-29,Tuesday,2024-01-30,,,0.6,0.6
+January,2024-01-29,Wednesday,2024-01-31,,,0.6,0.6
+February,2024-01-29,Thursday,2024-02-01,,,0.4,0.4
+February,2024-01-29,Friday,2024-02-02,,,0.4,0.4
+February,2024-01-29,Saturday,2024-02-03,,,0.4,0.4
+February,2024-01-29,Sunday,2024-02-04,,,1.0,1.0
+February,2024-02-05,Monday,2024-02-05,,,1.0,1.0
+February,2024-02-05,Tuesday,2024-02-06,,,1.0,1.0
+February,2024-02-05,Wednesday,2024-02-07,,,1.0,1.0
+February,2024-02-05,Thursday,2024-02-08,,,1.0,1.0

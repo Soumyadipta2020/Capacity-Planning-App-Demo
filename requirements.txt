@@ -4,3 +4,4 @@ plotly
 pandas
 numpy
 uvicorn
+python-dotenv

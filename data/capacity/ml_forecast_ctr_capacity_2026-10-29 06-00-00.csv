@@ -1,1306 +1,1042 @@
-Agency,Skill,Region,Weekcomm,Contractors,Contractor_Hours,FTE,Status
-Centrica Flex Contractors,HEC,A,2026-09-14,55,2062.5,50.6,Active
-Centrica Flex Contractors,KAC,A,2026-09-14,22,825.0,20.2,Active
-Centrica Flex Contractors,EV,A,2026-09-14,16,600.0,14.7,Active
-Centrica Flex Contractors,HEC,B,2026-09-14,32,1200.0,29.4,Active
-Centrica Flex Contractors,KAC,B,2026-09-14,30,1125.0,27.6,Active
-Centrica Flex Contractors,EV,B,2026-09-14,29,1087.5,26.7,Active
-Centrica Flex Contractors,HEC,C,2026-09-14,23,862.5,21.2,Active
-Centrica Flex Contractors,KAC,C,2026-09-14,21,787.5,19.3,Active
-Centrica Flex Contractors,EV,C,2026-09-14,49,1837.5,45.1,Active
-Centrica Flex Contractors,HEC,D,2026-09-14,20,750.0,18.4,Active
-Centrica Flex Contractors,KAC,D,2026-09-14,52,1950.0,47.8,Active
-Centrica Flex Contractors,EV,D,2026-09-14,42,1575.0,38.6,Active
-Centrica Flex Contractors,HEC,E,2026-09-14,17,637.5,15.6,Active
-Centrica Flex Contractors,KAC,E,2026-09-14,16,600.0,14.7,Active
-Centrica Flex Contractors,EV,E,2026-09-14,20,750.0,18.4,Active
-UK Field Solutions Ltd,HEC,A,2026-09-14,28,1050.0,25.8,Active
-UK Field Solutions Ltd,KAC,A,2026-09-14,29,1087.5,26.7,Active
-UK Field Solutions Ltd,EV,A,2026-09-14,47,1762.5,43.2,Active
-UK Field Solutions Ltd,HEC,B,2026-09-14,53,1987.5,48.8,Active
-UK Field Solutions Ltd,KAC,B,2026-09-14,16,600.0,14.7,Active
-UK Field Solutions Ltd,EV,B,2026-09-14,50,1875.0,46.0,Active
-UK Field Solutions Ltd,HEC,C,2026-09-14,27,1012.5,24.8,Active
-UK Field Solutions Ltd,KAC,C,2026-09-14,49,1837.5,45.1,Active
-UK Field Solutions Ltd,EV,C,2026-09-14,41,1537.5,37.7,Active
-UK Field Solutions Ltd,HEC,D,2026-09-14,29,1087.5,26.7,Active
-UK Field Solutions Ltd,KAC,D,2026-09-14,43,1612.5,39.6,Active
-UK Field Solutions Ltd,EV,D,2026-09-14,52,1950.0,47.8,Active
-UK Field Solutions Ltd,HEC,E,2026-09-14,32,1200.0,29.4,Active
-UK Field Solutions Ltd,KAC,E,2026-09-14,15,562.5,13.8,Active
-UK Field Solutions Ltd,EV,E,2026-09-14,25,937.5,23.0,Active
-GreenEnergy Tech Partners,HEC,A,2026-09-14,42,1575.0,38.6,Standby
-GreenEnergy Tech Partners,KAC,A,2026-09-14,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,EV,A,2026-09-14,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,HEC,B,2026-09-14,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,KAC,B,2026-09-14,28,1050.0,25.8,Standby
-GreenEnergy Tech Partners,EV,B,2026-09-14,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,HEC,C,2026-09-14,21,787.5,19.3,Standby
-GreenEnergy Tech Partners,KAC,C,2026-09-14,20,750.0,18.4,Standby
-GreenEnergy Tech Partners,EV,C,2026-09-14,39,1462.5,35.9,Standby
-GreenEnergy Tech Partners,HEC,D,2026-09-14,21,787.5,19.3,Standby
-GreenEnergy Tech Partners,KAC,D,2026-09-14,37,1387.5,34.0,Standby
-GreenEnergy Tech Partners,EV,D,2026-09-14,37,1387.5,34.0,Standby
-GreenEnergy Tech Partners,HEC,E,2026-09-14,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,KAC,E,2026-09-14,31,1162.5,28.5,Standby
-GreenEnergy Tech Partners,EV,E,2026-09-14,17,637.5,15.6,Standby
-Centrica Flex Contractors,HEC,A,2026-09-21,44,1650.0,40.5,Active
-Centrica Flex Contractors,KAC,A,2026-09-21,49,1837.5,45.1,Active
-Centrica Flex Contractors,EV,A,2026-09-21,22,825.0,20.2,Active
-Centrica Flex Contractors,HEC,B,2026-09-21,39,1462.5,35.9,Active
-Centrica Flex Contractors,KAC,B,2026-09-21,20,750.0,18.4,Active
-Centrica Flex Contractors,EV,B,2026-09-21,50,1875.0,46.0,Active
-Centrica Flex Contractors,HEC,C,2026-09-21,33,1237.5,30.4,Active
-Centrica Flex Contractors,KAC,C,2026-09-21,55,2062.5,50.6,Active
-Centrica Flex Contractors,EV,C,2026-09-21,54,2025.0,49.7,Active
-Centrica Flex Contractors,HEC,D,2026-09-21,38,1425.0,35.0,Active
-Centrica Flex Contractors,KAC,D,2026-09-21,51,1912.5,46.9,Active
-Centrica Flex Contractors,EV,D,2026-09-21,27,1012.5,24.8,Active
-Centrica Flex Contractors,HEC,E,2026-09-21,19,712.5,17.5,Active
-Centrica Flex Contractors,KAC,E,2026-09-21,17,637.5,15.6,Active
-Centrica Flex Contractors,EV,E,2026-09-21,29,1087.5,26.7,Active
-UK Field Solutions Ltd,HEC,A,2026-09-21,33,1237.5,30.4,Active
-UK Field Solutions Ltd,KAC,A,2026-09-21,20,750.0,18.4,Active
-UK Field Solutions Ltd,EV,A,2026-09-21,29,1087.5,26.7,Active
-UK Field Solutions Ltd,HEC,B,2026-09-21,21,787.5,19.3,Active
-UK Field Solutions Ltd,KAC,B,2026-09-21,39,1462.5,35.9,Active
-UK Field Solutions Ltd,EV,B,2026-09-21,32,1200.0,29.4,Active
-UK Field Solutions Ltd,HEC,C,2026-09-21,44,1650.0,40.5,Active
-UK Field Solutions Ltd,KAC,C,2026-09-21,55,2062.5,50.6,Active
-UK Field Solutions Ltd,EV,C,2026-09-21,38,1425.0,35.0,Active
-UK Field Solutions Ltd,HEC,D,2026-09-21,25,937.5,23.0,Active
-UK Field Solutions Ltd,KAC,D,2026-09-21,38,1425.0,35.0,Active
-UK Field Solutions Ltd,EV,D,2026-09-21,37,1387.5,34.0,Active
-UK Field Solutions Ltd,HEC,E,2026-09-21,28,1050.0,25.8,Active
-UK Field Solutions Ltd,KAC,E,2026-09-21,32,1200.0,29.4,Active
-UK Field Solutions Ltd,EV,E,2026-09-21,19,712.5,17.5,Active
-GreenEnergy Tech Partners,HEC,A,2026-09-21,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,KAC,A,2026-09-21,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,EV,A,2026-09-21,25,937.5,23.0,Standby
-GreenEnergy Tech Partners,HEC,B,2026-09-21,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,KAC,B,2026-09-21,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,EV,B,2026-09-21,25,937.5,23.0,Standby
-GreenEnergy Tech Partners,HEC,C,2026-09-21,44,1650.0,40.5,Standby
-GreenEnergy Tech Partners,KAC,C,2026-09-21,39,1462.5,35.9,Standby
-GreenEnergy Tech Partners,EV,C,2026-09-21,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,HEC,D,2026-09-21,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,KAC,D,2026-09-21,50,1875.0,46.0,Standby
-GreenEnergy Tech Partners,EV,D,2026-09-21,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,HEC,E,2026-09-21,35,1312.5,32.2,Standby
-GreenEnergy Tech Partners,KAC,E,2026-09-21,18,675.0,16.6,Standby
-GreenEnergy Tech Partners,EV,E,2026-09-21,29,1087.5,26.7,Standby
-Centrica Flex Contractors,HEC,A,2026-09-28,17,637.5,15.6,Active
-Centrica Flex Contractors,KAC,A,2026-09-28,35,1312.5,32.2,Active
-Centrica Flex Contractors,EV,A,2026-09-28,40,1500.0,36.8,Active
-Centrica Flex Contractors,HEC,B,2026-09-28,32,1200.0,29.4,Active
-Centrica Flex Contractors,KAC,B,2026-09-28,19,712.5,17.5,Active
-Centrica Flex Contractors,EV,B,2026-09-28,28,1050.0,25.8,Active
-Centrica Flex Contractors,HEC,C,2026-09-28,51,1912.5,46.9,Active
-Centrica Flex Contractors,KAC,C,2026-09-28,35,1312.5,32.2,Active
-Centrica Flex Contractors,EV,C,2026-09-28,28,1050.0,25.8,Active
-Centrica Flex Contractors,HEC,D,2026-09-28,46,1725.0,42.3,Active
-Centrica Flex Contractors,KAC,D,2026-09-28,40,1500.0,36.8,Active
-Centrica Flex Contractors,EV,D,2026-09-28,44,1650.0,40.5,Active
-Centrica Flex Contractors,HEC,E,2026-09-28,24,900.0,22.1,Active
-Centrica Flex Contractors,KAC,E,2026-09-28,31,1162.5,28.5,Active
-Centrica Flex Contractors,EV,E,2026-09-28,23,862.5,21.2,Active
-UK Field Solutions Ltd,HEC,A,2026-09-28,30,1125.0,27.6,Active
-UK Field Solutions Ltd,KAC,A,2026-09-28,50,1875.0,46.0,Active
-UK Field Solutions Ltd,EV,A,2026-09-28,49,1837.5,45.1,Active
-UK Field Solutions Ltd,HEC,B,2026-09-28,31,1162.5,28.5,Active
-UK Field Solutions Ltd,KAC,B,2026-09-28,52,1950.0,47.8,Active
-UK Field Solutions Ltd,EV,B,2026-09-28,42,1575.0,38.6,Active
-UK Field Solutions Ltd,HEC,C,2026-09-28,52,1950.0,47.8,Active
-UK Field Solutions Ltd,KAC,C,2026-09-28,40,1500.0,36.8,Active
-UK Field Solutions Ltd,EV,C,2026-09-28,38,1425.0,35.0,Active
-UK Field Solutions Ltd,HEC,D,2026-09-28,29,1087.5,26.7,Active
-UK Field Solutions Ltd,KAC,D,2026-09-28,23,862.5,21.2,Active
-UK Field Solutions Ltd,EV,D,2026-09-28,47,1762.5,43.2,Active
-UK Field Solutions Ltd,HEC,E,2026-09-28,46,1725.0,42.3,Active
-UK Field Solutions Ltd,KAC,E,2026-09-28,20,750.0,18.4,Active
-UK Field Solutions Ltd,EV,E,2026-09-28,18,675.0,16.6,Active
-GreenEnergy Tech Partners,HEC,A,2026-09-28,22,825.0,20.2,Standby
-GreenEnergy Tech Partners,KAC,A,2026-09-28,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,EV,A,2026-09-28,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,HEC,B,2026-09-28,25,937.5,23.0,Standby
-GreenEnergy Tech Partners,KAC,B,2026-09-28,42,1575.0,38.6,Standby
-GreenEnergy Tech Partners,EV,B,2026-09-28,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,HEC,C,2026-09-28,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,KAC,C,2026-09-28,39,1462.5,35.9,Standby
-GreenEnergy Tech Partners,EV,C,2026-09-28,39,1462.5,35.9,Standby
-GreenEnergy Tech Partners,HEC,D,2026-09-28,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,KAC,D,2026-09-28,44,1650.0,40.5,Standby
-GreenEnergy Tech Partners,EV,D,2026-09-28,48,1800.0,44.2,Standby
-GreenEnergy Tech Partners,HEC,E,2026-09-28,31,1162.5,28.5,Standby
-GreenEnergy Tech Partners,KAC,E,2026-09-28,50,1875.0,46.0,Standby
-GreenEnergy Tech Partners,EV,E,2026-09-28,15,562.5,13.8,Standby
-Centrica Flex Contractors,HEC,A,2026-10-05,22,825.0,20.2,Active
-Centrica Flex Contractors,KAC,A,2026-10-05,49,1837.5,45.1,Active
-Centrica Flex Contractors,EV,A,2026-10-05,32,1200.0,29.4,Active
-Centrica Flex Contractors,HEC,B,2026-10-05,36,1350.0,33.1,Active
-Centrica Flex Contractors,KAC,B,2026-10-05,22,825.0,20.2,Active
-Centrica Flex Contractors,EV,B,2026-10-05,33,1237.5,30.4,Active
-Centrica Flex Contractors,HEC,C,2026-10-05,42,1575.0,38.6,Active
-Centrica Flex Contractors,KAC,C,2026-10-05,25,937.5,23.0,Active
-Centrica Flex Contractors,EV,C,2026-10-05,44,1650.0,40.5,Active
-Centrica Flex Contractors,HEC,D,2026-10-05,15,562.5,13.8,Active
-Centrica Flex Contractors,KAC,D,2026-10-05,31,1162.5,28.5,Active
-Centrica Flex Contractors,EV,D,2026-10-05,47,1762.5,43.2,Active
-Centrica Flex Contractors,HEC,E,2026-10-05,26,975.0,23.9,Active
-Centrica Flex Contractors,KAC,E,2026-10-05,47,1762.5,43.2,Active
-Centrica Flex Contractors,EV,E,2026-10-05,21,787.5,19.3,Active
-UK Field Solutions Ltd,HEC,A,2026-10-05,55,2062.5,50.6,Active
-UK Field Solutions Ltd,KAC,A,2026-10-05,34,1275.0,31.3,Active
-UK Field Solutions Ltd,EV,A,2026-10-05,55,2062.5,50.6,Active
-UK Field Solutions Ltd,HEC,B,2026-10-05,47,1762.5,43.2,Active
-UK Field Solutions Ltd,KAC,B,2026-10-05,53,1987.5,48.8,Active
-UK Field Solutions Ltd,EV,B,2026-10-05,27,1012.5,24.8,Active
-UK Field Solutions Ltd,HEC,C,2026-10-05,24,900.0,22.1,Active
-UK Field Solutions Ltd,KAC,C,2026-10-05,38,1425.0,35.0,Active
-UK Field Solutions Ltd,EV,C,2026-10-05,25,937.5,23.0,Active
-UK Field Solutions Ltd,HEC,D,2026-10-05,49,1837.5,45.1,Active
-UK Field Solutions Ltd,KAC,D,2026-10-05,48,1800.0,44.2,Active
-UK Field Solutions Ltd,EV,D,2026-10-05,15,562.5,13.8,Active
-UK Field Solutions Ltd,HEC,E,2026-10-05,53,1987.5,48.8,Active
-UK Field Solutions Ltd,KAC,E,2026-10-05,35,1312.5,32.2,Active
-UK Field Solutions Ltd,EV,E,2026-10-05,46,1725.0,42.3,Active
-GreenEnergy Tech Partners,HEC,A,2026-10-05,16,600.0,14.7,Standby
-GreenEnergy Tech Partners,KAC,A,2026-10-05,22,825.0,20.2,Standby
-GreenEnergy Tech Partners,EV,A,2026-10-05,38,1425.0,35.0,Standby
-GreenEnergy Tech Partners,HEC,B,2026-10-05,34,1275.0,31.3,Standby
-GreenEnergy Tech Partners,KAC,B,2026-10-05,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,EV,B,2026-10-05,18,675.0,16.6,Standby
-GreenEnergy Tech Partners,HEC,C,2026-10-05,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,KAC,C,2026-10-05,51,1912.5,46.9,Standby
-GreenEnergy Tech Partners,EV,C,2026-10-05,20,750.0,18.4,Standby
-GreenEnergy Tech Partners,HEC,D,2026-10-05,20,750.0,18.4,Standby
-GreenEnergy Tech Partners,KAC,D,2026-10-05,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,EV,D,2026-10-05,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,HEC,E,2026-10-05,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,KAC,E,2026-10-05,23,862.5,21.2,Standby
-GreenEnergy Tech Partners,EV,E,2026-10-05,23,862.5,21.2,Standby
-Centrica Flex Contractors,HEC,A,2026-10-12,45,1687.5,41.4,Active
-Centrica Flex Contractors,KAC,A,2026-10-12,50,1875.0,46.0,Active
-Centrica Flex Contractors,EV,A,2026-10-12,25,937.5,23.0,Active
-Centrica Flex Contractors,HEC,B,2026-10-12,31,1162.5,28.5,Active
-Centrica Flex Contractors,KAC,B,2026-10-12,48,1800.0,44.2,Active
-Centrica Flex Contractors,EV,B,2026-10-12,53,1987.5,48.8,Active
-Centrica Flex Contractors,HEC,C,2026-10-12,42,1575.0,38.6,Active
-Centrica Flex Contractors,KAC,C,2026-10-12,28,1050.0,25.8,Active
-Centrica Flex Contractors,EV,C,2026-10-12,49,1837.5,45.1,Active
-Centrica Flex Contractors,HEC,D,2026-10-12,27,1012.5,24.8,Active
-Centrica Flex Contractors,KAC,D,2026-10-12,34,1275.0,31.3,Active
-Centrica Flex Contractors,EV,D,2026-10-12,40,1500.0,36.8,Active
-Centrica Flex Contractors,HEC,E,2026-10-12,38,1425.0,35.0,Active
-Centrica Flex Contractors,KAC,E,2026-10-12,43,1612.5,39.6,Active
-Centrica Flex Contractors,EV,E,2026-10-12,48,1800.0,44.2,Active
-UK Field Solutions Ltd,HEC,A,2026-10-12,43,1612.5,39.6,Active
-UK Field Solutions Ltd,KAC,A,2026-10-12,22,825.0,20.2,Active
-UK Field Solutions Ltd,EV,A,2026-10-12,30,1125.0,27.6,Active
-UK Field Solutions Ltd,HEC,B,2026-10-12,29,1087.5,26.7,Active
-UK Field Solutions Ltd,KAC,B,2026-10-12,19,712.5,17.5,Active
-UK Field Solutions Ltd,EV,B,2026-10-12,36,1350.0,33.1,Active
-UK Field Solutions Ltd,HEC,C,2026-10-12,16,600.0,14.7,Active
-UK Field Solutions Ltd,KAC,C,2026-10-12,52,1950.0,47.8,Active
-UK Field Solutions Ltd,EV,C,2026-10-12,50,1875.0,46.0,Active
-UK Field Solutions Ltd,HEC,D,2026-10-12,29,1087.5,26.7,Active
-UK Field Solutions Ltd,KAC,D,2026-10-12,52,1950.0,47.8,Active
-UK Field Solutions Ltd,EV,D,2026-10-12,29,1087.5,26.7,Active
-UK Field Solutions Ltd,HEC,E,2026-10-12,15,562.5,13.8,Active
-UK Field Solutions Ltd,KAC,E,2026-10-12,19,712.5,17.5,Active
-UK Field Solutions Ltd,EV,E,2026-10-12,55,2062.5,50.6,Active
-GreenEnergy Tech Partners,HEC,A,2026-10-12,18,675.0,16.6,Standby
-GreenEnergy Tech Partners,KAC,A,2026-10-12,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,EV,A,2026-10-12,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,HEC,B,2026-10-12,17,637.5,15.6,Standby
-GreenEnergy Tech Partners,KAC,B,2026-10-12,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,EV,B,2026-10-12,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,HEC,C,2026-10-12,47,1762.5,43.2,Standby
-GreenEnergy Tech Partners,KAC,C,2026-10-12,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,EV,C,2026-10-12,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,HEC,D,2026-10-12,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,KAC,D,2026-10-12,28,1050.0,25.8,Standby
-GreenEnergy Tech Partners,EV,D,2026-10-12,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,HEC,E,2026-10-12,23,862.5,21.2,Standby
-GreenEnergy Tech Partners,KAC,E,2026-10-12,51,1912.5,46.9,Standby
-GreenEnergy Tech Partners,EV,E,2026-10-12,51,1912.5,46.9,Standby
-Centrica Flex Contractors,HEC,A,2026-10-19,45,1687.5,41.4,Active
-Centrica Flex Contractors,KAC,A,2026-10-19,30,1125.0,27.6,Active
-Centrica Flex Contractors,EV,A,2026-10-19,45,1687.5,41.4,Active
-Centrica Flex Contractors,HEC,B,2026-10-19,41,1537.5,37.7,Active
-Centrica Flex Contractors,KAC,B,2026-10-19,27,1012.5,24.8,Active
-Centrica Flex Contractors,EV,B,2026-10-19,21,787.5,19.3,Active
-Centrica Flex Contractors,HEC,C,2026-10-19,21,787.5,19.3,Active
-Centrica Flex Contractors,KAC,C,2026-10-19,42,1575.0,38.6,Active
-Centrica Flex Contractors,EV,C,2026-10-19,37,1387.5,34.0,Active
-Centrica Flex Contractors,HEC,D,2026-10-19,42,1575.0,38.6,Active
-Centrica Flex Contractors,KAC,D,2026-10-19,41,1537.5,37.7,Active
-Centrica Flex Contractors,EV,D,2026-10-19,44,1650.0,40.5,Active
-Centrica Flex Contractors,HEC,E,2026-10-19,18,675.0,16.6,Active
-Centrica Flex Contractors,KAC,E,2026-10-19,21,787.5,19.3,Active
-Centrica Flex Contractors,EV,E,2026-10-19,18,675.0,16.6,Active
-UK Field Solutions Ltd,HEC,A,2026-10-19,40,1500.0,36.8,Active
-UK Field Solutions Ltd,KAC,A,2026-10-19,36,1350.0,33.1,Active
-UK Field Solutions Ltd,EV,A,2026-10-19,21,787.5,19.3,Active
-UK Field Solutions Ltd,HEC,B,2026-10-19,30,1125.0,27.6,Active
-UK Field Solutions Ltd,KAC,B,2026-10-19,27,1012.5,24.8,Active
-UK Field Solutions Ltd,EV,B,2026-10-19,27,1012.5,24.8,Active
-UK Field Solutions Ltd,HEC,C,2026-10-19,49,1837.5,45.1,Active
-UK Field Solutions Ltd,KAC,C,2026-10-19,43,1612.5,39.6,Active
-UK Field Solutions Ltd,EV,C,2026-10-19,23,862.5,21.2,Active
-UK Field Solutions Ltd,HEC,D,2026-10-19,42,1575.0,38.6,Active
-UK Field Solutions Ltd,KAC,D,2026-10-19,26,975.0,23.9,Active
-UK Field Solutions Ltd,EV,D,2026-10-19,32,1200.0,29.4,Active
-UK Field Solutions Ltd,HEC,E,2026-10-19,44,1650.0,40.5,Active
-UK Field Solutions Ltd,KAC,E,2026-10-19,30,1125.0,27.6,Active
-UK Field Solutions Ltd,EV,E,2026-10-19,19,712.5,17.5,Active
-GreenEnergy Tech Partners,HEC,A,2026-10-19,43,1612.5,39.6,Standby
-GreenEnergy Tech Partners,KAC,A,2026-10-19,50,1875.0,46.0,Standby
-GreenEnergy Tech Partners,EV,A,2026-10-19,21,787.5,19.3,Standby
-GreenEnergy Tech Partners,HEC,B,2026-10-19,18,675.0,16.6,Standby
-GreenEnergy Tech Partners,KAC,B,2026-10-19,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,EV,B,2026-10-19,15,562.5,13.8,Standby
-GreenEnergy Tech Partners,HEC,C,2026-10-19,20,750.0,18.4,Standby
-GreenEnergy Tech Partners,KAC,C,2026-10-19,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,EV,C,2026-10-19,25,937.5,23.0,Standby
-GreenEnergy Tech Partners,HEC,D,2026-10-19,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,KAC,D,2026-10-19,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,EV,D,2026-10-19,45,1687.5,41.4,Standby
-GreenEnergy Tech Partners,HEC,E,2026-10-19,28,1050.0,25.8,Standby
-GreenEnergy Tech Partners,KAC,E,2026-10-19,40,1500.0,36.8,Standby
-GreenEnergy Tech Partners,EV,E,2026-10-19,18,675.0,16.6,Standby
-Centrica Flex Contractors,HEC,A,2026-10-26,25,937.5,23.0,Active
-Centrica Flex Contractors,KAC,A,2026-10-26,39,1462.5,35.9,Active
-Centrica Flex Contractors,EV,A,2026-10-26,15,562.5,13.8,Active
-Centrica Flex Contractors,HEC,B,2026-10-26,39,1462.5,35.9,Active
-Centrica Flex Contractors,KAC,B,2026-10-26,31,1162.5,28.5,Active
-Centrica Flex Contractors,EV,B,2026-10-26,44,1650.0,40.5,Active
-Centrica Flex Contractors,HEC,C,2026-10-26,33,1237.5,30.4,Active
-Centrica Flex Contractors,KAC,C,2026-10-26,42,1575.0,38.6,Active
-Centrica Flex Contractors,EV,C,2026-10-26,50,1875.0,46.0,Active
-Centrica Flex Contractors,HEC,D,2026-10-26,46,1725.0,42.3,Active
-Centrica Flex Contractors,KAC,D,2026-10-26,24,900.0,22.1,Active
-Centrica Flex Contractors,EV,D,2026-10-26,27,1012.5,24.8,Active
-Centrica Flex Contractors,HEC,E,2026-10-26,33,1237.5,30.4,Active
-Centrica Flex Contractors,KAC,E,2026-10-26,28,1050.0,25.8,Active
-Centrica Flex Contractors,EV,E,2026-10-26,18,675.0,16.6,Active
-UK Field Solutions Ltd,HEC,A,2026-10-26,52,1950.0,47.8,Active
-UK Field Solutions Ltd,KAC,A,2026-10-26,49,1837.5,45.1,Active
-UK Field Solutions Ltd,EV,A,2026-10-26,18,675.0,16.6,Active
-UK Field Solutions Ltd,HEC,B,2026-10-26,35,1312.5,32.2,Active
-UK Field Solutions Ltd,KAC,B,2026-10-26,18,675.0,16.6,Active
-UK Field Solutions Ltd,EV,B,2026-10-26,18,675.0,16.6,Active
-UK Field Solutions Ltd,HEC,C,2026-10-26,52,1950.0,47.8,Active
-UK Field Solutions Ltd,KAC,C,2026-10-26,45,1687.5,41.4,Active
-UK Field Solutions Ltd,EV,C,2026-10-26,47,1762.5,43.2,Active
-UK Field Solutions Ltd,HEC,D,2026-10-26,48,1800.0,44.2,Active
-UK Field Solutions Ltd,KAC,D,2026-10-26,25,937.5,23.0,Active
-UK Field Solutions Ltd,EV,D,2026-10-26,18,675.0,16.6,Active
-UK Field Solutions Ltd,HEC,E,2026-10-26,47,1762.5,43.2,Active
-UK Field Solutions Ltd,KAC,E,2026-10-26,20,750.0,18.4,Active
-UK Field Solutions Ltd,EV,E,2026-10-26,26,975.0,23.9,Active
-GreenEnergy Tech Partners,HEC,A,2026-10-26,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,KAC,A,2026-10-26,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,EV,A,2026-10-26,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,HEC,B,2026-10-26,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,KAC,B,2026-10-26,40,1500.0,36.8,Standby
-GreenEnergy Tech Partners,EV,B,2026-10-26,22,825.0,20.2,Standby
-GreenEnergy Tech Partners,HEC,C,2026-10-26,51,1912.5,46.9,Standby
-GreenEnergy Tech Partners,KAC,C,2026-10-26,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,EV,C,2026-10-26,52,1950.0,47.8,Standby
-GreenEnergy Tech Partners,HEC,D,2026-10-26,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,KAC,D,2026-10-26,17,637.5,15.6,Standby
-GreenEnergy Tech Partners,EV,D,2026-10-26,54,2025.0,49.7,Standby
-GreenEnergy Tech Partners,HEC,E,2026-10-26,20,750.0,18.4,Standby
-GreenEnergy Tech Partners,KAC,E,2026-10-26,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,EV,E,2026-10-26,52,1950.0,47.8,Standby
-Centrica Flex Contractors,HEC,A,2026-11-02,51,1912.5,46.9,Active
-Centrica Flex Contractors,KAC,A,2026-11-02,48,1800.0,44.2,Active
-Centrica Flex Contractors,EV,A,2026-11-02,35,1312.5,32.2,Active
-Centrica Flex Contractors,HEC,B,2026-11-02,31,1162.5,28.5,Active
-Centrica Flex Contractors,KAC,B,2026-11-02,28,1050.0,25.8,Active
-Centrica Flex Contractors,EV,B,2026-11-02,35,1312.5,32.2,Active
-Centrica Flex Contractors,HEC,C,2026-11-02,30,1125.0,27.6,Active
-Centrica Flex Contractors,KAC,C,2026-11-02,31,1162.5,28.5,Active
-Centrica Flex Contractors,EV,C,2026-11-02,40,1500.0,36.8,Active
-Centrica Flex Contractors,HEC,D,2026-11-02,23,862.5,21.2,Active
-Centrica Flex Contractors,KAC,D,2026-11-02,34,1275.0,31.3,Active
-Centrica Flex Contractors,EV,D,2026-11-02,44,1650.0,40.5,Active
-Centrica Flex Contractors,HEC,E,2026-11-02,35,1312.5,32.2,Active
-Centrica Flex Contractors,KAC,E,2026-11-02,19,712.5,17.5,Active
-Centrica Flex Contractors,EV,E,2026-11-02,15,562.5,13.8,Active
-UK Field Solutions Ltd,HEC,A,2026-11-02,44,1650.0,40.5,Active
-UK Field Solutions Ltd,KAC,A,2026-11-02,54,2025.0,49.7,Active
-UK Field Solutions Ltd,EV,A,2026-11-02,51,1912.5,46.9,Active
-UK Field Solutions Ltd,HEC,B,2026-11-02,21,787.5,19.3,Active
-UK Field Solutions Ltd,KAC,B,2026-11-02,19,712.5,17.5,Active
-UK Field Solutions Ltd,EV,B,2026-11-02,49,1837.5,45.1,Active
-UK Field Solutions Ltd,HEC,C,2026-11-02,28,1050.0,25.8,Active
-UK Field Solutions Ltd,KAC,C,2026-11-02,47,1762.5,43.2,Active
-UK Field Solutions Ltd,EV,C,2026-11-02,31,1162.5,28.5,Active
-UK Field Solutions Ltd,HEC,D,2026-11-02,23,862.5,21.2,Active
-UK Field Solutions Ltd,KAC,D,2026-11-02,37,1387.5,34.0,Active
-UK Field Solutions Ltd,EV,D,2026-11-02,19,712.5,17.5,Active
-UK Field Solutions Ltd,HEC,E,2026-11-02,30,1125.0,27.6,Active
-UK Field Solutions Ltd,KAC,E,2026-11-02,38,1425.0,35.0,Active
-UK Field Solutions Ltd,EV,E,2026-11-02,33,1237.5,30.4,Active
-GreenEnergy Tech Partners,HEC,A,2026-11-02,25,937.5,23.0,Standby
-GreenEnergy Tech Partners,KAC,A,2026-11-02,43,1612.5,39.6,Standby
-GreenEnergy Tech Partners,EV,A,2026-11-02,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,HEC,B,2026-11-02,34,1275.0,31.3,Standby
-GreenEnergy Tech Partners,KAC,B,2026-11-02,54,2025.0,49.7,Standby
-GreenEnergy Tech Partners,EV,B,2026-11-02,48,1800.0,44.2,Standby
-GreenEnergy Tech Partners,HEC,C,2026-11-02,15,562.5,13.8,Standby
-GreenEnergy Tech Partners,KAC,C,2026-11-02,50,1875.0,46.0,Standby
-GreenEnergy Tech Partners,EV,C,2026-11-02,34,1275.0,31.3,Standby
-GreenEnergy Tech Partners,HEC,D,2026-11-02,21,787.5,19.3,Standby
-GreenEnergy Tech Partners,KAC,D,2026-11-02,23,862.5,21.2,Standby
-GreenEnergy Tech Partners,EV,D,2026-11-02,31,1162.5,28.5,Standby
-GreenEnergy Tech Partners,HEC,E,2026-11-02,22,825.0,20.2,Standby
-GreenEnergy Tech Partners,KAC,E,2026-11-02,21,787.5,19.3,Standby
-GreenEnergy Tech Partners,EV,E,2026-11-02,50,1875.0,46.0,Standby
-Centrica Flex Contractors,HEC,A,2026-11-09,24,900.0,22.1,Active
-Centrica Flex Contractors,KAC,A,2026-11-09,32,1200.0,29.4,Active
-Centrica Flex Contractors,EV,A,2026-11-09,33,1237.5,30.4,Active
-Centrica Flex Contractors,HEC,B,2026-11-09,53,1987.5,48.8,Active
-Centrica Flex Contractors,KAC,B,2026-11-09,28,1050.0,25.8,Active
-Centrica Flex Contractors,EV,B,2026-11-09,36,1350.0,33.1,Active
-Centrica Flex Contractors,HEC,C,2026-11-09,28,1050.0,25.8,Active
-Centrica Flex Contractors,KAC,C,2026-11-09,55,2062.5,50.6,Active
-Centrica Flex Contractors,EV,C,2026-11-09,31,1162.5,28.5,Active
-Centrica Flex Contractors,HEC,D,2026-11-09,47,1762.5,43.2,Active
-Centrica Flex Contractors,KAC,D,2026-11-09,46,1725.0,42.3,Active
-Centrica Flex Contractors,EV,D,2026-11-09,31,1162.5,28.5,Active
-Centrica Flex Contractors,HEC,E,2026-11-09,18,675.0,16.6,Active
-Centrica Flex Contractors,KAC,E,2026-11-09,20,750.0,18.4,Active
-Centrica Flex Contractors,EV,E,2026-11-09,55,2062.5,50.6,Active
-UK Field Solutions Ltd,HEC,A,2026-11-09,42,1575.0,38.6,Active
-UK Field Solutions Ltd,KAC,A,2026-11-09,32,1200.0,29.4,Active
-UK Field Solutions Ltd,EV,A,2026-11-09,17,637.5,15.6,Active
-UK Field Solutions Ltd,HEC,B,2026-11-09,15,562.5,13.8,Active
-UK Field Solutions Ltd,KAC,B,2026-11-09,36,1350.0,33.1,Active
-UK Field Solutions Ltd,EV,B,2026-11-09,23,862.5,21.2,Active
-UK Field Solutions Ltd,HEC,C,2026-11-09,55,2062.5,50.6,Active
-UK Field Solutions Ltd,KAC,C,2026-11-09,31,1162.5,28.5,Active
-UK Field Solutions Ltd,EV,C,2026-11-09,25,937.5,23.0,Active
-UK Field Solutions Ltd,HEC,D,2026-11-09,43,1612.5,39.6,Active
-UK Field Solutions Ltd,KAC,D,2026-11-09,50,1875.0,46.0,Active
-UK Field Solutions Ltd,EV,D,2026-11-09,42,1575.0,38.6,Active
-UK Field Solutions Ltd,HEC,E,2026-11-09,50,1875.0,46.0,Active
-UK Field Solutions Ltd,KAC,E,2026-11-09,15,562.5,13.8,Active
-UK Field Solutions Ltd,EV,E,2026-11-09,22,825.0,20.2,Active
-GreenEnergy Tech Partners,HEC,A,2026-11-09,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,KAC,A,2026-11-09,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,EV,A,2026-11-09,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,HEC,B,2026-11-09,17,637.5,15.6,Standby
-GreenEnergy Tech Partners,KAC,B,2026-11-09,38,1425.0,35.0,Standby
-GreenEnergy Tech Partners,EV,B,2026-11-09,52,1950.0,47.8,Standby
-GreenEnergy Tech Partners,HEC,C,2026-11-09,50,1875.0,46.0,Standby
-GreenEnergy Tech Partners,KAC,C,2026-11-09,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,EV,C,2026-11-09,42,1575.0,38.6,Standby
-GreenEnergy Tech Partners,HEC,D,2026-11-09,23,862.5,21.2,Standby
-GreenEnergy Tech Partners,KAC,D,2026-11-09,17,637.5,15.6,Standby
-GreenEnergy Tech Partners,EV,D,2026-11-09,34,1275.0,31.3,Standby
-GreenEnergy Tech Partners,HEC,E,2026-11-09,38,1425.0,35.0,Standby
-GreenEnergy Tech Partners,KAC,E,2026-11-09,17,637.5,15.6,Standby
-GreenEnergy Tech Partners,EV,E,2026-11-09,37,1387.5,34.0,Standby
-Centrica Flex Contractors,HEC,A,2026-11-16,28,1050.0,25.8,Active
-Centrica Flex Contractors,KAC,A,2026-11-16,30,1125.0,27.6,Active
-Centrica Flex Contractors,EV,A,2026-11-16,21,787.5,19.3,Active
-Centrica Flex Contractors,HEC,B,2026-11-16,37,1387.5,34.0,Active
-Centrica Flex Contractors,KAC,B,2026-11-16,50,1875.0,46.0,Active
-Centrica Flex Contractors,EV,B,2026-11-16,41,1537.5,37.7,Active
-Centrica Flex Contractors,HEC,C,2026-11-16,54,2025.0,49.7,Active
-Centrica Flex Contractors,KAC,C,2026-11-16,24,900.0,22.1,Active
-Centrica Flex Contractors,EV,C,2026-11-16,30,1125.0,27.6,Active
-Centrica Flex Contractors,HEC,D,2026-11-16,25,937.5,23.0,Active
-Centrica Flex Contractors,KAC,D,2026-11-16,26,975.0,23.9,Active
-Centrica Flex Contractors,EV,D,2026-11-16,41,1537.5,37.7,Active
-Centrica Flex Contractors,HEC,E,2026-11-16,16,600.0,14.7,Active
-Centrica Flex Contractors,KAC,E,2026-11-16,26,975.0,23.9,Active
-Centrica Flex Contractors,EV,E,2026-11-16,36,1350.0,33.1,Active
-UK Field Solutions Ltd,HEC,A,2026-11-16,41,1537.5,37.7,Active
-UK Field Solutions Ltd,KAC,A,2026-11-16,30,1125.0,27.6,Active
-UK Field Solutions Ltd,EV,A,2026-11-16,32,1200.0,29.4,Active
-UK Field Solutions Ltd,HEC,B,2026-11-16,25,937.5,23.0,Active
-UK Field Solutions Ltd,KAC,B,2026-11-16,21,787.5,19.3,Active
-UK Field Solutions Ltd,EV,B,2026-11-16,39,1462.5,35.9,Active
-UK Field Solutions Ltd,HEC,C,2026-11-16,17,637.5,15.6,Active
-UK Field Solutions Ltd,KAC,C,2026-11-16,45,1687.5,41.4,Active
-UK Field Solutions Ltd,EV,C,2026-11-16,29,1087.5,26.7,Active
-UK Field Solutions Ltd,HEC,D,2026-11-16,27,1012.5,24.8,Active
-UK Field Solutions Ltd,KAC,D,2026-11-16,44,1650.0,40.5,Active
-UK Field Solutions Ltd,EV,D,2026-11-16,37,1387.5,34.0,Active
-UK Field Solutions Ltd,HEC,E,2026-11-16,34,1275.0,31.3,Active
-UK Field Solutions Ltd,KAC,E,2026-11-16,29,1087.5,26.7,Active
-UK Field Solutions Ltd,EV,E,2026-11-16,29,1087.5,26.7,Active
-GreenEnergy Tech Partners,HEC,A,2026-11-16,16,600.0,14.7,Standby
-GreenEnergy Tech Partners,KAC,A,2026-11-16,27,1012.5,24.8,Standby
-GreenEnergy Tech Partners,EV,A,2026-11-16,40,1500.0,36.8,Standby
-GreenEnergy Tech Partners,HEC,B,2026-11-16,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,KAC,B,2026-11-16,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,EV,B,2026-11-16,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,HEC,C,2026-11-16,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,KAC,C,2026-11-16,37,1387.5,34.0,Standby
-GreenEnergy Tech Partners,EV,C,2026-11-16,47,1762.5,43.2,Standby
-GreenEnergy Tech Partners,HEC,D,2026-11-16,40,1500.0,36.8,Standby
-GreenEnergy Tech Partners,KAC,D,2026-11-16,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,EV,D,2026-11-16,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,HEC,E,2026-11-16,16,600.0,14.7,Standby
-GreenEnergy Tech Partners,KAC,E,2026-11-16,22,825.0,20.2,Standby
-GreenEnergy Tech Partners,EV,E,2026-11-16,31,1162.5,28.5,Standby
-Centrica Flex Contractors,HEC,A,2026-11-23,26,975.0,23.9,Active
-Centrica Flex Contractors,KAC,A,2026-11-23,52,1950.0,47.8,Active
-Centrica Flex Contractors,EV,A,2026-11-23,31,1162.5,28.5,Active
-Centrica Flex Contractors,HEC,B,2026-11-23,17,637.5,15.6,Active
-Centrica Flex Contractors,KAC,B,2026-11-23,21,787.5,19.3,Active
-Centrica Flex Contractors,EV,B,2026-11-23,53,1987.5,48.8,Active
-Centrica Flex Contractors,HEC,C,2026-11-23,42,1575.0,38.6,Active
-Centrica Flex Contractors,KAC,C,2026-11-23,37,1387.5,34.0,Active
-Centrica Flex Contractors,EV,C,2026-11-23,35,1312.5,32.2,Active
-Centrica Flex Contractors,HEC,D,2026-11-23,42,1575.0,38.6,Active
-Centrica Flex Contractors,KAC,D,2026-11-23,53,1987.5,48.8,Active
-Centrica Flex Contractors,EV,D,2026-11-23,47,1762.5,43.2,Active
-Centrica Flex Contractors,HEC,E,2026-11-23,22,825.0,20.2,Active
-Centrica Flex Contractors,KAC,E,2026-11-23,39,1462.5,35.9,Active
-Centrica Flex Contractors,EV,E,2026-11-23,51,1912.5,46.9,Active
-UK Field Solutions Ltd,HEC,A,2026-11-23,27,1012.5,24.8,Active
-UK Field Solutions Ltd,KAC,A,2026-11-23,31,1162.5,28.5,Active
-UK Field Solutions Ltd,EV,A,2026-11-23,17,637.5,15.6,Active
-UK Field Solutions Ltd,HEC,B,2026-11-23,42,1575.0,38.6,Active
-UK Field Solutions Ltd,KAC,B,2026-11-23,15,562.5,13.8,Active
-UK Field Solutions Ltd,EV,B,2026-11-23,48,1800.0,44.2,Active
-UK Field Solutions Ltd,HEC,C,2026-11-23,49,1837.5,45.1,Active
-UK Field Solutions Ltd,KAC,C,2026-11-23,27,1012.5,24.8,Active
-UK Field Solutions Ltd,EV,C,2026-11-23,38,1425.0,35.0,Active
-UK Field Solutions Ltd,HEC,D,2026-11-23,42,1575.0,38.6,Active
-UK Field Solutions Ltd,KAC,D,2026-11-23,19,712.5,17.5,Active
-UK Field Solutions Ltd,EV,D,2026-11-23,36,1350.0,33.1,Active
-UK Field Solutions Ltd,HEC,E,2026-11-23,54,2025.0,49.7,Active
-UK Field Solutions Ltd,KAC,E,2026-11-23,35,1312.5,32.2,Active
-UK Field Solutions Ltd,EV,E,2026-11-23,22,825.0,20.2,Active
-GreenEnergy Tech Partners,HEC,A,2026-11-23,34,1275.0,31.3,Standby
-GreenEnergy Tech Partners,KAC,A,2026-11-23,47,1762.5,43.2,Standby
-GreenEnergy Tech Partners,EV,A,2026-11-23,34,1275.0,31.3,Standby
-GreenEnergy Tech Partners,HEC,B,2026-11-23,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,KAC,B,2026-11-23,35,1312.5,32.2,Standby
-GreenEnergy Tech Partners,EV,B,2026-11-23,40,1500.0,36.8,Standby
-GreenEnergy Tech Partners,HEC,C,2026-11-23,33,1237.5,30.4,Standby
-GreenEnergy Tech Partners,KAC,C,2026-11-23,50,1875.0,46.0,Standby
-GreenEnergy Tech Partners,EV,C,2026-11-23,23,862.5,21.2,Standby
-GreenEnergy Tech Partners,HEC,D,2026-11-23,27,1012.5,24.8,Standby
-GreenEnergy Tech Partners,KAC,D,2026-11-23,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,EV,D,2026-11-23,39,1462.5,35.9,Standby
-GreenEnergy Tech Partners,HEC,E,2026-11-23,26,975.0,23.9,Standby
-GreenEnergy Tech Partners,KAC,E,2026-11-23,54,2025.0,49.7,Standby
-GreenEnergy Tech Partners,EV,E,2026-11-23,51,1912.5,46.9,Standby
-Centrica Flex Contractors,HEC,A,2026-11-30,34,1275.0,31.3,Active
-Centrica Flex Contractors,KAC,A,2026-11-30,40,1500.0,36.8,Active
-Centrica Flex Contractors,EV,A,2026-11-30,50,1875.0,46.0,Active
-Centrica Flex Contractors,HEC,B,2026-11-30,15,562.5,13.8,Active
-Centrica Flex Contractors,KAC,B,2026-11-30,34,1275.0,31.3,Active
-Centrica Flex Contractors,EV,B,2026-11-30,33,1237.5,30.4,Active
-Centrica Flex Contractors,HEC,C,2026-11-30,28,1050.0,25.8,Active
-Centrica Flex Contractors,KAC,C,2026-11-30,42,1575.0,38.6,Active
-Centrica Flex Contractors,EV,C,2026-11-30,52,1950.0,47.8,Active
-Centrica Flex Contractors,HEC,D,2026-11-30,53,1987.5,48.8,Active
-Centrica Flex Contractors,KAC,D,2026-11-30,35,1312.5,32.2,Active
-Centrica Flex Contractors,EV,D,2026-11-30,44,1650.0,40.5,Active
-Centrica Flex Contractors,HEC,E,2026-11-30,43,1612.5,39.6,Active
-Centrica Flex Contractors,KAC,E,2026-11-30,43,1612.5,39.6,Active
-Centrica Flex Contractors,EV,E,2026-11-30,28,1050.0,25.8,Active
-UK Field Solutions Ltd,HEC,A,2026-11-30,47,1762.5,43.2,Active
-UK Field Solutions Ltd,KAC,A,2026-11-30,45,1687.5,41.4,Active
-UK Field Solutions Ltd,EV,A,2026-11-30,25,937.5,23.0,Active
-UK Field Solutions Ltd,HEC,B,2026-11-30,20,750.0,18.4,Active
-UK Field Solutions Ltd,KAC,B,2026-11-30,33,1237.5,30.4,Active
-UK Field Solutions Ltd,EV,B,2026-11-30,47,1762.5,43.2,Active
-UK Field Solutions Ltd,HEC,C,2026-11-30,55,2062.5,50.6,Active
-UK Field Solutions Ltd,KAC,C,2026-11-30,54,2025.0,49.7,Active
-UK Field Solutions Ltd,EV,C,2026-11-30,36,1350.0,33.1,Active
-UK Field Solutions Ltd,HEC,D,2026-11-30,20,750.0,18.4,Active
-UK Field Solutions Ltd,KAC,D,2026-11-30,30,1125.0,27.6,Active
-UK Field Solutions Ltd,EV,D,2026-11-30,34,1275.0,31.3,Active
-UK Field Solutions Ltd,HEC,E,2026-11-30,29,1087.5,26.7,Active
-UK Field Solutions Ltd,KAC,E,2026-11-30,27,1012.5,24.8,Active
-UK Field Solutions Ltd,EV,E,2026-11-30,24,900.0,22.1,Active
-GreenEnergy Tech Partners,HEC,A,2026-11-30,16,600.0,14.7,Standby
-GreenEnergy Tech Partners,KAC,A,2026-11-30,17,637.5,15.6,Standby
-GreenEnergy Tech Partners,EV,A,2026-11-30,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,HEC,B,2026-11-30,45,1687.5,41.4,Standby
-GreenEnergy Tech Partners,KAC,B,2026-11-30,54,2025.0,49.7,Standby
-GreenEnergy Tech Partners,EV,B,2026-11-30,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,HEC,C,2026-11-30,44,1650.0,40.5,Standby
-GreenEnergy Tech Partners,KAC,C,2026-11-30,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,EV,C,2026-11-30,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,HEC,D,2026-11-30,51,1912.5,46.9,Standby
-GreenEnergy Tech Partners,KAC,D,2026-11-30,27,1012.5,24.8,Standby
-GreenEnergy Tech Partners,EV,D,2026-11-30,39,1462.5,35.9,Standby
-GreenEnergy Tech Partners,HEC,E,2026-11-30,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,KAC,E,2026-11-30,40,1500.0,36.8,Standby
-GreenEnergy Tech Partners,EV,E,2026-11-30,30,1125.0,27.6,Standby
-Centrica Flex Contractors,HEC,A,2026-12-07,24,900.0,22.1,Active
-Centrica Flex Contractors,KAC,A,2026-12-07,15,562.5,13.8,Active
-Centrica Flex Contractors,EV,A,2026-12-07,21,787.5,19.3,Active
-Centrica Flex Contractors,HEC,B,2026-12-07,42,1575.0,38.6,Active
-Centrica Flex Contractors,KAC,B,2026-12-07,29,1087.5,26.7,Active
-Centrica Flex Contractors,EV,B,2026-12-07,26,975.0,23.9,Active
-Centrica Flex Contractors,HEC,C,2026-12-07,48,1800.0,44.2,Active
-Centrica Flex Contractors,KAC,C,2026-12-07,44,1650.0,40.5,Active
-Centrica Flex Contractors,EV,C,2026-12-07,18,675.0,16.6,Active
-Centrica Flex Contractors,HEC,D,2026-12-07,50,1875.0,46.0,Active
-Centrica Flex Contractors,KAC,D,2026-12-07,30,1125.0,27.6,Active
-Centrica Flex Contractors,EV,D,2026-12-07,22,825.0,20.2,Active
-Centrica Flex Contractors,HEC,E,2026-12-07,44,1650.0,40.5,Active
-Centrica Flex Contractors,KAC,E,2026-12-07,23,862.5,21.2,Active
-Centrica Flex Contractors,EV,E,2026-12-07,44,1650.0,40.5,Active
-UK Field Solutions Ltd,HEC,A,2026-12-07,48,1800.0,44.2,Active
-UK Field Solutions Ltd,KAC,A,2026-12-07,50,1875.0,46.0,Active
-UK Field Solutions Ltd,EV,A,2026-12-07,53,1987.5,48.8,Active
-UK Field Solutions Ltd,HEC,B,2026-12-07,35,1312.5,32.2,Active
-UK Field Solutions Ltd,KAC,B,2026-12-07,43,1612.5,39.6,Active
-UK Field Solutions Ltd,EV,B,2026-12-07,54,2025.0,49.7,Active
-UK Field Solutions Ltd,HEC,C,2026-12-07,47,1762.5,43.2,Active
-UK Field Solutions Ltd,KAC,C,2026-12-07,42,1575.0,38.6,Active
-UK Field Solutions Ltd,EV,C,2026-12-07,50,1875.0,46.0,Active
-UK Field Solutions Ltd,HEC,D,2026-12-07,43,1612.5,39.6,Active
-UK Field Solutions Ltd,KAC,D,2026-12-07,25,937.5,23.0,Active
-UK Field Solutions Ltd,EV,D,2026-12-07,45,1687.5,41.4,Active
-UK Field Solutions Ltd,HEC,E,2026-12-07,43,1612.5,39.6,Active
-UK Field Solutions Ltd,KAC,E,2026-12-07,31,1162.5,28.5,Active
-UK Field Solutions Ltd,EV,E,2026-12-07,30,1125.0,27.6,Active
-GreenEnergy Tech Partners,HEC,A,2026-12-07,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,KAC,A,2026-12-07,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,EV,A,2026-12-07,48,1800.0,44.2,Standby
-GreenEnergy Tech Partners,HEC,B,2026-12-07,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,KAC,B,2026-12-07,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,EV,B,2026-12-07,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,HEC,C,2026-12-07,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,KAC,C,2026-12-07,43,1612.5,39.6,Standby
-GreenEnergy Tech Partners,EV,C,2026-12-07,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,HEC,D,2026-12-07,33,1237.5,30.4,Standby
-GreenEnergy Tech Partners,KAC,D,2026-12-07,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,EV,D,2026-12-07,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,HEC,E,2026-12-07,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,KAC,E,2026-12-07,35,1312.5,32.2,Standby
-GreenEnergy Tech Partners,EV,E,2026-12-07,49,1837.5,45.1,Standby
-Centrica Flex Contractors,HEC,A,2026-12-14,20,750.0,18.4,Active
-Centrica Flex Contractors,KAC,A,2026-12-14,23,862.5,21.2,Active
-Centrica Flex Contractors,EV,A,2026-12-14,24,900.0,22.1,Active
-Centrica Flex Contractors,HEC,B,2026-12-14,29,1087.5,26.7,Active
-Centrica Flex Contractors,KAC,B,2026-12-14,39,1462.5,35.9,Active
-Centrica Flex Contractors,EV,B,2026-12-14,24,900.0,22.1,Active
-Centrica Flex Contractors,HEC,C,2026-12-14,28,1050.0,25.8,Active
-Centrica Flex Contractors,KAC,C,2026-12-14,19,712.5,17.5,Active
-Centrica Flex Contractors,EV,C,2026-12-14,41,1537.5,37.7,Active
-Centrica Flex Contractors,HEC,D,2026-12-14,41,1537.5,37.7,Active
-Centrica Flex Contractors,KAC,D,2026-12-14,36,1350.0,33.1,Active
-Centrica Flex Contractors,EV,D,2026-12-14,49,1837.5,45.1,Active
-Centrica Flex Contractors,HEC,E,2026-12-14,44,1650.0,40.5,Active
-Centrica Flex Contractors,KAC,E,2026-12-14,41,1537.5,37.7,Active
-Centrica Flex Contractors,EV,E,2026-12-14,18,675.0,16.6,Active
-UK Field Solutions Ltd,HEC,A,2026-12-14,28,1050.0,25.8,Active
-UK Field Solutions Ltd,KAC,A,2026-12-14,41,1537.5,37.7,Active
-UK Field Solutions Ltd,EV,A,2026-12-14,39,1462.5,35.9,Active
-UK Field Solutions Ltd,HEC,B,2026-12-14,52,1950.0,47.8,Active
-UK Field Solutions Ltd,KAC,B,2026-12-14,16,600.0,14.7,Active
-UK Field Solutions Ltd,EV,B,2026-12-14,51,1912.5,46.9,Active
-UK Field Solutions Ltd,HEC,C,2026-12-14,39,1462.5,35.9,Active
-UK Field Solutions Ltd,KAC,C,2026-12-14,45,1687.5,41.4,Active
-UK Field Solutions Ltd,EV,C,2026-12-14,15,562.5,13.8,Active
-UK Field Solutions Ltd,HEC,D,2026-12-14,37,1387.5,34.0,Active
-UK Field Solutions Ltd,KAC,D,2026-12-14,34,1275.0,31.3,Active
-UK Field Solutions Ltd,EV,D,2026-12-14,39,1462.5,35.9,Active
-UK Field Solutions Ltd,HEC,E,2026-12-14,41,1537.5,37.7,Active
-UK Field Solutions Ltd,KAC,E,2026-12-14,49,1837.5,45.1,Active
-UK Field Solutions Ltd,EV,E,2026-12-14,49,1837.5,45.1,Active
-GreenEnergy Tech Partners,HEC,A,2026-12-14,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,KAC,A,2026-12-14,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,EV,A,2026-12-14,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,HEC,B,2026-12-14,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,KAC,B,2026-12-14,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,EV,B,2026-12-14,42,1575.0,38.6,Standby
-GreenEnergy Tech Partners,HEC,C,2026-12-14,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,KAC,C,2026-12-14,16,600.0,14.7,Standby
-GreenEnergy Tech Partners,EV,C,2026-12-14,39,1462.5,35.9,Standby
-GreenEnergy Tech Partners,HEC,D,2026-12-14,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,KAC,D,2026-12-14,40,1500.0,36.8,Standby
-GreenEnergy Tech Partners,EV,D,2026-12-14,25,937.5,23.0,Standby
-GreenEnergy Tech Partners,HEC,E,2026-12-14,44,1650.0,40.5,Standby
-GreenEnergy Tech Partners,KAC,E,2026-12-14,23,862.5,21.2,Standby
-GreenEnergy Tech Partners,EV,E,2026-12-14,54,2025.0,49.7,Standby
-Centrica Flex Contractors,HEC,A,2026-12-21,49,1837.5,45.1,Active
-Centrica Flex Contractors,KAC,A,2026-12-21,16,600.0,14.7,Active
-Centrica Flex Contractors,EV,A,2026-12-21,40,1500.0,36.8,Active
-Centrica Flex Contractors,HEC,B,2026-12-21,52,1950.0,47.8,Active
-Centrica Flex Contractors,KAC,B,2026-12-21,51,1912.5,46.9,Active
-Centrica Flex Contractors,EV,B,2026-12-21,16,600.0,14.7,Active
-Centrica Flex Contractors,HEC,C,2026-12-21,20,750.0,18.4,Active
-Centrica Flex Contractors,KAC,C,2026-12-21,42,1575.0,38.6,Active
-Centrica Flex Contractors,EV,C,2026-12-21,23,862.5,21.2,Active
-Centrica Flex Contractors,HEC,D,2026-12-21,44,1650.0,40.5,Active
-Centrica Flex Contractors,KAC,D,2026-12-21,26,975.0,23.9,Active
-Centrica Flex Contractors,EV,D,2026-12-21,18,675.0,16.6,Active
-Centrica Flex Contractors,HEC,E,2026-12-21,31,1162.5,28.5,Active
-Centrica Flex Contractors,KAC,E,2026-12-21,39,1462.5,35.9,Active
-Centrica Flex Contractors,EV,E,2026-12-21,35,1312.5,32.2,Active
-UK Field Solutions Ltd,HEC,A,2026-12-21,28,1050.0,25.8,Active
-UK Field Solutions Ltd,KAC,A,2026-12-21,44,1650.0,40.5,Active
-UK Field Solutions Ltd,EV,A,2026-12-21,35,1312.5,32.2,Active
-UK Field Solutions Ltd,HEC,B,2026-12-21,36,1350.0,33.1,Active
-UK Field Solutions Ltd,KAC,B,2026-12-21,39,1462.5,35.9,Active
-UK Field Solutions Ltd,EV,B,2026-12-21,32,1200.0,29.4,Active
-UK Field Solutions Ltd,HEC,C,2026-12-21,41,1537.5,37.7,Active
-UK Field Solutions Ltd,KAC,C,2026-12-21,31,1162.5,28.5,Active
-UK Field Solutions Ltd,EV,C,2026-12-21,20,750.0,18.4,Active
-UK Field Solutions Ltd,HEC,D,2026-12-21,45,1687.5,41.4,Active
-UK Field Solutions Ltd,KAC,D,2026-12-21,16,600.0,14.7,Active
-UK Field Solutions Ltd,EV,D,2026-12-21,49,1837.5,45.1,Active
-UK Field Solutions Ltd,HEC,E,2026-12-21,18,675.0,16.6,Active
-UK Field Solutions Ltd,KAC,E,2026-12-21,37,1387.5,34.0,Active
-UK Field Solutions Ltd,EV,E,2026-12-21,29,1087.5,26.7,Active
-GreenEnergy Tech Partners,HEC,A,2026-12-21,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,KAC,A,2026-12-21,17,637.5,15.6,Standby
-GreenEnergy Tech Partners,EV,A,2026-12-21,16,600.0,14.7,Standby
-GreenEnergy Tech Partners,HEC,B,2026-12-21,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,KAC,B,2026-12-21,27,1012.5,24.8,Standby
-GreenEnergy Tech Partners,EV,B,2026-12-21,16,600.0,14.7,Standby
-GreenEnergy Tech Partners,HEC,C,2026-12-21,54,2025.0,49.7,Standby
-GreenEnergy Tech Partners,KAC,C,2026-12-21,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,EV,C,2026-12-21,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,HEC,D,2026-12-21,23,862.5,21.2,Standby
-GreenEnergy Tech Partners,KAC,D,2026-12-21,45,1687.5,41.4,Standby
-GreenEnergy Tech Partners,EV,D,2026-12-21,22,825.0,20.2,Standby
-GreenEnergy Tech Partners,HEC,E,2026-12-21,51,1912.5,46.9,Standby
-GreenEnergy Tech Partners,KAC,E,2026-12-21,28,1050.0,25.8,Standby
-GreenEnergy Tech Partners,EV,E,2026-12-21,44,1650.0,40.5,Standby
-Centrica Flex Contractors,HEC,A,2026-12-28,31,1162.5,28.5,Active
-Centrica Flex Contractors,KAC,A,2026-12-28,38,1425.0,35.0,Active
-Centrica Flex Contractors,EV,A,2026-12-28,25,937.5,23.0,Active
-Centrica Flex Contractors,HEC,B,2026-12-28,53,1987.5,48.8,Active
-Centrica Flex Contractors,KAC,B,2026-12-28,53,1987.5,48.8,Active
-Centrica Flex Contractors,EV,B,2026-12-28,22,825.0,20.2,Active
-Centrica Flex Contractors,HEC,C,2026-12-28,25,937.5,23.0,Active
-Centrica Flex Contractors,KAC,C,2026-12-28,34,1275.0,31.3,Active
-Centrica Flex Contractors,EV,C,2026-12-28,21,787.5,19.3,Active
-Centrica Flex Contractors,HEC,D,2026-12-28,52,1950.0,47.8,Active
-Centrica Flex Contractors,KAC,D,2026-12-28,16,600.0,14.7,Active
-Centrica Flex Contractors,EV,D,2026-12-28,34,1275.0,31.3,Active
-Centrica Flex Contractors,HEC,E,2026-12-28,51,1912.5,46.9,Active
-Centrica Flex Contractors,KAC,E,2026-12-28,39,1462.5,35.9,Active
-Centrica Flex Contractors,EV,E,2026-12-28,40,1500.0,36.8,Active
-UK Field Solutions Ltd,HEC,A,2026-12-28,27,1012.5,24.8,Active
-UK Field Solutions Ltd,KAC,A,2026-12-28,19,712.5,17.5,Active
-UK Field Solutions Ltd,EV,A,2026-12-28,52,1950.0,47.8,Active
-UK Field Solutions Ltd,HEC,B,2026-12-28,55,2062.5,50.6,Active
-UK Field Solutions Ltd,KAC,B,2026-12-28,30,1125.0,27.6,Active
-UK Field Solutions Ltd,EV,B,2026-12-28,21,787.5,19.3,Active
-UK Field Solutions Ltd,HEC,C,2026-12-28,34,1275.0,31.3,Active
-UK Field Solutions Ltd,KAC,C,2026-12-28,53,1987.5,48.8,Active
-UK Field Solutions Ltd,EV,C,2026-12-28,22,825.0,20.2,Active
-UK Field Solutions Ltd,HEC,D,2026-12-28,51,1912.5,46.9,Active
-UK Field Solutions Ltd,KAC,D,2026-12-28,17,637.5,15.6,Active
-UK Field Solutions Ltd,EV,D,2026-12-28,37,1387.5,34.0,Active
-UK Field Solutions Ltd,HEC,E,2026-12-28,49,1837.5,45.1,Active
-UK Field Solutions Ltd,KAC,E,2026-12-28,42,1575.0,38.6,Active
-UK Field Solutions Ltd,EV,E,2026-12-28,38,1425.0,35.0,Active
-GreenEnergy Tech Partners,HEC,A,2026-12-28,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,KAC,A,2026-12-28,47,1762.5,43.2,Standby
-GreenEnergy Tech Partners,EV,A,2026-12-28,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,HEC,B,2026-12-28,15,562.5,13.8,Standby
-GreenEnergy Tech Partners,KAC,B,2026-12-28,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,EV,B,2026-12-28,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,HEC,C,2026-12-28,21,787.5,19.3,Standby
-GreenEnergy Tech Partners,KAC,C,2026-12-28,42,1575.0,38.6,Standby
-GreenEnergy Tech Partners,EV,C,2026-12-28,38,1425.0,35.0,Standby
-GreenEnergy Tech Partners,HEC,D,2026-12-28,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,KAC,D,2026-12-28,44,1650.0,40.5,Standby
-GreenEnergy Tech Partners,EV,D,2026-12-28,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,HEC,E,2026-12-28,42,1575.0,38.6,Standby
-GreenEnergy Tech Partners,KAC,E,2026-12-28,26,975.0,23.9,Standby
-GreenEnergy Tech Partners,EV,E,2026-12-28,48,1800.0,44.2,Standby
-Centrica Flex Contractors,HEC,A,2027-01-04,32,1200.0,29.4,Active
-Centrica Flex Contractors,KAC,A,2027-01-04,54,2025.0,49.7,Active
-Centrica Flex Contractors,EV,A,2027-01-04,49,1837.5,45.1,Active
-Centrica Flex Contractors,HEC,B,2027-01-04,45,1687.5,41.4,Active
-Centrica Flex Contractors,KAC,B,2027-01-04,44,1650.0,40.5,Active
-Centrica Flex Contractors,EV,B,2027-01-04,42,1575.0,38.6,Active
-Centrica Flex Contractors,HEC,C,2027-01-04,52,1950.0,47.8,Active
-Centrica Flex Contractors,KAC,C,2027-01-04,32,1200.0,29.4,Active
-Centrica Flex Contractors,EV,C,2027-01-04,35,1312.5,32.2,Active
-Centrica Flex Contractors,HEC,D,2027-01-04,30,1125.0,27.6,Active
-Centrica Flex Contractors,KAC,D,2027-01-04,20,750.0,18.4,Active
-Centrica Flex Contractors,EV,D,2027-01-04,32,1200.0,29.4,Active
-Centrica Flex Contractors,HEC,E,2027-01-04,43,1612.5,39.6,Active
-Centrica Flex Contractors,KAC,E,2027-01-04,30,1125.0,27.6,Active
-Centrica Flex Contractors,EV,E,2027-01-04,44,1650.0,40.5,Active
-UK Field Solutions Ltd,HEC,A,2027-01-04,51,1912.5,46.9,Active
-UK Field Solutions Ltd,KAC,A,2027-01-04,54,2025.0,49.7,Active
-UK Field Solutions Ltd,EV,A,2027-01-04,39,1462.5,35.9,Active
-UK Field Solutions Ltd,HEC,B,2027-01-04,36,1350.0,33.1,Active
-UK Field Solutions Ltd,KAC,B,2027-01-04,16,600.0,14.7,Active
-UK Field Solutions Ltd,EV,B,2027-01-04,46,1725.0,42.3,Active
-UK Field Solutions Ltd,HEC,C,2027-01-04,35,1312.5,32.2,Active
-UK Field Solutions Ltd,KAC,C,2027-01-04,26,975.0,23.9,Active
-UK Field Solutions Ltd,EV,C,2027-01-04,46,1725.0,42.3,Active
-UK Field Solutions Ltd,HEC,D,2027-01-04,28,1050.0,25.8,Active
-UK Field Solutions Ltd,KAC,D,2027-01-04,37,1387.5,34.0,Active
-UK Field Solutions Ltd,EV,D,2027-01-04,31,1162.5,28.5,Active
-UK Field Solutions Ltd,HEC,E,2027-01-04,36,1350.0,33.1,Active
-UK Field Solutions Ltd,KAC,E,2027-01-04,32,1200.0,29.4,Active
-UK Field Solutions Ltd,EV,E,2027-01-04,53,1987.5,48.8,Active
-GreenEnergy Tech Partners,HEC,A,2027-01-04,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,KAC,A,2027-01-04,50,1875.0,46.0,Standby
-GreenEnergy Tech Partners,EV,A,2027-01-04,15,562.5,13.8,Standby
-GreenEnergy Tech Partners,HEC,B,2027-01-04,48,1800.0,44.2,Standby
-GreenEnergy Tech Partners,KAC,B,2027-01-04,27,1012.5,24.8,Standby
-GreenEnergy Tech Partners,EV,B,2027-01-04,20,750.0,18.4,Standby
-GreenEnergy Tech Partners,HEC,C,2027-01-04,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,KAC,C,2027-01-04,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,EV,C,2027-01-04,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,HEC,D,2027-01-04,50,1875.0,46.0,Standby
-GreenEnergy Tech Partners,KAC,D,2027-01-04,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,EV,D,2027-01-04,45,1687.5,41.4,Standby
-GreenEnergy Tech Partners,HEC,E,2027-01-04,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,KAC,E,2027-01-04,43,1612.5,39.6,Standby
-GreenEnergy Tech Partners,EV,E,2027-01-04,16,600.0,14.7,Standby
-Centrica Flex Contractors,HEC,A,2027-01-11,20,750.0,18.4,Active
-Centrica Flex Contractors,KAC,A,2027-01-11,33,1237.5,30.4,Active
-Centrica Flex Contractors,EV,A,2027-01-11,29,1087.5,26.7,Active
-Centrica Flex Contractors,HEC,B,2027-01-11,40,1500.0,36.8,Active
-Centrica Flex Contractors,KAC,B,2027-01-11,30,1125.0,27.6,Active
-Centrica Flex Contractors,EV,B,2027-01-11,34,1275.0,31.3,Active
-Centrica Flex Contractors,HEC,C,2027-01-11,52,1950.0,47.8,Active
-Centrica Flex Contractors,KAC,C,2027-01-11,38,1425.0,35.0,Active
-Centrica Flex Contractors,EV,C,2027-01-11,45,1687.5,41.4,Active
-Centrica Flex Contractors,HEC,D,2027-01-11,50,1875.0,46.0,Active
-Centrica Flex Contractors,KAC,D,2027-01-11,48,1800.0,44.2,Active
-Centrica Flex Contractors,EV,D,2027-01-11,37,1387.5,34.0,Active
-Centrica Flex Contractors,HEC,E,2027-01-11,42,1575.0,38.6,Active
-Centrica Flex Contractors,KAC,E,2027-01-11,50,1875.0,46.0,Active
-Centrica Flex Contractors,EV,E,2027-01-11,36,1350.0,33.1,Active
-UK Field Solutions Ltd,HEC,A,2027-01-11,37,1387.5,34.0,Active
-UK Field Solutions Ltd,KAC,A,2027-01-11,44,1650.0,40.5,Active
-UK Field Solutions Ltd,EV,A,2027-01-11,32,1200.0,29.4,Active
-UK Field Solutions Ltd,HEC,B,2027-01-11,34,1275.0,31.3,Active
-UK Field Solutions Ltd,KAC,B,2027-01-11,31,1162.5,28.5,Active
-UK Field Solutions Ltd,EV,B,2027-01-11,29,1087.5,26.7,Active
-UK Field Solutions Ltd,HEC,C,2027-01-11,22,825.0,20.2,Active
-UK Field Solutions Ltd,KAC,C,2027-01-11,27,1012.5,24.8,Active
-UK Field Solutions Ltd,EV,C,2027-01-11,35,1312.5,32.2,Active
-UK Field Solutions Ltd,HEC,D,2027-01-11,22,825.0,20.2,Active
-UK Field Solutions Ltd,KAC,D,2027-01-11,49,1837.5,45.1,Active
-UK Field Solutions Ltd,EV,D,2027-01-11,26,975.0,23.9,Active
-UK Field Solutions Ltd,HEC,E,2027-01-11,27,1012.5,24.8,Active
-UK Field Solutions Ltd,KAC,E,2027-01-11,28,1050.0,25.8,Active
-UK Field Solutions Ltd,EV,E,2027-01-11,45,1687.5,41.4,Active
-GreenEnergy Tech Partners,HEC,A,2027-01-11,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,KAC,A,2027-01-11,52,1950.0,47.8,Standby
-GreenEnergy Tech Partners,EV,A,2027-01-11,48,1800.0,44.2,Standby
-GreenEnergy Tech Partners,HEC,B,2027-01-11,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,KAC,B,2027-01-11,33,1237.5,30.4,Standby
-GreenEnergy Tech Partners,EV,B,2027-01-11,21,787.5,19.3,Standby
-GreenEnergy Tech Partners,HEC,C,2027-01-11,27,1012.5,24.8,Standby
-GreenEnergy Tech Partners,KAC,C,2027-01-11,33,1237.5,30.4,Standby
-GreenEnergy Tech Partners,EV,C,2027-01-11,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,HEC,D,2027-01-11,38,1425.0,35.0,Standby
-GreenEnergy Tech Partners,KAC,D,2027-01-11,26,975.0,23.9,Standby
-GreenEnergy Tech Partners,EV,D,2027-01-11,34,1275.0,31.3,Standby
-GreenEnergy Tech Partners,HEC,E,2027-01-11,15,562.5,13.8,Standby
-GreenEnergy Tech Partners,KAC,E,2027-01-11,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,EV,E,2027-01-11,23,862.5,21.2,Standby
-Centrica Flex Contractors,HEC,A,2027-01-18,32,1200.0,29.4,Active
-Centrica Flex Contractors,KAC,A,2027-01-18,17,637.5,15.6,Active
-Centrica Flex Contractors,EV,A,2027-01-18,18,675.0,16.6,Active
-Centrica Flex Contractors,HEC,B,2027-01-18,50,1875.0,46.0,Active
-Centrica Flex Contractors,KAC,B,2027-01-18,33,1237.5,30.4,Active
-Centrica Flex Contractors,EV,B,2027-01-18,23,862.5,21.2,Active
-Centrica Flex Contractors,HEC,C,2027-01-18,55,2062.5,50.6,Active
-Centrica Flex Contractors,KAC,C,2027-01-18,46,1725.0,42.3,Active
-Centrica Flex Contractors,EV,C,2027-01-18,21,787.5,19.3,Active
-Centrica Flex Contractors,HEC,D,2027-01-18,15,562.5,13.8,Active
-Centrica Flex Contractors,KAC,D,2027-01-18,51,1912.5,46.9,Active
-Centrica Flex Contractors,EV,D,2027-01-18,33,1237.5,30.4,Active
-Centrica Flex Contractors,HEC,E,2027-01-18,45,1687.5,41.4,Active
-Centrica Flex Contractors,KAC,E,2027-01-18,45,1687.5,41.4,Active
-Centrica Flex Contractors,EV,E,2027-01-18,43,1612.5,39.6,Active
-UK Field Solutions Ltd,HEC,A,2027-01-18,36,1350.0,33.1,Active
-UK Field Solutions Ltd,KAC,A,2027-01-18,26,975.0,23.9,Active
-UK Field Solutions Ltd,EV,A,2027-01-18,18,675.0,16.6,Active
-UK Field Solutions Ltd,HEC,B,2027-01-18,31,1162.5,28.5,Active
-UK Field Solutions Ltd,KAC,B,2027-01-18,45,1687.5,41.4,Active
-UK Field Solutions Ltd,EV,B,2027-01-18,22,825.0,20.2,Active
-UK Field Solutions Ltd,HEC,C,2027-01-18,19,712.5,17.5,Active
-UK Field Solutions Ltd,KAC,C,2027-01-18,40,1500.0,36.8,Active
-UK Field Solutions Ltd,EV,C,2027-01-18,46,1725.0,42.3,Active
-UK Field Solutions Ltd,HEC,D,2027-01-18,19,712.5,17.5,Active
-UK Field Solutions Ltd,KAC,D,2027-01-18,51,1912.5,46.9,Active
-UK Field Solutions Ltd,EV,D,2027-01-18,55,2062.5,50.6,Active
-UK Field Solutions Ltd,HEC,E,2027-01-18,18,675.0,16.6,Active
-UK Field Solutions Ltd,KAC,E,2027-01-18,24,900.0,22.1,Active
-UK Field Solutions Ltd,EV,E,2027-01-18,24,900.0,22.1,Active
-GreenEnergy Tech Partners,HEC,A,2027-01-18,51,1912.5,46.9,Standby
-GreenEnergy Tech Partners,KAC,A,2027-01-18,34,1275.0,31.3,Standby
-GreenEnergy Tech Partners,EV,A,2027-01-18,20,750.0,18.4,Standby
-GreenEnergy Tech Partners,HEC,B,2027-01-18,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,KAC,B,2027-01-18,22,825.0,20.2,Standby
-GreenEnergy Tech Partners,EV,B,2027-01-18,50,1875.0,46.0,Standby
-GreenEnergy Tech Partners,HEC,C,2027-01-18,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,KAC,C,2027-01-18,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,EV,C,2027-01-18,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,HEC,D,2027-01-18,54,2025.0,49.7,Standby
-GreenEnergy Tech Partners,KAC,D,2027-01-18,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,EV,D,2027-01-18,48,1800.0,44.2,Standby
-GreenEnergy Tech Partners,HEC,E,2027-01-18,39,1462.5,35.9,Standby
-GreenEnergy Tech Partners,KAC,E,2027-01-18,43,1612.5,39.6,Standby
-GreenEnergy Tech Partners,EV,E,2027-01-18,43,1612.5,39.6,Standby
-Centrica Flex Contractors,HEC,A,2027-01-25,34,1275.0,31.3,Active
-Centrica Flex Contractors,KAC,A,2027-01-25,52,1950.0,47.8,Active
-Centrica Flex Contractors,EV,A,2027-01-25,42,1575.0,38.6,Active
-Centrica Flex Contractors,HEC,B,2027-01-25,34,1275.0,31.3,Active
-Centrica Flex Contractors,KAC,B,2027-01-25,51,1912.5,46.9,Active
-Centrica Flex Contractors,EV,B,2027-01-25,54,2025.0,49.7,Active
-Centrica Flex Contractors,HEC,C,2027-01-25,18,675.0,16.6,Active
-Centrica Flex Contractors,KAC,C,2027-01-25,54,2025.0,49.7,Active
-Centrica Flex Contractors,EV,C,2027-01-25,21,787.5,19.3,Active
-Centrica Flex Contractors,HEC,D,2027-01-25,28,1050.0,25.8,Active
-Centrica Flex Contractors,KAC,D,2027-01-25,55,2062.5,50.6,Active
-Centrica Flex Contractors,EV,D,2027-01-25,28,1050.0,25.8,Active
-Centrica Flex Contractors,HEC,E,2027-01-25,31,1162.5,28.5,Active
-Centrica Flex Contractors,KAC,E,2027-01-25,20,750.0,18.4,Active
-Centrica Flex Contractors,EV,E,2027-01-25,25,937.5,23.0,Active
-UK Field Solutions Ltd,HEC,A,2027-01-25,30,1125.0,27.6,Active
-UK Field Solutions Ltd,KAC,A,2027-01-25,26,975.0,23.9,Active
-UK Field Solutions Ltd,EV,A,2027-01-25,50,1875.0,46.0,Active
-UK Field Solutions Ltd,HEC,B,2027-01-25,19,712.5,17.5,Active
-UK Field Solutions Ltd,KAC,B,2027-01-25,25,937.5,23.0,Active
-UK Field Solutions Ltd,EV,B,2027-01-25,15,562.5,13.8,Active
-UK Field Solutions Ltd,HEC,C,2027-01-25,41,1537.5,37.7,Active
-UK Field Solutions Ltd,KAC,C,2027-01-25,43,1612.5,39.6,Active
-UK Field Solutions Ltd,EV,C,2027-01-25,53,1987.5,48.8,Active
-UK Field Solutions Ltd,HEC,D,2027-01-25,45,1687.5,41.4,Active
-UK Field Solutions Ltd,KAC,D,2027-01-25,33,1237.5,30.4,Active
-UK Field Solutions Ltd,EV,D,2027-01-25,17,637.5,15.6,Active
-UK Field Solutions Ltd,HEC,E,2027-01-25,29,1087.5,26.7,Active
-UK Field Solutions Ltd,KAC,E,2027-01-25,33,1237.5,30.4,Active
-UK Field Solutions Ltd,EV,E,2027-01-25,33,1237.5,30.4,Active
-GreenEnergy Tech Partners,HEC,A,2027-01-25,44,1650.0,40.5,Standby
-GreenEnergy Tech Partners,KAC,A,2027-01-25,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,EV,A,2027-01-25,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,HEC,B,2027-01-25,31,1162.5,28.5,Standby
-GreenEnergy Tech Partners,KAC,B,2027-01-25,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,EV,B,2027-01-25,52,1950.0,47.8,Standby
-GreenEnergy Tech Partners,HEC,C,2027-01-25,27,1012.5,24.8,Standby
-GreenEnergy Tech Partners,KAC,C,2027-01-25,42,1575.0,38.6,Standby
-GreenEnergy Tech Partners,EV,C,2027-01-25,22,825.0,20.2,Standby
-GreenEnergy Tech Partners,HEC,D,2027-01-25,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,KAC,D,2027-01-25,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,EV,D,2027-01-25,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,HEC,E,2027-01-25,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,KAC,E,2027-01-25,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,EV,E,2027-01-25,19,712.5,17.5,Standby
-Centrica Flex Contractors,HEC,A,2027-02-01,18,675.0,16.6,Active
-Centrica Flex Contractors,KAC,A,2027-02-01,25,937.5,23.0,Active
-Centrica Flex Contractors,EV,A,2027-02-01,34,1275.0,31.3,Active
-Centrica Flex Contractors,HEC,B,2027-02-01,53,1987.5,48.8,Active
-Centrica Flex Contractors,KAC,B,2027-02-01,51,1912.5,46.9,Active
-Centrica Flex Contractors,EV,B,2027-02-01,33,1237.5,30.4,Active
-Centrica Flex Contractors,HEC,C,2027-02-01,43,1612.5,39.6,Active
-Centrica Flex Contractors,KAC,C,2027-02-01,22,825.0,20.2,Active
-Centrica Flex Contractors,EV,C,2027-02-01,44,1650.0,40.5,Active
-Centrica Flex Contractors,HEC,D,2027-02-01,34,1275.0,31.3,Active
-Centrica Flex Contractors,KAC,D,2027-02-01,40,1500.0,36.8,Active
-Centrica Flex Contractors,EV,D,2027-02-01,32,1200.0,29.4,Active
-Centrica Flex Contractors,HEC,E,2027-02-01,47,1762.5,43.2,Active
-Centrica Flex Contractors,KAC,E,2027-02-01,49,1837.5,45.1,Active
-Centrica Flex Contractors,EV,E,2027-02-01,46,1725.0,42.3,Active
-UK Field Solutions Ltd,HEC,A,2027-02-01,43,1612.5,39.6,Active
-UK Field Solutions Ltd,KAC,A,2027-02-01,20,750.0,18.4,Active
-UK Field Solutions Ltd,EV,A,2027-02-01,53,1987.5,48.8,Active
-UK Field Solutions Ltd,HEC,B,2027-02-01,17,637.5,15.6,Active
-UK Field Solutions Ltd,KAC,B,2027-02-01,42,1575.0,38.6,Active
-UK Field Solutions Ltd,EV,B,2027-02-01,35,1312.5,32.2,Active
-UK Field Solutions Ltd,HEC,C,2027-02-01,53,1987.5,48.8,Active
-UK Field Solutions Ltd,KAC,C,2027-02-01,31,1162.5,28.5,Active
-UK Field Solutions Ltd,EV,C,2027-02-01,16,600.0,14.7,Active
-UK Field Solutions Ltd,HEC,D,2027-02-01,20,750.0,18.4,Active
-UK Field Solutions Ltd,KAC,D,2027-02-01,29,1087.5,26.7,Active
-UK Field Solutions Ltd,EV,D,2027-02-01,51,1912.5,46.9,Active
-UK Field Solutions Ltd,HEC,E,2027-02-01,52,1950.0,47.8,Active
-UK Field Solutions Ltd,KAC,E,2027-02-01,16,600.0,14.7,Active
-UK Field Solutions Ltd,EV,E,2027-02-01,32,1200.0,29.4,Active
-GreenEnergy Tech Partners,HEC,A,2027-02-01,51,1912.5,46.9,Standby
-GreenEnergy Tech Partners,KAC,A,2027-02-01,17,637.5,15.6,Standby
-GreenEnergy Tech Partners,EV,A,2027-02-01,26,975.0,23.9,Standby
-GreenEnergy Tech Partners,HEC,B,2027-02-01,45,1687.5,41.4,Standby
-GreenEnergy Tech Partners,KAC,B,2027-02-01,48,1800.0,44.2,Standby
-GreenEnergy Tech Partners,EV,B,2027-02-01,43,1612.5,39.6,Standby
-GreenEnergy Tech Partners,HEC,C,2027-02-01,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,KAC,C,2027-02-01,26,975.0,23.9,Standby
-GreenEnergy Tech Partners,EV,C,2027-02-01,52,1950.0,47.8,Standby
-GreenEnergy Tech Partners,HEC,D,2027-02-01,42,1575.0,38.6,Standby
-GreenEnergy Tech Partners,KAC,D,2027-02-01,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,EV,D,2027-02-01,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,HEC,E,2027-02-01,20,750.0,18.4,Standby
-GreenEnergy Tech Partners,KAC,E,2027-02-01,45,1687.5,41.4,Standby
-GreenEnergy Tech Partners,EV,E,2027-02-01,37,1387.5,34.0,Standby
-Centrica Flex Contractors,HEC,A,2027-02-08,41,1537.5,37.7,Active
-Centrica Flex Contractors,KAC,A,2027-02-08,36,1350.0,33.1,Active
-Centrica Flex Contractors,EV,A,2027-02-08,35,1312.5,32.2,Active
-Centrica Flex Contractors,HEC,B,2027-02-08,21,787.5,19.3,Active
-Centrica Flex Contractors,KAC,B,2027-02-08,25,937.5,23.0,Active
-Centrica Flex Contractors,EV,B,2027-02-08,36,1350.0,33.1,Active
-Centrica Flex Contractors,HEC,C,2027-02-08,41,1537.5,37.7,Active
-Centrica Flex Contractors,KAC,C,2027-02-08,46,1725.0,42.3,Active
-Centrica Flex Contractors,EV,C,2027-02-08,33,1237.5,30.4,Active
-Centrica Flex Contractors,HEC,D,2027-02-08,40,1500.0,36.8,Active
-Centrica Flex Contractors,KAC,D,2027-02-08,50,1875.0,46.0,Active
-Centrica Flex Contractors,EV,D,2027-02-08,17,637.5,15.6,Active
-Centrica Flex Contractors,HEC,E,2027-02-08,44,1650.0,40.5,Active
-Centrica Flex Contractors,KAC,E,2027-02-08,20,750.0,18.4,Active
-Centrica Flex Contractors,EV,E,2027-02-08,35,1312.5,32.2,Active
-UK Field Solutions Ltd,HEC,A,2027-02-08,31,1162.5,28.5,Active
-UK Field Solutions Ltd,KAC,A,2027-02-08,35,1312.5,32.2,Active
-UK Field Solutions Ltd,EV,A,2027-02-08,22,825.0,20.2,Active
-UK Field Solutions Ltd,HEC,B,2027-02-08,40,1500.0,36.8,Active
-UK Field Solutions Ltd,KAC,B,2027-02-08,47,1762.5,43.2,Active
-UK Field Solutions Ltd,EV,B,2027-02-08,15,562.5,13.8,Active
-UK Field Solutions Ltd,HEC,C,2027-02-08,49,1837.5,45.1,Active
-UK Field Solutions Ltd,KAC,C,2027-02-08,44,1650.0,40.5,Active
-UK Field Solutions Ltd,EV,C,2027-02-08,41,1537.5,37.7,Active
-UK Field Solutions Ltd,HEC,D,2027-02-08,18,675.0,16.6,Active
-UK Field Solutions Ltd,KAC,D,2027-02-08,27,1012.5,24.8,Active
-UK Field Solutions Ltd,EV,D,2027-02-08,48,1800.0,44.2,Active
-UK Field Solutions Ltd,HEC,E,2027-02-08,38,1425.0,35.0,Active
-UK Field Solutions Ltd,KAC,E,2027-02-08,54,2025.0,49.7,Active
-UK Field Solutions Ltd,EV,E,2027-02-08,46,1725.0,42.3,Active
-GreenEnergy Tech Partners,HEC,A,2027-02-08,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,KAC,A,2027-02-08,43,1612.5,39.6,Standby
-GreenEnergy Tech Partners,EV,A,2027-02-08,18,675.0,16.6,Standby
-GreenEnergy Tech Partners,HEC,B,2027-02-08,28,1050.0,25.8,Standby
-GreenEnergy Tech Partners,KAC,B,2027-02-08,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,EV,B,2027-02-08,50,1875.0,46.0,Standby
-GreenEnergy Tech Partners,HEC,C,2027-02-08,23,862.5,21.2,Standby
-GreenEnergy Tech Partners,KAC,C,2027-02-08,33,1237.5,30.4,Standby
-GreenEnergy Tech Partners,EV,C,2027-02-08,43,1612.5,39.6,Standby
-GreenEnergy Tech Partners,HEC,D,2027-02-08,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,KAC,D,2027-02-08,22,825.0,20.2,Standby
-GreenEnergy Tech Partners,EV,D,2027-02-08,16,600.0,14.7,Standby
-GreenEnergy Tech Partners,HEC,E,2027-02-08,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,KAC,E,2027-02-08,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,EV,E,2027-02-08,30,1125.0,27.6,Standby
-Centrica Flex Contractors,HEC,A,2027-02-15,25,937.5,23.0,Active
-Centrica Flex Contractors,KAC,A,2027-02-15,34,1275.0,31.3,Active
-Centrica Flex Contractors,EV,A,2027-02-15,50,1875.0,46.0,Active
-Centrica Flex Contractors,HEC,B,2027-02-15,15,562.5,13.8,Active
-Centrica Flex Contractors,KAC,B,2027-02-15,50,1875.0,46.0,Active
-Centrica Flex Contractors,EV,B,2027-02-15,41,1537.5,37.7,Active
-Centrica Flex Contractors,HEC,C,2027-02-15,20,750.0,18.4,Active
-Centrica Flex Contractors,KAC,C,2027-02-15,29,1087.5,26.7,Active
-Centrica Flex Contractors,EV,C,2027-02-15,22,825.0,20.2,Active
-Centrica Flex Contractors,HEC,D,2027-02-15,44,1650.0,40.5,Active
-Centrica Flex Contractors,KAC,D,2027-02-15,22,825.0,20.2,Active
-Centrica Flex Contractors,EV,D,2027-02-15,24,900.0,22.1,Active
-Centrica Flex Contractors,HEC,E,2027-02-15,46,1725.0,42.3,Active
-Centrica Flex Contractors,KAC,E,2027-02-15,33,1237.5,30.4,Active
-Centrica Flex Contractors,EV,E,2027-02-15,47,1762.5,43.2,Active
-UK Field Solutions Ltd,HEC,A,2027-02-15,32,1200.0,29.4,Active
-UK Field Solutions Ltd,KAC,A,2027-02-15,41,1537.5,37.7,Active
-UK Field Solutions Ltd,EV,A,2027-02-15,45,1687.5,41.4,Active
-UK Field Solutions Ltd,HEC,B,2027-02-15,45,1687.5,41.4,Active
-UK Field Solutions Ltd,KAC,B,2027-02-15,30,1125.0,27.6,Active
-UK Field Solutions Ltd,EV,B,2027-02-15,44,1650.0,40.5,Active
-UK Field Solutions Ltd,HEC,C,2027-02-15,50,1875.0,46.0,Active
-UK Field Solutions Ltd,KAC,C,2027-02-15,24,900.0,22.1,Active
-UK Field Solutions Ltd,EV,C,2027-02-15,39,1462.5,35.9,Active
-UK Field Solutions Ltd,HEC,D,2027-02-15,27,1012.5,24.8,Active
-UK Field Solutions Ltd,KAC,D,2027-02-15,53,1987.5,48.8,Active
-UK Field Solutions Ltd,EV,D,2027-02-15,47,1762.5,43.2,Active
-UK Field Solutions Ltd,HEC,E,2027-02-15,23,862.5,21.2,Active
-UK Field Solutions Ltd,KAC,E,2027-02-15,19,712.5,17.5,Active
-UK Field Solutions Ltd,EV,E,2027-02-15,32,1200.0,29.4,Active
-GreenEnergy Tech Partners,HEC,A,2027-02-15,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,KAC,A,2027-02-15,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,EV,A,2027-02-15,47,1762.5,43.2,Standby
-GreenEnergy Tech Partners,HEC,B,2027-02-15,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,KAC,B,2027-02-15,15,562.5,13.8,Standby
-GreenEnergy Tech Partners,EV,B,2027-02-15,33,1237.5,30.4,Standby
-GreenEnergy Tech Partners,HEC,C,2027-02-15,34,1275.0,31.3,Standby
-GreenEnergy Tech Partners,KAC,C,2027-02-15,52,1950.0,47.8,Standby
-GreenEnergy Tech Partners,EV,C,2027-02-15,52,1950.0,47.8,Standby
-GreenEnergy Tech Partners,HEC,D,2027-02-15,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,KAC,D,2027-02-15,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,EV,D,2027-02-15,43,1612.5,39.6,Standby
-GreenEnergy Tech Partners,HEC,E,2027-02-15,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,KAC,E,2027-02-15,45,1687.5,41.4,Standby
-GreenEnergy Tech Partners,EV,E,2027-02-15,37,1387.5,34.0,Standby
-Centrica Flex Contractors,HEC,A,2027-02-22,36,1350.0,33.1,Active
-Centrica Flex Contractors,KAC,A,2027-02-22,50,1875.0,46.0,Active
-Centrica Flex Contractors,EV,A,2027-02-22,49,1837.5,45.1,Active
-Centrica Flex Contractors,HEC,B,2027-02-22,39,1462.5,35.9,Active
-Centrica Flex Contractors,KAC,B,2027-02-22,44,1650.0,40.5,Active
-Centrica Flex Contractors,EV,B,2027-02-22,35,1312.5,32.2,Active
-Centrica Flex Contractors,HEC,C,2027-02-22,27,1012.5,24.8,Active
-Centrica Flex Contractors,KAC,C,2027-02-22,30,1125.0,27.6,Active
-Centrica Flex Contractors,EV,C,2027-02-22,51,1912.5,46.9,Active
-Centrica Flex Contractors,HEC,D,2027-02-22,39,1462.5,35.9,Active
-Centrica Flex Contractors,KAC,D,2027-02-22,29,1087.5,26.7,Active
-Centrica Flex Contractors,EV,D,2027-02-22,41,1537.5,37.7,Active
-Centrica Flex Contractors,HEC,E,2027-02-22,17,637.5,15.6,Active
-Centrica Flex Contractors,KAC,E,2027-02-22,35,1312.5,32.2,Active
-Centrica Flex Contractors,EV,E,2027-02-22,45,1687.5,41.4,Active
-UK Field Solutions Ltd,HEC,A,2027-02-22,39,1462.5,35.9,Active
-UK Field Solutions Ltd,KAC,A,2027-02-22,39,1462.5,35.9,Active
-UK Field Solutions Ltd,EV,A,2027-02-22,24,900.0,22.1,Active
-UK Field Solutions Ltd,HEC,B,2027-02-22,46,1725.0,42.3,Active
-UK Field Solutions Ltd,KAC,B,2027-02-22,17,637.5,15.6,Active
-UK Field Solutions Ltd,EV,B,2027-02-22,23,862.5,21.2,Active
-UK Field Solutions Ltd,HEC,C,2027-02-22,47,1762.5,43.2,Active
-UK Field Solutions Ltd,KAC,C,2027-02-22,52,1950.0,47.8,Active
-UK Field Solutions Ltd,EV,C,2027-02-22,36,1350.0,33.1,Active
-UK Field Solutions Ltd,HEC,D,2027-02-22,21,787.5,19.3,Active
-UK Field Solutions Ltd,KAC,D,2027-02-22,43,1612.5,39.6,Active
-UK Field Solutions Ltd,EV,D,2027-02-22,21,787.5,19.3,Active
-UK Field Solutions Ltd,HEC,E,2027-02-22,48,1800.0,44.2,Active
-UK Field Solutions Ltd,KAC,E,2027-02-22,44,1650.0,40.5,Active
-UK Field Solutions Ltd,EV,E,2027-02-22,15,562.5,13.8,Active
-GreenEnergy Tech Partners,HEC,A,2027-02-22,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,KAC,A,2027-02-22,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,EV,A,2027-02-22,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,HEC,B,2027-02-22,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,KAC,B,2027-02-22,45,1687.5,41.4,Standby
-GreenEnergy Tech Partners,EV,B,2027-02-22,31,1162.5,28.5,Standby
-GreenEnergy Tech Partners,HEC,C,2027-02-22,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,KAC,C,2027-02-22,54,2025.0,49.7,Standby
-GreenEnergy Tech Partners,EV,C,2027-02-22,40,1500.0,36.8,Standby
-GreenEnergy Tech Partners,HEC,D,2027-02-22,20,750.0,18.4,Standby
-GreenEnergy Tech Partners,KAC,D,2027-02-22,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,EV,D,2027-02-22,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,HEC,E,2027-02-22,39,1462.5,35.9,Standby
-GreenEnergy Tech Partners,KAC,E,2027-02-22,35,1312.5,32.2,Standby
-GreenEnergy Tech Partners,EV,E,2027-02-22,55,2062.5,50.6,Standby
-Centrica Flex Contractors,HEC,A,2027-03-01,46,1725.0,42.3,Active
-Centrica Flex Contractors,KAC,A,2027-03-01,49,1837.5,45.1,Active
-Centrica Flex Contractors,EV,A,2027-03-01,17,637.5,15.6,Active
-Centrica Flex Contractors,HEC,B,2027-03-01,54,2025.0,49.7,Active
-Centrica Flex Contractors,KAC,B,2027-03-01,19,712.5,17.5,Active
-Centrica Flex Contractors,EV,B,2027-03-01,30,1125.0,27.6,Active
-Centrica Flex Contractors,HEC,C,2027-03-01,55,2062.5,50.6,Active
-Centrica Flex Contractors,KAC,C,2027-03-01,33,1237.5,30.4,Active
-Centrica Flex Contractors,EV,C,2027-03-01,29,1087.5,26.7,Active
-Centrica Flex Contractors,HEC,D,2027-03-01,20,750.0,18.4,Active
-Centrica Flex Contractors,KAC,D,2027-03-01,42,1575.0,38.6,Active
-Centrica Flex Contractors,EV,D,2027-03-01,21,787.5,19.3,Active
-Centrica Flex Contractors,HEC,E,2027-03-01,55,2062.5,50.6,Active
-Centrica Flex Contractors,KAC,E,2027-03-01,21,787.5,19.3,Active
-Centrica Flex Contractors,EV,E,2027-03-01,43,1612.5,39.6,Active
-UK Field Solutions Ltd,HEC,A,2027-03-01,25,937.5,23.0,Active
-UK Field Solutions Ltd,KAC,A,2027-03-01,34,1275.0,31.3,Active
-UK Field Solutions Ltd,EV,A,2027-03-01,16,600.0,14.7,Active
-UK Field Solutions Ltd,HEC,B,2027-03-01,17,637.5,15.6,Active
-UK Field Solutions Ltd,KAC,B,2027-03-01,35,1312.5,32.2,Active
-UK Field Solutions Ltd,EV,B,2027-03-01,18,675.0,16.6,Active
-UK Field Solutions Ltd,HEC,C,2027-03-01,33,1237.5,30.4,Active
-UK Field Solutions Ltd,KAC,C,2027-03-01,37,1387.5,34.0,Active
-UK Field Solutions Ltd,EV,C,2027-03-01,38,1425.0,35.0,Active
-UK Field Solutions Ltd,HEC,D,2027-03-01,42,1575.0,38.6,Active
-UK Field Solutions Ltd,KAC,D,2027-03-01,24,900.0,22.1,Active
-UK Field Solutions Ltd,EV,D,2027-03-01,30,1125.0,27.6,Active
-UK Field Solutions Ltd,HEC,E,2027-03-01,48,1800.0,44.2,Active
-UK Field Solutions Ltd,KAC,E,2027-03-01,41,1537.5,37.7,Active
-UK Field Solutions Ltd,EV,E,2027-03-01,51,1912.5,46.9,Active
-GreenEnergy Tech Partners,HEC,A,2027-03-01,26,975.0,23.9,Standby
-GreenEnergy Tech Partners,KAC,A,2027-03-01,25,937.5,23.0,Standby
-GreenEnergy Tech Partners,EV,A,2027-03-01,26,975.0,23.9,Standby
-GreenEnergy Tech Partners,HEC,B,2027-03-01,20,750.0,18.4,Standby
-GreenEnergy Tech Partners,KAC,B,2027-03-01,54,2025.0,49.7,Standby
-GreenEnergy Tech Partners,EV,B,2027-03-01,39,1462.5,35.9,Standby
-GreenEnergy Tech Partners,HEC,C,2027-03-01,54,2025.0,49.7,Standby
-GreenEnergy Tech Partners,KAC,C,2027-03-01,30,1125.0,27.6,Standby
-GreenEnergy Tech Partners,EV,C,2027-03-01,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,HEC,D,2027-03-01,52,1950.0,47.8,Standby
-GreenEnergy Tech Partners,KAC,D,2027-03-01,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,EV,D,2027-03-01,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,HEC,E,2027-03-01,44,1650.0,40.5,Standby
-GreenEnergy Tech Partners,KAC,E,2027-03-01,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,EV,E,2027-03-01,31,1162.5,28.5,Standby
-Centrica Flex Contractors,HEC,A,2027-03-08,44,1650.0,40.5,Active
-Centrica Flex Contractors,KAC,A,2027-03-08,31,1162.5,28.5,Active
-Centrica Flex Contractors,EV,A,2027-03-08,15,562.5,13.8,Active
-Centrica Flex Contractors,HEC,B,2027-03-08,44,1650.0,40.5,Active
-Centrica Flex Contractors,KAC,B,2027-03-08,33,1237.5,30.4,Active
-Centrica Flex Contractors,EV,B,2027-03-08,49,1837.5,45.1,Active
-Centrica Flex Contractors,HEC,C,2027-03-08,25,937.5,23.0,Active
-Centrica Flex Contractors,KAC,C,2027-03-08,19,712.5,17.5,Active
-Centrica Flex Contractors,EV,C,2027-03-08,43,1612.5,39.6,Active
-Centrica Flex Contractors,HEC,D,2027-03-08,37,1387.5,34.0,Active
-Centrica Flex Contractors,KAC,D,2027-03-08,52,1950.0,47.8,Active
-Centrica Flex Contractors,EV,D,2027-03-08,34,1275.0,31.3,Active
-Centrica Flex Contractors,HEC,E,2027-03-08,55,2062.5,50.6,Active
-Centrica Flex Contractors,KAC,E,2027-03-08,42,1575.0,38.6,Active
-Centrica Flex Contractors,EV,E,2027-03-08,31,1162.5,28.5,Active
-UK Field Solutions Ltd,HEC,A,2027-03-08,44,1650.0,40.5,Active
-UK Field Solutions Ltd,KAC,A,2027-03-08,34,1275.0,31.3,Active
-UK Field Solutions Ltd,EV,A,2027-03-08,27,1012.5,24.8,Active
-UK Field Solutions Ltd,HEC,B,2027-03-08,39,1462.5,35.9,Active
-UK Field Solutions Ltd,KAC,B,2027-03-08,45,1687.5,41.4,Active
-UK Field Solutions Ltd,EV,B,2027-03-08,21,787.5,19.3,Active
-UK Field Solutions Ltd,HEC,C,2027-03-08,30,1125.0,27.6,Active
-UK Field Solutions Ltd,KAC,C,2027-03-08,39,1462.5,35.9,Active
-UK Field Solutions Ltd,EV,C,2027-03-08,51,1912.5,46.9,Active
-UK Field Solutions Ltd,HEC,D,2027-03-08,37,1387.5,34.0,Active
-UK Field Solutions Ltd,KAC,D,2027-03-08,51,1912.5,46.9,Active
-UK Field Solutions Ltd,EV,D,2027-03-08,33,1237.5,30.4,Active
-UK Field Solutions Ltd,HEC,E,2027-03-08,33,1237.5,30.4,Active
-UK Field Solutions Ltd,KAC,E,2027-03-08,16,600.0,14.7,Active
-UK Field Solutions Ltd,EV,E,2027-03-08,40,1500.0,36.8,Active
-GreenEnergy Tech Partners,HEC,A,2027-03-08,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,KAC,A,2027-03-08,15,562.5,13.8,Standby
-GreenEnergy Tech Partners,EV,A,2027-03-08,51,1912.5,46.9,Standby
-GreenEnergy Tech Partners,HEC,B,2027-03-08,18,675.0,16.6,Standby
-GreenEnergy Tech Partners,KAC,B,2027-03-08,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,EV,B,2027-03-08,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,HEC,C,2027-03-08,33,1237.5,30.4,Standby
-GreenEnergy Tech Partners,KAC,C,2027-03-08,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,EV,C,2027-03-08,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,HEC,D,2027-03-08,37,1387.5,34.0,Standby
-GreenEnergy Tech Partners,KAC,D,2027-03-08,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,EV,D,2027-03-08,55,2062.5,50.6,Standby
-GreenEnergy Tech Partners,HEC,E,2027-03-08,27,1012.5,24.8,Standby
-GreenEnergy Tech Partners,KAC,E,2027-03-08,54,2025.0,49.7,Standby
-GreenEnergy Tech Partners,EV,E,2027-03-08,31,1162.5,28.5,Standby
-Centrica Flex Contractors,HEC,A,2027-03-15,23,862.5,21.2,Active
-Centrica Flex Contractors,KAC,A,2027-03-15,55,2062.5,50.6,Active
-Centrica Flex Contractors,EV,A,2027-03-15,21,787.5,19.3,Active
-Centrica Flex Contractors,HEC,B,2027-03-15,55,2062.5,50.6,Active
-Centrica Flex Contractors,KAC,B,2027-03-15,17,637.5,15.6,Active
-Centrica Flex Contractors,EV,B,2027-03-15,34,1275.0,31.3,Active
-Centrica Flex Contractors,HEC,C,2027-03-15,43,1612.5,39.6,Active
-Centrica Flex Contractors,KAC,C,2027-03-15,17,637.5,15.6,Active
-Centrica Flex Contractors,EV,C,2027-03-15,52,1950.0,47.8,Active
-Centrica Flex Contractors,HEC,D,2027-03-15,38,1425.0,35.0,Active
-Centrica Flex Contractors,KAC,D,2027-03-15,23,862.5,21.2,Active
-Centrica Flex Contractors,EV,D,2027-03-15,20,750.0,18.4,Active
-Centrica Flex Contractors,HEC,E,2027-03-15,33,1237.5,30.4,Active
-Centrica Flex Contractors,KAC,E,2027-03-15,35,1312.5,32.2,Active
-Centrica Flex Contractors,EV,E,2027-03-15,41,1537.5,37.7,Active
-UK Field Solutions Ltd,HEC,A,2027-03-15,26,975.0,23.9,Active
-UK Field Solutions Ltd,KAC,A,2027-03-15,27,1012.5,24.8,Active
-UK Field Solutions Ltd,EV,A,2027-03-15,23,862.5,21.2,Active
-UK Field Solutions Ltd,HEC,B,2027-03-15,49,1837.5,45.1,Active
-UK Field Solutions Ltd,KAC,B,2027-03-15,38,1425.0,35.0,Active
-UK Field Solutions Ltd,EV,B,2027-03-15,48,1800.0,44.2,Active
-UK Field Solutions Ltd,HEC,C,2027-03-15,47,1762.5,43.2,Active
-UK Field Solutions Ltd,KAC,C,2027-03-15,32,1200.0,29.4,Active
-UK Field Solutions Ltd,EV,C,2027-03-15,25,937.5,23.0,Active
-UK Field Solutions Ltd,HEC,D,2027-03-15,31,1162.5,28.5,Active
-UK Field Solutions Ltd,KAC,D,2027-03-15,45,1687.5,41.4,Active
-UK Field Solutions Ltd,EV,D,2027-03-15,33,1237.5,30.4,Active
-UK Field Solutions Ltd,HEC,E,2027-03-15,36,1350.0,33.1,Active
-UK Field Solutions Ltd,KAC,E,2027-03-15,22,825.0,20.2,Active
-UK Field Solutions Ltd,EV,E,2027-03-15,44,1650.0,40.5,Active
-GreenEnergy Tech Partners,HEC,A,2027-03-15,19,712.5,17.5,Standby
-GreenEnergy Tech Partners,KAC,A,2027-03-15,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,EV,A,2027-03-15,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,HEC,B,2027-03-15,40,1500.0,36.8,Standby
-GreenEnergy Tech Partners,KAC,B,2027-03-15,50,1875.0,46.0,Standby
-GreenEnergy Tech Partners,EV,B,2027-03-15,38,1425.0,35.0,Standby
-GreenEnergy Tech Partners,HEC,C,2027-03-15,20,750.0,18.4,Standby
-GreenEnergy Tech Partners,KAC,C,2027-03-15,40,1500.0,36.8,Standby
-GreenEnergy Tech Partners,EV,C,2027-03-15,15,562.5,13.8,Standby
-GreenEnergy Tech Partners,HEC,D,2027-03-15,31,1162.5,28.5,Standby
-GreenEnergy Tech Partners,KAC,D,2027-03-15,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,EV,D,2027-03-15,22,825.0,20.2,Standby
-GreenEnergy Tech Partners,HEC,E,2027-03-15,44,1650.0,40.5,Standby
-GreenEnergy Tech Partners,KAC,E,2027-03-15,38,1425.0,35.0,Standby
-GreenEnergy Tech Partners,EV,E,2027-03-15,31,1162.5,28.5,Standby
-Centrica Flex Contractors,HEC,A,2027-03-22,52,1950.0,47.8,Active
-Centrica Flex Contractors,KAC,A,2027-03-22,39,1462.5,35.9,Active
-Centrica Flex Contractors,EV,A,2027-03-22,55,2062.5,50.6,Active
-Centrica Flex Contractors,HEC,B,2027-03-22,38,1425.0,35.0,Active
-Centrica Flex Contractors,KAC,B,2027-03-22,21,787.5,19.3,Active
-Centrica Flex Contractors,EV,B,2027-03-22,29,1087.5,26.7,Active
-Centrica Flex Contractors,HEC,C,2027-03-22,45,1687.5,41.4,Active
-Centrica Flex Contractors,KAC,C,2027-03-22,16,600.0,14.7,Active
-Centrica Flex Contractors,EV,C,2027-03-22,54,2025.0,49.7,Active
-Centrica Flex Contractors,HEC,D,2027-03-22,50,1875.0,46.0,Active
-Centrica Flex Contractors,KAC,D,2027-03-22,35,1312.5,32.2,Active
-Centrica Flex Contractors,EV,D,2027-03-22,54,2025.0,49.7,Active
-Centrica Flex Contractors,HEC,E,2027-03-22,29,1087.5,26.7,Active
-Centrica Flex Contractors,KAC,E,2027-03-22,19,712.5,17.5,Active
-Centrica Flex Contractors,EV,E,2027-03-22,55,2062.5,50.6,Active
-UK Field Solutions Ltd,HEC,A,2027-03-22,44,1650.0,40.5,Active
-UK Field Solutions Ltd,KAC,A,2027-03-22,34,1275.0,31.3,Active
-UK Field Solutions Ltd,EV,A,2027-03-22,41,1537.5,37.7,Active
-UK Field Solutions Ltd,HEC,B,2027-03-22,22,825.0,20.2,Active
-UK Field Solutions Ltd,KAC,B,2027-03-22,23,862.5,21.2,Active
-UK Field Solutions Ltd,EV,B,2027-03-22,17,637.5,15.6,Active
-UK Field Solutions Ltd,HEC,C,2027-03-22,17,637.5,15.6,Active
-UK Field Solutions Ltd,KAC,C,2027-03-22,34,1275.0,31.3,Active
-UK Field Solutions Ltd,EV,C,2027-03-22,46,1725.0,42.3,Active
-UK Field Solutions Ltd,HEC,D,2027-03-22,22,825.0,20.2,Active
-UK Field Solutions Ltd,KAC,D,2027-03-22,21,787.5,19.3,Active
-UK Field Solutions Ltd,EV,D,2027-03-22,30,1125.0,27.6,Active
-UK Field Solutions Ltd,HEC,E,2027-03-22,49,1837.5,45.1,Active
-UK Field Solutions Ltd,KAC,E,2027-03-22,23,862.5,21.2,Active
-UK Field Solutions Ltd,EV,E,2027-03-22,39,1462.5,35.9,Active
-GreenEnergy Tech Partners,HEC,A,2027-03-22,44,1650.0,40.5,Standby
-GreenEnergy Tech Partners,KAC,A,2027-03-22,38,1425.0,35.0,Standby
-GreenEnergy Tech Partners,EV,A,2027-03-22,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,HEC,B,2027-03-22,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,KAC,B,2027-03-22,52,1950.0,47.8,Standby
-GreenEnergy Tech Partners,EV,B,2027-03-22,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,HEC,C,2027-03-22,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,KAC,C,2027-03-22,21,787.5,19.3,Standby
-GreenEnergy Tech Partners,EV,C,2027-03-22,46,1725.0,42.3,Standby
-GreenEnergy Tech Partners,HEC,D,2027-03-22,54,2025.0,49.7,Standby
-GreenEnergy Tech Partners,KAC,D,2027-03-22,41,1537.5,37.7,Standby
-GreenEnergy Tech Partners,EV,D,2027-03-22,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,HEC,E,2027-03-22,17,637.5,15.6,Standby
-GreenEnergy Tech Partners,KAC,E,2027-03-22,38,1425.0,35.0,Standby
-GreenEnergy Tech Partners,EV,E,2027-03-22,28,1050.0,25.8,Standby
-Centrica Flex Contractors,HEC,A,2027-03-29,43,1612.5,39.6,Active
-Centrica Flex Contractors,KAC,A,2027-03-29,43,1612.5,39.6,Active
-Centrica Flex Contractors,EV,A,2027-03-29,30,1125.0,27.6,Active
-Centrica Flex Contractors,HEC,B,2027-03-29,38,1425.0,35.0,Active
-Centrica Flex Contractors,KAC,B,2027-03-29,21,787.5,19.3,Active
-Centrica Flex Contractors,EV,B,2027-03-29,38,1425.0,35.0,Active
-Centrica Flex Contractors,HEC,C,2027-03-29,49,1837.5,45.1,Active
-Centrica Flex Contractors,KAC,C,2027-03-29,37,1387.5,34.0,Active
-Centrica Flex Contractors,EV,C,2027-03-29,18,675.0,16.6,Active
-Centrica Flex Contractors,HEC,D,2027-03-29,40,1500.0,36.8,Active
-Centrica Flex Contractors,KAC,D,2027-03-29,32,1200.0,29.4,Active
-Centrica Flex Contractors,EV,D,2027-03-29,27,1012.5,24.8,Active
-Centrica Flex Contractors,HEC,E,2027-03-29,22,825.0,20.2,Active
-Centrica Flex Contractors,KAC,E,2027-03-29,44,1650.0,40.5,Active
-Centrica Flex Contractors,EV,E,2027-03-29,20,750.0,18.4,Active
-UK Field Solutions Ltd,HEC,A,2027-03-29,28,1050.0,25.8,Active
-UK Field Solutions Ltd,KAC,A,2027-03-29,55,2062.5,50.6,Active
-UK Field Solutions Ltd,EV,A,2027-03-29,53,1987.5,48.8,Active
-UK Field Solutions Ltd,HEC,B,2027-03-29,16,600.0,14.7,Active
-UK Field Solutions Ltd,KAC,B,2027-03-29,18,675.0,16.6,Active
-UK Field Solutions Ltd,EV,B,2027-03-29,36,1350.0,33.1,Active
-UK Field Solutions Ltd,HEC,C,2027-03-29,30,1125.0,27.6,Active
-UK Field Solutions Ltd,KAC,C,2027-03-29,23,862.5,21.2,Active
-UK Field Solutions Ltd,EV,C,2027-03-29,51,1912.5,46.9,Active
-UK Field Solutions Ltd,HEC,D,2027-03-29,28,1050.0,25.8,Active
-UK Field Solutions Ltd,KAC,D,2027-03-29,19,712.5,17.5,Active
-UK Field Solutions Ltd,EV,D,2027-03-29,50,1875.0,46.0,Active
-UK Field Solutions Ltd,HEC,E,2027-03-29,28,1050.0,25.8,Active
-UK Field Solutions Ltd,KAC,E,2027-03-29,52,1950.0,47.8,Active
-UK Field Solutions Ltd,EV,E,2027-03-29,28,1050.0,25.8,Active
-GreenEnergy Tech Partners,HEC,A,2027-03-29,29,1087.5,26.7,Standby
-GreenEnergy Tech Partners,KAC,A,2027-03-29,36,1350.0,33.1,Standby
-GreenEnergy Tech Partners,EV,A,2027-03-29,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,HEC,B,2027-03-29,53,1987.5,48.8,Standby
-GreenEnergy Tech Partners,KAC,B,2027-03-29,15,562.5,13.8,Standby
-GreenEnergy Tech Partners,EV,B,2027-03-29,32,1200.0,29.4,Standby
-GreenEnergy Tech Partners,HEC,C,2027-03-29,24,900.0,22.1,Standby
-GreenEnergy Tech Partners,KAC,C,2027-03-29,23,862.5,21.2,Standby
-GreenEnergy Tech Partners,EV,C,2027-03-29,49,1837.5,45.1,Standby
-GreenEnergy Tech Partners,HEC,D,2027-03-29,31,1162.5,28.5,Standby
-GreenEnergy Tech Partners,KAC,D,2027-03-29,26,975.0,23.9,Standby
-GreenEnergy Tech Partners,EV,D,2027-03-29,22,825.0,20.2,Standby
-GreenEnergy Tech Partners,HEC,E,2027-03-29,16,600.0,14.7,Standby
-GreenEnergy Tech Partners,KAC,E,2027-03-29,23,862.5,21.2,Standby
-GreenEnergy Tech Partners,EV,E,2027-03-29,15,562.5,13.8,Standby
+Patch,Skill,Sp,Utilisation,Weekcomm,Values
+EB12 Altrincham,HEC,General,0.56,2026-09-14,9.88
+EB12 Altrincham,KAC,General,0.56,2026-09-14,9.52
+EB12 Altrincham,EV,General,0.56,2026-09-14,9.3
+EC62 Essex East,HEC,General,0.56,2026-09-14,1.0
+EC62 Essex East,KAC,General,0.56,2026-09-14,1.0
+EC62 Essex East,EV,General,0.56,2026-09-14,29.48
+EB14 Stockport,HEC,General,0.56,2026-09-14,1.0
+EB14 Stockport,KAC,General,0.56,2026-09-14,1.0
+EB14 Stockport,EV,General,0.56,2026-09-14,1.0
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-09-14,9.34
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-09-14,9.88
+ED22 Cobham & Heathrow,EV,General,0.56,2026-09-14,1.0
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-09-14,9.74
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-09-14,28.96
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-09-14,9.86
+EA62 Preston & Southport,HEC,General,0.56,2026-09-14,27.83
+EA62 Preston & Southport,KAC,General,0.56,2026-09-14,19.35
+EA62 Preston & Southport,EV,General,0.56,2026-09-14,1.0
+EB24 The Wirral,HEC,General,0.56,2026-09-14,9.6
+EB24 The Wirral,KAC,General,0.56,2026-09-14,29.69
+EB24 The Wirral,EV,General,0.56,2026-09-14,19.31
+EC91 Leicester,HEC,General,0.56,2026-09-14,19.2
+EC91 Leicester,KAC,General,0.56,2026-09-14,9.5
+EC91 Leicester,EV,General,0.56,2026-09-14,9.26
+ED41 Bromley & Dartford,HEC,General,0.56,2026-09-14,18.71
+ED41 Bromley & Dartford,KAC,General,0.56,2026-09-14,1.0
+ED41 Bromley & Dartford,EV,General,0.56,2026-09-14,1.0
+EB13 Manchester Centre,HEC,General,0.56,2026-09-14,27.9
+EB13 Manchester Centre,KAC,General,0.56,2026-09-14,1.0
+EB13 Manchester Centre,EV,General,0.56,2026-09-14,19.27
+EB12 Lancashire South,HEC,General,0.56,2026-09-14,19.07
+EB12 Lancashire South,KAC,General,0.56,2026-09-14,19.11
+EB12 Lancashire South,EV,General,0.56,2026-09-14,1.0
+ED44 Canterbury & Dover,HEC,General,0.56,2026-09-21,30.7
+ED44 Canterbury & Dover,KAC,General,0.56,2026-09-21,1.0
+ED44 Canterbury & Dover,EV,General,0.56,2026-09-21,31.71
+EB12 Altrincham,HEC,General,0.56,2026-09-21,1.0
+EB12 Altrincham,KAC,General,0.56,2026-09-21,20.56
+EB12 Altrincham,EV,General,0.56,2026-09-21,20.05
+EC62 Essex East,HEC,General,0.56,2026-09-21,10.18
+EC62 Essex East,KAC,General,0.56,2026-09-21,1.0
+EC62 Essex East,EV,General,0.56,2026-09-21,1.0
+EB14 Stockport,HEC,General,0.56,2026-09-21,10.67
+EB14 Stockport,KAC,General,0.56,2026-09-21,20.4
+EB14 Stockport,EV,General,0.56,2026-09-21,1.0
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-09-21,10.0
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-09-21,1.0
+ED22 Cobham & Heathrow,EV,General,0.56,2026-09-21,31.8
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-09-21,19.75
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-09-21,31.05
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-09-21,19.95
+EA62 Preston & Southport,HEC,General,0.56,2026-09-21,10.02
+EA62 Preston & Southport,KAC,General,0.56,2026-09-21,20.27
+EA62 Preston & Southport,EV,General,0.56,2026-09-21,21.1
+EB24 The Wirral,HEC,General,0.56,2026-09-21,9.87
+EB24 The Wirral,KAC,General,0.56,2026-09-21,20.69
+EB24 The Wirral,EV,General,0.56,2026-09-21,1.0
+EC91 Leicester,HEC,General,0.56,2026-09-21,9.78
+EC91 Leicester,KAC,General,0.56,2026-09-21,10.22
+EC91 Leicester,EV,General,0.56,2026-09-21,9.86
+ED41 Bromley & Dartford,HEC,General,0.56,2026-09-21,31.87
+ED41 Bromley & Dartford,KAC,General,0.56,2026-09-21,29.4
+ED41 Bromley & Dartford,EV,General,0.56,2026-09-21,19.73
+EB13 Manchester Centre,HEC,General,0.56,2026-09-21,10.25
+EB13 Manchester Centre,KAC,General,0.56,2026-09-21,20.51
+EB13 Manchester Centre,EV,General,0.56,2026-09-21,1.0
+EB12 Lancashire South,HEC,General,0.56,2026-09-21,10.12
+EB12 Lancashire South,KAC,General,0.56,2026-09-21,1.0
+EB12 Lancashire South,EV,General,0.56,2026-09-21,19.9
+ED44 Canterbury & Dover,HEC,General,0.56,2026-09-28,31.48
+ED44 Canterbury & Dover,KAC,General,0.56,2026-09-28,21.68
+ED44 Canterbury & Dover,EV,General,0.56,2026-09-28,1.0
+EB12 Altrincham,HEC,General,0.56,2026-09-28,10.98
+EB12 Altrincham,KAC,General,0.56,2026-09-28,22.42
+EB12 Altrincham,EV,General,0.56,2026-09-28,11.24
+EC62 Essex East,HEC,General,0.56,2026-09-28,34.07
+EC62 Essex East,KAC,General,0.56,2026-09-28,32.25
+EC62 Essex East,EV,General,0.56,2026-09-28,33.99
+EB14 Stockport,HEC,General,0.56,2026-09-28,11.02
+EB14 Stockport,KAC,General,0.56,2026-09-28,21.76
+EB14 Stockport,EV,General,0.56,2026-09-28,10.84
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-09-28,11.08
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-09-28,21.7
+ED22 Cobham & Heathrow,EV,General,0.56,2026-09-28,34.02
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-09-28,31.43
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-09-28,22.27
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-09-28,11.37
+EA62 Preston & Southport,HEC,General,0.56,2026-09-28,10.9
+EA62 Preston & Southport,KAC,General,0.56,2026-09-28,31.85
+EA62 Preston & Southport,EV,General,0.56,2026-09-28,1.0
+EB24 The Wirral,HEC,General,0.56,2026-09-28,1.0
+EB24 The Wirral,KAC,General,0.56,2026-09-28,1.0
+EB24 The Wirral,EV,General,0.56,2026-09-28,11.06
+EC91 Leicester,HEC,General,0.56,2026-09-28,10.49
+EC91 Leicester,KAC,General,0.56,2026-09-28,33.5
+EC91 Leicester,EV,General,0.56,2026-09-28,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2026-09-28,32.64
+ED41 Bromley & Dartford,KAC,General,0.56,2026-09-28,33.02
+ED41 Bromley & Dartford,EV,General,0.56,2026-09-28,32.46
+EB13 Manchester Centre,HEC,General,0.56,2026-09-28,22.23
+EB13 Manchester Centre,KAC,General,0.56,2026-09-28,1.0
+EB13 Manchester Centre,EV,General,0.56,2026-09-28,1.0
+EB12 Lancashire South,HEC,General,0.56,2026-09-28,22.4
+EB12 Lancashire South,KAC,General,0.56,2026-09-28,22.23
+EB12 Lancashire South,EV,General,0.56,2026-09-28,1.0
+ED44 Canterbury & Dover,HEC,General,0.56,2026-10-05,23.99
+ED44 Canterbury & Dover,KAC,General,0.56,2026-10-05,34.65
+ED44 Canterbury & Dover,EV,General,0.56,2026-10-05,11.17
+EB12 Altrincham,HEC,General,0.56,2026-10-05,35.3
+EB12 Altrincham,KAC,General,0.56,2026-10-05,1.0
+EB12 Altrincham,EV,General,0.56,2026-10-05,22.86
+EC62 Essex East,HEC,General,0.56,2026-10-05,12.03
+EC62 Essex East,KAC,General,0.56,2026-10-05,1.0
+EC62 Essex East,EV,General,0.56,2026-10-05,22.99
+EB14 Stockport,HEC,General,0.56,2026-10-05,11.19
+EB14 Stockport,KAC,General,0.56,2026-10-05,11.98
+EB14 Stockport,EV,General,0.56,2026-10-05,23.7
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-10-05,11.89
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-10-05,1.0
+ED22 Cobham & Heathrow,EV,General,0.56,2026-10-05,22.91
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-10-05,34.64
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-10-05,1.0
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-10-05,1.0
+EA62 Preston & Southport,HEC,General,0.56,2026-10-05,24.17
+EA62 Preston & Southport,KAC,General,0.56,2026-10-05,22.74
+EA62 Preston & Southport,EV,General,0.56,2026-10-05,12.1
+EB24 The Wirral,HEC,General,0.56,2026-10-05,1.0
+EB24 The Wirral,KAC,General,0.56,2026-10-05,12.07
+EB24 The Wirral,EV,General,0.56,2026-10-05,1.0
+EC91 Leicester,HEC,General,0.56,2026-10-05,1.0
+EC91 Leicester,KAC,General,0.56,2026-10-05,34.36
+EC91 Leicester,EV,General,0.56,2026-10-05,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2026-10-05,11.45
+ED41 Bromley & Dartford,KAC,General,0.56,2026-10-05,11.68
+ED41 Bromley & Dartford,EV,General,0.56,2026-10-05,36.07
+EB13 Manchester Centre,HEC,General,0.56,2026-10-05,11.85
+EB13 Manchester Centre,KAC,General,0.56,2026-10-05,23.81
+EB13 Manchester Centre,EV,General,0.56,2026-10-05,35.67
+EB12 Lancashire South,HEC,General,0.56,2026-10-05,11.98
+EB12 Lancashire South,KAC,General,0.56,2026-10-05,11.45
+EB12 Lancashire South,EV,General,0.56,2026-10-05,23.92
+ED44 Canterbury & Dover,HEC,General,0.56,2026-10-12,36.83
+ED44 Canterbury & Dover,KAC,General,0.56,2026-10-12,23.86
+ED44 Canterbury & Dover,EV,General,0.56,2026-10-12,37.46
+EB12 Altrincham,HEC,General,0.56,2026-10-12,38.23
+EB12 Altrincham,KAC,General,0.56,2026-10-12,1.0
+EB12 Altrincham,EV,General,0.56,2026-10-12,12.85
+EC62 Essex East,HEC,General,0.56,2026-10-12,11.92
+EC62 Essex East,KAC,General,0.56,2026-10-12,1.0
+EC62 Essex East,EV,General,0.56,2026-10-12,25.2
+EB14 Stockport,HEC,General,0.56,2026-10-12,1.0
+EB14 Stockport,KAC,General,0.56,2026-10-12,12.19
+EB14 Stockport,EV,General,0.56,2026-10-12,12.52
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-10-12,1.0
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-10-12,1.0
+ED22 Cobham & Heathrow,EV,General,0.56,2026-10-12,1.0
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-10-12,11.99
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-10-12,1.0
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-10-12,1.0
+EA62 Preston & Southport,HEC,General,0.56,2026-10-12,25.07
+EA62 Preston & Southport,KAC,General,0.56,2026-10-12,1.0
+EA62 Preston & Southport,EV,General,0.56,2026-10-12,12.95
+EB24 The Wirral,HEC,General,0.56,2026-10-12,24.61
+EB24 The Wirral,KAC,General,0.56,2026-10-12,35.81
+EB24 The Wirral,EV,General,0.56,2026-10-12,12.98
+EC91 Leicester,HEC,General,0.56,2026-10-12,12.77
+EC91 Leicester,KAC,General,0.56,2026-10-12,37.3
+EC91 Leicester,EV,General,0.56,2026-10-12,12.8
+ED41 Bromley & Dartford,HEC,General,0.56,2026-10-12,36.81
+ED41 Bromley & Dartford,KAC,General,0.56,2026-10-12,38.4
+ED41 Bromley & Dartford,EV,General,0.56,2026-10-12,12.99
+EB13 Manchester Centre,HEC,General,0.56,2026-10-12,1.0
+EB13 Manchester Centre,KAC,General,0.56,2026-10-12,1.0
+EB13 Manchester Centre,EV,General,0.56,2026-10-12,38.66
+EB12 Lancashire South,HEC,General,0.56,2026-10-12,24.26
+EB12 Lancashire South,KAC,General,0.56,2026-10-12,37.93
+EB12 Lancashire South,EV,General,0.56,2026-10-12,38.78
+ED44 Canterbury & Dover,HEC,General,0.56,2026-10-19,38.78
+ED44 Canterbury & Dover,KAC,General,0.56,2026-10-19,1.0
+ED44 Canterbury & Dover,EV,General,0.56,2026-10-19,1.0
+EB12 Altrincham,HEC,General,0.56,2026-10-19,1.0
+EB12 Altrincham,KAC,General,0.56,2026-10-19,40.96
+EB12 Altrincham,EV,General,0.56,2026-10-19,26.41
+EC62 Essex East,HEC,General,0.56,2026-10-19,1.0
+EC62 Essex East,KAC,General,0.56,2026-10-19,13.0
+EC62 Essex East,EV,General,0.56,2026-10-19,13.19
+EB14 Stockport,HEC,General,0.56,2026-10-19,12.67
+EB14 Stockport,KAC,General,0.56,2026-10-19,40.64
+EB14 Stockport,EV,General,0.56,2026-10-19,13.08
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-10-19,40.64
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-10-19,12.88
+ED22 Cobham & Heathrow,EV,General,0.56,2026-10-19,25.94
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-10-19,38.35
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-10-19,13.26
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-10-19,1.0
+EA62 Preston & Southport,HEC,General,0.56,2026-10-19,39.67
+EA62 Preston & Southport,KAC,General,0.56,2026-10-19,1.0
+EA62 Preston & Southport,EV,General,0.56,2026-10-19,1.0
+EB24 The Wirral,HEC,General,0.56,2026-10-19,1.0
+EB24 The Wirral,KAC,General,0.56,2026-10-19,1.0
+EB24 The Wirral,EV,General,0.56,2026-10-19,13.19
+EC91 Leicester,HEC,General,0.56,2026-10-19,13.26
+EC91 Leicester,KAC,General,0.56,2026-10-19,40.01
+EC91 Leicester,EV,General,0.56,2026-10-19,38.96
+ED41 Bromley & Dartford,HEC,General,0.56,2026-10-19,40.57
+ED41 Bromley & Dartford,KAC,General,0.56,2026-10-19,13.08
+ED41 Bromley & Dartford,EV,General,0.56,2026-10-19,40.55
+EB13 Manchester Centre,HEC,General,0.56,2026-10-19,1.0
+EB13 Manchester Centre,KAC,General,0.56,2026-10-19,12.66
+EB13 Manchester Centre,EV,General,0.56,2026-10-19,38.87
+EB12 Lancashire South,HEC,General,0.56,2026-10-19,1.0
+EB12 Lancashire South,KAC,General,0.56,2026-10-19,38.51
+EB12 Lancashire South,EV,General,0.56,2026-10-19,26.77
+ED44 Canterbury & Dover,HEC,General,0.56,2026-10-26,42.46
+ED44 Canterbury & Dover,KAC,General,0.56,2026-10-26,26.65
+ED44 Canterbury & Dover,EV,General,0.56,2026-10-26,41.85
+EB12 Altrincham,HEC,General,0.56,2026-10-26,41.29
+EB12 Altrincham,KAC,General,0.56,2026-10-26,13.42
+EB12 Altrincham,EV,General,0.56,2026-10-26,13.61
+EC62 Essex East,HEC,General,0.56,2026-10-26,26.98
+EC62 Essex East,KAC,General,0.56,2026-10-26,14.47
+EC62 Essex East,EV,General,0.56,2026-10-26,1.0
+EB14 Stockport,HEC,General,0.56,2026-10-26,1.0
+EB14 Stockport,KAC,General,0.56,2026-10-26,28.67
+EB14 Stockport,EV,General,0.56,2026-10-26,1.0
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-10-26,1.0
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-10-26,41.94
+ED22 Cobham & Heathrow,EV,General,0.56,2026-10-26,14.36
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-10-26,1.0
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-10-26,1.0
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-10-26,13.37
+EA62 Preston & Southport,HEC,General,0.56,2026-10-26,1.0
+EA62 Preston & Southport,KAC,General,0.56,2026-10-26,1.0
+EA62 Preston & Southport,EV,General,0.56,2026-10-26,13.83
+EB24 The Wirral,HEC,General,0.56,2026-10-26,40.91
+EB24 The Wirral,KAC,General,0.56,2026-10-26,1.0
+EB24 The Wirral,EV,General,0.56,2026-10-26,13.7
+EC91 Leicester,HEC,General,0.56,2026-10-26,1.0
+EC91 Leicester,KAC,General,0.56,2026-10-26,1.0
+EC91 Leicester,EV,General,0.56,2026-10-26,40.56
+ED41 Bromley & Dartford,HEC,General,0.56,2026-10-26,27.58
+ED41 Bromley & Dartford,KAC,General,0.56,2026-10-26,28.8
+ED41 Bromley & Dartford,EV,General,0.56,2026-10-26,14.38
+EB13 Manchester Centre,HEC,General,0.56,2026-10-26,28.45
+EB13 Manchester Centre,KAC,General,0.56,2026-10-26,13.84
+EB13 Manchester Centre,EV,General,0.56,2026-10-26,29.01
+EB12 Lancashire South,HEC,General,0.56,2026-10-26,43.18
+EB12 Lancashire South,KAC,General,0.56,2026-10-26,13.33
+EB12 Lancashire South,EV,General,0.56,2026-10-26,26.9
+ED44 Canterbury & Dover,HEC,General,0.56,2026-11-02,43.84
+ED44 Canterbury & Dover,KAC,General,0.56,2026-11-02,28.59
+ED44 Canterbury & Dover,EV,General,0.56,2026-11-02,1.0
+EB12 Altrincham,HEC,General,0.56,2026-11-02,1.0
+EB12 Altrincham,KAC,General,0.56,2026-11-02,43.58
+EB12 Altrincham,EV,General,0.56,2026-11-02,1.0
+EC62 Essex East,HEC,General,0.56,2026-11-02,1.0
+EC62 Essex East,KAC,General,0.56,2026-11-02,14.93
+EC62 Essex East,EV,General,0.56,2026-11-02,28.36
+EB14 Stockport,HEC,General,0.56,2026-11-02,14.99
+EB14 Stockport,KAC,General,0.56,2026-11-02,29.35
+EB14 Stockport,EV,General,0.56,2026-11-02,1.0
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-11-02,14.4
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-11-02,30.64
+ED22 Cobham & Heathrow,EV,General,0.56,2026-11-02,29.22
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-11-02,14.73
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-11-02,44.19
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-11-02,30.39
+EA62 Preston & Southport,HEC,General,0.56,2026-11-02,1.0
+EA62 Preston & Southport,KAC,General,0.56,2026-11-02,28.17
+EA62 Preston & Southport,EV,General,0.56,2026-11-02,1.0
+EB24 The Wirral,HEC,General,0.56,2026-11-02,14.61
+EB24 The Wirral,KAC,General,0.56,2026-11-02,28.38
+EB24 The Wirral,EV,General,0.56,2026-11-02,1.0
+EC91 Leicester,HEC,General,0.56,2026-11-02,1.0
+EC91 Leicester,KAC,General,0.56,2026-11-02,15.08
+EC91 Leicester,EV,General,0.56,2026-11-02,28.7
+ED41 Bromley & Dartford,HEC,General,0.56,2026-11-02,28.58
+ED41 Bromley & Dartford,KAC,General,0.56,2026-11-02,14.27
+ED41 Bromley & Dartford,EV,General,0.56,2026-11-02,30.27
+EB13 Manchester Centre,HEC,General,0.56,2026-11-02,14.69
+EB13 Manchester Centre,KAC,General,0.56,2026-11-02,30.22
+EB13 Manchester Centre,EV,General,0.56,2026-11-02,43.47
+EB12 Lancashire South,HEC,General,0.56,2026-11-02,30.56
+EB12 Lancashire South,KAC,General,0.56,2026-11-02,1.0
+EB12 Lancashire South,EV,General,0.56,2026-11-02,1.0
+ED44 Canterbury & Dover,HEC,General,0.56,2026-11-09,47.93
+ED44 Canterbury & Dover,KAC,General,0.56,2026-11-09,29.49
+ED44 Canterbury & Dover,EV,General,0.56,2026-11-09,1.0
+EB12 Altrincham,HEC,General,0.56,2026-11-09,1.0
+EB12 Altrincham,KAC,General,0.56,2026-11-09,31.76
+EB12 Altrincham,EV,General,0.56,2026-11-09,15.23
+EC62 Essex East,HEC,General,0.56,2026-11-09,29.94
+EC62 Essex East,KAC,General,0.56,2026-11-09,14.84
+EC62 Essex East,EV,General,0.56,2026-11-09,45.49
+EB14 Stockport,HEC,General,0.56,2026-11-09,45.89
+EB14 Stockport,KAC,General,0.56,2026-11-09,1.0
+EB14 Stockport,EV,General,0.56,2026-11-09,1.0
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-11-09,1.0
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-11-09,15.35
+ED22 Cobham & Heathrow,EV,General,0.56,2026-11-09,1.0
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-11-09,29.56
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-11-09,14.79
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-11-09,46.61
+EA62 Preston & Southport,HEC,General,0.56,2026-11-09,15.93
+EA62 Preston & Southport,KAC,General,0.56,2026-11-09,1.0
+EA62 Preston & Southport,EV,General,0.56,2026-11-09,31.01
+EB24 The Wirral,HEC,General,0.56,2026-11-09,31.4
+EB24 The Wirral,KAC,General,0.56,2026-11-09,1.0
+EB24 The Wirral,EV,General,0.56,2026-11-09,30.58
+EC91 Leicester,HEC,General,0.56,2026-11-09,15.65
+EC91 Leicester,KAC,General,0.56,2026-11-09,15.53
+EC91 Leicester,EV,General,0.56,2026-11-09,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2026-11-09,29.48
+ED41 Bromley & Dartford,KAC,General,0.56,2026-11-09,44.22
+ED41 Bromley & Dartford,EV,General,0.56,2026-11-09,15.78
+EB13 Manchester Centre,HEC,General,0.56,2026-11-09,14.85
+EB13 Manchester Centre,KAC,General,0.56,2026-11-09,15.7
+EB13 Manchester Centre,EV,General,0.56,2026-11-09,14.92
+EB12 Lancashire South,HEC,General,0.56,2026-11-09,45.65
+EB12 Lancashire South,KAC,General,0.56,2026-11-09,1.0
+EB12 Lancashire South,EV,General,0.56,2026-11-09,15.36
+ED44 Canterbury & Dover,HEC,General,0.56,2026-11-16,33.39
+ED44 Canterbury & Dover,KAC,General,0.56,2026-11-16,48.11
+ED44 Canterbury & Dover,EV,General,0.56,2026-11-16,15.41
+EB12 Altrincham,HEC,General,0.56,2026-11-16,31.99
+EB12 Altrincham,KAC,General,0.56,2026-11-16,15.74
+EB12 Altrincham,EV,General,0.56,2026-11-16,1.0
+EC62 Essex East,HEC,General,0.56,2026-11-16,47.73
+EC62 Essex East,KAC,General,0.56,2026-11-16,1.0
+EC62 Essex East,EV,General,0.56,2026-11-16,46.15
+EB14 Stockport,HEC,General,0.56,2026-11-16,15.44
+EB14 Stockport,KAC,General,0.56,2026-11-16,16.51
+EB14 Stockport,EV,General,0.56,2026-11-16,49.12
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-11-16,32.35
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-11-16,33.32
+ED22 Cobham & Heathrow,EV,General,0.56,2026-11-16,16.33
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-11-16,15.43
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-11-16,1.0
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-11-16,15.91
+EA62 Preston & Southport,HEC,General,0.56,2026-11-16,48.88
+EA62 Preston & Southport,KAC,General,0.56,2026-11-16,32.05
+EA62 Preston & Southport,EV,General,0.56,2026-11-16,32.43
+EB24 The Wirral,HEC,General,0.56,2026-11-16,1.0
+EB24 The Wirral,KAC,General,0.56,2026-11-16,31.69
+EB24 The Wirral,EV,General,0.56,2026-11-16,31.28
+EC91 Leicester,HEC,General,0.56,2026-11-16,48.84
+EC91 Leicester,KAC,General,0.56,2026-11-16,31.87
+EC91 Leicester,EV,General,0.56,2026-11-16,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2026-11-16,1.0
+ED41 Bromley & Dartford,KAC,General,0.56,2026-11-16,31.44
+ED41 Bromley & Dartford,EV,General,0.56,2026-11-16,15.89
+EB13 Manchester Centre,HEC,General,0.56,2026-11-16,31.52
+EB13 Manchester Centre,KAC,General,0.56,2026-11-16,1.0
+EB13 Manchester Centre,EV,General,0.56,2026-11-16,1.0
+EB12 Lancashire South,HEC,General,0.56,2026-11-16,48.13
+EB12 Lancashire South,KAC,General,0.56,2026-11-16,31.29
+EB12 Lancashire South,EV,General,0.56,2026-11-16,33.23
+ED44 Canterbury & Dover,HEC,General,0.56,2026-11-23,50.82
+ED44 Canterbury & Dover,KAC,General,0.56,2026-11-23,1.0
+ED44 Canterbury & Dover,EV,General,0.56,2026-11-23,51.57
+EB12 Altrincham,HEC,General,0.56,2026-11-23,16.5
+EB12 Altrincham,KAC,General,0.56,2026-11-23,32.46
+EB12 Altrincham,EV,General,0.56,2026-11-23,1.0
+EC62 Essex East,HEC,General,0.56,2026-11-23,49.87
+EC62 Essex East,KAC,General,0.56,2026-11-23,1.0
+EC62 Essex East,EV,General,0.56,2026-11-23,17.03
+EB14 Stockport,HEC,General,0.56,2026-11-23,32.99
+EB14 Stockport,KAC,General,0.56,2026-11-23,51.19
+EB14 Stockport,EV,General,0.56,2026-11-23,1.0
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-11-23,32.09
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-11-23,31.9
+ED22 Cobham & Heathrow,EV,General,0.56,2026-11-23,1.0
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-11-23,31.81
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-11-23,34.16
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-11-23,51.89
+EA62 Preston & Southport,HEC,General,0.56,2026-11-23,33.69
+EA62 Preston & Southport,KAC,General,0.56,2026-11-23,49.09
+EA62 Preston & Southport,EV,General,0.56,2026-11-23,32.45
+EB24 The Wirral,HEC,General,0.56,2026-11-23,16.8
+EB24 The Wirral,KAC,General,0.56,2026-11-23,16.29
+EB24 The Wirral,EV,General,0.56,2026-11-23,49.73
+EC91 Leicester,HEC,General,0.56,2026-11-23,48.84
+EC91 Leicester,KAC,General,0.56,2026-11-23,16.06
+EC91 Leicester,EV,General,0.56,2026-11-23,32.65
+ED41 Bromley & Dartford,HEC,General,0.56,2026-11-23,48.41
+ED41 Bromley & Dartford,KAC,General,0.56,2026-11-23,1.0
+ED41 Bromley & Dartford,EV,General,0.56,2026-11-23,33.29
+EB13 Manchester Centre,HEC,General,0.56,2026-11-23,31.77
+EB13 Manchester Centre,KAC,General,0.56,2026-11-23,16.69
+EB13 Manchester Centre,EV,General,0.56,2026-11-23,50.33
+EB12 Lancashire South,HEC,General,0.56,2026-11-23,32.79
+EB12 Lancashire South,KAC,General,0.56,2026-11-23,49.38
+EB12 Lancashire South,EV,General,0.56,2026-11-23,49.85
+ED44 Canterbury & Dover,HEC,General,0.56,2026-11-30,52.44
+ED44 Canterbury & Dover,KAC,General,0.56,2026-11-30,17.25
+ED44 Canterbury & Dover,EV,General,0.56,2026-11-30,50.02
+EB12 Altrincham,HEC,General,0.56,2026-11-30,16.44
+EB12 Altrincham,KAC,General,0.56,2026-11-30,1.0
+EB12 Altrincham,EV,General,0.56,2026-11-30,33.89
+EC62 Essex East,HEC,General,0.56,2026-11-30,35.1
+EC62 Essex East,KAC,General,0.56,2026-11-30,1.0
+EC62 Essex East,EV,General,0.56,2026-11-30,17.59
+EB14 Stockport,HEC,General,0.56,2026-11-30,35.24
+EB14 Stockport,KAC,General,0.56,2026-11-30,17.71
+EB14 Stockport,EV,General,0.56,2026-11-30,16.55
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-11-30,17.19
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-11-30,1.0
+ED22 Cobham & Heathrow,EV,General,0.56,2026-11-30,1.0
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-11-30,17.63
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-11-30,50.92
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-11-30,1.0
+EA62 Preston & Southport,HEC,General,0.56,2026-11-30,53.62
+EA62 Preston & Southport,KAC,General,0.56,2026-11-30,50.05
+EA62 Preston & Southport,EV,General,0.56,2026-11-30,17.9
+EB24 The Wirral,HEC,General,0.56,2026-11-30,49.63
+EB24 The Wirral,KAC,General,0.56,2026-11-30,52.62
+EB24 The Wirral,EV,General,0.56,2026-11-30,53.72
+EC91 Leicester,HEC,General,0.56,2026-11-30,17.44
+EC91 Leicester,KAC,General,0.56,2026-11-30,16.87
+EC91 Leicester,EV,General,0.56,2026-11-30,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2026-11-30,1.0
+ED41 Bromley & Dartford,KAC,General,0.56,2026-11-30,49.47
+ED41 Bromley & Dartford,EV,General,0.56,2026-11-30,16.47
+EB13 Manchester Centre,HEC,General,0.56,2026-11-30,16.57
+EB13 Manchester Centre,KAC,General,0.56,2026-11-30,51.61
+EB13 Manchester Centre,EV,General,0.56,2026-11-30,1.0
+EB12 Lancashire South,HEC,General,0.56,2026-11-30,16.77
+EB12 Lancashire South,KAC,General,0.56,2026-11-30,1.0
+EB12 Lancashire South,EV,General,0.56,2026-11-30,52.81
+ED44 Canterbury & Dover,HEC,General,0.56,2026-12-07,18.35
+ED44 Canterbury & Dover,KAC,General,0.56,2026-12-07,52.43
+ED44 Canterbury & Dover,EV,General,0.56,2026-12-07,34.58
+EB12 Altrincham,HEC,General,0.56,2026-12-07,51.61
+EB12 Altrincham,KAC,General,0.56,2026-12-07,52.33
+EB12 Altrincham,EV,General,0.56,2026-12-07,52.58
+EC62 Essex East,HEC,General,0.56,2026-12-07,18.18
+EC62 Essex East,KAC,General,0.56,2026-12-07,53.46
+EC62 Essex East,EV,General,0.56,2026-12-07,54.41
+EB14 Stockport,HEC,General,0.56,2026-12-07,34.9
+EB14 Stockport,KAC,General,0.56,2026-12-07,17.9
+EB14 Stockport,EV,General,0.56,2026-12-07,35.24
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-12-07,51.66
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-12-07,18.39
+ED22 Cobham & Heathrow,EV,General,0.56,2026-12-07,35.85
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-12-07,52.21
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-12-07,1.0
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-12-07,34.95
+EA62 Preston & Southport,HEC,General,0.56,2026-12-07,17.63
+EA62 Preston & Southport,KAC,General,0.56,2026-12-07,35.97
+EA62 Preston & Southport,EV,General,0.56,2026-12-07,34.26
+EB24 The Wirral,HEC,General,0.56,2026-12-07,33.89
+EB24 The Wirral,KAC,General,0.56,2026-12-07,1.0
+EB24 The Wirral,EV,General,0.56,2026-12-07,16.86
+EC91 Leicester,HEC,General,0.56,2026-12-07,18.05
+EC91 Leicester,KAC,General,0.56,2026-12-07,18.02
+EC91 Leicester,EV,General,0.56,2026-12-07,52.4
+ED41 Bromley & Dartford,HEC,General,0.56,2026-12-07,17.32
+ED41 Bromley & Dartford,KAC,General,0.56,2026-12-07,17.21
+ED41 Bromley & Dartford,EV,General,0.56,2026-12-07,1.0
+EB13 Manchester Centre,HEC,General,0.56,2026-12-07,55.01
+EB13 Manchester Centre,KAC,General,0.56,2026-12-07,51.89
+EB13 Manchester Centre,EV,General,0.56,2026-12-07,34.84
+EB12 Lancashire South,HEC,General,0.56,2026-12-07,51.1
+EB12 Lancashire South,KAC,General,0.56,2026-12-07,55.03
+EB12 Lancashire South,EV,General,0.56,2026-12-07,1.0
+ED44 Canterbury & Dover,HEC,General,0.56,2026-12-14,18.76
+ED44 Canterbury & Dover,KAC,General,0.56,2026-12-14,52.68
+ED44 Canterbury & Dover,EV,General,0.56,2026-12-14,54.44
+EB12 Altrincham,HEC,General,0.56,2026-12-14,1.0
+EB12 Altrincham,KAC,General,0.56,2026-12-14,54.27
+EB12 Altrincham,EV,General,0.56,2026-12-14,54.31
+EC62 Essex East,HEC,General,0.56,2026-12-14,1.0
+EC62 Essex East,KAC,General,0.56,2026-12-14,37.03
+EC62 Essex East,EV,General,0.56,2026-12-14,37.15
+EB14 Stockport,HEC,General,0.56,2026-12-14,53.2
+EB14 Stockport,KAC,General,0.56,2026-12-14,51.83
+EB14 Stockport,EV,General,0.56,2026-12-14,17.73
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-12-14,51.74
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-12-14,18.48
+ED22 Cobham & Heathrow,EV,General,0.56,2026-12-14,36.18
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-12-14,54.72
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-12-14,56.07
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-12-14,1.0
+EA62 Preston & Southport,HEC,General,0.56,2026-12-14,55.41
+EA62 Preston & Southport,KAC,General,0.56,2026-12-14,35.15
+EA62 Preston & Southport,EV,General,0.56,2026-12-14,56.11
+EB24 The Wirral,HEC,General,0.56,2026-12-14,18.08
+EB24 The Wirral,KAC,General,0.56,2026-12-14,52.32
+EB24 The Wirral,EV,General,0.56,2026-12-14,18.25
+EC91 Leicester,HEC,General,0.56,2026-12-14,1.0
+EC91 Leicester,KAC,General,0.56,2026-12-14,52.43
+EC91 Leicester,EV,General,0.56,2026-12-14,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2026-12-14,1.0
+ED41 Bromley & Dartford,KAC,General,0.56,2026-12-14,54.51
+ED41 Bromley & Dartford,EV,General,0.56,2026-12-14,18.76
+EB13 Manchester Centre,HEC,General,0.56,2026-12-14,53.84
+EB13 Manchester Centre,KAC,General,0.56,2026-12-14,18.74
+EB13 Manchester Centre,EV,General,0.56,2026-12-14,1.0
+EB12 Lancashire South,HEC,General,0.56,2026-12-14,35.09
+EB12 Lancashire South,KAC,General,0.56,2026-12-14,55.89
+EB12 Lancashire South,EV,General,0.56,2026-12-14,35.45
+ED44 Canterbury & Dover,HEC,General,0.56,2026-12-21,18.08
+ED44 Canterbury & Dover,KAC,General,0.56,2026-12-21,53.36
+ED44 Canterbury & Dover,EV,General,0.56,2026-12-21,36.2
+EB12 Altrincham,HEC,General,0.56,2026-12-21,37.49
+EB12 Altrincham,KAC,General,0.56,2026-12-21,52.82
+EB12 Altrincham,EV,General,0.56,2026-12-21,36.26
+EC62 Essex East,HEC,General,0.56,2026-12-21,55.57
+EC62 Essex East,KAC,General,0.56,2026-12-21,35.6
+EC62 Essex East,EV,General,0.56,2026-12-21,1.0
+EB14 Stockport,HEC,General,0.56,2026-12-21,53.5
+EB14 Stockport,KAC,General,0.56,2026-12-21,1.0
+EB14 Stockport,EV,General,0.56,2026-12-21,1.0
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-12-21,38.07
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-12-21,17.69
+ED22 Cobham & Heathrow,EV,General,0.56,2026-12-21,1.0
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-12-21,1.0
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-12-21,1.0
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-12-21,19.11
+EA62 Preston & Southport,HEC,General,0.56,2026-12-21,19.12
+EA62 Preston & Southport,KAC,General,0.56,2026-12-21,1.0
+EA62 Preston & Southport,EV,General,0.56,2026-12-21,18.48
+EB24 The Wirral,HEC,General,0.56,2026-12-21,18.49
+EB24 The Wirral,KAC,General,0.56,2026-12-21,17.67
+EB24 The Wirral,EV,General,0.56,2026-12-21,54.51
+EC91 Leicester,HEC,General,0.56,2026-12-21,1.0
+EC91 Leicester,KAC,General,0.56,2026-12-21,17.69
+EC91 Leicester,EV,General,0.56,2026-12-21,53.87
+ED41 Bromley & Dartford,HEC,General,0.56,2026-12-21,37.89
+ED41 Bromley & Dartford,KAC,General,0.56,2026-12-21,35.28
+ED41 Bromley & Dartford,EV,General,0.56,2026-12-21,17.67
+EB13 Manchester Centre,HEC,General,0.56,2026-12-21,1.0
+EB13 Manchester Centre,KAC,General,0.56,2026-12-21,18.28
+EB13 Manchester Centre,EV,General,0.56,2026-12-21,37.67
+EB12 Lancashire South,HEC,General,0.56,2026-12-21,1.0
+EB12 Lancashire South,KAC,General,0.56,2026-12-21,1.0
+EB12 Lancashire South,EV,General,0.56,2026-12-21,37.1
+ED44 Canterbury & Dover,HEC,General,0.56,2026-12-28,53.57
+ED44 Canterbury & Dover,KAC,General,0.56,2026-12-28,55.62
+ED44 Canterbury & Dover,EV,General,0.56,2026-12-28,18.95
+EB12 Altrincham,HEC,General,0.56,2026-12-28,1.0
+EB12 Altrincham,KAC,General,0.56,2026-12-28,19.01
+EB12 Altrincham,EV,General,0.56,2026-12-28,1.0
+EC62 Essex East,HEC,General,0.56,2026-12-28,38.71
+EC62 Essex East,KAC,General,0.56,2026-12-28,1.0
+EC62 Essex East,EV,General,0.56,2026-12-28,1.0
+EB14 Stockport,HEC,General,0.56,2026-12-28,36.91
+EB14 Stockport,KAC,General,0.56,2026-12-28,54.59
+EB14 Stockport,EV,General,0.56,2026-12-28,37.0
+ED22 Cobham & Heathrow,HEC,General,0.56,2026-12-28,1.0
+ED22 Cobham & Heathrow,KAC,General,0.56,2026-12-28,35.86
+ED22 Cobham & Heathrow,EV,General,0.56,2026-12-28,1.0
+EA62 Blackpool & Lancaster,HEC,General,0.56,2026-12-28,57.36
+EA62 Blackpool & Lancaster,KAC,General,0.56,2026-12-28,54.99
+EA62 Blackpool & Lancaster,EV,General,0.56,2026-12-28,1.0
+EA62 Preston & Southport,HEC,General,0.56,2026-12-28,57.96
+EA62 Preston & Southport,KAC,General,0.56,2026-12-28,38.07
+EA62 Preston & Southport,EV,General,0.56,2026-12-28,56.81
+EB24 The Wirral,HEC,General,0.56,2026-12-28,19.26
+EB24 The Wirral,KAC,General,0.56,2026-12-28,55.62
+EB24 The Wirral,EV,General,0.56,2026-12-28,19.12
+EC91 Leicester,HEC,General,0.56,2026-12-28,35.79
+EC91 Leicester,KAC,General,0.56,2026-12-28,55.45
+EC91 Leicester,EV,General,0.56,2026-12-28,55.44
+ED41 Bromley & Dartford,HEC,General,0.56,2026-12-28,54.52
+ED41 Bromley & Dartford,KAC,General,0.56,2026-12-28,37.45
+ED41 Bromley & Dartford,EV,General,0.56,2026-12-28,38.27
+EB13 Manchester Centre,HEC,General,0.56,2026-12-28,18.52
+EB13 Manchester Centre,KAC,General,0.56,2026-12-28,1.0
+EB13 Manchester Centre,EV,General,0.56,2026-12-28,36.02
+EB12 Lancashire South,HEC,General,0.56,2026-12-28,57.56
+EB12 Lancashire South,KAC,General,0.56,2026-12-28,18.23
+EB12 Lancashire South,EV,General,0.56,2026-12-28,55.27
+ED44 Canterbury & Dover,HEC,General,0.56,2027-01-04,58.36
+ED44 Canterbury & Dover,KAC,General,0.56,2027-01-04,36.78
+ED44 Canterbury & Dover,EV,General,0.56,2027-01-04,1.0
+EB12 Altrincham,HEC,General,0.56,2027-01-04,57.57
+EB12 Altrincham,KAC,General,0.56,2027-01-04,36.96
+EB12 Altrincham,EV,General,0.56,2027-01-04,18.4
+EC62 Essex East,HEC,General,0.56,2027-01-04,55.02
+EC62 Essex East,KAC,General,0.56,2027-01-04,18.17
+EC62 Essex East,EV,General,0.56,2027-01-04,38.41
+EB14 Stockport,HEC,General,0.56,2027-01-04,37.8
+EB14 Stockport,KAC,General,0.56,2027-01-04,38.35
+EB14 Stockport,EV,General,0.56,2027-01-04,35.91
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-01-04,36.54
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-01-04,1.0
+ED22 Cobham & Heathrow,EV,General,0.56,2027-01-04,18.19
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-01-04,1.0
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-01-04,18.87
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-01-04,58.25
+EA62 Preston & Southport,HEC,General,0.56,2027-01-04,57.71
+EA62 Preston & Southport,KAC,General,0.56,2027-01-04,19.54
+EA62 Preston & Southport,EV,General,0.56,2027-01-04,56.47
+EB24 The Wirral,HEC,General,0.56,2027-01-04,54.48
+EB24 The Wirral,KAC,General,0.56,2027-01-04,53.8
+EB24 The Wirral,EV,General,0.56,2027-01-04,1.0
+EC91 Leicester,HEC,General,0.56,2027-01-04,1.0
+EC91 Leicester,KAC,General,0.56,2027-01-04,37.78
+EC91 Leicester,EV,General,0.56,2027-01-04,19.5
+ED41 Bromley & Dartford,HEC,General,0.56,2027-01-04,56.84
+ED41 Bromley & Dartford,KAC,General,0.56,2027-01-04,18.15
+ED41 Bromley & Dartford,EV,General,0.56,2027-01-04,36.06
+EB13 Manchester Centre,HEC,General,0.56,2027-01-04,37.89
+EB13 Manchester Centre,KAC,General,0.56,2027-01-04,53.86
+EB13 Manchester Centre,EV,General,0.56,2027-01-04,39.11
+EB12 Lancashire South,HEC,General,0.56,2027-01-04,54.27
+EB12 Lancashire South,KAC,General,0.56,2027-01-04,38.37
+EB12 Lancashire South,EV,General,0.56,2027-01-04,37.29
+ED44 Canterbury & Dover,HEC,General,0.56,2027-01-11,58.0
+ED44 Canterbury & Dover,KAC,General,0.56,2027-01-11,37.0
+ED44 Canterbury & Dover,EV,General,0.56,2027-01-11,38.0
+EB12 Altrincham,HEC,General,0.56,2027-01-11,39.0
+EB12 Altrincham,KAC,General,0.56,2027-01-11,19.0
+EB12 Altrincham,EV,General,0.56,2027-01-11,1.0
+EC62 Essex East,HEC,General,0.56,2027-01-11,19.0
+EC62 Essex East,KAC,General,0.56,2027-01-11,37.0
+EC62 Essex East,EV,General,0.56,2027-01-11,1.0
+EB14 Stockport,HEC,General,0.56,2027-01-11,19.0
+EB14 Stockport,KAC,General,0.56,2027-01-11,20.0
+EB14 Stockport,EV,General,0.56,2027-01-11,19.0
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-01-11,56.0
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-01-11,38.0
+ED22 Cobham & Heathrow,EV,General,0.56,2027-01-11,38.0
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-01-11,1.0
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-01-11,19.0
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-01-11,37.0
+EA62 Preston & Southport,HEC,General,0.56,2027-01-11,19.0
+EA62 Preston & Southport,KAC,General,0.56,2027-01-11,37.0
+EA62 Preston & Southport,EV,General,0.56,2027-01-11,18.0
+EB24 The Wirral,HEC,General,0.56,2027-01-11,36.0
+EB24 The Wirral,KAC,General,0.56,2027-01-11,1.0
+EB24 The Wirral,EV,General,0.56,2027-01-11,19.0
+EC91 Leicester,HEC,General,0.56,2027-01-11,37.0
+EC91 Leicester,KAC,General,0.56,2027-01-11,1.0
+EC91 Leicester,EV,General,0.56,2027-01-11,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2027-01-11,39.0
+ED41 Bromley & Dartford,KAC,General,0.56,2027-01-11,19.0
+ED41 Bromley & Dartford,EV,General,0.56,2027-01-11,55.0
+EB13 Manchester Centre,HEC,General,0.56,2027-01-11,1.0
+EB13 Manchester Centre,KAC,General,0.56,2027-01-11,1.0
+EB13 Manchester Centre,EV,General,0.56,2027-01-11,37.0
+EB12 Lancashire South,HEC,General,0.56,2027-01-11,58.0
+EB12 Lancashire South,KAC,General,0.56,2027-01-11,56.0
+EB12 Lancashire South,EV,General,0.56,2027-01-11,55.0
+ED44 Canterbury & Dover,HEC,General,0.56,2027-01-18,36.08
+ED44 Canterbury & Dover,KAC,General,0.56,2027-01-18,18.97
+ED44 Canterbury & Dover,EV,General,0.56,2027-01-18,1.0
+EB12 Altrincham,HEC,General,0.56,2027-01-18,37.43
+EB12 Altrincham,KAC,General,0.56,2027-01-18,58.64
+EB12 Altrincham,EV,General,0.56,2027-01-18,1.0
+EC62 Essex East,HEC,General,0.56,2027-01-18,1.0
+EC62 Essex East,KAC,General,0.56,2027-01-18,55.89
+EC62 Essex East,EV,General,0.56,2027-01-18,58.15
+EB14 Stockport,HEC,General,0.56,2027-01-18,1.0
+EB14 Stockport,KAC,General,0.56,2027-01-18,1.0
+EB14 Stockport,EV,General,0.56,2027-01-18,18.49
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-01-18,18.26
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-01-18,37.18
+ED22 Cobham & Heathrow,EV,General,0.56,2027-01-18,1.0
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-01-18,19.17
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-01-18,1.0
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-01-18,55.8
+EA62 Preston & Southport,HEC,General,0.56,2027-01-18,19.36
+EA62 Preston & Southport,KAC,General,0.56,2027-01-18,54.17
+EA62 Preston & Southport,EV,General,0.56,2027-01-18,56.75
+EB24 The Wirral,HEC,General,0.56,2027-01-18,54.4
+EB24 The Wirral,KAC,General,0.56,2027-01-18,38.18
+EB24 The Wirral,EV,General,0.56,2027-01-18,55.02
+EC91 Leicester,HEC,General,0.56,2027-01-18,37.29
+EC91 Leicester,KAC,General,0.56,2027-01-18,1.0
+EC91 Leicester,EV,General,0.56,2027-01-18,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2027-01-18,19.37
+ED41 Bromley & Dartford,KAC,General,0.56,2027-01-18,19.42
+ED41 Bromley & Dartford,EV,General,0.56,2027-01-18,36.74
+EB13 Manchester Centre,HEC,General,0.56,2027-01-18,1.0
+EB13 Manchester Centre,KAC,General,0.56,2027-01-18,19.25
+EB13 Manchester Centre,EV,General,0.56,2027-01-18,19.36
+EB12 Lancashire South,HEC,General,0.56,2027-01-18,18.98
+EB12 Lancashire South,KAC,General,0.56,2027-01-18,1.0
+EB12 Lancashire South,EV,General,0.56,2027-01-18,19.6
+ED44 Canterbury & Dover,HEC,General,0.56,2027-01-25,1.0
+ED44 Canterbury & Dover,KAC,General,0.56,2027-01-25,54.67
+ED44 Canterbury & Dover,EV,General,0.56,2027-01-25,55.05
+EB12 Altrincham,HEC,General,0.56,2027-01-25,56.72
+EB12 Altrincham,KAC,General,0.56,2027-01-25,36.87
+EB12 Altrincham,EV,General,0.56,2027-01-25,1.0
+EC62 Essex East,HEC,General,0.56,2027-01-25,18.06
+EC62 Essex East,KAC,General,0.56,2027-01-25,37.82
+EC62 Essex East,EV,General,0.56,2027-01-25,36.84
+EB14 Stockport,HEC,General,0.56,2027-01-25,58.27
+EB14 Stockport,KAC,General,0.56,2027-01-25,1.0
+EB14 Stockport,EV,General,0.56,2027-01-25,18.74
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-01-25,36.46
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-01-25,18.81
+ED22 Cobham & Heathrow,EV,General,0.56,2027-01-25,53.51
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-01-25,1.0
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-01-25,17.84
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-01-25,18.14
+EA62 Preston & Southport,HEC,General,0.56,2027-01-25,38.18
+EA62 Preston & Southport,KAC,General,0.56,2027-01-25,18.99
+EA62 Preston & Southport,EV,General,0.56,2027-01-25,1.0
+EB24 The Wirral,HEC,General,0.56,2027-01-25,1.0
+EB24 The Wirral,KAC,General,0.56,2027-01-25,18.25
+EB24 The Wirral,EV,General,0.56,2027-01-25,36.76
+EC91 Leicester,HEC,General,0.56,2027-01-25,38.68
+EC91 Leicester,KAC,General,0.56,2027-01-25,56.32
+EC91 Leicester,EV,General,0.56,2027-01-25,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2027-01-25,54.93
+ED41 Bromley & Dartford,KAC,General,0.56,2027-01-25,36.78
+ED41 Bromley & Dartford,EV,General,0.56,2027-01-25,57.31
+EB13 Manchester Centre,HEC,General,0.56,2027-01-25,36.13
+EB13 Manchester Centre,KAC,General,0.56,2027-01-25,57.06
+EB13 Manchester Centre,EV,General,0.56,2027-01-25,55.41
+EB12 Lancashire South,HEC,General,0.56,2027-01-25,1.0
+EB12 Lancashire South,KAC,General,0.56,2027-01-25,1.0
+EB12 Lancashire South,EV,General,0.56,2027-01-25,55.79
+ED44 Canterbury & Dover,HEC,General,0.56,2027-02-01,36.47
+ED44 Canterbury & Dover,KAC,General,0.56,2027-02-01,37.57
+ED44 Canterbury & Dover,EV,General,0.56,2027-02-01,1.0
+EB12 Altrincham,HEC,General,0.56,2027-02-01,1.0
+EB12 Altrincham,KAC,General,0.56,2027-02-01,18.51
+EB12 Altrincham,EV,General,0.56,2027-02-01,1.0
+EC62 Essex East,HEC,General,0.56,2027-02-01,37.92
+EC62 Essex East,KAC,General,0.56,2027-02-01,1.0
+EC62 Essex East,EV,General,0.56,2027-02-01,18.19
+EB14 Stockport,HEC,General,0.56,2027-02-01,54.6
+EB14 Stockport,KAC,General,0.56,2027-02-01,54.17
+EB14 Stockport,EV,General,0.56,2027-02-01,36.09
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-02-01,18.75
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-02-01,54.26
+ED22 Cobham & Heathrow,EV,General,0.56,2027-02-01,55.58
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-02-01,1.0
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-02-01,56.01
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-02-01,36.41
+EA62 Preston & Southport,HEC,General,0.56,2027-02-01,55.3
+EA62 Preston & Southport,KAC,General,0.56,2027-02-01,35.4
+EA62 Preston & Southport,EV,General,0.56,2027-02-01,37.29
+EB24 The Wirral,HEC,General,0.56,2027-02-01,1.0
+EB24 The Wirral,KAC,General,0.56,2027-02-01,18.6
+EB24 The Wirral,EV,General,0.56,2027-02-01,36.47
+EC91 Leicester,HEC,General,0.56,2027-02-01,56.96
+EC91 Leicester,KAC,General,0.56,2027-02-01,56.36
+EC91 Leicester,EV,General,0.56,2027-02-01,35.66
+ED41 Bromley & Dartford,HEC,General,0.56,2027-02-01,54.99
+ED41 Bromley & Dartford,KAC,General,0.56,2027-02-01,1.0
+ED41 Bromley & Dartford,EV,General,0.56,2027-02-01,55.28
+EB13 Manchester Centre,HEC,General,0.56,2027-02-01,1.0
+EB13 Manchester Centre,KAC,General,0.56,2027-02-01,37.63
+EB13 Manchester Centre,EV,General,0.56,2027-02-01,35.84
+EB12 Lancashire South,HEC,General,0.56,2027-02-01,37.71
+EB12 Lancashire South,KAC,General,0.56,2027-02-01,1.0
+EB12 Lancashire South,EV,General,0.56,2027-02-01,54.7
+ED44 Canterbury & Dover,HEC,General,0.56,2027-02-08,1.0
+ED44 Canterbury & Dover,KAC,General,0.56,2027-02-08,55.81
+ED44 Canterbury & Dover,EV,General,0.56,2027-02-08,54.49
+EB12 Altrincham,HEC,General,0.56,2027-02-08,1.0
+EB12 Altrincham,KAC,General,0.56,2027-02-08,17.44
+EB12 Altrincham,EV,General,0.56,2027-02-08,36.59
+EC62 Essex East,HEC,General,0.56,2027-02-08,55.98
+EC62 Essex East,KAC,General,0.56,2027-02-08,53.21
+EC62 Essex East,EV,General,0.56,2027-02-08,1.0
+EB14 Stockport,HEC,General,0.56,2027-02-08,17.88
+EB14 Stockport,KAC,General,0.56,2027-02-08,36.74
+EB14 Stockport,EV,General,0.56,2027-02-08,18.95
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-02-08,35.46
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-02-08,55.51
+ED22 Cobham & Heathrow,EV,General,0.56,2027-02-08,53.72
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-02-08,1.0
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-02-08,1.0
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-02-08,17.7
+EA62 Preston & Southport,HEC,General,0.56,2027-02-08,17.55
+EA62 Preston & Southport,KAC,General,0.56,2027-02-08,34.7
+EA62 Preston & Southport,EV,General,0.56,2027-02-08,1.0
+EB24 The Wirral,HEC,General,0.56,2027-02-08,52.36
+EB24 The Wirral,KAC,General,0.56,2027-02-08,1.0
+EB24 The Wirral,EV,General,0.56,2027-02-08,17.42
+EC91 Leicester,HEC,General,0.56,2027-02-08,1.0
+EC91 Leicester,KAC,General,0.56,2027-02-08,54.82
+EC91 Leicester,EV,General,0.56,2027-02-08,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2027-02-08,18.85
+ED41 Bromley & Dartford,KAC,General,0.56,2027-02-08,55.54
+ED41 Bromley & Dartford,EV,General,0.56,2027-02-08,34.85
+EB13 Manchester Centre,HEC,General,0.56,2027-02-08,37.23
+EB13 Manchester Centre,KAC,General,0.56,2027-02-08,52.63
+EB13 Manchester Centre,EV,General,0.56,2027-02-08,56.17
+EB12 Lancashire South,HEC,General,0.56,2027-02-08,54.04
+EB12 Lancashire South,KAC,General,0.56,2027-02-08,18.8
+EB12 Lancashire South,EV,General,0.56,2027-02-08,54.09
+ED44 Canterbury & Dover,HEC,General,0.56,2027-02-15,18.0
+ED44 Canterbury & Dover,KAC,General,0.56,2027-02-15,53.98
+ED44 Canterbury & Dover,EV,General,0.56,2027-02-15,18.0
+EB12 Altrincham,HEC,General,0.56,2027-02-15,18.0
+EB12 Altrincham,KAC,General,0.56,2027-02-15,1.0
+EB12 Altrincham,EV,General,0.56,2027-02-15,34.28
+EC62 Essex East,HEC,General,0.56,2027-02-15,53.77
+EC62 Essex East,KAC,General,0.56,2027-02-15,34.98
+EC62 Essex East,EV,General,0.56,2027-02-15,36.66
+EB14 Stockport,HEC,General,0.56,2027-02-15,1.0
+EB14 Stockport,KAC,General,0.56,2027-02-15,36.17
+EB14 Stockport,EV,General,0.56,2027-02-15,35.04
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-02-15,51.04
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-02-15,18.0
+ED22 Cobham & Heathrow,EV,General,0.56,2027-02-15,54.79
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-02-15,54.76
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-02-15,35.36
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-02-15,36.96
+EA62 Preston & Southport,HEC,General,0.56,2027-02-15,53.31
+EA62 Preston & Southport,KAC,General,0.56,2027-02-15,52.43
+EA62 Preston & Southport,EV,General,0.56,2027-02-15,35.55
+EB24 The Wirral,HEC,General,0.56,2027-02-15,17.0
+EB24 The Wirral,KAC,General,0.56,2027-02-15,17.0
+EB24 The Wirral,EV,General,0.56,2027-02-15,51.2
+EC91 Leicester,HEC,General,0.56,2027-02-15,17.0
+EC91 Leicester,KAC,General,0.56,2027-02-15,53.77
+EC91 Leicester,EV,General,0.56,2027-02-15,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2027-02-15,36.47
+ED41 Bromley & Dartford,KAC,General,0.56,2027-02-15,55.02
+ED41 Bromley & Dartford,EV,General,0.56,2027-02-15,53.1
+EB13 Manchester Centre,HEC,General,0.56,2027-02-15,54.79
+EB13 Manchester Centre,KAC,General,0.56,2027-02-15,18.0
+EB13 Manchester Centre,EV,General,0.56,2027-02-15,51.1
+EB12 Lancashire South,HEC,General,0.56,2027-02-15,1.0
+EB12 Lancashire South,KAC,General,0.56,2027-02-15,18.0
+EB12 Lancashire South,EV,General,0.56,2027-02-15,34.36
+ED44 Canterbury & Dover,HEC,General,0.56,2027-02-22,1.0
+ED44 Canterbury & Dover,KAC,General,0.56,2027-02-22,53.06
+ED44 Canterbury & Dover,EV,General,0.56,2027-02-22,1.0
+EB12 Altrincham,HEC,General,0.56,2027-02-22,54.08
+EB12 Altrincham,KAC,General,0.56,2027-02-22,1.0
+EB12 Altrincham,EV,General,0.56,2027-02-22,16.99
+EC62 Essex East,HEC,General,0.56,2027-02-22,53.78
+EC62 Essex East,KAC,General,0.56,2027-02-22,18.0
+EC62 Essex East,EV,General,0.56,2027-02-22,1.0
+EB14 Stockport,HEC,General,0.56,2027-02-22,49.66
+EB14 Stockport,KAC,General,0.56,2027-02-22,35.48
+EB14 Stockport,EV,General,0.56,2027-02-22,35.73
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-02-22,54.14
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-02-22,1.0
+ED22 Cobham & Heathrow,EV,General,0.56,2027-02-22,35.18
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-02-22,51.33
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-02-22,34.46
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-02-22,51.21
+EA62 Preston & Southport,HEC,General,0.56,2027-02-22,1.0
+EA62 Preston & Southport,KAC,General,0.56,2027-02-22,1.0
+EA62 Preston & Southport,EV,General,0.56,2027-02-22,17.73
+EB24 The Wirral,HEC,General,0.56,2027-02-22,34.06
+EB24 The Wirral,KAC,General,0.56,2027-02-22,17.94
+EB24 The Wirral,EV,General,0.56,2027-02-22,1.0
+EC91 Leicester,HEC,General,0.56,2027-02-22,50.99
+EC91 Leicester,KAC,General,0.56,2027-02-22,1.0
+EC91 Leicester,EV,General,0.56,2027-02-22,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2027-02-22,53.17
+ED41 Bromley & Dartford,KAC,General,0.56,2027-02-22,17.32
+ED41 Bromley & Dartford,EV,General,0.56,2027-02-22,33.45
+EB13 Manchester Centre,HEC,General,0.56,2027-02-22,1.0
+EB13 Manchester Centre,KAC,General,0.56,2027-02-22,1.0
+EB13 Manchester Centre,EV,General,0.56,2027-02-22,33.99
+EB12 Lancashire South,HEC,General,0.56,2027-02-22,1.0
+EB12 Lancashire South,KAC,General,0.56,2027-02-22,36.05
+EB12 Lancashire South,EV,General,0.56,2027-02-22,35.26
+ED44 Canterbury & Dover,HEC,General,0.56,2027-03-01,32.09
+ED44 Canterbury & Dover,KAC,General,0.56,2027-03-01,51.02
+ED44 Canterbury & Dover,EV,General,0.56,2027-03-01,16.47
+EB12 Altrincham,HEC,General,0.56,2027-03-01,17.04
+EB12 Altrincham,KAC,General,0.56,2027-03-01,50.74
+EB12 Altrincham,EV,General,0.56,2027-03-01,16.64
+EC62 Essex East,HEC,General,0.56,2027-03-01,17.2
+EC62 Essex East,KAC,General,0.56,2027-03-01,17.46
+EC62 Essex East,EV,General,0.56,2027-03-01,1.0
+EB14 Stockport,HEC,General,0.56,2027-03-01,49.36
+EB14 Stockport,KAC,General,0.56,2027-03-01,16.68
+EB14 Stockport,EV,General,0.56,2027-03-01,50.92
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-03-01,16.47
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-03-01,17.18
+ED22 Cobham & Heathrow,EV,General,0.56,2027-03-01,52.0
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-03-01,34.28
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-03-01,51.71
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-03-01,33.79
+EA62 Preston & Southport,HEC,General,0.56,2027-03-01,1.0
+EA62 Preston & Southport,KAC,General,0.56,2027-03-01,50.22
+EA62 Preston & Southport,EV,General,0.56,2027-03-01,34.99
+EB24 The Wirral,HEC,General,0.56,2027-03-01,17.15
+EB24 The Wirral,KAC,General,0.56,2027-03-01,1.0
+EB24 The Wirral,EV,General,0.56,2027-03-01,48.85
+EC91 Leicester,HEC,General,0.56,2027-03-01,34.82
+EC91 Leicester,KAC,General,0.56,2027-03-01,35.07
+EC91 Leicester,EV,General,0.56,2027-03-01,50.06
+ED41 Bromley & Dartford,HEC,General,0.56,2027-03-01,32.24
+ED41 Bromley & Dartford,KAC,General,0.56,2027-03-01,51.02
+ED41 Bromley & Dartford,EV,General,0.56,2027-03-01,34.55
+EB13 Manchester Centre,HEC,General,0.56,2027-03-01,17.43
+EB13 Manchester Centre,KAC,General,0.56,2027-03-01,50.89
+EB13 Manchester Centre,EV,General,0.56,2027-03-01,48.94
+EB12 Lancashire South,HEC,General,0.56,2027-03-01,1.0
+EB12 Lancashire South,KAC,General,0.56,2027-03-01,17.18
+EB12 Lancashire South,EV,General,0.56,2027-03-01,50.49
+ED44 Canterbury & Dover,HEC,General,0.56,2027-03-08,30.99
+ED44 Canterbury & Dover,KAC,General,0.56,2027-03-08,33.15
+ED44 Canterbury & Dover,EV,General,0.56,2027-03-08,32.7
+EB12 Altrincham,HEC,General,0.56,2027-03-08,1.0
+EB12 Altrincham,KAC,General,0.56,2027-03-08,47.88
+EB12 Altrincham,EV,General,0.56,2027-03-08,33.23
+EC62 Essex East,HEC,General,0.56,2027-03-08,1.0
+EC62 Essex East,KAC,General,0.56,2027-03-08,1.0
+EC62 Essex East,EV,General,0.56,2027-03-08,49.05
+EB14 Stockport,HEC,General,0.56,2027-03-08,33.62
+EB14 Stockport,KAC,General,0.56,2027-03-08,15.65
+EB14 Stockport,EV,General,0.56,2027-03-08,31.37
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-03-08,15.77
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-03-08,16.38
+ED22 Cobham & Heathrow,EV,General,0.56,2027-03-08,33.8
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-03-08,16.41
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-03-08,1.0
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-03-08,1.0
+EA62 Preston & Southport,HEC,General,0.56,2027-03-08,31.16
+EA62 Preston & Southport,KAC,General,0.56,2027-03-08,49.84
+EA62 Preston & Southport,EV,General,0.56,2027-03-08,1.0
+EB24 The Wirral,HEC,General,0.56,2027-03-08,33.1
+EB24 The Wirral,KAC,General,0.56,2027-03-08,15.61
+EB24 The Wirral,EV,General,0.56,2027-03-08,1.0
+EC91 Leicester,HEC,General,0.56,2027-03-08,33.32
+EC91 Leicester,KAC,General,0.56,2027-03-08,31.16
+EC91 Leicester,EV,General,0.56,2027-03-08,47.37
+ED41 Bromley & Dartford,HEC,General,0.56,2027-03-08,16.81
+ED41 Bromley & Dartford,KAC,General,0.56,2027-03-08,16.44
+ED41 Bromley & Dartford,EV,General,0.56,2027-03-08,16.07
+EB13 Manchester Centre,HEC,General,0.56,2027-03-08,31.74
+EB13 Manchester Centre,KAC,General,0.56,2027-03-08,31.3
+EB13 Manchester Centre,EV,General,0.56,2027-03-08,15.76
+EB12 Lancashire South,HEC,General,0.56,2027-03-08,33.58
+EB12 Lancashire South,KAC,General,0.56,2027-03-08,46.96
+EB12 Lancashire South,EV,General,0.56,2027-03-08,32.62
+ED44 Canterbury & Dover,HEC,General,0.56,2027-03-15,32.52
+ED44 Canterbury & Dover,KAC,General,0.56,2027-03-15,1.0
+ED44 Canterbury & Dover,EV,General,0.56,2027-03-15,48.11
+EB12 Altrincham,HEC,General,0.56,2027-03-15,1.0
+EB12 Altrincham,KAC,General,0.56,2027-03-15,15.87
+EB12 Altrincham,EV,General,0.56,2027-03-15,15.64
+EC62 Essex East,HEC,General,0.56,2027-03-15,45.61
+EC62 Essex East,KAC,General,0.56,2027-03-15,29.85
+EC62 Essex East,EV,General,0.56,2027-03-15,1.0
+EB14 Stockport,HEC,General,0.56,2027-03-15,47.72
+EB14 Stockport,KAC,General,0.56,2027-03-15,1.0
+EB14 Stockport,EV,General,0.56,2027-03-15,31.36
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-03-15,1.0
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-03-15,45.93
+ED22 Cobham & Heathrow,EV,General,0.56,2027-03-15,30.14
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-03-15,31.86
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-03-15,45.07
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-03-15,31.23
+EA62 Preston & Southport,HEC,General,0.56,2027-03-15,1.0
+EA62 Preston & Southport,KAC,General,0.56,2027-03-15,15.5
+EA62 Preston & Southport,EV,General,0.56,2027-03-15,47.37
+EB24 The Wirral,HEC,General,0.56,2027-03-15,1.0
+EB24 The Wirral,KAC,General,0.56,2027-03-15,29.78
+EB24 The Wirral,EV,General,0.56,2027-03-15,15.91
+EC91 Leicester,HEC,General,0.56,2027-03-15,1.0
+EC91 Leicester,KAC,General,0.56,2027-03-15,46.87
+EC91 Leicester,EV,General,0.56,2027-03-15,30.06
+ED41 Bromley & Dartford,HEC,General,0.56,2027-03-15,47.63
+ED41 Bromley & Dartford,KAC,General,0.56,2027-03-15,1.0
+ED41 Bromley & Dartford,EV,General,0.56,2027-03-15,15.72
+EB13 Manchester Centre,HEC,General,0.56,2027-03-15,1.0
+EB13 Manchester Centre,KAC,General,0.56,2027-03-15,1.0
+EB13 Manchester Centre,EV,General,0.56,2027-03-15,31.45
+EB12 Lancashire South,HEC,General,0.56,2027-03-15,45.72
+EB12 Lancashire South,KAC,General,0.56,2027-03-15,1.0
+EB12 Lancashire South,EV,General,0.56,2027-03-15,1.0
+ED44 Canterbury & Dover,HEC,General,0.56,2027-03-22,14.8
+ED44 Canterbury & Dover,KAC,General,0.56,2027-03-22,15.21
+ED44 Canterbury & Dover,EV,General,0.56,2027-03-22,43.87
+EB12 Altrincham,HEC,General,0.56,2027-03-22,45.6
+EB12 Altrincham,KAC,General,0.56,2027-03-22,30.15
+EB12 Altrincham,EV,General,0.56,2027-03-22,44.48
+EC62 Essex East,HEC,General,0.56,2027-03-22,14.51
+EC62 Essex East,KAC,General,0.56,2027-03-22,45.67
+EC62 Essex East,EV,General,0.56,2027-03-22,1.0
+EB14 Stockport,HEC,General,0.56,2027-03-22,43.58
+EB14 Stockport,KAC,General,0.56,2027-03-22,43.85
+EB14 Stockport,EV,General,0.56,2027-03-22,29.05
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-03-22,1.0
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-03-22,29.33
+ED22 Cobham & Heathrow,EV,General,0.56,2027-03-22,15.31
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-03-22,43.82
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-03-22,44.47
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-03-22,15.29
+EA62 Preston & Southport,HEC,General,0.56,2027-03-22,30.47
+EA62 Preston & Southport,KAC,General,0.56,2027-03-22,1.0
+EA62 Preston & Southport,EV,General,0.56,2027-03-22,29.86
+EB24 The Wirral,HEC,General,0.56,2027-03-22,28.49
+EB24 The Wirral,KAC,General,0.56,2027-03-22,1.0
+EB24 The Wirral,EV,General,0.56,2027-03-22,45.58
+EC91 Leicester,HEC,General,0.56,2027-03-22,30.86
+EC91 Leicester,KAC,General,0.56,2027-03-22,14.23
+EC91 Leicester,EV,General,0.56,2027-03-22,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2027-03-22,42.73
+ED41 Bromley & Dartford,KAC,General,0.56,2027-03-22,1.0
+ED41 Bromley & Dartford,EV,General,0.56,2027-03-22,15.17
+EB13 Manchester Centre,HEC,General,0.56,2027-03-22,1.0
+EB13 Manchester Centre,KAC,General,0.56,2027-03-22,1.0
+EB13 Manchester Centre,EV,General,0.56,2027-03-22,30.15
+EB12 Lancashire South,HEC,General,0.56,2027-03-22,14.98
+EB12 Lancashire South,KAC,General,0.56,2027-03-22,15.21
+EB12 Lancashire South,EV,General,0.56,2027-03-22,14.33
+ED44 Canterbury & Dover,HEC,General,0.56,2027-03-29,1.0
+ED44 Canterbury & Dover,KAC,General,0.56,2027-03-29,14.03
+ED44 Canterbury & Dover,EV,General,0.56,2027-03-29,14.28
+EB12 Altrincham,HEC,General,0.56,2027-03-29,13.81
+EB12 Altrincham,KAC,General,0.56,2027-03-29,28.02
+EB12 Altrincham,EV,General,0.56,2027-03-29,13.71
+EC62 Essex East,HEC,General,0.56,2027-03-29,1.0
+EC62 Essex East,KAC,General,0.56,2027-03-29,27.61
+EC62 Essex East,EV,General,0.56,2027-03-29,14.07
+EB14 Stockport,HEC,General,0.56,2027-03-29,14.8
+EB14 Stockport,KAC,General,0.56,2027-03-29,28.41
+EB14 Stockport,EV,General,0.56,2027-03-29,14.51
+ED22 Cobham & Heathrow,HEC,General,0.56,2027-03-29,1.0
+ED22 Cobham & Heathrow,KAC,General,0.56,2027-03-29,1.0
+ED22 Cobham & Heathrow,EV,General,0.56,2027-03-29,13.55
+EA62 Blackpool & Lancaster,HEC,General,0.56,2027-03-29,1.0
+EA62 Blackpool & Lancaster,KAC,General,0.56,2027-03-29,28.35
+EA62 Blackpool & Lancaster,EV,General,0.56,2027-03-29,13.68
+EA62 Preston & Southport,HEC,General,0.56,2027-03-29,28.12
+EA62 Preston & Southport,KAC,General,0.56,2027-03-29,1.0
+EA62 Preston & Southport,EV,General,0.56,2027-03-29,14.45
+EB24 The Wirral,HEC,General,0.56,2027-03-29,28.91
+EB24 The Wirral,KAC,General,0.56,2027-03-29,1.0
+EB24 The Wirral,EV,General,0.56,2027-03-29,13.64
+EC91 Leicester,HEC,General,0.56,2027-03-29,44.35
+EC91 Leicester,KAC,General,0.56,2027-03-29,1.0
+EC91 Leicester,EV,General,0.56,2027-03-29,1.0
+ED41 Bromley & Dartford,HEC,General,0.56,2027-03-29,41.46
+ED41 Bromley & Dartford,KAC,General,0.56,2027-03-29,42.93
+ED41 Bromley & Dartford,EV,General,0.56,2027-03-29,27.59
+EB13 Manchester Centre,HEC,General,0.56,2027-03-29,1.0
+EB13 Manchester Centre,KAC,General,0.56,2027-03-29,44.32
+EB13 Manchester Centre,EV,General,0.56,2027-03-29,14.61
+EB12 Lancashire South,HEC,General,0.56,2027-03-29,1.0
+EB12 Lancashire South,KAC,General,0.56,2027-03-29,29.5
+EB12 Lancashire South,EV,General,0.56,2027-03-29,44.38

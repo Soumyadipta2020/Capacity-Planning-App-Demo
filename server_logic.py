@@ -3,6 +3,7 @@ Server Logic Module
 Contains all reactive outputs, event handlers, and data bindings for the Capacity Planning App.
 """
 
+import os
 import json
 from datetime import datetime
 
@@ -90,7 +91,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
                 
                 rows = tbl.get("rows", [])
                 cols = tbl.get("columns", [])
-                df = pd.DataFrame(rows)
+                df = pd.DataFrame(rows).fillna("")
                 
                 ui.modal_show(
                     ui.modal(
@@ -116,60 +117,121 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
             @reactive.effect
             @reactive.event(input[btn_del_key])
             def _on_delete():
+                del_event = None
                 try:
-                    curr = input[key]()
+                    del_event = input[btn_del_key]()
                 except Exception:
-                    curr = None
+                    pass
+
+                curr = None
+                if isinstance(del_event, dict) and del_event.get("target"):
+                    curr = del_event.get("target")
+                else:
+                    try:
+                        curr = input[key]()
+                    except Exception:
+                        curr = None
+
                 if not curr:
                     return
 
+                # Retrieve current choices from state, merging with DEFAULT_INPUT_OPTIONS to ensure uploaded files exist
                 choices = list(input_choices_state[key].get())
+                for opt in DEFAULT_INPUT_OPTIONS.get(key, []):
+                    if opt not in choices:
+                        choices.append(opt)
+
+                if curr not in choices:
+                    choices.append(curr)
+
                 if len(choices) <= 1:
-                    ui.notification_show(
-                        f"Cannot delete '{curr}'. At least one file version must remain for {lbl}.",
-                        type="warning"
-                    )
+                    if os.environ.get("CAPACITY_UI_MODE", "modern").lower() == "classic":
+                        ui.notification_show(
+                            f"Cannot delete '{curr}'. At least one file version must remain for {lbl}.",
+                            type="warning"
+                        )
                     return
 
                 # Record in deleted history for Undo
                 hist = list(input_deleted_history[key].get())
-                hist.append(curr)
+                if curr not in hist:
+                    hist.append(curr)
                 input_deleted_history[key].set(hist)
 
-                # Remove from current choices
-                choices.remove(curr)
+                # Remove from current choices safely without throwing ValueError
+                if curr in choices:
+                    choices.remove(curr)
                 input_choices_state[key].set(choices)
-                new_sel = choices[0]
-                ui.update_select(key, choices=choices, selected=new_sel)
-                ui.notification_show(
-                    f"Deleted '{curr}' from {lbl}. Click Undo to restore.",
-                    type="message"
-                )
+
+                # Also remove from DEFAULT_INPUT_OPTIONS if present
+                if key in DEFAULT_INPUT_OPTIONS and curr in DEFAULT_INPUT_OPTIONS[key]:
+                    try:
+                        DEFAULT_INPUT_OPTIONS[key].remove(curr)
+                    except Exception:
+                        pass
+
+                new_sel = choices[0] if choices else ""
+                if isinstance(del_event, dict) and del_event.get("newSel") in choices:
+                    new_sel = del_event.get("newSel")
+
+                try:
+                    ui.update_select(key, choices=choices, selected=new_sel)
+                except Exception:
+                    pass
+
+                if os.environ.get("CAPACITY_UI_MODE", "modern").lower() == "classic":
+                    ui.notification_show(
+                        f"Deleted '{curr}' from {lbl}. Click Undo to restore.",
+                        type="message"
+                    )
 
             # Undo handler for this specific input
             @reactive.effect
             @reactive.event(input[btn_undo_key])
             def _on_undo():
+                undo_event = None
+                try:
+                    undo_event = input[btn_undo_key]()
+                except Exception:
+                    pass
+
                 hist = list(input_deleted_history[key].get())
-                if not hist:
-                    ui.notification_show(
-                        f"No deleted versions to restore for {lbl}.",
-                        type="warning"
-                    )
+                restored = None
+                if isinstance(undo_event, dict) and undo_event.get("restored"):
+                    restored = undo_event.get("restored")
+                    if restored in hist:
+                        hist.remove(restored)
+                elif hist:
+                    restored = hist.pop()
+
+                if not restored:
+                    if os.environ.get("CAPACITY_UI_MODE", "modern").lower() == "classic":
+                        ui.notification_show(
+                            f"No deleted versions to restore for {lbl}.",
+                            type="warning"
+                        )
                     return
 
-                restored = hist.pop()
                 input_deleted_history[key].set(hist)
 
                 choices = list(input_choices_state[key].get())
                 if restored not in choices:
                     choices.insert(0, restored)
                 input_choices_state[key].set(choices)
-                ui.update_select(key, choices=choices, selected=restored)
-                ui.notification_show(
-                    f"Restored version '{restored}' for {lbl}.",
-                    type="message"
-                )
+
+                if key in DEFAULT_INPUT_OPTIONS and restored not in DEFAULT_INPUT_OPTIONS[key]:
+                    DEFAULT_INPUT_OPTIONS[key].insert(0, restored)
+
+                try:
+                    ui.update_select(key, choices=choices, selected=restored)
+                except Exception:
+                    pass
+
+                if os.environ.get("CAPACITY_UI_MODE", "modern").lower() == "classic":
+                    ui.notification_show(
+                        f"Restored version '{restored}' for {lbl}.",
+                        type="message"
+                    )
 
             # Dynamic Remarks output for this specific input
             @output(id=remarks_key)
@@ -187,6 +249,32 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
                 )
 
         attach_input_handlers(input_key, label)
+
+    # Synchronize newly uploaded files from React UI to input_choices_state
+    @reactive.effect
+    @reactive.event(input.bulk_upload_event)
+    def _sync_uploaded_files_to_choices():
+        try:
+            data = input.bulk_upload_event()
+        except Exception:
+            data = None
+        if not data or not isinstance(data, dict):
+            return
+        files = data.get("files", [])
+        for f in files:
+            f_type = f.get("type")
+            f_name = f.get("name")
+            if f_type and f_name and f_type in input_choices_state:
+                import re
+                clean_name = re.sub(r'\.(csv|xlsx|xls)$', '', f_name, flags=re.IGNORECASE)
+                curr_list = list(input_choices_state[f_type].get())
+                if clean_name not in curr_list:
+                    curr_list.insert(0, clean_name)
+                    input_choices_state[f_type].set(curr_list)
+                    try:
+                        ui.update_select(f_type, choices=curr_list, selected=clean_name)
+                    except Exception:
+                        pass
 
     # -------------------------------------------------------------------------
     # 1. HOME TAB: SCENARIO ACTIONS & BULK UPLOAD
@@ -641,10 +729,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_fte_transfer():
-        df = pd.DataFrame([
-            {"Transfer ID": "TR-101", "From Patch": "EA11 Inverness & Aviemore", "To Patch": "EA12 Aberdeen North", "Skill": "HEC", "Effective Date": "2026-11-02", "FTE Count": 2.0},
-            {"Transfer ID": "TR-102", "From Patch": "EB12 Altrincham", "To Patch": "EB14 Stockport", "Skill": "KAC", "Effective Date": "2026-11-09", "FTE Count": 1.5}
-        ])
+        df = SampleDataGenerator.get_fte_transfer_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
@@ -669,30 +754,19 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_recruitment_summary():
-        df = pd.DataFrame([
-            {"Month": "Oct 2026", "Grounded Hires (HEC)": 15, "Grounded Hires (KAC)": 8, "Ungrounded Target": 25, "Status": "On Track"},
-            {"Month": "Nov 2026", "Grounded Hires (HEC)": 20, "Grounded Hires (KAC)": 10, "Ungrounded Target": 30, "Status": "Planned"},
-            {"Month": "Dec 2026", "Grounded Hires (HEC)": 10, "Grounded Hires (KAC)": 5, "Ungrounded Target": 15, "Status": "Planned"}
-        ])
+        df = SampleDataGenerator.get_recruitment_grounded_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
     @render.data_frame
     def table_baseline_assumptions():
-        df = pd.DataFrame([
-            {"Assumption": "Standard Shift Hours", "Value": "37.5 hrs/week", "Category": "Contractual"},
-            {"Assumption": "Direct Labor Efficiency", "Value": "88.5%", "Category": "Operational"},
-            {"Assumption": "Annual Leave Allowance", "Value": "25 days", "Category": "Overlays"}
-        ])
+        df = SampleDataGenerator.get_baseline_assumptions_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
     @render.data_frame
     def table_bank_hours():
-        df = pd.DataFrame([
-            {"Patch": "ED44 Canterbury & Dover", "Bank Balance (Hrs)": 142.5, "Accrued Week": 12.0, "Used Week": 8.5},
-            {"Patch": "EB12 Altrincham", "Bank Balance (Hrs)": 210.0, "Accrued Week": 18.0, "Used Week": 15.0}
-        ])
+        df = SampleDataGenerator.get_overtime_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
@@ -704,19 +778,13 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_baseline_prod():
-        df = pd.DataFrame([
-            {"Skill": "HEC", "Jobs / Day Benchmark": 3.8, "Avg Duration (Hrs)": 1.75},
-            {"Skill": "KAC", "Jobs / Day Benchmark": 4.5, "Avg Duration (Hrs)": 1.45},
-            {"Skill": "EV", "Jobs / Day Benchmark": 2.2, "Avg Duration (Hrs)": 3.20}
-        ])
+        df = SampleDataGenerator.get_baseline_productivity_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
     @render.data_frame
     def table_training_snm():
-        df = pd.DataFrame([
-            {"Cohort ID": "SNM-2026-Q4", "Skill Target": "Dual Fuel / EV", "Trainee Headcount": 45, "Duration Weeks": 6, "Completion Date": "2026-12-15"}
-        ])
+        df = SampleDataGenerator.get_training_snm_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
@@ -728,9 +796,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_sp_commitments():
-        df = pd.DataFrame([
-            {"Commitment": "Winter SLA 98%", "Target Region": "National", "Min Available FTE": 1850, "Status": "Committed"}
-        ])
+        df = SampleDataGenerator.get_ctr_capacity_data()
         return render.DataGrid(df, selection_mode="none")
 
     # -------------------------------------------------------------------------
@@ -751,10 +817,7 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_recruitment_ramp():
-        df = pd.DataFrame([
-            {"Week Since Joining": f"Week {i}", "Productivity Ramp %": f"{min(20 + i*8, 100)}%", "Mentorship Hours": max(15 - i, 0)}
-            for i in range(1, 13)
-        ])
+        df = SampleDataGenerator.get_recruitment_config_data()
         return render.DataGrid(df, selection_mode="none")
 
     # -------------------------------------------------------------------------
@@ -775,18 +838,13 @@ def register_server_handlers(input: Inputs, output: Outputs, session: Session):
     @output
     @render.data_frame
     def table_hec_on_kac():
-        df = pd.DataFrame([
-            {"Skill Group": "HEC Tier 1", "Eligible KAC Work Codes": "W01, W17", "Transfer Factor": 0.85, "Max Hours/Week": 250},
-            {"Skill Group": "HEC Tier 2", "Eligible KAC Work Codes": "W00, W01, W17, W18", "Transfer Factor": 0.95, "Max Hours/Week": 400}
-        ])
+        df = SampleDataGenerator.get_hec_on_kac_data()
         return render.DataGrid(df, selection_mode="none")
 
     @output
     @render.data_frame
     def table_hec_on_ev():
-        df = pd.DataFrame([
-            {"Certification": "EV Level 3 Assist", "Max Weekly Jobs Transfer": 35, "Productivity Ratio": 0.90}
-        ])
+        df = SampleDataGenerator.get_hec_on_ev_data()
         return render.DataGrid(df, selection_mode="none")
 
     # -------------------------------------------------------------------------

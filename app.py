@@ -1,6 +1,6 @@
 """
 Main PyShiny Application Entry Point
-British Gas Field Capacity Planning Platform
+Field Capacity Planning Platform
 Supports Modern React 18 / Tailwind Frontend with PyShiny Backend.
 Dual Engine: PySpark on Databricks Unity Catalog (Production) vs Pandas on VS Code (Development).
 """
@@ -14,6 +14,7 @@ from cluster_manager import register_cluster_handlers
 from config import EnvironmentConfig
 from data_manager import (
     ScenarioManager,
+    clean_for_json,
     export_scenario_to_powerbi,
     get_calculation_module_data,
     load_input_table_data,
@@ -35,7 +36,7 @@ from ui import (
     create_modern_ui_page,
     create_scenario_comparison_tab,
     create_visuals_tab,
-    get_british_gas_logo_html,
+    get_company_logo_html,
     get_env_badge_html,
 )
 
@@ -71,7 +72,7 @@ def create_classic_ui():
                 style="font-size: 0.78rem; padding: 3px 10px; margin-left: 6px; font-weight: 700;",
             )
         ),
-        ui.nav_control(ui.HTML(get_british_gas_logo_html())),
+        ui.nav_control(ui.HTML(get_company_logo_html())),
         title="Capacity Planning",
         id="main_navbar",
         header=ui.TagList(
@@ -81,6 +82,19 @@ def create_classic_ui():
                 ui.tags.link(rel="icon", type="image/x-icon", href="favicon.ico"),
                 ui.tags.link(rel="shortcut icon", href="favicon.ico"),
                 ui.tags.link(rel="apple-touch-icon", href="favicon.png"),
+                ui.tags.script("""
+                    (function() {
+                        var origParse = JSON.parse;
+                        JSON.parse = function(text, reviver) {
+                            if (typeof text === 'string' && (text.indexOf('NaN') !== -1 || text.indexOf('Infinity') !== -1)) {
+                                text = text.replace(/:\\s*NaN\\b/g, ': null')
+                                           .replace(/:\\s*-Infinity\\b/g, ': null')
+                                           .replace(/:\\s*Infinity\\b/g, ': null');
+                            }
+                            return origParse.call(this, text, reviver);
+                        };
+                    })();
+                """),
                 ui.tags.script("""
                     $(document).on('hidden.bs.modal hide.bs.modal', function () {
                         setTimeout(function() {
@@ -133,31 +147,97 @@ def server(input, output, session):
 
     # --- REACT JAVASCRIPT EVENT BRIDGE ---
 
+    @reactive.effect
+    @reactive.event(input.request_analytics_bundle)
+    async def _on_request_analytics_bundle():
+        from datetime import datetime, timezone
+        from engine.scenario_data_engine import (
+            _load_geography_rows,
+            _pack_final_dataframe,
+            build_scenario_log_row,
+            generate_scenario_final_rows,
+            get_decision_studio_bundle,
+        )
+        request = input.request_analytics_bundle()
+        if not isinstance(request, dict):
+            return
+        request_id = request.get("requestId")
+        try:
+            if request.get("draft"):
+                draft_inputs = request.get("inputs", {})
+                now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000+00:00")
+                log_row = build_scenario_log_row("Draft inputs", now_iso, "Unsaved draft inputs", draft_inputs)
+                df_draft = generate_scenario_final_rows("Draft inputs", now_iso, draft_inputs, log_row=log_row)
+                result = {
+                    "success": True,
+                    "mode": "final_data",
+                    "scenarioId": "Draft inputs",
+                    "createDatestamp": now_iso,
+                    "loadedAt": datetime.now(timezone.utc).isoformat(),
+                    "scenarioLog": log_row,
+                    "geographyRows": _load_geography_rows(draft_inputs),
+                    "finalData": _pack_final_dataframe(df_draft),
+                }
+            else:
+                scen_id = request.get("scenarioId", "")
+                scenario = sm.get_scenario(scen_id)
+                if not scenario:
+                    raise ValueError("Selected scenario no longer exists")
+                result = get_decision_studio_bundle(scen_id, engine=engine, scenario_meta=scenario)
+        except Exception as error:
+            result = {"success": False, "error": str(error)}
+        result["requestId"] = request_id
+        await session.send_custom_message("response_analytics_bundle", clean_for_json(result))
+
+    @reactive.effect
+    @reactive.event(input.request_scenario_diff_data)
+    async def _on_request_scenario_diff_data():
+        from engine.scenario_data_engine import get_scenario_diff_payload
+        request = input.request_scenario_diff_data()
+        if not isinstance(request, dict):
+            return
+        request_id = request.get("requestId")
+        baseline_id = request.get("baselineId", "")
+        comparison_id = request.get("comparisonId", "")
+        try:
+            result = get_scenario_diff_payload(baseline_id, comparison_id, engine=engine)
+        except Exception as error:
+            result = {"success": False, "error": str(error)}
+        result["requestId"] = request_id
+        await session.send_custom_message("response_scenario_diff_data", clean_for_json(result))
+
     # Handle Scenario Save from React UI
     @reactive.effect
     @reactive.event(input.save_scenario_event)
     async def _on_react_save():
+        from engine.scenario_data_engine import load_scenario_log
         data = input.save_scenario_event()
         if not data:
             return
         
         plan_type = data.get("plan_type", "LV")
-        month = data.get("month", "OCT")
-        version = data.get("version", "0")
+        month = data.get("month", "NOV")
+        version = data.get("version", "1")
+        year = str(data.get("year") or "2026")
         remarks = data.get("remarks", "")
         inputs = data.get("inputs", {})
         
-        new_id = sm.save_scenario(plan_type, month, version, remarks, inputs)
+        new_id = sm.save_scenario(plan_type, month, version, remarks, inputs, year=year)
+        try:
+            log_rows = clean_for_json(load_scenario_log(engine=engine).to_dict(orient="records"))
+        except Exception:
+            log_rows = []
         
         # Broadcast updated scenarios back to React
         await session.send_custom_message("update_scenario_data", {
             "scenarios": sm.get_all_scenarios(),
+            "scenarioLog": log_rows,
             "selectedScenarioId": new_id,
             "inputsState": inputs,
             "envInfo": engine.get_engine_status()
         })
         await session.send_custom_message("show_toast", {
-            "message": f"Scenario '{new_id}' saved successfully to backend!",
+            "message": f"Scenario '{new_id}' saved, logged, and final data generated!",
             "type": "success"
         })
 
@@ -221,7 +301,7 @@ def server(input, output, session):
         if request_id is not None:
             result["requestId"] = request_id
             
-        await session.send_custom_message("response_input_file_data", result)
+        await session.send_custom_message("response_input_file_data", clean_for_json(result))
 
     # Handle Input File Table Data Save from React UI
     @reactive.effect
@@ -241,7 +321,7 @@ def server(input, output, session):
         if request_id is not None:
             result["requestId"] = request_id
             
-        await session.send_custom_message("response_save_input_file_data", result)
+        await session.send_custom_message("response_save_input_file_data", clean_for_json(result))
         if result.get("success"):
             await session.send_custom_message("show_toast", {
                 "message": f"Saved changes to '{file_name}' ({len(rows)} rows)!",
@@ -262,13 +342,14 @@ def server(input, output, session):
             return
         
         module_key = req.get("moduleKey", "imbalance")
+        scenario_id = req.get("scenarioId") or None
         request_id = req.get("requestId", None)
-        
-        result = get_calculation_module_data(module_key)
+
+        result = get_calculation_module_data(module_key, scenario_id=scenario_id)
         if request_id is not None:
             result["requestId"] = request_id
             
-        await session.send_custom_message("response_calc_module_data", result)
+        await session.send_custom_message("response_calc_module_data", clean_for_json(result))
 
     # Handle Scenario Export to Power BI (Private / Public with custom name of choice)
     @reactive.effect
@@ -319,7 +400,7 @@ if __name__ == "__main__":
     # STEP 1: Verify & create tables in Databricks first if not present
     # -----------------------------------------------------------------------
     print("=" * 70)
-    print(" BRITISH GAS | FIELD CAPACITY PLANNING PLATFORM")
+    print(" FIELD CAPACITY PLANNING PLATFORM")
     print("=" * 70)
     print(" [STEP 1/2] Verifying Databricks Unity Catalog tables...")
     

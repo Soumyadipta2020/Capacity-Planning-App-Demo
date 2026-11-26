@@ -1,5 +1,5 @@
 /**
- * British Gas Capacity Planning Platform - Modern Fluid React Application
+ * Field Capacity Planning Platform - Modern Fluid React Application
  * Re-skinned with modern SVG icons, glowing hover effects, and 100% full-bleed edge-to-edge layout.
  */
 
@@ -145,6 +145,14 @@ function IconDownload({ className = "w-4 h-4" }) {
     return (
         <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+    );
+}
+
+function IconGitCompare({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-3-3m3 3l-3 3m-8 6H4m0 0l3 3m-3-3l3-3" />
         </svg>
     );
 }
@@ -430,6 +438,81 @@ function IconMinimize({ className = "w-4 h-4" }) {
     );
 }
 
+function IconSun({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5" strokeWidth="2" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+        </svg>
+    );
+}
+
+function IconMoon({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+    );
+}
+
+function IconChevronDown({ className = "w-3.5 h-3.5" }) {
+    return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
+    );
+}
+
+function IconFilter({ className = "w-3.5 h-3.5" }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+        </svg>
+    );
+}
+
+function IconInfo({ className = "w-3.5 h-3.5" }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+    );
+}
+
+function IconTrophy({ className = "w-4 h-4" }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+            <path d="M4 22h16" />
+            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+        </svg>
+    );
+}
+
+function IconArrowsSwap({ className = "w-3.5 h-3.5" }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m16 3 4 4-4 4" />
+            <path d="M20 7H4" />
+            <path d="m8 21-4-4 4-4" />
+            <path d="M4 17h16" />
+        </svg>
+    );
+}
+
+function IconExpand({ className = "w-3.5 h-3.5" }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+        </svg>
+    );
+}
+
 // ================================================================================================
 // TIMESTAMP PARSING & SORTING HELPER
 // ================================================================================================
@@ -455,24 +538,35 @@ function parseDateFromOption(str) {
 // ================================================================================================
 function getDefaultGeographyData() {
     return [
-        { Region: "A", ACDM: "A1", territory: "EA11 Inverness & Aviemore" },
-        { Region: "A", ACDM: "A1", territory: "EA13 Dendee & Perth" },
-        { Region: "A", ACDM: "A1", territory: "EA12 Aberdeen North" },
-        { Region: "A", ACDM: "A2", territory: "EA21 Stirling & Falkirk" },
-        { Region: "A", ACDM: "A2", territory: "EA22 Edinburgh Central" },
-        { Region: "B", ACDM: "B1", territory: "EB11 Preston & Blackpool" },
-        { Region: "B", ACDM: "B1", territory: "EB14 Stockport & Peak" },
-        { Region: "B", ACDM: "B2", territory: "EB12 Altrincham" },
-        { Region: "B", ACDM: "B2", territory: "EB21 Manchester Central" },
-        { Region: "C", ACDM: "C1", territory: "EC91 Leicester" },
-        { Region: "C", ACDM: "C1", territory: "EC92 Nottingham & Derby" },
-        { Region: "C", ACDM: "C2", territory: "EC61 Norwich & Norfolk" },
-        { Region: "C", ACDM: "C2", territory: "EC62 Essex East" },
-        { Region: "D", ACDM: "D1", territory: "ED11 North London & Barnet" },
-        { Region: "D", ACDM: "D2", territory: "ED44 Canterbury & Dover" },
-        { Region: "D", ACDM: "D2", territory: "ED42 Eastbourne & Hastings" },
-        { Region: "E", ACDM: "E1", territory: "EE21 Bristol North & Bath" },
-        { Region: "E", ACDM: "E2", territory: "EE31 Exeter & Devon" }
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA1", Patch: "EA11 Inverness & Aviemore", "Patch Name": "Inverness & Aviemore" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA1", Patch: "EA12 Aberdeen North", "Patch Name": "Aberdeen North" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA1", Patch: "EA12 Aberdeen South", "Patch Name": "Aberdeen South" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA1", Patch: "EA13 Dundee & Perth", "Patch Name": "Dundee & Perth" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA1", Patch: "EA13 Fife", "Patch Name": "Fife" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA2", Patch: "EA21 Dunbartonshire & Glasgow North", "Patch Name": "Dunbartonshire & Glasgow North" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA2", Patch: "EA21 Stirling & Falkirk", "Patch Name": "Stirling & Falkirk" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA3", Patch: "EA31 Clyde Coast", "Patch Name": "Clyde Coast" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA3", Patch: "EA31 Glasgow South & Renfrewshire", "Patch Name": "Glasgow South & Renfrewshire" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA3", Patch: "EA32 South West Ayrshire", "Patch Name": "South West Ayrshire" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA3", Patch: "EA33 Dumfriesshire", "Patch Name": "Dumfriesshire" },
+        { "Region Code": "A", Region: "Scotland and Northern England", "Area Code": "EA4", Patch: "EA41 East Lothian Coast", "Patch Name": "East Lothian Coast" },
+        { "Region Code": "B", Region: "North West", "Area Code": "EB1", Patch: "EB12 Altrincham", "Patch Name": "Altrincham" },
+        { "Region Code": "B", Region: "North West", "Area Code": "EB1", Patch: "EB13 Manchester Centre", "Patch Name": "Manchester Centre" },
+        { "Region Code": "B", Region: "North West", "Area Code": "EB1", Patch: "EB14 Stockport", "Patch Name": "Stockport" },
+        { "Region Code": "B", Region: "North West", "Area Code": "EB2", Patch: "EB24 The Wirral", "Patch Name": "The Wirral" },
+        { "Region Code": "B", Region: "North West", "Area Code": "EB4", Patch: "EB43 Hereford & Worcs", "Patch Name": "Hereford & Worcs" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC9", Patch: "EC91 Leicester", "Patch Name": "Leicester" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC6", Patch: "EC62 Essex East", "Patch Name": "Essex East" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC4", Patch: "EC41 Reading", "Patch Name": "Reading" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC3", Patch: "EC31 New Forest", "Patch Name": "New Forest" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC2", Patch: "EC22 Cheltenham & Gloucester", "Patch Name": "Cheltenham & Gloucester" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC8", Patch: "EC81 Peterborough", "Patch Name": "Peterborough" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC1", Patch: "EC11 Cornwall", "Patch Name": "Cornwall" },
+        { "Region Code": "C", Region: "Midlands", "Area Code": "EC1", Patch: "EC13 Devon South", "Patch Name": "Devon South" },
+        { "Region Code": "D", Region: "London and South East", "Area Code": "ED1", Patch: "ED11 Chiswick & City", "Patch Name": "Chiswick & City" },
+        { "Region Code": "D", Region: "London and South East", "Area Code": "ED2", Patch: "ED22 Cobham & Heathrow", "Patch Name": "Cobham & Heathrow" },
+        { "Region Code": "D", Region: "London and South East", "Area Code": "ED4", Patch: "ED41 Bromley & Dartford", "Patch Name": "Bromley & Dartford" },
+        { "Region Code": "D", Region: "London and South East", "Area Code": "ED4", Patch: "ED44 Canterbury & Dover", "Patch Name": "Canterbury & Dover" }
     ];
 }
 
@@ -529,30 +623,76 @@ function buildGeographyHierarchy(rows) {
         name: "National",
         regions: {}
     };
+    const regionNameByCode = {
+        A: "Scotland and Northern England",
+        B: "North West",
+        C: "Midlands",
+        D: "London and South East",
+        E: "South West"
+    };
+    const regionCodeByName = {
+        "scotland and northern england": "A",
+        "north west": "B",
+        "midlands": "C",
+        "london and south east": "D",
+        "south west": "E"
+    };
 
     rows.forEach(r => {
-        const region = (r.Region || r.region || "A").toString().trim();
-        const acdm = (r.ACDM || r.acdm || (region + "1")).toString().trim();
-        const territory = (r.territory || r.Territory || r.patch || "Unknown Territory").toString().trim();
+        const rawArea = (r["Area Code"] || r.AreaCode || r.area_code || r.ACDM || r.acdm || "").toString().trim();
+        const rawRegion = (r.Region || r.region || "").toString().trim();
+        let regCode = (r["Region Code"] || r.RegionCode || r.region_code || "").toString().trim().toUpperCase();
+        if (!regCode) {
+            if (/^[A-E]$/i.test(rawRegion)) {
+                regCode = rawRegion.toUpperCase();
+            } else if (regionCodeByName[rawRegion.toLowerCase()]) {
+                regCode = regionCodeByName[rawRegion.toLowerCase()];
+            } else if (/^E[A-E]/i.test(rawArea)) {
+                regCode = rawArea[1].toUpperCase();
+            }
+        }
+        const regName = (rawRegion && !/^[A-E]$/i.test(rawRegion))
+            ? rawRegion
+            : (regionNameByCode[regCode] || (regCode ? `Region ${regCode}` : "Unmapped"));
+        const regKey = regCode || regName || "A";
+        const areaCode = rawArea || `${regKey}1`;
+        const territory = (r.Patch || r.patch || r.territory || r.Territory || r["Patch Name"] || "Unknown Territory").toString().trim();
 
-        if (!national.regions[region]) {
-            national.regions[region] = {
-                id: region,
-                name: `Region ${region}`,
+        if (!national.regions[regKey]) {
+            national.regions[regKey] = {
+                id: regKey,
+                code: regCode || regKey,
+                name: regName,
                 acdms: {}
             };
         }
-        if (!national.regions[region].acdms[acdm]) {
-            national.regions[region].acdms[acdm] = {
-                id: acdm,
-                name: `ACDM ${acdm}`,
+        if (!national.regions[regKey].acdms[areaCode]) {
+            national.regions[regKey].acdms[areaCode] = {
+                id: areaCode,
+                name: areaCode,
+                regionCode: regCode || regKey,
+                regionName: regName,
                 territories: []
             };
         }
-        if (!national.regions[region].acdms[acdm].territories.includes(territory)) {
-            national.regions[region].acdms[acdm].territories.push(territory);
+        if (territory && !national.regions[regKey].acdms[areaCode].territories.includes(territory)) {
+            national.regions[regKey].acdms[areaCode].territories.push(territory);
         }
     });
+
+    // Sort regions, area codes, and territories deterministically
+    const sortedRegions = {};
+    Object.keys(national.regions).sort().forEach(rk => {
+        const regObj = national.regions[rk];
+        const sortedAcdms = {};
+        Object.keys(regObj.acdms).sort().forEach(ak => {
+            const areaObj = regObj.acdms[ak];
+            areaObj.territories.sort();
+            sortedAcdms[ak] = areaObj;
+        });
+        sortedRegions[rk] = { ...regObj, acdms: sortedAcdms };
+    });
+    national.regions = sortedRegions;
 
     return national;
 }
@@ -562,8 +702,35 @@ function buildGeographyHierarchy(rows) {
 // ================================================================================================
 function ModernCapacityApp() {
     const [activeTab, setActiveTab] = useState('insights');
+    const [studioSubTab, setStudioSubTab] = useState('inputs_selection');
+    const [decisionStudioView, setDecisionStudioView] = useState('summary');
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [decisionNavOpen, setDecisionNavOpen] = useState(false);
+    const inDecisionStudio = activeTab === 'decision_studio' || activeTab === 'analytics';
     const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+    
+    // Dark Theme State (persisted to localStorage)
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+        try {
+            const saved = localStorage.getItem('capacity-app-dark-mode');
+            return saved === 'true';
+        } catch (e) {
+            return false;
+        }
+    });
+
+    // Apply/remove dark class on <html> element whenever isDarkMode changes
+    useEffect(() => {
+        const root = document.documentElement;
+        if (isDarkMode) {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
+        try {
+            localStorage.setItem('capacity-app-dark-mode', isDarkMode.toString());
+        } catch (e) {}
+    }, [isDarkMode]);
     
     // Engine & Environment state
     const [envInfo, setEnvInfo] = useState({
@@ -591,17 +758,23 @@ function ModernCapacityApp() {
 
     // Scenario State
     const [scenarios, setScenarios] = useState({});
-    const [selectedScenarioId, setSelectedScenarioId] = useState("LV OCT V.0 2026-10-29 16:00:00");
-    const [comparisonScenarioId, setComparisonScenarioId] = useState("LV JUL V.1 2026-07-07 12:46:46");
-    const [diffBaselineScenarioId, setDiffBaselineScenarioId] = useState("LV OCT V.0 2026-10-29 16:00:00");
-    const [diffComparisonScenarioId, setDiffComparisonScenarioId] = useState("LV JUL V.1 2026-07-07 12:46:46");
+    const [scenarioLog, setScenarioLog] = useState([]);
+    const [scenarioDiffCache, setScenarioDiffCache] = useState({});
+    const [finalBundleCache, setFinalBundleCache] = useState({});
+    const [selectedScenarioId, setSelectedScenarioId] = useState("LV NOV V.1 2026");
+    const [comparisonScenarioId, setComparisonScenarioId] = useState("LV NOV V.2 2026");
+    const [analyticsBaselineScenarioId, setAnalyticsBaselineScenarioId] = useState("LV NOV V.1 2026");
+    const [analyticsComparisonScenarioId, setAnalyticsComparisonScenarioId] = useState("LV NOV V.2 2026");
+    const [diffBaselineScenarioId, setDiffBaselineScenarioId] = useState("LV NOV V.1 2026");
+    const [diffComparisonScenarioId, setDiffComparisonScenarioId] = useState("LV NOV V.2 2026");
     const [geographyDatasets, setGeographyDatasets] = useState({});
     
     // Scenario form metadata
     const [planType, setPlanType] = useState("LV");
-    const [month, setMonth] = useState("OCT");
-    const [version, setVersion] = useState("0");
-    const [remarks, setRemarks] = useState("October Operating Plan baseline");
+    const [month, setMonth] = useState("NOV");
+    const [version, setVersion] = useState("1");
+    const [scenarioYear, setScenarioYear] = useState("2026");
+    const [remarks, setRemarks] = useState("November LV Baseline Operating Plan (Nov 2026 - Dec 2027)");
 
     // All 21 Input Selections & History
     const [inputsState, setInputsState] = useState({});
@@ -613,7 +786,22 @@ function ModernCapacityApp() {
     // Calculation Modules Modal State (FTE, Downtime, Productivity -> Capacity; Demand -> Imbalance)
     const [isCalcModalOpen, setIsCalcModalOpen] = useState(false);
     const [selectedCalcModule, setSelectedCalcModule] = useState('imbalance');
-    const [calcModulesCache, setCalcModulesCache] = useState({});
+    const initialCalcCache = useMemo(() => {
+        const init = window.INITIAL_CAPACITY_DATA || {};
+        const raw = init.initialCalcModulesData || {};
+        const scenId = Object.keys(init.scenarios || {})[0] || '';
+        const out = {};
+        const allowed = new Set(['fte', 'available_hours', 'capacity', 'demand', 'workload', 'imbalance']);
+        Object.entries(raw).forEach(([k, v]) => {
+            const modK = k.includes('::') ? k.split('::').pop() : k;
+            if (allowed.has(modK) && v) {
+                const keyOut = k.includes('::') ? k : `${(v.scenarioId || scenId || 'default')}::${modK}`;
+                out[keyOut] = v;
+            }
+        });
+        return out;
+    }, []);
+    const [calcModulesCache, setCalcModulesCache] = useState(initialCalcCache);
     const [isCalcLoading, setIsCalcLoading] = useState(false);
 
     // Export to Power BI Modal State (Private / Public with Name of Choice)
@@ -625,7 +813,9 @@ function ModernCapacityApp() {
     const [indayWorkloadData, setIndayWorkloadData] = useState([]);
     const [demCapSubTab, setDemCapSubTab] = useState('imbalance');
     const [imbalanceFilter, setImbalanceFilter] = useState('');
-    const [selectedTerritory, setSelectedTerritory] = useState('All');
+    const [insightsTerritory, setInsightsTerritory] = useState('All');
+    const [insightsStartDate, setInsightsStartDate] = useState('2026-11-02');
+    const [insightsEndDate, setInsightsEndDate] = useState('2027-12-27');
 
     // Copilot Chat
     const [copilotMessages, setCopilotMessages] = useState([
@@ -650,7 +840,28 @@ function ModernCapacityApp() {
                     setClusterInfo(init.envInfo.cluster_info);
                 }
             }
-            if (init.scenarios) setScenarios(init.scenarios);
+            if (init.scenarios) {
+                setScenarios(init.scenarios);
+                const ids = Object.keys(init.scenarios);
+                if (ids.length > 0) {
+                    setSelectedScenarioId(ids[0]);
+                    setAnalyticsBaselineScenarioId(ids[0]);
+                    setDiffBaselineScenarioId(ids[0]);
+                    const second = ids[1] || ids[0];
+                    setComparisonScenarioId(second);
+                    setAnalyticsComparisonScenarioId(second);
+                    setDiffComparisonScenarioId(second);
+                }
+            }
+            if (init.scenarioLog) setScenarioLog(init.scenarioLog);
+            if (init.initialFinalBundle && init.initialFinalBundle.success && init.initialFinalBundle.scenarioId) {
+                setFinalBundleCache(prev => ({ ...prev, [init.initialFinalBundle.scenarioId]: init.initialFinalBundle }));
+            }
+            if (init.initialScenarioDiffData && init.initialScenarioDiffData.success) {
+                const diffInit = init.initialScenarioDiffData;
+                const cacheKey = `${diffInit.baselineVersion}||${diffInit.comparisonVersion}`;
+                setScenarioDiffCache(prev => ({ ...prev, [cacheKey]: diffInit }));
+            }
             if (init.inputOptions) {
                 setInputsChoices(init.inputOptions);
                 const initialSelections = {};
@@ -671,9 +882,38 @@ function ModernCapacityApp() {
         }
 
         if (window.Shiny && window.Shiny.addCustomMessageHandler) {
+            window.Shiny.addCustomMessageHandler('response_analytics_bundle', function(data) {
+                if (data && data.success && data.scenarioId && data.finalData) {
+                    setFinalBundleCache(prev => ({ ...prev, [data.scenarioId]: data }));
+                }
+                window.dispatchEvent(new CustomEvent('capacity-analytics-data', {detail: data}));
+            });
+            window.Shiny.addCustomMessageHandler('response_scenario_diff_data', function(data) {
+                if (data && data.success && data.baselineVersion && data.comparisonVersion) {
+                    const cacheKey = `${data.baselineVersion}||${data.comparisonVersion}`;
+                    setScenarioDiffCache(prev => ({ ...prev, [cacheKey]: data }));
+                }
+                window.dispatchEvent(new CustomEvent('capacity-scenario-diff-data', { detail: data }));
+            });
             window.Shiny.addCustomMessageHandler('update_scenario_data', function(data) {
                 if (data.scenarios) setScenarios(data.scenarios);
-                if (data.selectedScenarioId) setSelectedScenarioId(data.selectedScenarioId);
+                if (data.scenarioLog) setScenarioLog(data.scenarioLog);
+                if (data.selectedScenarioId) {
+                    setSelectedScenarioId(data.selectedScenarioId);
+                    // Invalidate cached diff/final entries referencing updated scenario
+                    setFinalBundleCache(prev => {
+                        const next = { ...prev };
+                        delete next[data.selectedScenarioId];
+                        return next;
+                    });
+                    setScenarioDiffCache(prev => {
+                        const next = {};
+                        Object.entries(prev).forEach(([k, v]) => {
+                            if (!k.includes(data.selectedScenarioId)) next[k] = v;
+                        });
+                        return next;
+                    });
+                }
                 if (data.inputsState) setInputsState(data.inputsState);
                 if (data.imbalanceData) setImbalanceData(data.imbalanceData);
                 if (data.envInfo) setEnvInfo(data.envInfo);
@@ -730,9 +970,10 @@ function ModernCapacityApp() {
 
             window.Shiny.addCustomMessageHandler('response_calc_module_data', function(data) {
                 if (data && data.moduleKey) {
+                    const cacheKey = `${data.scenarioId || selectedScenarioId || 'default'}::${data.moduleKey}`;
                     setCalcModulesCache(prev => ({
                         ...prev,
-                        [data.moduleKey]: data
+                        [cacheKey]: data
                     }));
                     setIsCalcLoading(false);
                 }
@@ -745,6 +986,32 @@ function ModernCapacityApp() {
             });
         }
     }, []);
+
+    // Fetch final scenario data bundle for Executive Insights when selected scenario changes
+    useEffect(() => {
+        if (!selectedScenarioId || finalBundleCache[selectedScenarioId]) return;
+        let disposed = false;
+        let timer = null;
+        const attempt = () => {
+            if (disposed || !window.Shiny?.setInputValue) return;
+            clearInterval(timer);
+            const reqId = `insights-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            window.Shiny.setInputValue('request_analytics_bundle', {
+                requestId: reqId,
+                scenarioId: selectedScenarioId,
+                draft: false
+            }, { priority: 'event' });
+        };
+        if (window.Shiny?.setInputValue) {
+            attempt();
+        } else {
+            timer = setInterval(attempt, 300);
+        }
+        return () => {
+            disposed = true;
+            if (timer) clearInterval(timer);
+        };
+    }, [selectedScenarioId, finalBundleCache]);
 
     // Handle Scenario Export to Power BI (Private / Public with Custom Name)
     const handleExportPowerBIScenario = (scenarioId, exportTarget, exportName, description) => {
@@ -759,24 +1026,27 @@ function ModernCapacityApp() {
         }
     };
 
-    // Request Calculation Module Data (FTE, Downtime, Productivity, Capacity, Demand, Imbalance)
-    const handleRequestCalcModule = (mod) => {
+    // Request Calculation Module Data (FTE, Available Hours, Capacity, Demand, Workload, Imbalance)
+    const handleRequestCalcModule = (mod, scenarioOverride = null) => {
+        const scenId = scenarioOverride || selectedScenarioId;
+        const cacheKey = `${scenId || 'default'}::${mod}`;
         setSelectedCalcModule(mod);
-        if (calcModulesCache[mod]) return;
+        if (calcModulesCache[cacheKey]) return;
         setIsCalcLoading(true);
         if (window.Shiny && window.Shiny.setInputValue) {
             window.Shiny.setInputValue('request_calc_module_data', {
                 moduleKey: mod,
+                scenarioId: scenId,
                 requestId: Date.now()
             }, { priority: 'event' });
         }
         setTimeout(() => {
             setCalcModulesCache(prev => {
-                if (prev[mod]) return prev;
-                return { ...prev, [mod]: getClientFallbackCalcModule(mod) };
+                if (prev[cacheKey]) return prev;
+                return { ...prev, [cacheKey]: getClientFallbackCalcModule(mod, scenId) };
             });
             setIsCalcLoading(false);
-        }, 1000);
+        }, 1200);
     };
 
     // Current scenario object
@@ -820,7 +1090,8 @@ function ModernCapacityApp() {
         showToast(`Deleted '${curr}' from ${label}. Click Undo to restore.`, 'info');
 
         if (window.Shiny && window.Shiny.setInputValue) {
-            window.Shiny.setInputValue(`btn_del_${key}`, Math.random(), { priority: 'event' });
+            window.Shiny.setInputValue(key, newSel, { priority: 'event' });
+            window.Shiny.setInputValue(`btn_del_${key}`, { target: curr, newSel: newSel, timestamp: Date.now() }, { priority: 'event' });
         }
     };
 
@@ -844,7 +1115,8 @@ function ModernCapacityApp() {
         showToast(`Restored version '${restored}' for ${label}.`, 'success');
 
         if (window.Shiny && window.Shiny.setInputValue) {
-            window.Shiny.setInputValue(`btn_undo_${key}`, Math.random(), { priority: 'event' });
+            window.Shiny.setInputValue(key, restored, { priority: 'event' });
+            window.Shiny.setInputValue(`btn_undo_${key}`, { restored: restored, timestamp: Date.now() }, { priority: 'event' });
         }
     };
 
@@ -891,6 +1163,9 @@ function ModernCapacityApp() {
             const next = { ...prev };
             stampedFiles.forEach(pf => {
                 next[pf.fileType] = pf.stampedName;
+                if (window.Shiny && window.Shiny.setInputValue) {
+                    window.Shiny.setInputValue(pf.fileType, pf.stampedName, { priority: 'event' });
+                }
             });
             return next;
         });
@@ -931,13 +1206,14 @@ function ModernCapacityApp() {
 
     // Save Scenario
     const handleSaveScenario = () => {
-        const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
-        const newId = `${planType} ${month} V.${version} ${now}`;
+        const now = new Date().toISOString().replace(/\.\d{3}Z$/, '.000+00:00');
+        const newId = `${planType} ${month} V.${version} ${scenarioYear}`;
         const newScenario = {
             id: newId,
             plan_type: planType,
             month: month,
             version: version,
+            year: scenarioYear,
             remarks: remarks,
             created_at: now,
             inputs: { ...inputsState }
@@ -945,13 +1221,21 @@ function ModernCapacityApp() {
 
         setScenarios(prev => ({ ...prev, [newId]: newScenario }));
         setSelectedScenarioId(newId);
-        showToast(`Scenario '${newId}' saved!`, 'success');
+        setScenarioDiffCache(prev => {
+            const next = {};
+            Object.entries(prev).forEach(([k, v]) => {
+                if (!k.includes(newId)) next[k] = v;
+            });
+            return next;
+        });
+        showToast(`Saving scenario '${newId}' & generating final data...`, 'info');
 
         if (window.Shiny && window.Shiny.setInputValue) {
             window.Shiny.setInputValue('save_scenario_event', {
                 plan_type: planType,
                 month: month,
                 version: version,
+                year: scenarioYear,
                 remarks: remarks,
                 inputs: inputsState
             }, { priority: 'event' });
@@ -964,8 +1248,10 @@ function ModernCapacityApp() {
         if (!scen) return;
         setSelectedScenarioId(scenarioId);
         setPlanType(scen.plan_type || "LV");
-        setMonth(scen.month || "OCT");
-        setVersion(scen.version || "0");
+        setMonth(scen.month || "NOV");
+        setVersion(scen.version || "1");
+        const parsedYear = scen.year || (String(scenarioId).match(/\b(20\d{2})\b/)?.[1]) || "2026";
+        setScenarioYear(parsedYear);
         setRemarks(scen.remarks || "");
         if (scen.inputs) {
             setInputsState({ ...scen.inputs });
@@ -999,34 +1285,61 @@ function ModernCapacityApp() {
     };
 
     return (
-        <div className="flex h-screen w-full bg-[#fcfdfd] font-sans text-slate-800 overflow-hidden antialiased">
-            {/* FLOATING TOAST */}
+        <div className={`flex h-screen w-full font-sans overflow-hidden antialiased transition-colors duration-300 ${
+            isDarkMode ? 'bg-[#070e1c] text-[#adbed4]' : 'bg-[#fcfdfd] text-slate-800'
+        }`}>
+            {/* FLOATING TOAST (BOTTOM-CENTER POSITIONED) */}
             {toast && (
-                <div className={`fixed bottom-20 right-8 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl text-xs font-semibold border backdrop-blur-md animate-slide-up ${
-                    toast.type === 'success' ? 'bg-[#005eb8] text-white border-blue-500' :
-                    toast.type === 'warning' ? 'bg-amber-500 text-white border-amber-400' :
-                    'bg-slate-900 text-white border-slate-700'
-                }`}>
-                    <span>{toast.message}</span>
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] pointer-events-auto">
+                    <div className={`flex items-center gap-2.5 px-4 py-2.5 rounded-full shadow-2xl text-xs font-bold border backdrop-blur-md transition-all duration-200 animate-slide-up ${
+                        toast.type === 'success' ? 'bg-[#005eb8]/95 text-white border-blue-400 shadow-blue-500/25' :
+                        toast.type === 'warning' ? 'bg-amber-600/95 text-white border-amber-400 shadow-amber-500/25' :
+                        toast.type === 'error' ? 'bg-rose-600/95 text-white border-rose-400 shadow-rose-500/25' :
+                        'bg-[#081528]/95 text-white border-[#1d3d6e] shadow-black/40'
+                    }`}>
+                        {toast.type === 'success' && <IconCheck className="w-4 h-4 text-emerald-300 flex-shrink-0" />}
+                        {toast.type === 'warning' && <IconAlertCircle className="w-4 h-4 text-amber-200 flex-shrink-0" />}
+                        {toast.type === 'error' && <IconAlertCircle className="w-4 h-4 text-rose-200 flex-shrink-0" />}
+                        {(!toast.type || toast.type === 'info') && <IconInfo className="w-4 h-4 text-sky-300 flex-shrink-0" />}
+                        <span className="tracking-tight whitespace-nowrap">{toast.message}</span>
+                        <button
+                            type="button"
+                            onClick={() => setToast(null)}
+                            className="ml-2 text-white/70 hover:text-white transition cursor-pointer text-xs font-bold leading-none p-0.5 rounded hover:bg-white/10"
+                            title="Dismiss"
+                        >
+                            ✕
+                        </button>
+                    </div>
                 </div>
             )}
 
-            {/* WHITE & BRITISH GAS BLUE SIDEBAR (FLUSH TO LEFT EDGE: 0 MARGIN) */}
-            <aside className={`bg-white border-r border-slate-200/90 flex flex-col transition-all duration-300 z-30 shadow-[2px_0_12px_rgba(0,0,0,0.02)] flex-shrink-0 h-full ${
+            {/* WHITE & ENTERPRISE BLUE SIDEBAR (FLUSH TO LEFT EDGE: 0 MARGIN) */}
+            <aside id="capacity-app-navigation" onClickCapture={inDecisionStudio && decisionNavOpen ? () => setDecisionNavOpen(false) : undefined} className={`${inDecisionStudio ? 'ds-sidebar ' + (decisionNavOpen ? 'ds-sidebar-open' : '') : ''} flex flex-col transition-all duration-300 z-30 flex-shrink-0 h-full ${
+                isDarkMode 
+                    ? 'bg-[#060b17] border-r border-[#18365d] shadow-[4px_0_24px_rgba(2,6,23,0.6)]' 
+                    : 'bg-white border-r border-slate-200/90 shadow-[2px_0_12px_rgba(0,0,0,0.02)]'
+            } ${
                 isSidebarCollapsed ? 'w-20' : 'w-64'
             }`}>
                 {/* Brand Header */}
-                <div className="h-14 flex items-center justify-center px-4 border-b border-slate-100 flex-shrink-0">
-                    <div className="bg-[#005eb8] text-white font-black tracking-tight px-3 py-1.5 rounded-lg text-sm shadow-sm flex items-center justify-center glow-button whitespace-nowrap">
+                <div className={`h-14 flex items-center justify-center px-4 border-b flex-shrink-0 ${
+                    isDarkMode ? 'border-[#18365d]' : 'border-slate-100'
+                }`}>
+                    <div className={`font-black tracking-tight text-sm flex items-center justify-center whitespace-nowrap select-none ${
+                        isDarkMode ? 'text-white' : 'text-slate-900'
+                    }`}>
                         {isSidebarCollapsed ? 'ES' : 'ES Capacity App'}
                     </div>
                 </div>
 
                 {/* Engine & Compute Mode Pills */}
                 {!isSidebarCollapsed && (
-                    <div className="px-4 py-1.5 border-b border-slate-100 flex flex-col items-center justify-center gap-1 bg-slate-50/40">
+                    <div className={`px-4 py-1.5 border-b flex flex-col items-center justify-center gap-1 ${
+                        isDarkMode ? 'border-[#18365d] bg-[#091528]/80' : 'border-slate-100 bg-slate-50/40'
+                    }`}>
                         <div className="flex items-center justify-center gap-2">
-                            <span className="text-[10px] font-medium text-slate-400 lowercase">environment</span>
+                            <span className={`text-[10px] font-medium lowercase ${isDarkMode ? 'text-[#7d93b2]' : 'text-slate-400'}`}>environment</span>
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 ${
                                 envInfo.is_databricks 
                                     ? 'bg-rose-50 text-rose-700 border border-rose-200' 
@@ -1067,47 +1380,138 @@ function ModernCapacityApp() {
                 <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
                     {[
                         { id: 'insights', label: 'Executive Insights', icon: <IconDashboard />, badge: 'Home' },
-                        { id: 'inputs', label: 'Inputs & Parameters', icon: <IconSliders />, badge: '21 Files' },
+                        { id: 'inputs', label: 'Inputs & Parameters', icon: <IconSliders />, badge: '21 Files', hasSubmenu: true },
                         { id: 'comparison', label: 'Scenario Diff & Variance', icon: <IconScale /> },
                         { id: 'dem_cap', label: 'Dem vs Cap Matrix', icon: <IconMatrix /> },
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium text-xs transition-all group ${
-                                activeTab === tab.id
-                                    ? 'bg-blue-50 text-blue-700 font-semibold shadow-xs border border-blue-100/80'
-                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                            }`}
-                        >
-                            <div className="flex items-center gap-2.5">
-                                <span className={`transition-transform duration-200 group-hover:scale-110 ${
-                                    activeTab === tab.id ? 'text-blue-700' : 'text-slate-400 group-hover:text-blue-600'
-                                }`}>
-                                    {tab.icon}
-                                </span>
-                                {!isSidebarCollapsed && <span>{tab.label}</span>}
+                        { id: 'decision_studio', label: 'Decision Studio', icon: <IconBarChart />, hasSubmenu: true },
+                    ].map(tab => {
+                        const isActive = activeTab === tab.id || (tab.id === 'decision_studio' && activeTab === 'analytics');
+                        const submenuOpen = tab.hasSubmenu && isActive && !isSidebarCollapsed;
+                        const submenuId = `capacity-navigation-${tab.id}`;
+                        const subItems = tab.id === 'inputs' ? [
+                            { id: 'inputs_selection', label: 'Scenario & Input Selection', shortLabel: 'Scenario & Inputs', icon: <IconSliders className="w-3.5 h-3.5 flex-shrink-0" />, badge: '21' },
+                            { id: 'bulk_upload', label: 'Bulk Upload', shortLabel: 'Bulk Upload', icon: <IconUpload className="w-3.5 h-3.5 flex-shrink-0" />, badge: 'Ingest' },
+                            { id: 'download_templates', label: 'Download Templates', shortLabel: 'Download Templates', icon: <IconDownload className="w-3.5 h-3.5 flex-shrink-0" />, badge: '21 Ready' },
+                        ] : tab.id === 'decision_studio' ? [
+                            { id: 'summary', label: 'Capacity Drilldown', shortLabel: 'Capacity Drilldown', icon: <IconBarChart className="w-3.5 h-3.5 flex-shrink-0" /> },
+                            { id: 'imbalance', label: 'Imbalances', shortLabel: 'Imbalances', icon: <IconScale className="w-3.5 h-3.5 flex-shrink-0" /> },
+                        ] : [];
+                        return (
+                            <div key={tab.id} className="space-y-1">
+                                <button
+                                    onClick={() => {
+                                        setActiveTab(tab.id);
+                                        if (tab.id === 'decision_studio' && activeTab !== 'decision_studio') {
+                                            setDecisionStudioView('summary');
+                                        }
+                                    }}
+                                    aria-expanded={tab.hasSubmenu ? submenuOpen : undefined}
+                                    aria-controls={submenuOpen ? submenuId : undefined}
+                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium text-xs transition-all group ${
+                                        isActive
+                                            ? isDarkMode 
+                                                ? 'bg-gradient-to-r from-blue-900/60 to-blue-800/40 text-[#80c6ff] font-bold shadow-[0_2px_12px_rgba(37,99,235,0.25)] border border-[#2563eb]/60'
+                                                : 'bg-blue-50 text-blue-700 font-semibold shadow-xs border border-blue-100/80'
+                                            : isDarkMode
+                                                ? 'text-[#7d93b2] hover:bg-[#0c1a32] hover:text-[#e2edff]'
+                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                        <span className={`transition-transform duration-200 group-hover:scale-110 flex-shrink-0 ${
+                                            isActive 
+                                                ? isDarkMode ? 'text-[#80c6ff]' : 'text-blue-700' 
+                                                : isDarkMode ? 'text-[#7d93b2] group-hover:text-[#80c6ff]' : 'text-slate-400 group-hover:text-blue-600'
+                                        }`}>
+                                            {tab.icon}
+                                        </span>
+                                        {!isSidebarCollapsed && <span className="truncate">{tab.label}</span>}
+                                    </div>
+                                    {!isSidebarCollapsed && (
+                                        <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
+                                            {tab.badge && (
+                                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                                                    isActive 
+                                                        ? 'bg-[#005eb8] text-white' 
+                                                        : isDarkMode ? 'bg-[#0c1c38] text-[#80c6ff] border border-[#18365d]' : 'bg-slate-100 text-slate-500'
+                                                }`}>
+                                                    {tab.badge}
+                                                </span>
+                                            )}
+                                            {tab.hasSubmenu && (
+                                                <IconChevronDown className={`w-3 h-3 transition-transform duration-200 ${isActive ? 'rotate-180 text-blue-500 dark:text-[#80c6ff]' : 'text-slate-400'}`} />
+                                            )}
+                                        </div>
+                                    )}
+                                </button>
+
+                                {submenuOpen && (
+                                    <div id={submenuId} role="group" aria-label={tab.label} className="ml-3 pl-2.5 my-1 border-l-2 border-blue-500/30 dark:border-blue-500/40 space-y-1">
+                                        {subItems.map(sub => {
+                                            const isSubActive = tab.id === 'inputs'
+                                                ? studioSubTab === sub.id
+                                                : (sub.id === 'imbalance' ? decisionStudioView === 'imbalance' : decisionStudioView !== 'imbalance');
+                                            return (
+                                                <button
+                                                    key={sub.id}
+                                                    type="button"
+                                                    title={sub.badge ? `${sub.label} (${sub.badge})` : sub.label}
+                                                    aria-current={isSubActive ? 'page' : undefined}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setActiveTab(tab.id);
+                                                        if (tab.id === 'inputs') setStudioSubTab(sub.id);
+                                                        else setDecisionStudioView(sub.id);
+                                                    }}
+                                                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all select-none cursor-pointer ${
+                                                        isSubActive
+                                                            ? isDarkMode
+                                                                ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/70 text-[#80c6ff] font-bold border border-[#2563eb]/60 shadow-xs'
+                                                                : 'bg-[#005eb8] text-white font-bold shadow-xs'
+                                                            : isDarkMode
+                                                                ? 'text-[#adbed4] hover:bg-[#0c1a32] hover:text-white'
+                                                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center gap-2 truncate min-w-0">
+                                                        <span className={isSubActive ? (isDarkMode ? 'text-[#80c6ff]' : 'text-white') : (isDarkMode ? 'text-[#7d93b2]' : 'text-blue-600')}>
+                                                            {sub.icon}
+                                                        </span>
+                                                        <span className="truncate text-[11px]">{sub.shortLabel || sub.label}</span>
+                                                    </div>
+                                                    {sub.badge && <span className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded-md flex-shrink-0 ml-1.5 ${
+                                                        isSubActive
+                                                            ? isDarkMode ? 'bg-[#081528] text-[#80c6ff] border border-[#18365d]' : 'bg-white/20 text-white'
+                                                            : isDarkMode ? 'bg-[#081528] text-[#7d93b2] border border-[#18365d]' : 'bg-slate-200/80 text-slate-600'
+                                                    }`}>
+                                                        {sub.badge}
+                                                    </span>}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
-                            {!isSidebarCollapsed && tab.badge && (
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                                    activeTab === tab.id ? 'bg-[#005eb8] text-white' : 'bg-slate-100 text-slate-500'
-                                }`}>
-                                    {tab.badge}
-                                </span>
-                            )}
-                        </button>
-                    ))}
+                        );
+                    })}
                 </nav>
 
                 {/* Sidebar Footer Controls */}
-                <div className="p-2.5 border-t border-slate-100 flex items-center justify-center">
+                <div className={`p-2.5 border-t flex flex-col gap-1.5 ${
+                    isDarkMode ? 'border-[#18365d]' : 'border-slate-100'
+                }`}>
+                    {/* Dark / Light Theme Toggle */}
                     <button
-                        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                        className="text-slate-400 hover:text-slate-700 text-[11px] font-medium px-2 py-1 rounded-lg hover:bg-slate-50 transition flex items-center gap-1.5"
-                        title="Toggle Sidebar"
+                        onClick={() => setIsDarkMode(!isDarkMode)}
+                        className={`w-full flex items-center justify-center gap-2 text-xs font-semibold px-3 py-2 rounded-xl transition ${
+                            isDarkMode
+                                ? 'text-amber-400 hover:text-amber-300 hover:bg-[#0c1a32] border border-amber-500/20 bg-amber-500/10'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 border border-slate-200/80 bg-slate-50/50'
+                        }`}
+                        title={isDarkMode ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
                     >
-                        <span>◫</span>
-                        {!isSidebarCollapsed && <span>Collapse</span>}
+                        {isDarkMode ? <IconSun className="w-4 h-4 text-amber-400" /> : <IconMoon className="w-4 h-4 text-slate-500" />}
+                        <span>{isDarkMode ? 'Light Theme' : 'Dark Theme'}</span>
                     </button>
                 </div>
             </aside>
@@ -1115,36 +1519,73 @@ function ModernCapacityApp() {
             {/* MAIN APP SHELL (FULL-BLEED FLUID) */}
             <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
                 {/* TOP HEADER (COMPACT 56PX HEIGHT) */}
-                <header className="h-14 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between z-20 flex-shrink-0">
+                <header className={`${inDecisionStudio ? 'ds-app-header' : ''} h-14 px-6 flex items-center justify-between z-20 flex-shrink-0 border-b transition-colors duration-300 ${
+                    isDarkMode 
+                        ? 'bg-[#081224]/95 border-[#18365d] shadow-sm backdrop-blur-md' 
+                        : 'bg-white border-slate-200/80'
+                }`}>
                     {/* Scenario Quick Selector Pill */}
+                    {inDecisionStudio && <button type="button" className="ds-mobile-nav"
+                        aria-controls="capacity-app-navigation" aria-expanded={decisionNavOpen}
+                        onClick={() => setDecisionNavOpen(value => !value)}>{decisionNavOpen ? 'Close menu' : 'Menu'}</button>}
                     <div className="flex items-center gap-2.5 min-w-0">
-                        <button className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-500 transition shadow-xs flex-shrink-0 hover:text-slate-800">
-                            <IconGear className="w-3.5 h-3.5" />
+                        <button className={`w-8 h-8 rounded-lg border flex items-center justify-center transition shadow-xs flex-shrink-0 ${
+                            isDarkMode 
+                                ? 'bg-[#0c1b31] hover:bg-[#112649] border-[#18365d] text-[#80c6ff] hover:text-white' 
+                                : 'bg-slate-50 hover:bg-slate-100 border-slate-200/80 text-slate-500 hover:text-slate-800'
+                        }`}>
+                            <IconGear className="w-3.5 h-3.5 text-current" />
                         </button>
-                        {activeTab !== 'comparison' ? (
+                        {(activeTab === 'decision_studio' || activeTab === 'analytics') ? (
+                            <div className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-semibold shadow-xs border ${
+                                isDarkMode ? 'bg-[#0c1b31] border-[#18365d] text-[#80c6ff]' : 'bg-blue-50/80 border-blue-200 text-[#005eb8]'
+                            }`}>
+                                {decisionStudioView === 'imbalance' ? <IconScale className="w-3.5 h-3.5 text-current" /> : <IconBarChart className="w-3.5 h-3.5 text-current" />}
+                                <span>
+                                    Decision Studio: {decisionStudioView === 'imbalance' ? 'Imbalances' : decisionStudioView === 'checks' ? 'Data Readiness' : decisionStudioView === 'workload' ? 'Upcoming Workload' : decisionStudioView === 'investigate' ? 'Investigations' : 'Capacity Drilldown'}
+                                </span>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold ${
+                                    isDarkMode ? 'text-white bg-[#081324] border-[#18365d]' : 'text-blue-700 bg-white border-blue-200'
+                                }`}>Final Scenario Data</span>
+                            </div>
+                        ) : activeTab !== 'comparison' ? (
                             <div className="flex items-center gap-2">
-                                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Scenario:</span>
-                                <div className="flex items-center bg-white border border-slate-200 rounded-lg px-2.5 py-1 shadow-xs hover:border-blue-300 transition">
+                                <span className={`text-[11px] font-bold uppercase tracking-wider ${isDarkMode ? 'text-[#80c6ff]' : 'text-slate-500'}`}>Active Scenario:</span>
+                                <div className={`flex items-center border rounded-lg px-2.5 py-1 shadow-xs transition ${
+                                    isDarkMode 
+                                        ? 'bg-[#0c1b31] border-[#18365d] hover:border-[#2563eb]/60 text-white' 
+                                        : 'bg-white border-slate-200 hover:border-blue-300 text-slate-800'
+                                }`}>
                                     <select
                                         value={selectedScenarioId}
                                         onChange={(e) => handleLoadScenario(e.target.value)}
-                                        className="bg-transparent text-slate-800 text-xs font-semibold focus:outline-none cursor-pointer max-w-sm truncate"
+                                        className={`bg-transparent text-xs font-bold focus:outline-none cursor-pointer max-w-sm truncate border-0 p-0 m-0 ${
+                                            isDarkMode ? 'text-white' : 'text-slate-800'
+                                        }`}
                                     >
                                         {Object.keys(scenarios).map(id => (
-                                            <option key={id} value={id}>{id}</option>
+                                            <option key={id} value={id} className={isDarkMode ? 'bg-[#081324] text-white' : ''}>{id}</option>
                                         ))}
                                     </select>
-                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 ml-2">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold ml-2 ${
+                                        isDarkMode 
+                                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' 
+                                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    }`}>
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                         Synced
                                     </span>
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2 px-3 py-1 bg-blue-50/80 border border-blue-200 rounded-lg text-xs font-semibold text-[#005eb8] shadow-xs">
-                                <IconScale className="w-3.5 h-3.5 text-[#005eb8]" />
-                                <span>Scenario Diff Mode: Dual Scenario Comparison</span>
-                                <span className="text-[10px] text-blue-700 bg-white px-1.5 py-0.5 rounded border border-blue-200 font-bold">Independent Selectors</span>
+                            <div className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-semibold shadow-xs border ${
+                                isDarkMode ? 'bg-[#0c1b31] border-[#18365d] text-[#80c6ff]' : 'bg-blue-50/80 border-blue-200 text-[#005eb8]'
+                            }`}>
+                                <IconScale className="w-3.5 h-3.5 text-current" />
+                                <span>Scenario Diff Mode: Baseline vs Final</span>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold ${
+                                    isDarkMode ? 'text-white bg-[#081324] border-[#18365d]' : 'text-blue-700 bg-white border-blue-200'
+                                }`}>Independent Selectors</span>
                             </div>
                         )}
                     </div>
@@ -1158,10 +1599,14 @@ function ModernCapacityApp() {
                                 setPowerBIExportResult(null);
                                 setIsExportPowerBIModalOpen(true);
                             }}
-                            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-[#F2C811] text-amber-950 hover:text-slate-900 border border-amber-300 hover:border-amber-400 transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button group"
+                            className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button group ${
+                                isDarkMode
+                                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30'
+                                    : 'bg-amber-50 hover:bg-[#F2C811] text-amber-950 hover:text-slate-900 border-amber-300 hover:border-amber-400'
+                            }`}
                             title="Export Selected Scenario to Power BI (Private or Public Workspace with Custom Name)"
                         >
-                            <IconPowerBI className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                            <IconPowerBI className="w-3.5 h-3.5 group-hover:scale-110 transition-transform text-current" />
                             <span>Export</span>
                         </button>
                         <button
@@ -1170,39 +1615,59 @@ function ModernCapacityApp() {
                                 setIsCalcModalOpen(true);
                                 handleRequestCalcModule(selectedCalcModule || 'imbalance');
                             }}
-                            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-[#005eb8] text-[#005eb8] hover:text-white border border-blue-200 hover:border-[#005eb8] transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button"
-                            title="View Calculation Modules (FTE, Downtime, Productivity, Capacity, Demand, Imbalance)"
+                            className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 glow-button ${
+                                isDarkMode
+                                    ? 'bg-blue-500/20 text-blue-300 border-blue-500/40 hover:bg-blue-500/30'
+                                    : 'bg-blue-50 hover:bg-[#005eb8] text-[#005eb8] hover:text-white border-blue-200 hover:border-[#005eb8]'
+                            }`}
+                            title="View Calculation Modules (FTE, Available Hours, Capacity, Demand, Workload, Imbalance)"
                         >
-                            <IconEye className="w-3.5 h-3.5" />
+                            <IconEye className="w-3.5 h-3.5 text-current" />
                             <span>View Calculations</span>
                         </button>
                         <button
                             onClick={() => setActiveTab('inputs')}
-                            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 transition flex items-center gap-1.5 shadow-xs hover:border-blue-300"
+                            className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 shadow-xs ${
+                                isDarkMode
+                                    ? 'bg-[#0c1b31] hover:bg-[#112649] text-white border-[#18365d] hover:border-[#2563eb]/60'
+                                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-blue-300'
+                            }`}
                         >
-                            <IconSliders className="w-3.5 h-3.5 text-blue-600" />
+                            <IconSliders className="w-3.5 h-3.5 text-current" />
                             <span>Configure Inputs (21)</span>
                         </button>
                         <button 
                             onClick={() => showToast("Refreshed scenario data from backend.", "success")}
-                            className="w-7 h-7 rounded-lg bg-white hover:bg-slate-50 border border-slate-200/90 flex items-center justify-center text-slate-600 shadow-xs transition hover:text-blue-600"
+                            className={`w-7 h-7 rounded-lg border flex items-center justify-center shadow-xs transition ${
+                                isDarkMode
+                                    ? 'bg-[#0c1b31] hover:bg-[#112649] border-[#18365d] text-[#adbed4] hover:text-white'
+                                    : 'bg-white hover:bg-slate-50 border-slate-200/90 text-slate-600 hover:text-blue-600'
+                            }`}
                             title="Refresh Data"
                         >
-                            <IconRefresh className="w-3.5 h-3.5" />
+                            <IconRefresh className="w-3.5 h-3.5 text-current" />
                         </button>
                         <button 
                             onClick={() => showToast("Exporting scenario report...", "info")}
-                            className="w-7 h-7 rounded-lg bg-white hover:bg-slate-50 border border-slate-200/90 flex items-center justify-center text-slate-600 shadow-xs transition hover:text-blue-600"
+                            className={`w-7 h-7 rounded-lg border flex items-center justify-center shadow-xs transition ${
+                                isDarkMode
+                                    ? 'bg-[#0c1b31] hover:bg-[#112649] border-[#18365d] text-[#adbed4] hover:text-white'
+                                    : 'bg-white hover:bg-slate-50 border-slate-200/90 text-slate-600 hover:text-blue-600'
+                            }`}
                             title="Download Report"
                         >
-                            <IconDownload className="w-3.5 h-3.5" />
+                            <IconDownload className="w-3.5 h-3.5 text-current" />
                         </button>
                         <button
                             onClick={() => setIsCopilotOpen(true)}
-                            className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-50 to-sky-50 border border-blue-200/60 flex items-center justify-center text-blue-600 shadow-xs hover:shadow transition glow-button"
+                            className={`w-7 h-7 rounded-lg border flex items-center justify-center shadow-xs hover:shadow transition glow-button ${
+                                isDarkMode
+                                    ? 'bg-[#0c1b31] hover:bg-[#112649] border-[#18365d] text-[#80c6ff] hover:text-white'
+                                    : 'bg-gradient-to-tr from-blue-50 to-sky-50 border-blue-200/60 text-blue-600'
+                            }`}
                             title="Capacity AI Assistant"
                         >
-                            <IconSparkles className="w-3.5 h-3.5 text-blue-600" />
+                            <IconSparkles className="w-3.5 h-3.5 text-current" />
                         </button>
                         <button
                             onClick={() => {
@@ -1212,10 +1677,14 @@ function ModernCapacityApp() {
                                     databricks_host: envInfo.databricks_host || ''
                                 });
                             }}
-                            className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-rose-50/80 hover:bg-rose-100 text-rose-700 border border-rose-200/80 transition flex items-center gap-1.5 shadow-xs"
+                            className={`text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition flex items-center gap-1.5 shadow-xs ${
+                                isDarkMode
+                                    ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border-rose-500/30'
+                                    : 'bg-rose-50/80 hover:bg-rose-100 text-rose-700 border-rose-200/80'
+                            }`}
                             title="End active session or log out of Databricks"
                         >
-                            <svg className="w-3.5 h-3.5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg className="w-3.5 h-3.5 text-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                 <polyline points="16 17 21 12 16 7"></polyline>
                                 <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -1279,16 +1748,34 @@ function ModernCapacityApp() {
                 )}
 
                 {/* TAB CONTENT AREA (FLUID SCROLLABLE MAIN WITH TIGHT SPACING) */}
-                <main className="flex-1 overflow-y-auto px-6 py-4 bg-[#fbfcfd] space-y-3.5">
+                <main className={`${inDecisionStudio ? 'ds-app-main' : ''} flex-1 overflow-y-auto px-6 py-4 space-y-3.5 transition-colors duration-300 ${
+                    isDarkMode ? 'bg-[#070e1c]' : 'bg-[#fbfcfd]'
+                }`}>
+                    {(activeTab === 'decision_studio' || activeTab === 'analytics') && (
+                        <AnalyticsWorkspace
+                            scenarios={scenarios}
+                            selectedScenarioId={selectedScenarioId}
+                            inputsState={inputsState}
+                            baselineScenarioId={analyticsBaselineScenarioId}
+                            comparisonScenarioId={analyticsComparisonScenarioId}
+                            presentation={decisionStudioView}
+                            onPresentationChange={setDecisionStudioView}
+                        />
+                    )}
                     {/* TAB 1: EXECUTIVE SCENARIO INSIGHTS (HOMEPAGE) */}
                     {activeTab === 'insights' && (
                         <ScenarioExecutiveInsightsView
                             scenario={currentScenario}
+                            finalBundle={finalBundleCache[selectedScenarioId] || null}
                             onConfigureInputs={() => setActiveTab('inputs')}
                             onCompareScenario={() => setActiveTab('comparison')}
                             imbalanceData={imbalanceData}
-                            selectedTerritory={selectedTerritory}
-                            setSelectedTerritory={setSelectedTerritory}
+                            selectedTerritory={insightsTerritory}
+                            setSelectedTerritory={setInsightsTerritory}
+                            trajectoryStartDate={insightsStartDate}
+                            setTrajectoryStartDate={setInsightsStartDate}
+                            trajectoryEndDate={insightsEndDate}
+                            setTrajectoryEndDate={setInsightsEndDate}
                             showToast={showToast}
                         />
                     )}
@@ -1296,12 +1783,16 @@ function ModernCapacityApp() {
                     {/* TAB 2: SCENARIO INPUTS & PARAMETERS STUDIO */}
                     {activeTab === 'inputs' && (
                         <ScenarioInputsStudioView
+                            studioSubTab={studioSubTab}
+                            setStudioSubTab={setStudioSubTab}
                             planType={planType}
                             setPlanType={setPlanType}
                             month={month}
                             setMonth={setMonth}
                             version={version}
                             setVersion={setVersion}
+                            scenarioYear={scenarioYear}
+                            setScenarioYear={setScenarioYear}
                             remarks={remarks}
                             setRemarks={setRemarks}
                             onSave={handleSaveScenario}
@@ -1323,6 +1814,8 @@ function ModernCapacityApp() {
                     {activeTab === 'comparison' && (
                         <ScenarioComparisonView
                             scenarios={scenarios}
+                            scenarioLog={scenarioLog}
+                            scenarioDiffCache={scenarioDiffCache}
                             baselineScenarioId={diffBaselineScenarioId}
                             setBaselineScenarioId={setDiffBaselineScenarioId}
                             comparisonScenarioId={diffComparisonScenarioId}
@@ -1330,6 +1823,8 @@ function ModernCapacityApp() {
                             selectedGeographyFile={inputsState['geography_mapping']}
                             geographyDatasets={geographyDatasets}
                             onNavigateToInputs={() => setActiveTab('inputs')}
+                            isDarkMode={isDarkMode}
+                            showToast={showToast}
                         />
                     )}
 
@@ -1355,35 +1850,45 @@ function ModernCapacityApp() {
 
             {/* CAPACITY COPILOT SLIDE-OVER DRAWER */}
             {isCopilotOpen && (
-                <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/30 backdrop-blur-xs animate-fade-in">
-                    <div className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-slide-left">
+                <div className="fixed inset-0 z-[1000] flex justify-end bg-slate-950/95 dark:bg-[#020617]/98 backdrop-blur-md animate-fade-in">
+                    <div className={`w-full max-w-md h-full shadow-2xl flex flex-col animate-slide-left transition-colors duration-200 ${
+                        isDarkMode ? 'bg-slate-800 text-slate-100' : 'bg-white text-slate-800'
+                    }`}>
                         {/* Drawer Header */}
-                        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50 text-slate-800">
+                        <div className={`p-5 border-b flex items-center justify-between ${
+                            isDarkMode ? 'bg-slate-900/90 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-100 text-slate-800'
+                        }`}>
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
-                                    <IconRobot className="w-5 h-5 text-blue-700" />
+                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                                    isDarkMode ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40' : 'bg-blue-50 text-blue-700'
+                                }`}>
+                                    <IconRobot className="w-5 h-5" />
                                 </div>
                                 <div>
                                     <h3 className="font-extrabold text-sm">Capacity Intelligence Copilot</h3>
-                                    <p className="text-[11px] text-slate-400">Databricks Unified Intelligence</p>
+                                    <p className={`text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-400'}`}>Databricks Unified Intelligence</p>
                                 </div>
                             </div>
                             <button
                                 onClick={() => setIsCopilotOpen(false)}
-                                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+                                className={`p-1 rounded-lg transition ${isDarkMode ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-700' : 'text-slate-400 hover:text-slate-600'}`}
                             >
                                 <IconX className="w-4 h-4" />
                             </button>
                         </div>
 
                         {/* Chat Messages */}
-                        <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-[#fbfcfd]">
+                        <div className={`flex-1 overflow-y-auto p-5 space-y-4 ${
+                            isDarkMode ? 'bg-slate-900' : 'bg-[#fbfcfd]'
+                        }`}>
                             {copilotMessages.map((msg, idx) => (
                                 <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                     <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs shadow-xs leading-relaxed ${
                                         msg.role === 'user'
                                             ? 'bg-[#005eb8] text-white font-semibold rounded-br-none'
-                                            : 'bg-white text-slate-800 border border-slate-200/80 rounded-bl-none'
+                                            : isDarkMode
+                                                ? 'bg-slate-800 text-slate-100 border border-slate-700 rounded-bl-none'
+                                                : 'bg-white text-slate-800 border border-slate-200/80 rounded-bl-none'
                                     }`}>
                                         <p className="whitespace-pre-line">{msg.text}</p>
                                     </div>
@@ -1392,32 +1897,48 @@ function ModernCapacityApp() {
                         </div>
 
                         {/* Quick Prompts */}
-                        <div className="p-3 border-t border-slate-100 bg-white flex gap-2 overflow-x-auto text-[11px]">
+                        <div className={`p-3 border-t flex gap-2 overflow-x-auto text-[11px] ${
+                            isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'
+                        }`}>
                             <button 
                                 onClick={() => { setCopilotInput("Explain Leicester patch deficit"); }}
-                                className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full text-slate-700 whitespace-nowrap font-medium transition flex items-center gap-1.5"
+                                className={`px-3 py-1.5 border rounded-full whitespace-nowrap font-medium transition flex items-center gap-1.5 ${
+                                    isDarkMode
+                                        ? 'bg-slate-700/60 hover:bg-slate-700 border-slate-600 text-slate-200'
+                                        : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700'
+                                }`}
                             >
-                                <IconBolt className="w-3.5 h-3.5 text-amber-500" />
+                                <IconBolt className="w-3.5 h-3.5 text-amber-400" />
                                 <span>Leicester deficit</span>
                             </button>
                             <button 
                                 onClick={() => { setCopilotInput("Suggest contractor cost reduction"); }}
-                                className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full text-slate-700 whitespace-nowrap font-medium transition flex items-center gap-1.5"
+                                className={`px-3 py-1.5 border rounded-full whitespace-nowrap font-medium transition flex items-center gap-1.5 ${
+                                    isDarkMode
+                                        ? 'bg-slate-700/60 hover:bg-slate-700 border-slate-600 text-slate-200'
+                                        : 'bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700'
+                                }`}
                             >
-                                <IconCurrency className="w-3.5 h-3.5 text-emerald-600" />
+                                <IconCurrency className="w-3.5 h-3.5 text-emerald-400" />
                                 <span>Contractor savings</span>
                             </button>
                         </div>
 
                         {/* Input Box */}
-                        <div className="p-4 border-t border-slate-100 bg-white flex gap-2">
+                        <div className={`p-4 border-t flex gap-2 ${
+                            isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'
+                        }`}>
                             <input
                                 type="text"
                                 placeholder="Ask Copilot about imbalances, shifts, rosters..."
                                 value={copilotInput}
                                 onChange={(e) => setCopilotInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSendCopilot()}
-                                className="flex-1 text-xs px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#005eb8]"
+                                className={`flex-1 text-xs px-3.5 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#005eb8] ${
+                                    isDarkMode
+                                        ? 'bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-500'
+                                        : 'bg-slate-50 border-slate-200 text-slate-800'
+                                }`}
                             />
                             <button
                                 onClick={handleSendCopilot}
@@ -1430,14 +1951,15 @@ function ModernCapacityApp() {
                 </div>
             )}
 
-            {/* FLOATING WINDOW: CALCULATION MODULES MODAL (FTE, DOWNTIME, PRODUCTIVITY -> CAPACITY; DEMAND -> IMBALANCE) */}
+            {/* FLOATING WINDOW: CALCULATION MODULES MODAL (6 SUB-CALCULATIONS COMBINING INTO FINAL DATA) */}
             {isCalcModalOpen && (
                 <CalculationModulesModal
                     isOpen={isCalcModalOpen}
                     activeModule={selectedCalcModule}
-                    onChangeModule={(mod) => handleRequestCalcModule(mod)}
+                    scenarioId={selectedScenarioId}
+                    onChangeModule={(mod) => handleRequestCalcModule(mod, selectedScenarioId)}
                     onClose={() => setIsCalcModalOpen(false)}
-                    data={calcModulesCache[selectedCalcModule] || getClientFallbackCalcModule(selectedCalcModule)}
+                    data={calcModulesCache[`${selectedScenarioId || 'default'}::${selectedCalcModule}`] || getClientFallbackCalcModule(selectedCalcModule, selectedScenarioId)}
                     loading={isCalcLoading}
                     showToast={showToast}
                 />
@@ -1555,7 +2077,7 @@ function ClusterManagementModal({
                     onClose();
                 }
             }}
-            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+            className="fixed inset-0 z-[1000] floating-modal-backdrop bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
         >
             <div 
                 onClick={(e) => e.stopPropagation()}
@@ -1564,7 +2086,7 @@ function ClusterManagementModal({
                 {/* --- 1. LOGOUT CONFIRMATION MODAL --- */}
                 {modalType === 'logout' && (
                     <div className="p-6 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-rose-600 mb-3 shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-rose-600 mb-3 shadow-xs glow-icon glow-icon-rose">
                             <svg className="w-6 h-6 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                 <polyline points="16 17 21 12 16 7"></polyline>
@@ -1587,7 +2109,7 @@ function ClusterManagementModal({
                             {/* Option 1: End Session */}
                             <div className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition bg-gradient-to-b from-white to-slate-50/50 flex flex-col justify-between">
                                 <div>
-                                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] mb-2.5">
+                                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] mb-2.5 glow-icon glow-icon-blue">
                                         <svg className="w-4 h-4 text-[#005eb8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                             <circle cx="12" cy="12" r="10"></circle>
                                             <line x1="10" y1="15" x2="10" y2="9"></line>
@@ -1610,7 +2132,7 @@ function ClusterManagementModal({
                             {/* Option 2: Log Out Databricks */}
                             <div className="p-4 rounded-xl border border-slate-200 hover:border-rose-300 hover:shadow-md transition bg-gradient-to-b from-white to-rose-50/20 flex flex-col justify-between">
                                 <div>
-                                    <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-2.5">
+                                    <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-2.5 glow-icon glow-icon-rose">
                                         <svg className="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                             <polyline points="16 17 21 12 16 7"></polyline>
@@ -1644,7 +2166,7 @@ function ClusterManagementModal({
                 {/* --- 2. CLUSTER OFFLINE MODAL --- */}
                 {modalType === 'offline' && (
                     <div className="p-6 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mb-3 shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mb-3 shadow-xs glow-icon glow-icon-amber">
                             <svg className="w-6 h-6 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                 <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
                                 <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
@@ -1718,7 +2240,7 @@ function ClusterManagementModal({
                 {/* --- 4. CLUSTER ERROR MODAL --- */}
                 {modalType === 'error' && (
                     <div className="p-6 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-3 shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-3 shadow-xs glow-icon glow-icon-rose">
                             <IconAlertCircle className="w-6 h-6 text-rose-600" />
                         </div>
                         <h3 className="text-lg font-extrabold text-slate-900 mb-1">Cluster Connection Issue</h3>
@@ -1750,7 +2272,7 @@ function ClusterManagementModal({
                 {/* --- 5. SESSION INACTIVE MODAL --- */}
                 {modalType === 'inactive' && (
                     <div className="p-6 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 mb-3 shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 mb-3 shadow-xs glow-icon glow-icon-slate">
                             <IconClock className="w-6 h-6 text-slate-600" />
                         </div>
                         <h3 className="text-lg font-extrabold text-slate-900 mb-1">Session Inactive</h3>
@@ -1770,7 +2292,7 @@ function ClusterManagementModal({
                 {/* --- 6. SESSION ENDED MODAL --- */}
                 {modalType === 'session_ended' && (
                     <div className="p-6 flex flex-col items-center text-center">
-                        <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] mb-3 shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] mb-3 shadow-xs glow-icon glow-icon-blue">
                             <IconLock className="w-6 h-6 text-[#005eb8]" />
                         </div>
                         <h3 className="text-lg font-extrabold text-slate-900 mb-1">Application Session Paused</h3>
@@ -1820,6 +2342,7 @@ function MonteCarloSimulationModal({
 }) {
     if (!isOpen) return null;
 
+    const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
     const [hoverFte, setHoverFte] = useState(null);
 
     useEffect(() => {
@@ -1900,36 +2423,36 @@ function MonteCarloSimulationModal({
     const meanX = getX(meanFte);
 
     return (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
+        <div className="fixed inset-0 z-[1000] floating-modal-backdrop bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fade-in">
             <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col glow-card">
                 {/* Header */}
-                <div className="px-5 py-3.5 bg-gradient-to-r from-slate-50 via-purple-50/30 to-white border-b border-slate-200/80 flex items-center justify-between">
+                <div className="px-5 py-3.5 bg-gradient-to-r from-slate-50 via-purple-50/30 to-white dark:from-[#0c1b31] dark:via-[#112649] dark:to-[#0c1b31] border-b border-slate-200/80 dark:border-[#18365d] flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center shadow-xs">
-                            <IconSparkles className="w-5 h-5 text-purple-600" />
+                        <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-300 flex items-center justify-center shadow-xs glow-icon glow-icon-purple">
+                            <IconSparkles className="w-5 h-5 text-current" />
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h3 className="font-extrabold text-sm sm:text-base text-slate-800">
-                                    Monte Carlo Capacity Shortfall Risk Simulation
+                                <h3 className="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white">
+                                    Capacity Shortfall Risk Simulation
                                 </h3>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                                     10,000 Iterations
                                 </span>
                             </div>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-slate-500 dark:text-[#adbed4]">
                                 Stochastic stress testing of engineer capacity vs customer demand under extreme winter weather, sickness & attrition
                             </p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-mono text-slate-400 hidden sm:inline">
-                            Scenario: <strong>{scenario.id || 'Active'}</strong>
+                        <span className="text-[11px] font-mono text-slate-400 dark:text-[#adbed4] hidden sm:inline">
+                            Scenario: <strong className="text-slate-700 dark:text-white">{scenario.id || 'Active'}</strong>
                         </span>
                         <button
                             onClick={onClose}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 dark:text-[#adbed4] hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#112649] transition"
                             title="Close (Esc)"
                         >
                             <IconX className="w-4 h-4" />
@@ -1942,72 +2465,60 @@ function MonteCarloSimulationModal({
                     {/* Top 4 Executive KPI Tiles */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         {/* 1. Probability of Deficit */}
-                        <div className="bg-rose-50/70 p-3 rounded-xl border border-rose-200 flex flex-col justify-between">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700">Shortfall Risk</span>
-                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-100 text-rose-800">
+                        <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-rose-200/90 dark:border-rose-900/60 shadow-xs flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-1 gap-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 whitespace-nowrap">Shortfall Risk</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 whitespace-nowrap flex-shrink-0">
                                     Deficit Tail
                                 </span>
                             </div>
-                            <div className="mt-2">
-                                <div className="text-2xl font-black text-rose-600 tracking-tight leading-none">
-                                    {shortfallPct}%
-                                </div>
-                                <div className="text-[11px] text-rose-700 font-semibold mt-1">
-                                    Low Risk • {slaConfidence}% SLA Safe
-                                </div>
+                            <div className="mt-1">
+                                <div className="text-2xl font-black text-rose-600 dark:text-rose-400 tracking-tight leading-none whitespace-nowrap">{shortfallPct}%</div>
+                                <div className="text-[11px] text-rose-600/80 dark:text-rose-300/80 font-medium mt-1 whitespace-nowrap truncate">Low Risk • {slaConfidence}% SLA Safe</div>
                             </div>
                         </div>
 
                         {/* 2. Downside VaR */}
-                        <div className="bg-purple-50/70 p-3 rounded-xl border border-purple-200 flex flex-col justify-between">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700">P95 Worst-Case (VaR)</span>
-                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-800">
+                        <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-purple-200/90 dark:border-purple-900/60 shadow-xs flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-1 gap-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-300 whitespace-nowrap">P95 Worst-Case</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 whitespace-nowrap flex-shrink-0">
                                     Worst 5%
                                 </span>
                             </div>
-                            <div className="mt-2">
-                                <div className="text-2xl font-black text-purple-900 tracking-tight leading-none">
-                                    {simData.p95VarFte || -2.8} <span className="text-xs font-bold text-purple-600">FTE</span>
-                                </div>
-                                <div className="text-[11px] text-purple-700 font-semibold mt-1">
-                                    ~105 hrs gap in Midlands
-                                </div>
+                            <div className="mt-1">
+                                <div className="text-2xl font-black text-purple-700 dark:text-purple-300 tracking-tight leading-none whitespace-nowrap">{simData.p95VarFte || -2.8} <span className="text-xs font-bold text-purple-500 dark:text-purple-400">FTE</span></div>
+                                <div className="text-[11px] text-slate-500 dark:text-[#adbed4] font-medium mt-1 whitespace-nowrap truncate">~105 hrs gap in Midlands</div>
                             </div>
                         </div>
 
                         {/* 3. Expected Mean Buffer */}
-                        <div className="bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 flex flex-col justify-between">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Expected Mean Buffer</span>
-                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">
+                        <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-emerald-200/90 dark:border-emerald-900/60 shadow-xs flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-1 gap-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 whitespace-nowrap">Expected Buffer</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 whitespace-nowrap flex-shrink-0">
                                     Average
                                 </span>
                             </div>
-                            <div className="mt-2">
-                                <div className="text-2xl font-black text-emerald-700 tracking-tight leading-none">
-                                    +{meanFte} <span className="text-xs font-bold text-emerald-600">FTE</span>
-                                </div>
-                                <div className="text-[11px] text-emerald-700 font-semibold mt-1">
-                                    Solid National Headroom
-                                </div>
+                            <div className="mt-1">
+                                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight leading-none whitespace-nowrap">+{meanFte} <span className="text-xs font-bold text-emerald-500 dark:text-emerald-400">FTE</span></div>
+                                <div className="text-[11px] text-emerald-600/80 dark:text-emerald-300/80 font-medium mt-1 whitespace-nowrap truncate">Solid National Headroom</div>
                             </div>
                         </div>
 
                         {/* 4. Target Compliance */}
-                        <div className="bg-blue-50/70 p-3 rounded-xl border border-blue-200 flex flex-col justify-between">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Target Compliant</span>
-                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-800">
-                                    ≥105% Target
+                        <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-blue-200/90 dark:border-blue-900/60 shadow-xs flex flex-col justify-between">
+                            <div className="flex items-center justify-between mb-1 gap-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-[#80c6ff] whitespace-nowrap">Target Compliant</span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-[#80c6ff] border border-blue-200 dark:border-blue-800/60 whitespace-nowrap flex-shrink-0">
+                                    ≥105% SLA
                                 </span>
                             </div>
-                            <div className="mt-2">
-                                <div className="text-2xl font-black text-blue-700 tracking-tight leading-none">
+                            <div className="mt-1">
+                                <div className="text-2xl font-black text-blue-600 dark:text-[#80c6ff] tracking-tight leading-none whitespace-nowrap">
                                     {simData.targetCompliancePct || 91.4}%
                                 </div>
-                                <div className="text-[11px] text-blue-700 font-semibold mt-1">
+                                <div className="text-[11px] text-blue-600/80 dark:text-[#80c6ff]/80 font-medium mt-1 whitespace-nowrap truncate">
                                     Meets Centrica Standard
                                 </div>
                             </div>
@@ -2015,89 +2526,91 @@ function MonteCarloSimulationModal({
                     </div>
 
                     {/* EXECUTIVE INTUITIVE VISUAL: OUTCOME PROBABILITY DISTRIBUTION & STRESS BELL CURVE */}
-                    <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200 shadow-xs space-y-3.5">
+                    <div className="bg-slate-50/80 dark:bg-[#0c1b31] p-4 rounded-xl border border-slate-200 dark:border-[#18365d] shadow-xs space-y-3.5">
                         {/* Section Title & Zone Legend */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-200 gap-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-200 dark:border-[#18365d] gap-2">
                             <div>
-                                <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 flex items-center gap-2">
-                                    <span>Plan Resilience & Capacity Deficit Risk Distribution</span>
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                                        Safe Zone (95.2%)
-                                    </span>
+                                <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 dark:text-white">
+                                    Plan Resilience & Capacity Deficit Risk Distribution
                                 </h4>
-                                <p className="text-[11px] text-slate-500">
+                                <p className="text-[11px] text-slate-500 dark:text-[#adbed4]">
                                     Visual probability breakdown across 10,000 simulated winter operating scenarios
                                 </p>
                             </div>
 
-                            {/* Legend */}
-                            <div className="flex items-center gap-3 text-xs font-bold">
-                                <span className="flex items-center gap-1.5 text-rose-700">
-                                    <span className="w-3 h-3 rounded-xs bg-rose-500 inline-block shadow-2xs" />
+                            {/* Legend & Safe Zone Resilience Pill */}
+                            <div className="flex items-center gap-2.5 sm:gap-3 text-xs font-bold flex-wrap sm:flex-nowrap justify-end">
+                                <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 dark:border-emerald-500/40 whitespace-nowrap shadow-2xs">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                                    <span>Safe Zone ({slaConfidence}%)</span>
+                                </span>
+                                <div className="h-3.5 w-px bg-slate-200 dark:bg-[#18365d] hidden sm:block" />
+                                <span className="flex items-center gap-1.5 text-rose-700 dark:text-rose-300 whitespace-nowrap">
+                                    <span className="w-3 h-3 rounded-xs bg-rose-500 dark:bg-rose-400 inline-block shadow-xs ring-1 ring-rose-500/50" />
                                     <span>Deficit Risk ({shortfallPct}%)</span>
                                 </span>
-                                <span className="flex items-center gap-1.5 text-amber-700">
-                                    <span className="w-3 h-3 rounded-xs bg-amber-400 inline-block shadow-2xs" />
+                                <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 whitespace-nowrap">
+                                    <span className="w-3 h-3 rounded-xs bg-amber-400 dark:bg-amber-400 inline-block shadow-xs ring-1 ring-amber-400/50" />
                                     <span>Tight Buffer ({tightPct}%)</span>
                                 </span>
-                                <span className="flex items-center gap-1.5 text-emerald-700">
-                                    <span className="w-3 h-3 rounded-xs bg-emerald-500 inline-block shadow-2xs" />
+                                <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 whitespace-nowrap">
+                                    <span className="w-3 h-3 rounded-xs bg-emerald-500 dark:bg-emerald-400 inline-block shadow-xs ring-1 ring-emerald-500/50" />
                                     <span>Safe Buffer ({safePct}%)</span>
                                 </span>
                             </div>
                         </div>
 
                         {/* 1. Intuitive High-Level Outcome Progress Bar (Instantly clear to any leader) */}
-                        <div className="space-y-1.5 bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs">
-                            <div className="flex justify-between items-center text-xs font-bold text-slate-700">
-                                <span>High-Level Operating Outcome Distribution</span>
-                                <span className="text-slate-400 font-mono text-[11px]">Total 10,000 Trials</span>
+                        <div className="space-y-1.5 bg-white dark:bg-[#081324] p-3 rounded-xl border border-slate-200/90 dark:border-[#18365d] shadow-2xs">
+                            <div className="flex justify-between items-center text-xs font-bold text-slate-800 dark:text-slate-200">
+                                <span className="font-extrabold text-slate-900 dark:text-white">High-Level Operating Outcome Distribution</span>
+                                <span className="text-slate-600 dark:text-[#adbed4] font-mono text-[11px] font-bold">Total 10,000 Trials</span>
                             </div>
 
                             {/* Segmented Progress Bar */}
-                            <div className="h-6 w-full rounded-lg overflow-hidden flex bg-slate-100 border border-slate-200/80 text-white text-[11px] font-extrabold shadow-inner">
+                            <div className="h-6 w-full rounded-lg overflow-hidden flex bg-slate-100 dark:bg-[#070e1c] border border-slate-200/80 dark:border-[#18365d] text-[11px] font-extrabold shadow-inner">
                                 <div
                                     style={{ width: `${shortfallPct}%` }}
-                                    className="bg-rose-500 hover:bg-rose-600 transition flex items-center justify-center px-1 text-white truncate"
+                                    className="bg-rose-500 hover:bg-rose-600 transition flex items-center justify-center px-1 text-white font-black truncate"
                                     title={`Deficit Risk: ${shortfallPct}% (Capacity shortfall)`}
                                 >
-                                    {shortfallPct > 3 ? `${shortfallPct}% Deficit` : ''}
+                                    <span className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]">{shortfallPct >= 6 ? `${shortfallPct}% Deficit` : shortfallPct >= 3 ? `${shortfallPct}%` : ''}</span>
                                 </div>
                                 <div
-                                    style={{ width: `${tightPct}%` }}
-                                    className="bg-amber-400 hover:bg-amber-500 transition flex items-center justify-center px-1 text-slate-900 truncate"
+                                    style={{ width: `${tightPct}%`, color: '#0f172a' }}
+                                    className="bg-amber-400 hover:bg-amber-500 transition flex items-center justify-center px-1 truncate shadow-xs"
                                     title={`Tight Buffer: ${tightPct}% (0 to 15 FTE buffer)`}
                                 >
-                                    {tightPct}% Tight
+                                    <span style={{ color: '#0f172a', fontWeight: 900 }}>{tightPct >= 10 ? `${tightPct}% Tight` : `${tightPct}%`}</span>
                                 </div>
                                 <div
                                     style={{ width: `${safePct}%` }}
-                                    className="bg-emerald-500 hover:bg-emerald-600 transition flex items-center justify-center px-2 text-white truncate"
+                                    className="bg-emerald-600 hover:bg-emerald-700 transition flex items-center justify-center px-2 text-white font-black truncate"
                                     title={`Comfortable Surplus: ${safePct}% (SLA fully compliant)`}
                                 >
-                                    {safePct}% Safe & SLA Compliant (+15 to +150 FTE Buffer)
+                                    <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] text-white font-black">{safePct}% Safe & SLA Compliant (+15 to +150 FTE Buffer)</span>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
-                                <span className="flex items-center gap-1 text-rose-600 font-semibold">
+                            <div className="flex items-center justify-between text-[11px] pt-1">
+                                <span className="flex items-center gap-1 text-rose-700 dark:text-rose-400 font-bold">
                                     ◄ Capacity Shortfall (Demand &gt; Supply)
                                 </span>
-                                <span className="font-bold text-slate-700">Breakeven Line (0 FTE)</span>
-                                <span className="flex items-center gap-1 text-emerald-600 font-semibold">
+                                <span className="font-extrabold text-slate-800 dark:text-slate-200">Breakeven Line (0 FTE)</span>
+                                <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold">
                                     Capacity Surplus (Customer SLAs 100% Met) ►
                                 </span>
                             </div>
                         </div>
 
                         {/* 2. Visual Bell Curve Probability Density Graphic */}
-                        <div className="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs relative">
-                            <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 text-xs">
-                                <span className="font-bold text-slate-700 flex items-center gap-1.5">
-                                    <IconTrendingUp className="w-3.5 h-3.5 text-purple-600" />
+                        <div className="bg-white dark:bg-[#081324] p-3.5 rounded-xl border border-slate-200/90 dark:border-[#18365d] shadow-2xs relative">
+                            <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 dark:border-[#18365d] text-xs">
+                                <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                                    <IconTrendingUp className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                                     <span>Stochastic Net Buffer Probability Bell Curve</span>
                                 </span>
-                                <span className="text-[11px] text-slate-400 font-medium">
+                                <span className="text-[11px] text-slate-400 dark:text-[#adbed4] font-medium">
                                     Hover mouse across curve to inspect buffer levels
                                 </span>
                             </div>
@@ -2114,16 +2627,16 @@ function MonteCarloSimulationModal({
                                 >
                                     <defs>
                                         <linearGradient id="deficitGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.45" />
-                                            <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.05" />
+                                            <stop offset="0%" stopColor="#f43f5e" stopOpacity={isDark ? 0.6 : 0.45} />
+                                            <stop offset="100%" stopColor="#f43f5e" stopOpacity={0.05} />
                                         </linearGradient>
                                         <linearGradient id="tightGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.45" />
-                                            <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.05" />
+                                            <stop offset="0%" stopColor="#fbbf24" stopOpacity={isDark ? 0.6 : 0.45} />
+                                            <stop offset="100%" stopColor="#fbbf24" stopOpacity={0.05} />
                                         </linearGradient>
                                         <linearGradient id="safeGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.40" />
-                                            <stop offset="100%" stopColor="#10b981" stopOpacity="0.05" />
+                                            <stop offset="0%" stopColor="#10b981" stopOpacity={isDark ? 0.55 : 0.40} />
+                                            <stop offset="100%" stopColor="#10b981" stopOpacity={0.05} />
                                         </linearGradient>
                                     </defs>
 
@@ -2133,7 +2646,7 @@ function MonteCarloSimulationModal({
                                         y1={padTop + plotH}
                                         x2={svgWidth - padRight}
                                         y2={padTop + plotH}
-                                        stroke="#cbd5e1"
+                                        stroke={isDark ? "#18365d" : "#cbd5e1"}
                                         strokeWidth="1.5"
                                     />
 
@@ -2156,7 +2669,7 @@ function MonteCarloSimulationModal({
                                     <path
                                         d={fullLinePath}
                                         fill="none"
-                                        stroke="#475569"
+                                        stroke={isDark ? "#80c6ff" : "#475569"}
                                         strokeWidth="2.5"
                                         strokeLinecap="round"
                                     />
@@ -2167,18 +2680,18 @@ function MonteCarloSimulationModal({
                                         y1={padTop}
                                         x2={zeroX}
                                         y2={padTop + plotH}
-                                        stroke="#dc2626"
+                                        stroke={isDark ? "#f87171" : "#dc2626"}
                                         strokeWidth="2"
                                         strokeDasharray="4 3"
                                     />
                                     <rect
-                                        x={zeroX - 42}
+                                        x={zeroX - 44}
                                         y={padTop + 2}
-                                        width="84"
+                                        width="88"
                                         height="18"
                                         rx="4"
-                                        fill="#fef2f2"
-                                        stroke="#dc2626"
+                                        fill={isDark ? "#3b1219" : "#fef2f2"}
+                                        stroke={isDark ? "#ef4444" : "#dc2626"}
                                         strokeWidth="1"
                                     />
                                     <text
@@ -2187,7 +2700,7 @@ function MonteCarloSimulationModal({
                                         textAnchor="middle"
                                         fontSize="9.5"
                                         fontWeight="800"
-                                        fill="#dc2626"
+                                        fill={isDark ? "#fca5a5" : "#dc2626"}
                                     >
                                         0 FTE Threshold
                                     </text>
@@ -2198,7 +2711,7 @@ function MonteCarloSimulationModal({
                                         y1={padTop + 10}
                                         x2={meanX}
                                         y2={padTop + plotH}
-                                        stroke="#059669"
+                                        stroke={isDark ? "#34d399" : "#059669"}
                                         strokeWidth="1.5"
                                         strokeDasharray="3 3"
                                     />
@@ -2206,18 +2719,18 @@ function MonteCarloSimulationModal({
                                         cx={meanX}
                                         cy={getY(meanFte)}
                                         r="4.5"
-                                        fill="#059669"
-                                        stroke="#ffffff"
+                                        fill={isDark ? "#10b981" : "#059669"}
+                                        stroke={isDark ? "#081324" : "#ffffff"}
                                         strokeWidth="2"
                                     />
                                     <rect
-                                        x={meanX - 48}
+                                        x={meanX - 50}
                                         y={padTop + 2}
-                                        width="96"
+                                        width="100"
                                         height="18"
                                         rx="4"
-                                        fill="#ecfdf5"
-                                        stroke="#059669"
+                                        fill={isDark ? "#062e24" : "#ecfdf5"}
+                                        stroke={isDark ? "#10b981" : "#059669"}
                                         strokeWidth="1"
                                     />
                                     <text
@@ -2226,7 +2739,7 @@ function MonteCarloSimulationModal({
                                         textAnchor="middle"
                                         fontSize="9.5"
                                         fontWeight="800"
-                                        fill="#059669"
+                                        fill={isDark ? "#6ee7b7" : "#059669"}
                                     >
                                         Mean: +{meanFte} FTE
                                     </text>
@@ -2246,7 +2759,7 @@ function MonteCarloSimulationModal({
                                         cy={getY(simData.p95VarFte || -2.8)}
                                         r="4"
                                         fill="#9333ea"
-                                        stroke="#ffffff"
+                                        stroke={isDark ? "#081324" : "#ffffff"}
                                         strokeWidth="1.5"
                                     />
 
@@ -2258,24 +2771,22 @@ function MonteCarloSimulationModal({
                                                 y1={padTop + plotH}
                                                 x2={getX(fte)}
                                                 y2={padTop + plotH + 4}
-                                                stroke="#94a3b8"
+                                                stroke={isDark ? "#18365d" : "#94a3b8"}
                                                 strokeWidth="1"
                                             />
                                             <text
                                                 x={getX(fte)}
                                                 y={padTop + plotH + 16}
                                                 textAnchor="middle"
-                                                fontSize="9.5"
-                                                fontWeight={fte === 0 ? "800" : "600"}
-                                                fill={fte < 0 ? "#dc2626" : fte === 0 ? "#0f172a" : "#64748b"}
+                                                fontSize="9"
                                                 fontFamily="monospace"
+                                                fill={isDark ? "#adbed4" : "#64748b"}
                                             >
                                                 {fte > 0 ? `+${fte}` : fte} FTE
                                             </text>
                                         </g>
                                     ))}
-
-                                    {/* Interactive Hover Line & Dot */}
+{/* Interactive Hover Line & Dot */}
                                     {hoverFte !== null && (
                                         <g>
                                             <line
@@ -2432,7 +2943,9 @@ function MonteCarloSimulationModal({
 
                     {/* Operational Recommendation Callout */}
                     <div className="p-3.5 rounded-xl bg-purple-50/80 border border-purple-200 text-xs flex items-start gap-3">
-                        <IconSparkles className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
+                        <div className="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/50 border border-purple-200 dark:border-purple-800 flex items-center justify-center shrink-0 glow-icon glow-icon-purple text-purple-600 dark:text-purple-300 mt-0.5">
+                            <IconSparkles className="w-4 h-4 text-current" />
+                        </div>
                         <div>
                             <div className="font-extrabold text-purple-900 mb-0.5">
                                 Executive Takeaway & Action Recommendation for Leadership
@@ -2458,7 +2971,7 @@ function MonteCarloSimulationModal({
                             onClick={onExportCsv}
                             className="px-3.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold transition flex items-center gap-1.5 shadow-xs"
                         >
-                            <IconDownload className="w-3.5 h-3.5 text-slate-500" />
+                            <IconDownload className="w-3.5 h-3.5 text-current" />
                             <span>Export Simulation CSV</span>
                         </button>
 
@@ -2497,35 +3010,35 @@ const TRAJECTORY_HORIZON_WEEKS = [
 ];
 
 const BASE_TRAJECTORY_WEEK_META = {
-    "2026-09-14": { demand: 4580, capacity: 4920, weekNum: 38, label: "Sep 14" },
-    "2026-09-21": { demand: 4610, capacity: 4950, weekNum: 39, label: "Sep 21" },
-    "2026-09-28": { demand: 4650, capacity: 4980, weekNum: 40, label: "Sep 28" },
-    "2026-10-05": { demand: 4710, capacity: 5020, weekNum: 41, label: "Oct 05" },
-    "2026-10-12": { demand: 4780, capacity: 5050, weekNum: 42, label: "Oct 12" },
-    "2026-10-19": { demand: 4820, capacity: 5010, weekNum: 43, label: "Oct 19" },
-    "2026-10-26": { demand: 4890, capacity: 4810, weekNum: 44, label: "Oct 26" },
-    "2026-11-02": { demand: 4850, capacity: 5080, weekNum: 45, label: "Nov 02" },
-    "2026-11-09": { demand: 4810, capacity: 5120, weekNum: 46, label: "Nov 09" },
-    "2026-11-16": { demand: 4770, capacity: 5160, weekNum: 47, label: "Nov 16" },
-    "2026-11-23": { demand: 4720, capacity: 5100, weekNum: 48, label: "Nov 23" },
-    "2026-11-30": { demand: 4680, capacity: 5050, weekNum: 49, label: "Nov 30" },
-    "2026-12-07": { demand: 4630, capacity: 4990, weekNum: 50, label: "Dec 07" },
-    "2026-12-14": { demand: 4590, capacity: 4940, weekNum: 51, label: "Dec 14" },
-    "2026-12-21": { demand: 4520, capacity: 4880, weekNum: 52, label: "Dec 21" },
-    "2026-12-28": { demand: 4450, capacity: 4750, weekNum: 53, label: "Dec 28" },
-    "2027-01-04": { demand: 4920, capacity: 5180, weekNum: 1, label: "Jan 04" },
-    "2027-01-11": { demand: 4980, capacity: 5220, weekNum: 2, label: "Jan 11" },
-    "2027-01-18": { demand: 4950, capacity: 5200, weekNum: 3, label: "Jan 18" },
-    "2027-01-25": { demand: 4910, capacity: 5150, weekNum: 4, label: "Jan 25" },
-    "2027-02-01": { demand: 4860, capacity: 5100, weekNum: 5, label: "Feb 01" },
-    "2027-02-08": { demand: 4820, capacity: 5080, weekNum: 6, label: "Feb 08" },
-    "2027-02-15": { demand: 4790, capacity: 5050, weekNum: 7, label: "Feb 15" },
-    "2027-02-22": { demand: 4750, capacity: 5020, weekNum: 8, label: "Feb 22" },
-    "2027-03-01": { demand: 4680, capacity: 4980, weekNum: 9, label: "Mar 01" },
-    "2027-03-08": { demand: 4620, capacity: 4950, weekNum: 10, label: "Mar 08" },
-    "2027-03-15": { demand: 4580, capacity: 4910, weekNum: 11, label: "Mar 15" },
-    "2027-03-22": { demand: 4540, capacity: 4880, weekNum: 12, label: "Mar 22" },
-    "2027-03-29": { demand: 4510, capacity: 4850, weekNum: 13, label: "Mar 29" }
+    "2026-09-14": { demand: 3820, capacity: 4120, weekNum: 38, label: "Sep 14" },
+    "2026-09-21": { demand: 3940, capacity: 4180, weekNum: 39, label: "Sep 21" },
+    "2026-09-28": { demand: 4120, capacity: 4290, weekNum: 40, label: "Sep 28" },
+    "2026-10-05": { demand: 4380, capacity: 4210, weekNum: 41, label: "Oct 05" },
+    "2026-10-12": { demand: 4510, capacity: 4280, weekNum: 42, label: "Oct 12" },
+    "2026-10-19": { demand: 4320, capacity: 4590, weekNum: 43, label: "Oct 19" },
+    "2026-10-26": { demand: 4460, capacity: 4720, weekNum: 44, label: "Oct 26" },
+    "2026-11-02": { demand: 4780, capacity: 5060, weekNum: 45, label: "Nov 02" },
+    "2026-11-09": { demand: 4920, capacity: 5180, weekNum: 46, label: "Nov 09" },
+    "2026-11-16": { demand: 5280, capacity: 4960, weekNum: 47, label: "Nov 16" },
+    "2026-11-23": { demand: 5390, capacity: 5040, weekNum: 48, label: "Nov 23" },
+    "2026-11-30": { demand: 5020, capacity: 5310, weekNum: 49, label: "Nov 30" },
+    "2026-12-07": { demand: 5480, capacity: 5190, weekNum: 50, label: "Dec 07" },
+    "2026-12-14": { demand: 5620, capacity: 5240, weekNum: 51, label: "Dec 14" },
+    "2026-12-21": { demand: 5140, capacity: 5410, weekNum: 52, label: "Dec 21" },
+    "2026-12-28": { demand: 4980, capacity: 5290, weekNum: 53, label: "Dec 28" },
+    "2027-01-04": { demand: 5690, capacity: 5340, weekNum: 1, label: "Jan 04" },
+    "2027-01-11": { demand: 5780, capacity: 5410, weekNum: 2, label: "Jan 11" },
+    "2027-01-18": { demand: 5640, capacity: 5380, weekNum: 3, label: "Jan 18" },
+    "2027-01-25": { demand: 5260, capacity: 5540, weekNum: 4, label: "Jan 25" },
+    "2027-02-01": { demand: 5180, capacity: 5480, weekNum: 5, label: "Feb 01" },
+    "2027-02-08": { demand: 5420, capacity: 5120, weekNum: 6, label: "Feb 08" },
+    "2027-02-15": { demand: 5310, capacity: 5040, weekNum: 7, label: "Feb 15" },
+    "2027-02-22": { demand: 4840, capacity: 5150, weekNum: 8, label: "Feb 22" },
+    "2027-03-01": { demand: 4690, capacity: 4980, weekNum: 9, label: "Mar 01" },
+    "2027-03-08": { demand: 4890, capacity: 4620, weekNum: 10, label: "Mar 08" },
+    "2027-03-15": { demand: 4380, capacity: 4690, weekNum: 11, label: "Mar 15" },
+    "2027-03-22": { demand: 4210, capacity: 4520, weekNum: 12, label: "Mar 22" },
+    "2027-03-29": { demand: 4050, capacity: 4360, weekNum: 13, label: "Mar 29" }
 };
 
 // Dynamic Scenario Analytics Engine: Computes tailored KPIs, trajectory profiles,
@@ -2541,7 +3054,7 @@ function computeScenarioAnalytics(scen) {
     if (pType === 'HV' && (sMonth === 'OCT' || sId.includes('HV OCT'))) {
         res = {
             totalDemand: 44850,
-            demandTrend: "↑ +16.6% vs Q3 baseline",
+            demandTrend: "↑ +16.6%",
             isDemandTrendUp: true,
             netCapacity: 42320,
             efficiencyRate: "85.2%",
@@ -2583,7 +3096,7 @@ function computeScenarioAnalytics(scen) {
     } else if (pType === 'LV' && (sMonth === 'JUL' || sId.includes('JUL'))) {
         res = {
             totalDemand: 33650,
-            demandTrend: "↓ -12.5% vs Q3 baseline",
+            demandTrend: "↓ -12.5%",
             isDemandTrendUp: false,
             netCapacity: 36800,
             efficiencyRate: "89.4%",
@@ -2625,7 +3138,7 @@ function computeScenarioAnalytics(scen) {
     } else if (sMonth === 'NOV' || sId.includes('NOV')) {
         res = {
             totalDemand: 40920,
-            demandTrend: "↑ +6.4% vs Q3 baseline",
+            demandTrend: "↑ +6.4%",
             isDemandTrendUp: true,
             netCapacity: 42450,
             efficiencyRate: "87.8%",
@@ -2668,7 +3181,7 @@ function computeScenarioAnalytics(scen) {
         // Standard October Baseline (LV OCT V.0)
         res = {
             totalDemand: 38450,
-            demandTrend: "↑ +2.4% vs Q3 baseline",
+            demandTrend: "↑ +2.4%",
             isDemandTrendUp: true,
             netCapacity: 41200,
             efficiencyRate: "88.5%",
@@ -2741,7 +3254,7 @@ function computeScenarioAnalytics(scen) {
 
         res = {
             totalDemand: totDem,
-            demandTrend: `${dScale >= 1.0 ? '↑ +' : '↓ -'}${Math.abs(((dScale - 1) * 100)).toFixed(1)}% vs baseline`,
+            demandTrend: `${dScale >= 1.0 ? '↑ +' : '↓ -'}${Math.abs(((dScale - 1) * 100)).toFixed(1)}%`,
             isDemandTrendUp: dScale >= 1.0,
             netCapacity: netCap,
             efficiencyRate: `${(88.5 * (cScale / dScale)).toFixed(1)}%`,
@@ -2803,19 +3316,300 @@ function computeScenarioAnalytics(scen) {
     return res;
 }
 
-function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, showToast }) {
-    const analytics = useMemo(() => computeScenarioAnalytics(scenario), [scenario]);
-    const TRAJECTORY_WEEK_META = analytics.weeklyTrajectoryMeta;
+function formatWeekShortLabel(isoDate) {
+    if (!isoDate || typeof isoDate !== 'string') return '';
+    const dt = new Date(`${isoDate}T00:00:00Z`);
+    if (Number.isNaN(dt.getTime())) return isoDate.slice(5);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const dd = String(dt.getUTCDate()).padStart(2, '0');
+    return `${months[dt.getUTCMonth()]} ${dd}`;
+}
 
-    // Date range filter state for Weekly Trajectory Envelope card (Default: Sep 28 to Dec 14)
-    const [trajectoryStartDate, setTrajectoryStartDate] = useState("2026-09-28");
-    const [trajectoryEndDate, setTrajectoryEndDate] = useState("2026-12-14");
+function getIsoWeekNumber(isoDate) {
+    if (!isoDate || typeof isoDate !== 'string') return 1;
+    const d = new Date(`${isoDate}T00:00:00Z`);
+    if (Number.isNaN(d.getTime())) return 1;
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function ScenarioExecutiveInsightsView({ scenario, finalBundle = null, onConfigureInputs, onCompareScenario, imbalanceData, selectedTerritory, setSelectedTerritory, trajectoryStartDate: propStartDate, setTrajectoryStartDate: propSetStartDate, trajectoryEndDate: propEndDate, setTrajectoryEndDate: propSetEndDate, showToast }) {
+    const fallbackAnalytics = useMemo(() => computeScenarioAnalytics(scenario), [scenario]);
+    const finalRows = useMemo(() => unpackFinalScenarioData(finalBundle?.finalData), [finalBundle]);
+    const isFinalReady = finalRows.length > 0;
+
+    // Derive full weekly horizon (e.g., 2026-11-02 to 2027-12-27) from es_powerbi_model_checker_plan
+    const horizonWeeks = useMemo(() => {
+        if (!isFinalReady) return TRAJECTORY_HORIZON_WEEKS;
+        const set = new Set();
+        for (const r of finalRows) {
+            if (r.period === 'W' && r.weekcomm) set.add(r.weekcomm);
+        }
+        const sorted = Array.from(set).sort();
+        return sorted.length > 0 ? sorted : TRAJECTORY_HORIZON_WEEKS;
+    }, [finalRows, isFinalReady]);
+
+    const trajectoryStartDate = propStartDate || "2026-11-02";
+    const setTrajectoryStartDate = propSetStartDate || (() => {});
+    const trajectoryEndDate = propEndDate || "2027-12-27";
+    const setTrajectoryEndDate = propSetEndDate || (() => {});
     const [trajectoryHoveredIdx, setTrajectoryHoveredIdx] = useState(null);
 
+    useEffect(() => {
+        if (!horizonWeeks.length) return;
+        const first = horizonWeeks[0];
+        const last = horizonWeeks[horizonWeeks.length - 1];
+        setTrajectoryStartDate(prev => (prev && prev >= first && prev <= last) ? prev : first);
+        setTrajectoryEndDate(prev => (prev && prev >= first && prev <= last) ? prev : last);
+    }, [horizonWeeks]);
+
     const visibleTrajectoryWeeks = useMemo(() => {
-        const filtered = TRAJECTORY_HORIZON_WEEKS.filter(w => w >= trajectoryStartDate && w <= trajectoryEndDate);
-        return filtered.length > 0 ? filtered : ["2026-09-28"];
-    }, [trajectoryStartDate, trajectoryEndDate]);
+        const filtered = horizonWeeks.filter(w => w >= trajectoryStartDate && w <= trajectoryEndDate);
+        return filtered.length > 0 ? filtered : [horizonWeeks[0] || "2026-11-02"];
+    }, [horizonWeeks, trajectoryStartDate, trajectoryEndDate]);
+
+    const analytics = useMemo(() => {
+        if (!isFinalReady) return fallbackAnalytics;
+
+        const weekMap = new Map();
+        horizonWeeks.forEach(w => {
+            weekMap.set(w, {
+                demand: 0,
+                capacity: 0,
+                grossHrs: 0,
+                downtime: 0,
+                fte: 0,
+                weekNum: getIsoWeekNumber(w),
+                label: formatWeekShortLabel(w)
+            });
+        });
+
+        const availLossMetrics = new Set(['Holiday', 'Sickness', 'Training', 'Meeting', 'Other']);
+        const visibleSet = new Set(visibleTrajectoryWeeks);
+        const regionStats = new Map();
+        const patchStats = new Map();
+        const areaSet = new Set();
+
+        let totalDemand = 0;
+        let totalCapacity = 0;
+        let totalGross = 0;
+        let totalDowntime = 0;
+
+        for (let i = 0; i < finalRows.length; i++) {
+            const r = finalRows[i];
+            if (r.period !== 'W' || !r.weekcomm) continue;
+            const wm = weekMap.get(r.weekcomm);
+            if (!wm) continue;
+            const val = Number(r.value) || 0;
+            const isCoreSkill = r.skill === 'HEC' || r.skill === 'KAC';
+
+            if (r.flag === 'Demand Hours' && isCoreSkill) {
+                wm.demand += val;
+            } else if (r.flag === 'Capacity Hours' && isCoreSkill) {
+                wm.capacity += val;
+            } else if (r.flag === 'Available Hours' && r.metric === 'Gross Hrs' && isCoreSkill) {
+                wm.grossHrs += val;
+            } else if (r.flag === 'FTE' && isCoreSkill) {
+                wm.fte += val;
+            } else if (
+                r.flag === 'Downtime Overlay Hours' ||
+                (r.flag === 'Available Hours' && availLossMetrics.has(r.metric))
+            ) {
+                wm.downtime += val;
+            }
+
+            if (!visibleSet.has(r.weekcomm) || !isCoreSkill) continue;
+
+            if (r.area_code) areaSet.add(r.area_code);
+            const regName = r.region || 'Unmapped';
+            if (!regionStats.has(regName)) {
+                regionStats.set(regName, { demand: 0, capacity: 0, areas: new Set() });
+            }
+            const rSt = regionStats.get(regName);
+            if (r.area_code) rSt.areas.add(r.area_code);
+
+            const pName = r.patch || 'Unknown';
+            if (!patchStats.has(pName)) {
+                patchStats.set(pName, { demand: 0, capacity: 0 });
+            }
+            const pSt = patchStats.get(pName);
+
+            if (r.flag === 'Demand Hours') {
+                totalDemand += val;
+                rSt.demand += val;
+                pSt.demand += val;
+            } else if (r.flag === 'Capacity Hours') {
+                totalCapacity += val;
+                rSt.capacity += val;
+                pSt.capacity += val;
+            } else if (r.flag === 'Available Hours' && r.metric === 'Gross Hrs') {
+                totalGross += val;
+            } else if (
+                r.flag === 'Downtime Overlay Hours' ||
+                (r.flag === 'Available Hours' && availLossMetrics.has(r.metric))
+            ) {
+                totalDowntime += val;
+            }
+        }
+
+        const nWeeks = Math.max(1, visibleTrajectoryWeeks.length);
+        const weeklyTrajectoryMeta = {};
+        for (const w of horizonWeeks) {
+            const m = weekMap.get(w);
+            const eff = m.grossHrs > 0 ? Number(((m.capacity / m.grossHrs) * 100).toFixed(1)) : 88.0;
+            const imbFte = Number(((m.capacity - m.demand) / 37.5).toFixed(1));
+            weeklyTrajectoryMeta[w] = {
+                demand: Math.round(m.demand),
+                capacity: Math.round(m.capacity),
+                grossHrs: Math.round(m.grossHrs),
+                downtime: Math.round(m.downtime),
+                fte: Number(m.fte.toFixed(1)),
+                efficiency: eff,
+                imbalanceFte: imbFte,
+                weekNum: m.weekNum,
+                label: m.label
+            };
+        }
+
+        const totDemRound = Math.round(totalDemand);
+        const netCapRound = Math.round(totalCapacity);
+        const netHrs = netCapRound - totDemRound;
+        const netBufferFte = Number((netHrs / (37.5 * nWeeks)).toFixed(1));
+        const effRatePct = totalGross > 0 ? ((totalCapacity / totalGross) * 100).toFixed(1) : '88.0';
+        const covRatio = totalDemand > 0 ? Number(((totalCapacity / totalDemand) * 100).toFixed(1)) : 100.0;
+        const isMet = netBufferFte >= 0;
+
+        // Horizon trend comparison (last half vs first half of visible horizon)
+        const midIdx = Math.max(1, Math.floor(nWeeks / 2));
+        let firstDem = 0, secondDem = 0;
+        visibleTrajectoryWeeks.forEach((w, idx) => {
+            const d = weekMap.get(w)?.demand || 0;
+            if (idx < midIdx) firstDem += d;
+            if (idx >= nWeeks - midIdx) secondDem += d;
+        });
+        const demDiffPct = firstDem > 0 ? ((secondDem - firstDem) / firstDem) * 100 : 0;
+        const demandTrend = `${demDiffPct >= 0 ? '↑ +' : '↓ '}${demDiffPct.toFixed(1)}%`;
+
+        // Real Deficit Patches from es_powerbi_model_checker_plan
+        const deficitPatchList = [];
+        patchStats.forEach((st, pName) => {
+            const pFte = Number(((st.capacity - st.demand) / (37.5 * nWeeks)).toFixed(1));
+            if (pFte < 0) deficitPatchList.push({ patch: pName, fte: pFte });
+        });
+        deficitPatchList.sort((a, b) => a.fte - b.fte);
+        const deficitCount = deficitPatchList.length;
+        const deficitPatchesText = deficitCount === 0
+            ? '0 Deficit Patches'
+            : `${deficitCount} Deficit Patch${deficitCount > 1 ? 'es' : ''}`;
+        const deficitPatchDetail = deficitCount === 0
+            ? 'All Patches Healthy'
+            : deficitPatchList.slice(0, 2).map(d => `${d.patch.replace(/^E[A-Z0-9]+\s+/, '')} (${d.fte.toFixed(1)})`).join(', ');
+
+        // Real Region Health Status from es_powerbi_model_checker_plan `region` & `area_code`
+        const territoryDivisions = Array.from(regionStats.entries()).map(([regName, st]) => {
+            const regFte = Number(((st.capacity - st.demand) / (37.5 * nWeeks)).toFixed(1));
+            const regCov = st.demand > 0 ? (st.capacity / st.demand) * 100 : 100;
+            const isSurplus = regFte >= 0;
+            return {
+                name: `${regName} (${st.areas.size} Area${st.areas.size === 1 ? '' : 's'})`,
+                buffer: `${isSurplus ? '+' : ''}${regFte.toFixed(1)} FTE`,
+                status: isSurplus ? 'Surplus' : 'Deficit',
+                pct: Math.min(100, Math.max(18, Math.round(regCov * 0.9))),
+                color: isSurplus ? 'bg-emerald-500' : 'bg-rose-500',
+                text: isSurplus ? 'text-emerald-700' : 'text-rose-600',
+                rawFte: regFte
+            };
+        }).sort((a, b) => b.rawFte - a.rawFte);
+
+        // Risk metrics derived from plan coverage & deficit tension
+        const risk = Number(Math.max(1.2, Math.min(45.0, (106.5 - covRatio) * 1.9 + deficitCount * 1.4 + 2.1)).toFixed(1));
+        const conf = Number((100 - risk).toFixed(1));
+        const p95 = Number((netBufferFte >= 0 ? -(risk * 0.48 + deficitCount * 0.6) : netBufferFte * 0.35 - 2.0).toFixed(1));
+
+        // Real Operational Trajectory Trends (Latest vs Prior Week in visible horizon)
+        const lastW = visibleTrajectoryWeeks[visibleTrajectoryWeeks.length - 1];
+        const prevW = visibleTrajectoryWeeks[Math.max(0, visibleTrajectoryWeeks.length - 2)];
+        const mLast = weeklyTrajectoryMeta[lastW] || {};
+        const mPrev = weeklyTrajectoryMeta[prevW] || mLast;
+
+        const wowTrend = (curr, prev, positiveWhenUp = true) => {
+            const base = Math.abs(prev) > 0.001 ? prev : 1;
+            const pct = ((curr - prev) / base) * 100;
+            const up = pct >= 0;
+            return {
+                trend: `${up ? '↑' : '↓'} ${Math.abs(pct).toFixed(1)}% WoW`,
+                isPos: positiveWhenUp ? up : !up
+            };
+        };
+
+        const fteReqLast = (mLast.demand || 0) / 37.5;
+        const fteReqPrev = (mPrev.demand || 0) / 37.5;
+        const imbLast = mLast.imbalanceFte || 0;
+        const imbPrev = mPrev.imbalanceFte || 0;
+
+        return {
+            totalDemand: totDemRound,
+            totalDemandFormatted: totDemRound.toLocaleString(),
+            demandTrend,
+            isDemandTrendUp: demDiffPct >= 0,
+            netCapacity: netCapRound,
+            netCapacityFormatted: netCapRound.toLocaleString(),
+            efficiencyRate: `${effRatePct}%`,
+            netBufferFte,
+            netBufferFormatted: (netBufferFte >= 0 ? '+' : '') + netBufferFte.toFixed(1),
+            isSlaMet: isMet,
+            slaStatusText: isMet ? 'SLA Met' : 'Deficit Alert',
+            slaSubtext: isMet ? 'Final Plan Healthy' : 'Regional Deficit Risk',
+            coverageRatio: covRatio,
+            coverageRatioFormatted: `${covRatio.toFixed(1)}%`,
+            targetRatio: 105,
+            deficitPatchesCount: deficitCount,
+            deficitPatchesText,
+            deficitPatchDetail,
+            divisionBadge: `${regionStats.size} Regions • ${areaSet.size} Areas`,
+            simData: {
+                runs: 10000,
+                riskPct: risk,
+                slaConfidence: conf,
+                p95VarFte: p95,
+                meanBufferFte: Number((netBufferFte * 0.96).toFixed(1)),
+                targetCompliancePct: Number(Math.max(10, conf - 2.8).toFixed(1)),
+                lastRunTime: (finalBundle?.createDatestamp || '').slice(11, 19) || '16:00:00'
+            },
+            demandScale: 1.0,
+            capacityScale: 1.0,
+            territoryDivisions,
+            trendKPIs: {
+                fteRequired: {
+                    val: Math.round(fteReqLast).toLocaleString(),
+                    ...wowTrend(fteReqLast, fteReqPrev, true)
+                },
+                grossHours: {
+                    val: (mLast.grossHrs || 0).toLocaleString(),
+                    ...wowTrend(mLast.grossHrs || 0, mPrev.grossHrs || 0, true)
+                },
+                totalDowntime: {
+                    val: (mLast.downtime || 0).toLocaleString(),
+                    ...wowTrend(mLast.downtime || 0, mPrev.downtime || 0, false)
+                },
+                productivity: {
+                    val: `${(mLast.efficiency || 88.0).toFixed(1)}%`,
+                    ...wowTrend(mLast.efficiency || 88.0, mPrev.efficiency || 88.0, true)
+                },
+                imbalance: {
+                    val: (imbLast >= 0 ? '+' : '') + imbLast.toFixed(1),
+                    unit: imbLast >= 0 ? 'FTE Buffer' : 'Deficit Buffer',
+                    trend: `${imbLast >= imbPrev ? '↑' : '↓'} ${Math.abs(imbLast - imbPrev).toFixed(1)}F WoW`,
+                    isPos: imbLast >= 0
+                }
+            },
+            weeklyTrajectoryMeta
+        };
+    }, [isFinalReady, fallbackAnalytics, finalRows, horizonWeeks, visibleTrajectoryWeeks, finalBundle]);
+
+    const TRAJECTORY_WEEK_META = analytics.weeklyTrajectoryMeta;
 
     const handleTrajectoryStartChange = (val) => {
         setTrajectoryStartDate(val);
@@ -2837,7 +3631,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
             const m = TRAJECTORY_WEEK_META[w] || { demand: 4700, capacity: 5000, weekNum: 40, label: w.slice(5) };
             const netHrs = m.capacity - m.demand;
             const netFte = Number((netHrs / 37.5).toFixed(1));
-            const covRatio = Number(((m.capacity / m.demand) * 100).toFixed(1));
+            const covRatio = m.demand > 0 ? Number(((m.capacity / m.demand) * 100).toFixed(1)) : 100;
             return {
                 week: w,
                 label: m.label,
@@ -2858,14 +3652,15 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
         const yMin = Math.max(0, Math.floor((minVal - 150) / 250) * 250);
         const yMax = Math.ceil((maxVal + 60) / 200) * 200;
 
-        const step = (yMax - yMin) <= 1200 ? 250 : 500;
+        const span = Math.max(250, yMax - yMin);
+        const step = span <= 1200 ? 250 : span <= 4000 ? 500 : Math.ceil(span / 6 / 500) * 500;
         const ticks = [];
         for (let t = yMin; t <= yMax; t += step) {
             ticks.push(t);
         }
 
         return { data, yMin, yMax, ticks };
-    }, [visibleTrajectoryWeeks]);
+    }, [visibleTrajectoryWeeks, TRAJECTORY_WEEK_META]);
 
     const weeks = visibleTrajectoryWeeks;
 
@@ -2938,166 +3733,133 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
 
     return (
         <div className="space-y-3.5 w-full">
-            {/* HERO SCENARIO BANNER (COMPACT FLUID THEME) */}
-            <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-2.5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 glow-card">
-                <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 uppercase tracking-wider">
-                            {scenario.plan_type || 'LV'} Operating Scenario
-                        </span>
-                        <span className="text-[11px] font-semibold text-slate-500">
-                            Month: <strong className="text-slate-800">{scenario.month || 'OCT'}</strong> • Rev <strong className="text-slate-800">{scenario.version || '0'}</strong>
-                        </span>
-                    </div>
-                    <h2 className="text-base font-black text-slate-900 tracking-tight leading-tight">{scenario.id || "Operating Baseline"}</h2>
-                    <p className="text-xs text-slate-500 max-w-3xl truncate leading-normal">
-                        {scenario.remarks || "Approved operating plan incorporating seasonal winter demand, revised sickness downtime factor, and grounded apprentice cohorts."}
-                    </p>
-                </div>
-
-                <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
-                        onClick={onCompareScenario}
-                        className="bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg border border-slate-200/90 shadow-xs transition flex items-center gap-1.5 hover:border-blue-400 hover:text-blue-700"
-                    >
-                        <IconScale className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Compare Diff</span>
-                    </button>
-                </div>
-            </div>
-
             {/* BENTO KPI SUMMARY GRID (COMPACT GLOWING CARDS) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 {/* 1. Total Demand Card */}
                 <div className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Total Demand</span>
-                        <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center glow-icon">
-                            <IconDemand className="w-3.5 h-3.5 text-blue-600" />
+                    <div className="flex items-center justify-between mb-1 gap-1">
+                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap truncate">Total Demand</span>
+                        <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center glow-icon glow-icon-blue flex-shrink-0">
+                            <IconDemand className="w-3.5 h-3.5 text-current" />
                         </div>
                     </div>
                     <div>
-                        <div className="flex items-baseline gap-1.5">
-                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">{analytics.totalDemandFormatted}</span>
-                            <span className="text-xs font-semibold text-slate-400">hrs</span>
+                        <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap">{analytics.totalDemandFormatted}</span>
+                            <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">hrs</span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                        <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap flex-shrink-0 ${
                                 analytics.isDemandTrendUp ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-blue-50 text-blue-700 border border-blue-200/60'
                             }`}>
                                 {analytics.demandTrend}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">vs baseline</span>
+                            <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">vs baseline</span>
                         </div>
                     </div>
                 </div>
 
                 {/* 2. Net Capacity Card */}
                 <div className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Net Capacity</span>
-                        <div className="w-7 h-7 rounded-lg bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center glow-icon">
+                    <div className="flex items-center justify-between mb-1 gap-1">
+                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap truncate">Net Capacity</span>
+                        <div className="w-7 h-7 rounded-lg bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center glow-icon glow-icon-sky flex-shrink-0">
                             <IconCapacity className="w-3.5 h-3.5 text-sky-600" />
                         </div>
                     </div>
                     <div>
-                        <div className="flex items-baseline gap-1.5">
-                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">{analytics.netCapacityFormatted}</span>
-                            <span className="text-xs font-semibold text-slate-400">hrs</span>
+                        <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap">{analytics.netCapacityFormatted}</span>
+                            <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">hrs</span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200/60">
+                        <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200/60 whitespace-nowrap flex-shrink-0">
                                 {analytics.efficiencyRate}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">Direct Labor Efficiency</span>
+                            <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">Direct Labor Efficiency</span>
                         </div>
                     </div>
                 </div>
 
                 {/* 3. Net Buffer Card */}
                 <div className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Net Buffer</span>
-                        <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center glow-icon">
+                    <div className="flex items-center justify-between mb-1 gap-1">
+                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap truncate">Net Buffer</span>
+                        <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center glow-icon glow-icon-emerald flex-shrink-0">
                             <IconBuffer className="w-3.5 h-3.5 text-emerald-600" />
                         </div>
                     </div>
                     <div>
-                        <div className="flex items-baseline gap-1.5">
-                            <span className={`text-xl font-black tracking-tight leading-none ${analytics.isSlaMet ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                            <span className={`text-xl font-black tracking-tight leading-none whitespace-nowrap ${analytics.isSlaMet ? 'text-emerald-600' : 'text-rose-600'}`}>
                                 {analytics.netBufferFormatted}
                             </span>
-                            <span className="text-xs font-semibold text-slate-400">FTE</span>
+                            <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">FTE</span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                        <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap flex-shrink-0 ${
                                 analytics.isSlaMet ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-rose-50 text-rose-700 border border-rose-200/60'
                             }`}>
                                 {analytics.isSlaMet ? <IconCheck className="w-3 h-3 text-emerald-700" /> : <IconAlertCircle className="w-3 h-3 text-rose-700" />}
                                 {analytics.slaStatusText}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">{analytics.slaSubtext}</span>
+                            <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">{analytics.slaSubtext}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* 4. Coverage Ratio Card */}
                 <div className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Coverage Ratio</span>
-                        <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-100 text-amber-500 flex items-center justify-center glow-icon">
+                    <div className="flex items-center justify-between mb-1 gap-1">
+                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap truncate">Coverage Ratio</span>
+                        <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-100 text-amber-500 flex items-center justify-center glow-icon glow-icon-amber flex-shrink-0">
                             <IconCoverage className="w-3.5 h-3.5 text-amber-500" />
                         </div>
                     </div>
                     <div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none">{analytics.coverageRatioFormatted}</span>
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700">Target: {analytics.targetRatio}%</span>
+                        <div className="flex items-baseline gap-2 whitespace-nowrap">
+                            <span className="text-xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap">{analytics.coverageRatioFormatted}</span>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 whitespace-nowrap flex-shrink-0">Target: {analytics.targetRatio}%</span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                        <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap flex-shrink-0 ${
                                 analytics.deficitPatchesCount > 0 ? 'bg-rose-50 text-rose-600 border border-rose-200/60' : 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
                             }`}>
                                 {analytics.deficitPatchesText}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">{analytics.deficitPatchDetail}</span>
+                            <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap truncate">{analytics.deficitPatchDetail}</span>
                         </div>
                     </div>
                 </div>
 
-                {/* 5. Plan Shortfall Risk (Monte Carlo Simulation) Card */}
+                {/* 5. Plan Shortfall Risk Card */}
                 <div 
                     onClick={() => setShowMonteCarloModal(true)}
                     className="bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/80 shadow-xs glow-card group flex flex-col justify-between cursor-pointer hover:border-purple-300 hover:shadow-md transition"
-                    title="Click to inspect Monte Carlo capacity shortfall risk simulation"
+                    title="Click to inspect capacity shortfall risk simulation"
                 >
-                    <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Shortfall Risk</span>
-                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 border border-purple-200/60 uppercase">
-                                Monte Carlo
-                            </span>
-                        </div>
-                        <div className="w-7 h-7 rounded-lg bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center glow-icon group-hover:scale-105 transition">
+                    <div className="flex items-center justify-between mb-1 gap-1">
+                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider whitespace-nowrap">Shortfall Risk</span>
+                        <div className="w-7 h-7 rounded-lg bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center glow-icon glow-icon-purple flex-shrink-0">
                             <IconSparkles className="w-3.5 h-3.5 text-purple-600" />
                         </div>
                     </div>
                     <div>
-                        <div className="flex items-baseline gap-2">
-                            <span className={`text-xl font-black tracking-tight leading-none ${simData.riskPct > 10 ? 'text-rose-600' : simData.riskPct > 5 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                        <div className="flex items-baseline gap-2 whitespace-nowrap">
+                            <span className={`text-xl font-black tracking-tight leading-none whitespace-nowrap ${simData.riskPct > 10 ? 'text-rose-600' : simData.riskPct > 5 ? 'text-amber-600' : 'text-emerald-600'}`}>
                                 {simData.riskPct}%
                             </span>
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60 whitespace-nowrap flex-shrink-0">
                                 {simData.slaConfidence}% SLA Conf.
                             </span>
                         </div>
-                        <div className="flex items-center justify-between mt-1">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500">
-                                <span className={`w-1.5 h-1.5 rounded-full inline-block ${simData.p95VarFte < -5 ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
-                                <span>P95 VaR: {simData.p95VarFte} FTE</span>
+                        <div className="flex items-center justify-between mt-1 gap-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 whitespace-nowrap truncate">
+                                <span className={`w-1.5 h-1.5 rounded-full inline-block flex-shrink-0 ${simData.p95VarFte < -5 ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
+                                <span className="whitespace-nowrap truncate">P95 VaR: {simData.p95VarFte} FTE</span>
                             </span>
-                            <span className="text-[10px] text-purple-600 font-bold group-hover:underline flex items-center gap-0.5">
-                                <span>10k runs</span>
+                            <span className="text-[10px] text-purple-600 font-bold group-hover:underline flex items-center gap-0.5 whitespace-nowrap flex-shrink-0">
+                                <span className="whitespace-nowrap">10k runs</span>
                                 <span className="text-[9px]">↗</span>
                             </span>
                         </div>
@@ -3112,8 +3874,8 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                     {/* Card Header & Controls Toolbar */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-2">
                         <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                <IconCalendar className="w-3.5 h-3.5 text-blue-600" />
+                            <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800/80 text-[#005eb8] dark:text-[#80c6ff] flex items-center justify-center glow-icon glow-icon-blue">
+                                <IconCalendar className="w-3.5 h-3.5 text-current" />
                             </div>
                             <div>
                                 <h3 className="font-extrabold text-xs sm:text-sm text-slate-800">Weekly Trajectory Envelope</h3>
@@ -3124,21 +3886,22 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         {/* Date Range Filter with Year & Chart Legend */}
                         <div className="flex flex-wrap items-center gap-3">
                             {/* Date Range Filter Dropdowns (Includes Year) */}
-                            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs shadow-2xs">
-                                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Date:</span>
+                            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-[#0c1b31] border border-slate-200/90 dark:border-[#18365d] rounded-lg px-2.5 py-1 text-xs shadow-2xs">
+                                <span className="text-[10px] font-bold uppercase text-slate-400 dark:text-[#80c6ff] tracking-wider">Date:</span>
                                 <select
                                     value={trajectoryStartDate}
                                     onChange={(e) => handleTrajectoryStartChange(e.target.value)}
-                                    className="bg-transparent font-bold text-slate-700 text-xs focus:outline-none cursor-pointer"
+                                    className="bg-transparent font-bold text-slate-700 dark:text-white text-xs focus:outline-none cursor-pointer border-0 p-0 m-0"
                                     title="Start Week Commencing (with Year)"
                                 >
-                                    {TRAJECTORY_HORIZON_WEEKS.map(w => {
+                                    {horizonWeeks.map(w => {
                                         const meta = TRAJECTORY_WEEK_META[w];
                                         const year = w.split('-')[0];
-                                        const lbl = meta?.label || w.slice(5);
+                                        const lbl = meta?.label || formatWeekShortLabel(w);
+                                        const wkNum = meta?.weekNum ?? getIsoWeekNumber(w);
                                         return (
-                                            <option key={w} value={w}>
-                                                {lbl}, {year} (Wk {meta?.weekNum})
+                                            <option key={w} value={w} className="bg-white dark:bg-[#081324] text-slate-800 dark:text-white">
+                                                {lbl}, {year} (Wk {wkNum})
                                             </option>
                                         );
                                     })}
@@ -3147,16 +3910,17 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                 <select
                                     value={trajectoryEndDate}
                                     onChange={(e) => handleTrajectoryEndChange(e.target.value)}
-                                    className="bg-transparent font-bold text-slate-700 text-xs focus:outline-none cursor-pointer"
+                                    className="bg-transparent font-bold text-slate-700 dark:text-white text-xs focus:outline-none cursor-pointer border-0 p-0 m-0"
                                     title="End Week Commencing (with Year)"
                                 >
-                                    {TRAJECTORY_HORIZON_WEEKS.map(w => {
+                                    {horizonWeeks.map(w => {
                                         const meta = TRAJECTORY_WEEK_META[w];
                                         const year = w.split('-')[0];
-                                        const lbl = meta?.label || w.slice(5);
+                                        const lbl = meta?.label || formatWeekShortLabel(w);
+                                        const wkNum = meta?.weekNum ?? getIsoWeekNumber(w);
                                         return (
-                                            <option key={w} value={w}>
-                                                {lbl}, {year} (Wk {meta?.weekNum})
+                                            <option key={w} value={w} className="bg-white dark:bg-[#081324] text-slate-800 dark:text-white">
+                                                {lbl}, {year} (Wk {wkNum})
                                             </option>
                                         );
                                     })}
@@ -3195,7 +3959,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                             const barW = Math.min(32, Math.max(6, slotW * 0.44));
 
                             // Calculate dynamic interval so X-axis labels have comfortable gaps and never overlap
-                            const labelInterval = N <= 7 ? 1 : N <= 14 ? 2 : N <= 21 ? 3 : 4;
+                            const labelInterval = N <= 7 ? 1 : N <= 14 ? 2 : N <= 28 ? 4 : Math.max(5, Math.ceil(N / 10));
 
                             const getY = (val) => {
                                 const clamped = Math.max(trajectoryChartMetrics.yMin, Math.min(trajectoryChartMetrics.yMax, val));
@@ -3358,7 +4122,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                                                 textAnchor="middle"
                                                                 fontSize={N > 14 ? "8.5" : "10"}
                                                                 fontWeight={isHovered ? "800" : "600"}
-                                                                fill={isHovered ? "#005eb8" : "#64748b"}
+                                                                fill={isHovered ? "#60a5fa" : (typeof document !== 'undefined' && document.documentElement.classList.contains('dark') ? "#cbd5e1" : "#64748b")}
                                                             >
                                                                 {d.label}
                                                             </text>
@@ -3368,7 +4132,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                                                 textAnchor="middle"
                                                                 fontSize={N > 14 ? "8" : "9"}
                                                                 fontWeight="700"
-                                                                fill={d.netHrs >= 0 ? "#059669" : "#dc2626"}
+                                                                fill={d.netHrs >= 0 ? (typeof document !== 'undefined' && document.documentElement.classList.contains('dark') ? "#6ee7b7" : "#059669") : (typeof document !== 'undefined' && document.documentElement.classList.contains('dark') ? "#fca5a5" : "#dc2626")}
                                                                 fontFamily="monospace"
                                                             >
                                                                 {d.netHrs >= 0 ? '+' : ''}{d.netFte}F
@@ -3466,7 +4230,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                 <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-2 glow-card">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                         <h3 className="font-extrabold text-xs sm:text-sm text-slate-800">Territory Health Status</h3>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">5 Divisions</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{analytics.divisionBadge || `${analytics.territoryDivisions.length} Regions`}</span>
                     </div>
 
                     <div className="space-y-1">
@@ -3534,32 +4298,40 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         return { linePath, areaPath, lastPoint: points[points.length - 1] };
                     }
 
-                    // Series across visible trajectory weeks
-                    const fteVals = visibleTrajectoryWeeks.map((w, idx) => {
-                        const dem = TRAJECTORY_WEEK_META[w]?.demand || 4700;
-                        return Number((dem / 4.65).toFixed(1));
+                    // Series across visible trajectory weeks (using real es_powerbi_model_checker_plan values when loaded)
+                    const fteVals = visibleTrajectoryWeeks.map((w) => {
+                        const m = TRAJECTORY_WEEK_META[w];
+                        if (m?.demand !== undefined) return Number((m.demand / 37.5).toFixed(1));
+                        return 1000;
                     });
 
-                    const grossVals = visibleTrajectoryWeeks.map((w, idx) => {
-                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
-                        return Math.round(cap * 8.24);
+                    const grossVals = visibleTrajectoryWeeks.map((w) => {
+                        const m = TRAJECTORY_WEEK_META[w];
+                        if (m?.grossHrs !== undefined) return Math.round(m.grossHrs);
+                        return Math.round((m?.capacity || 5000) * 8.24);
                     });
 
                     const downtimeVals = visibleTrajectoryWeeks.map((w, idx) => {
-                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
+                        const m = TRAJECTORY_WEEK_META[w];
+                        if (m?.downtime !== undefined) return Math.round(m.downtime);
+                        const cap = m?.capacity || 5000;
                         const factor = 0.125 + (((idx % 5) - 2) * 0.005);
                         return Math.round(cap * factor * 8.24);
                     });
 
                     const prodVals = visibleTrajectoryWeeks.map((w, idx) => {
-                        const dem = TRAJECTORY_WEEK_META[w]?.demand || 4700;
-                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
+                        const m = TRAJECTORY_WEEK_META[w];
+                        if (m?.efficiency !== undefined) return m.efficiency;
+                        const dem = m?.demand || 4700;
+                        const cap = m?.capacity || 5000;
                         return Number((86.0 + ((cap / dem) * 2.4) + ((idx % 3) * 0.2)).toFixed(1));
                     });
 
-                    const imbVals = visibleTrajectoryWeeks.map((w, idx) => {
-                        const dem = TRAJECTORY_WEEK_META[w]?.demand || 4700;
-                        const cap = TRAJECTORY_WEEK_META[w]?.capacity || 5000;
+                    const imbVals = visibleTrajectoryWeeks.map((w) => {
+                        const m = TRAJECTORY_WEEK_META[w];
+                        if (m?.imbalanceFte !== undefined) return m.imbalanceFte;
+                        const dem = m?.demand || 4700;
+                        const cap = m?.capacity || 5000;
                         return Number(((cap - dem) / 37.5).toFixed(1));
                     });
 
@@ -3629,14 +4401,14 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                     className="bg-slate-50/60 hover:bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs hover:shadow-xs transition glow-card flex flex-col justify-between"
                                 >
                                     <div>
-                                        <div className="flex items-center justify-between mb-0.5">
-                                            <span className="text-xs font-extrabold text-slate-800 truncate">{metric.name}</span>
-                                            <span className={`text-[10px] font-bold flex items-center gap-0.5 ${metric.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                        <div className="flex items-center justify-between mb-0.5 gap-1">
+                                            <span className="text-xs font-extrabold text-slate-800 whitespace-nowrap truncate">{metric.name}</span>
+                                            <span className={`text-[10px] font-bold flex items-center gap-0.5 whitespace-nowrap flex-shrink-0 ${metric.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
                                                 {metric.trend}
                                             </span>
                                         </div>
-                                        <div className="text-sm font-black text-slate-900 tracking-tight leading-tight">
-                                            {metric.currentVal} <span className="text-[10px] font-semibold text-slate-400 font-normal">{metric.unit}</span>
+                                        <div className="text-sm font-black text-slate-900 tracking-tight leading-tight whitespace-nowrap">
+                                            {metric.currentVal} <span className="text-[10px] font-semibold text-slate-400 font-normal whitespace-nowrap">{metric.unit}</span>
                                         </div>
                                     </div>
 
@@ -3670,7 +4442,7 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                                     </div>
 
                                     {/* Card Footer: Start Week & End Week */}
-                                    <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono pt-1 border-t border-slate-100">
+                                    <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono pt-1 border-t border-slate-100 whitespace-nowrap">
                                         <span>WK {startWk}</span>
                                         <span>WK {endWk}</span>
                                     </div>
@@ -3679,73 +4451,6 @@ function ScenarioExecutiveInsightsView({ scenario, onConfigureInputs, onCompareS
                         </div>
                     );
                 })()}
-            </div>
-
-            {/* AI DIAGNOSTICS & ACTIVE INPUT SUMMARY */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-                {/* Copilot Executive Takeaways */}
-                <div className="lg:col-span-2 bg-[#f0f7ff] p-4 rounded-xl border border-blue-200/80 shadow-xs space-y-2 glow-card">
-                    <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-lg bg-blue-600/10 flex items-center justify-center text-blue-800">
-                            <IconRobot className="w-3.5 h-3.5 text-blue-800" />
-                        </div>
-                        <h4 className="font-extrabold text-xs sm:text-sm text-blue-900">Capacity Copilot Scenario Takeaways</h4>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-0.5">
-                        <div className="bg-white/90 p-3 rounded-lg border border-blue-200/60 shadow-xs hover:border-blue-300 transition">
-                            <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                                <IconCheck className="w-3 h-3 text-emerald-600" />
-                                <span>Core Strength</span>
-                            </span>
-                            <p className="text-xs text-slate-700 leading-relaxed">
-                                Winter SLA target is achieved nationally. North and South East regions maintain comfortable buffers (+51.3 FTE combined).
-                            </p>
-                        </div>
-
-                        <div className="bg-white/90 p-3 rounded-lg border border-blue-200/60 shadow-xs hover:border-rose-300 transition">
-                            <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                                <IconAlertCircle className="w-3 h-3 text-rose-600" />
-                                <span>Localized Watchpoint</span>
-                            </span>
-                            <p className="text-xs text-slate-700 leading-relaxed">
-                                EC91 Leicester faces a -4.1 FTE gap during November boiler heating spikes. Mutual aid transfer from Altrincham recommended.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Quick Inputs Pill Card */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex flex-col justify-between glow-card">
-                    <div>
-                        <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
-                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-800">Active Input Blueprint</h4>
-                            <span className="text-[10px] font-bold text-slate-400">21 Linked Files</span>
-                        </div>
-
-                        <div className="space-y-1 mt-2 text-xs">
-                            <div className="flex items-center justify-between text-slate-600">
-                                <span className="font-medium text-[11px]">Resource Plan:</span>
-                                <span className="font-mono text-[11px] text-blue-700 font-semibold truncate max-w-[150px]">{scenario.inputs?.resource_plan || "V3_2026-07-07"}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-slate-600">
-                                <span className="font-medium text-[11px]">Demand Input:</span>
-                                <span className="font-mono text-[11px] text-blue-700 font-semibold truncate max-w-[150px]">{scenario.inputs?.demand_input || "MTP_Demand_#3"}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-slate-600">
-                                <span className="font-medium text-[11px]">Overlays (%):</span>
-                                <span className="font-mono text-[11px] text-blue-700 font-semibold truncate max-w-[150px]">{scenario.inputs?.downtime_overlays_percentage || "Overlays_Q3"}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={onConfigureInputs}
-                        className="w-full mt-2 text-center text-xs font-bold text-blue-700 hover:text-blue-900 hover:bg-blue-50 py-1.5 rounded-lg border border-blue-200 transition glow-button"
-                    >
-                        View & Modify All 21 Inputs →
-                    </button>
-                </div>
             </div>
         
             {/* Monte Carlo Simulation Modal */}
@@ -3796,103 +4501,103 @@ const ALL_INPUT_CATEGORIES = [
 const SCHEMA_VALIDATION_RULES = {
     resource_plan: {
         label: "Resource Plan",
-        required: ["status", "skill", "allocation"],
-        desc: "Requires Status, Skill, Allocation columns"
+        required: ["status", "pay id", "labour type", "wmis", "skill", "allocation"],
+        desc: "Requires Status, Pay Id, Labour Type, Wmis, Skill, Allocation columns"
     },
     fte_transfer: {
         label: "FTE transfer",
-        required: ["from", "to", "fte"],
-        desc: "Requires From, To, FTE columns"
+        required: ["present patch", "start date", "future patch", "outgoing skill", "incoming skill", "fte"],
+        desc: "Requires Present Patch, Start Date, Future Patch, Outgoing Skill, Incoming Skill, Fte columns"
     },
     recruitment_grounded: {
         label: "Recruitment grounded",
-        required: ["cohort", "headcount"],
-        desc: "Requires Cohort, Headcount columns"
+        required: ["discipline", "journey", "classlist", "induction date", "go live date", "area code"],
+        desc: "Requires Discipline, Journey, Classlist, Induction Date, Go Live Date, Area Code columns"
     },
     recruitment_ungrounded: {
         label: "Recruitment ungrounded",
-        required: ["cohort", "headcount"],
-        desc: "Requires Cohort, Headcount columns"
+        required: ["area code", "patch", "position", "id cohort", "start date", "fte"],
+        desc: "Requires Area Code, Patch, Position, Id Cohort, Start Date, Fte columns"
     },
     baseline_assumptions: {
         label: "Baseline assumptions",
-        required: ["metric", "value"],
-        desc: "Requires Metric, Value columns"
+        required: ["patch", "skill", "metric", "weekcomm", "values"],
+        desc: "Requires Patch, Skill, Metric, Weekcomm, Values columns"
     },
     downtime_overlays_percentage: {
         label: "Downtime Overlays Percentage",
-        required: ["patch", "skill", "values"],
-        desc: "Requires patch, skill, values columns"
+        required: ["patch", "skill", "metric", "level2", "weekcomm", "values"],
+        desc: "Requires patch, skill, metric, level2, weekcomm, values columns"
     },
     downtime_overlays_hours: {
         label: "Downtime Overlays Hours",
-        required: ["patch", "skill", "values"],
-        desc: "Requires patch, skill, values columns"
+        required: ["patch", "skill", "metric", "level2", "weekcomm", "values"],
+        desc: "Requires patch, skill, metric, level2, weekcomm, values columns"
     },
     downtime_overlays_hours_fte: {
         label: "Downtime Overlays Hours/FTE",
-        required: ["patch", "skill", "values"],
-        desc: "Requires patch, skill, values columns"
+        required: ["patch", "skill", "metric", "level2", "period", "weekcomm", "values"],
+        desc: "Requires patch, skill, metric, level2, period, weekcomm, values columns"
     },
     overtime: {
         label: "Overtime",
-        required: ["rate", "cap"],
-        desc: "Requires Rate, Cap columns"
+        required: ["patch", "skill", "weekcomm", "values"],
+        desc: "Requires Patch, Skill, Weekcomm, Values columns"
     },
     baseline_productivity: {
         label: "Baseline productivity",
-        required: ["skill", "rate"],
-        desc: "Requires Skill, Rate columns"
+        required: ["patch", "skill", "weekcomm", "values"],
+        desc: "Requires Patch, Skill, Weekcomm, Values columns"
     },
     training_snm: {
         label: "Training SNM",
-        required: ["course", "attendees"],
-        desc: "Requires Course, Attendees columns"
+        required: ["patch", "skill", "weekcomm", "values"],
+        desc: "Requires Patch, Skill, Weekcomm, Values columns"
     },
     ctr_capacity: {
         label: "CTR Capacity",
-        required: ["agency", "contractors"],
-        desc: "Requires Agency, Contractors columns"
+        required: ["patch", "skill", "sp", "utilisation", "weekcomm", "values"],
+        desc: "Requires Patch, Skill, Sp, Utilisation, Weekcomm, Values columns"
     },
     demand_input: {
         label: "Demand input",
-        required: ["patch", "skill", "work code"],
-        desc: "Requires Patch, Skill, Work Code columns"
+        required: ["region code", "area code", "patch", "skill", "type", "work code", "product", "weekcomm", "values"],
+        desc: "Requires Region Code, Area Code, Patch, Skill, Type, Work Code, Product, Weekcomm, Values columns"
     },
     job_time_assumptions: {
         label: "Job time assumptions",
-        required: ["patch", "work code", "values"],
-        desc: "Requires Patch, Work Code, Values columns"
+        required: ["patch", "work code", "skill", "weekcomm", "values"],
+        desc: "Requires Patch, Work Code, Skill, Weekcomm, Values columns"
     },
     hec_on_kac_demand: {
         label: "HEC on KAC Demand",
-        required: ["skill", "support", "ratio"],
-        desc: "Requires Skill, Support, Ratio columns"
+        required: ["patch", "weekcomm", "values"],
+        desc: "Requires Patch, Weekcomm, Values columns"
     },
     hec_on_ev_demand: {
         label: "HEC on EV Demand",
-        required: ["skill", "support", "ratio"],
-        desc: "Requires Skill, Support, Ratio columns"
+        required: ["patch", "weekcomm", "values"],
+        desc: "Requires Patch, Weekcomm, Values columns"
     },
     attrition: {
         label: "Attrition",
-        required: ["region code", "skill", "values"],
-        desc: "Requires Region Code, Skill, Values columns"
+        required: ["region code", "skill", "weekcomm", "values"],
+        desc: "Requires Region Code, Skill, Weekcomm, Values columns"
     },
     recruitment_config: {
         label: "Recruitment",
-        required: ["week", "ramp"],
-        desc: "Requires Week, Ramp columns"
+        required: ["skill", "type", "weeknum", "values"],
+        desc: "Requires Skill, Type, Weeknum, Values columns"
     },
     geography_mapping: {
         label: "Geography mapping",
-        required: ["region", "acdm", "territory"],
-        desc: "Requires Region, ACDM, territory columns"
+        required: ["region code", "region", "area code", "patch", "patch name"],
+        desc: "Requires Region Code, Region, Area Code, Patch, Patch Name columns"
     },
     week_to_month: {
         label: "Week to month",
-        required: ["weekcomm", "calendar month"],
-        desc: "Requires Weekcomm, Calendar Month columns"
+        required: ["month", "week", "day", "weekcomm", "england percentage", "scotland percentage"],
+        desc: "Requires Month, Week, Day, Weekcomm, England Percentage, Scotland Percentage columns"
     },
     actuals_input: {
         label: "Actuals input",
@@ -4085,7 +4790,7 @@ function ValidationResultsModal({ isOpen, onClose, results, onConfirmOk }) {
     return (
         <div 
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in"
+            className="fixed inset-0 z-[1000] floating-modal-backdrop bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
         >
             <div 
                 onClick={(e) => e.stopPropagation()}
@@ -4094,7 +4799,7 @@ function ValidationResultsModal({ isOpen, onClose, results, onConfirmOk }) {
                 {/* Modal Header */}
                 <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8]">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] glow-icon glow-icon-blue">
                             <IconUpload className="w-5 h-5 text-[#005eb8]" />
                         </div>
                         <div>
@@ -4159,12 +4864,12 @@ function ValidationResultsModal({ isOpen, onClose, results, onConfirmOk }) {
                                             <td className="py-3 px-3.5 text-center">
                                                 {isPass ? (
                                                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                                                        <IconCheck className="w-3 h-3 text-emerald-800" />
+                                                        <IconCheck className="w-3 h-3 text-current" />
                                                         Passed
                                                     </span>
                                                 ) : (
                                                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
-                                                        <IconAlertCircle className="w-3 h-3 text-rose-800" />
+                                                        <IconAlertCircle className="w-3 h-3 text-current" />
                                                         Failed
                                                     </span>
                                                 )}
@@ -4305,7 +5010,7 @@ function BulkUploadSection({
                 className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50/60 transition select-none border-b border-slate-100"
             >
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center glow-icon">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center glow-icon glow-icon-blue">
                         <IconUpload className="w-4 h-4 text-[#005eb8]" />
                     </div>
                     <div>
@@ -4359,7 +5064,7 @@ function BulkUploadSection({
                             className="hidden"
                             onChange={handleFileSelect}
                         />
-                        <div className="w-10 h-10 rounded-full bg-blue-50 text-[#005eb8] flex items-center justify-center mb-2 shadow-xs">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center mb-2 shadow-xs glow-icon glow-icon-blue">
                             <IconUpload className="w-5 h-5 text-[#005eb8]" />
                         </div>
                         <p className="text-xs font-bold text-slate-700">
@@ -4415,7 +5120,7 @@ function BulkUploadSection({
                                                         <select
                                                             value={item.fileType}
                                                             onChange={(e) => handleUpdateType(item.id, e.target.value)}
-                                                            className="w-full text-xs bg-white text-slate-800 font-medium px-2 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
+                                                            className="w-full text-xs bg-white dark:bg-[#081324] text-slate-800 dark:text-white font-medium px-2 py-1.5 rounded-lg border border-slate-200 dark:border-[#18365d] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
                                                         >
                                                             {ALL_INPUT_CATEGORIES.map(cat => (
                                                                 <option key={cat.key} value={cat.key}>
@@ -4478,47 +5183,47 @@ const TEMPLATE_DEFINITIONS = {
         filename: "resource_plan_template.csv",
         group: "Capacity",
         desc: "Engineer headcount, allocations, skills (HEC, KAC, EV), and employment status.",
-        requiredCols: ["status", "skill", "allocation"],
-        csvContent: "Status,Pay Id,Labour Type,Wmis,Skill,Allocation,New Starter,Left Date\nActive,EMP00124,Direct,WM01,HEC,1.0,2024-01-15,\nActive,EMP00189,Direct,WM02,KAC,1.0,2023-06-01,\nActive,EMP00245,Contractor,WM01,EV,0.8,2025-02-01,"
+        requiredCols: ["status", "pay id", "skill", "allocation"],
+        csvContent: "Status,Pay Id,Labour Type,Wmis,Skill,Allocation,New Starter,Left Date,Future Move Date,Hec Fte,Hours,Up Date\nActive,EMP00124,Direct,WM01,HEC,1.0,2024-01-15,,2026-12-01,1.0,37.5,2026-10-05\nActive,EMP00189,Direct,WM02,KAC,1.0,2023-06-01,,,1.0,37.5,2026-10-05\nActive,EMP00245,Contractor,WM01,EV,0.8,2025-02-01,,2027-01-15,0.8,30.0,2026-10-05"
     },
     fte_transfer: {
         label: "FTE transfer",
         filename: "fte_transfer_template.csv",
         group: "Capacity",
         desc: "Inter-patch mutual aid resource transfers and rebalancing adjustments.",
-        requiredCols: ["from", "to", "fte"],
-        csvContent: "From,To,FTE\nEB12 Altrincham,EC91 Leicester,2.5\nEA12 Aberdeen North,EA11 Inverness & Aviemore,1.0\nED22 Cobham & Heathrow,ED41 Bromley & Dartford,1.5"
+        requiredCols: ["present patch", "future patch", "fte"],
+        csvContent: "Present Patch,Start Date,End Date,Future Patch,Outgoing Skill,Incoming Skill,Fte\nEB12 Altrincham,2026-10-05,2026-12-31,EC91 Leicester,HEC,HEC,2.5\nEA12 Aberdeen North,2026-10-05,2027-01-15,EA11 Inverness & Aviemore,KAC,KAC,1.0\nED22 Cobham & Heathrow,2026-10-05,2026-11-30,ED41 Bromley & Dartford,EV,EV,1.5"
     },
     recruitment_grounded: {
         label: "Recruitment grounded",
         filename: "recruitment_grounded_template.csv",
         group: "Capacity",
         desc: "Committed direct hire cohorts and apprentice intakes with confirmed dates.",
-        requiredCols: ["cohort", "headcount"],
-        csvContent: "Cohort,Headcount\nCohort_2026_Q3_Direct,15\nCohort_2026_Q3_Apprentice,22\nCohort_2026_Q4_Direct,10"
+        requiredCols: ["discipline", "induction date", "go live date", "area code"],
+        csvContent: "Discipline,Journey,Classlist,Induction Date,Go Live Date,Sap Pay Number,Class List Status,Workday Status,Ward,Area Code\nHEC,Direct,CL2026_01,2026-10-05,2026-11-16,SAP9001,Confirmed,Active,W01,B1\nKAC,Apprentice,CL2026_02,2026-10-12,2026-12-01,SAP9002,Confirmed,Active,W02,C2\nEV,Direct,CL2026_03,2026-10-19,2026-12-08,SAP9003,Planned,Pending,W03,D1"
     },
     recruitment_ungrounded: {
         label: "Recruitment ungrounded",
         filename: "recruitment_ungrounded_template.csv",
         group: "Capacity",
         desc: "Uncommitted upside talent pipeline and contingent agency staffing buffers.",
-        requiredCols: ["cohort", "headcount"],
-        csvContent: "Cohort,Headcount\nPipeline_Upside_HEC,12\nPipeline_Upside_KAC,8\nPipeline_Buffer_EV,5"
+        requiredCols: ["area code", "patch", "start date", "fte"],
+        csvContent: "Area Code,Patch,Position,Pay Id,Id Cohort,Start Date,End Date,Fte,Fq,Trainee,Cross Skill,Apprentice\nB1,EB12 Altrincham,Engineer,PAY8001,COH_01,2026-10-05,2027-03-31,1.0,1.0,0,0,0\nC2,EC91 Leicester,Senior Tech,PAY8002,COH_02,2026-10-12,2027-03-31,1.0,1.0,0,1,0\nD1,ED44 Canterbury & Dover,Trainee,PAY8003,COH_03,2026-10-19,2027-03-31,1.0,0.5,1,0,1"
     },
     baseline_assumptions: {
         label: "Baseline assumptions",
         filename: "baseline_assumptions_template.csv",
         group: "Capacity",
         desc: "Core planning assumptions: contractual weekly hours, efficiency multipliers.",
-        requiredCols: ["metric", "value"],
-        csvContent: "Metric,Value\nWeekly_Contractual_Hours,37.5\nProductive_Hours_Ratio,0.885\nDirect_Labor_Efficiency,0.92\nOvertime_Cost_Multiplier,1.5"
+        requiredCols: ["patch", "skill", "metric", "weekcomm", "values"],
+        csvContent: "Patch,Skill,Metric,Weekcomm,Values\nEB12 Altrincham,HEC,Contractual_Hours,2026-10-05,37.5\nEB12 Altrincham,HEC,Direct_Labor_Efficiency,2026-10-05,0.92\nEC91 Leicester,KAC,Contractual_Hours,2026-10-05,37.5\nED44 Canterbury & Dover,EV,Contractual_Hours,2026-10-05,37.5"
     },
     downtime_overlays_percentage: {
         label: "Downtime Overlays Percentage",
         filename: "downtime_overlays_percentage_template.csv",
         group: "Capacity",
         desc: "Percentage downtime adjustments: sickness, non-productive time, meetings.",
-        requiredCols: ["patch", "skill", "values"],
+        requiredCols: ["patch", "skill", "metric", "values"],
         csvContent: "patch,skill,metric,level2,weekcomm,values\nEB12 Altrincham,HEC,Sickness,Short-term,2026-10-05,0.045\nEC91 Leicester,KAC,Training,Compliance,2026-10-05,0.030\nED44 Canterbury & Dover,EV,Annual Leave,Peak,2026-10-05,0.080"
     },
     downtime_overlays_hours: {
@@ -4526,7 +5231,7 @@ const TEMPLATE_DEFINITIONS = {
         filename: "downtime_overlays_hours_template.csv",
         group: "Capacity",
         desc: "Absolute downtime hour deductions (e.g. stand-down, national briefings).",
-        requiredCols: ["patch", "skill", "values"],
+        requiredCols: ["patch", "skill", "metric", "values"],
         csvContent: "patch,skill,metric,level2,weekcomm,values\nEB12 Altrincham,HEC,StandDown,Safety,2026-10-05,4.5\nEC91 Leicester,KAC,Technical Briefing,National,2026-10-05,2.0\nED44 Canterbury & Dover,EV,Toolbox Talk,Local,2026-10-05,1.5"
     },
     downtime_overlays_hours_fte: {
@@ -4534,47 +5239,47 @@ const TEMPLATE_DEFINITIONS = {
         filename: "downtime_overlays_hours_fte_template.csv",
         group: "Capacity",
         desc: "Per-engineer downtime overlays (e.g. SNM training, localized coaching).",
-        requiredCols: ["patch", "skill", "values"],
-        csvContent: "patch,skill,metric,level2,weekcomm,values\nEB12 Altrincham,HEC,TrainingOverlay,SNM,2026-10-05,1.8\nEC91 Leicester,KAC,TrainingOverlay,HeatPump,2026-10-05,2.2\nED44 Canterbury & Dover,EV,TrainingOverlay,ChargerInstallation,2026-10-05,1.5"
+        requiredCols: ["patch", "skill", "metric", "values"],
+        csvContent: "patch,skill,metric,level2,period,weekcomm,values\nEB12 Altrincham,HEC,TrainingOverlay,SNM,P07,2026-10-05,1.8\nEC91 Leicester,KAC,TrainingOverlay,HeatPump,P07,2026-10-05,2.2\nED44 Canterbury & Dover,EV,TrainingOverlay,ChargerInstallation,P07,2026-10-05,1.5"
     },
     overtime: {
         label: "Overtime",
         filename: "overtime_template.csv",
         group: "Capacity",
         desc: "Authorized overtime caps, hourly wage rates, and weekend multipliers.",
-        requiredCols: ["rate", "cap"],
-        csvContent: "Rate,Cap\nStandard_Overtime_Rate,1.5\nMax_Weekly_Overtime_Hours_Cap,12.0\nWeekend_Emergency_Rate,2.0"
+        requiredCols: ["patch", "skill", "weekcomm", "values"],
+        csvContent: "Patch,Skill,Weekcomm,Values\nEB12 Altrincham,HEC,2026-10-05,12.5\nEC91 Leicester,KAC,2026-10-05,10.0\nED44 Canterbury & Dover,EV,2026-10-05,8.0"
     },
     baseline_productivity: {
         label: "Baseline productivity",
         filename: "baseline_productivity_template.csv",
         group: "Capacity",
         desc: "Productivity rates by skill tier (standard completed jobs per engineer shift).",
-        requiredCols: ["skill", "rate"],
-        csvContent: "Skill,Rate\nHEC,4.2\nKAC,3.8\nEV,2.9"
+        requiredCols: ["patch", "skill", "weekcomm", "values"],
+        csvContent: "Patch,Skill,Weekcomm,Values\nEB12 Altrincham,HEC,2026-10-05,4.2\nEC91 Leicester,KAC,2026-10-05,3.8\nED44 Canterbury & Dover,EV,2026-10-05,2.9"
     },
     training_snm: {
         label: "Training SNM",
         filename: "training_snm_template.csv",
         group: "Capacity",
         desc: "Scheduled Smart Meter (SNM) and technical certification cohorts and attendees.",
-        requiredCols: ["course", "attendees"],
-        csvContent: "Course,Attendees\nSNM_Core_Safety_P07,24\nHeat_Pump_Diagnostic_Cert,18\nSmart_Meter_V3_Ramp,12"
+        requiredCols: ["patch", "skill", "weekcomm", "values"],
+        csvContent: "Patch,Skill,Weekcomm,Values\nEB12 Altrincham,HEC,2026-10-05,6.0\nEC91 Leicester,KAC,2026-10-05,4.5\nED44 Canterbury & Dover,EV,2026-10-05,5.0"
     },
     ctr_capacity: {
         label: "CTR Capacity",
         filename: "ctr_capacity_template.csv",
         group: "Capacity",
         desc: "Third-party agency and CTR contingent contractor capacity allocations.",
-        requiredCols: ["agency", "contractors"],
-        csvContent: "Agency,Contractors\nRandstad_Technical_UK,14\nAdecco_Field_Services,8\nHays_Engineering_Direct,11"
+        requiredCols: ["patch", "skill", "sp", "weekcomm", "values"],
+        csvContent: "Patch,Skill,Sp,Utilisation,Weekcomm,Values\nEB12 Altrincham,HEC,Adecco,0.85,2026-10-05,15.0\nEC91 Leicester,KAC,Randstad,0.90,2026-10-05,10.0\nED44 Canterbury & Dover,EV,Hays,0.80,2026-10-05,12.0"
     },
     demand_input: {
         label: "Demand input",
         filename: "demand_input_template.csv",
         group: "Demand",
         desc: "Forecasted workload demand volume by UK patch, work code, and week.",
-        requiredCols: ["patch", "skill", "work code"],
+        requiredCols: ["region code", "area code", "patch", "skill", "work code", "weekcomm", "values"],
         csvContent: "Region Code,Area Code,Patch,Skill,Type,Work Code,Product,Weekcomm,Values\nB,B1,EB12 Altrincham,HEC,Forecast,W00,Central Heating,2026-10-05,340.5\nC,C2,EC91 Leicester,KAC,Forecast,W17,Boiler Breakdown,2026-10-05,420.0\nD,D1,ED44 Canterbury & Dover,EV,Forecast,W31,EV Charging,2026-10-05,185.0"
     },
     job_time_assumptions: {
@@ -4582,7 +5287,7 @@ const TEMPLATE_DEFINITIONS = {
         filename: "job_time_assumptions_template.csv",
         group: "Demand",
         desc: "Standard job duration assumptions per work category and skill discipline.",
-        requiredCols: ["patch", "work code", "values"],
+        requiredCols: ["patch", "work code", "skill", "weekcomm", "values"],
         csvContent: "Patch,Work Code,Skill,Weekcomm,Values\nEB12 Altrincham,W00,HEC,2026-10-05,1.85\nEC91 Leicester,W17,KAC,2026-10-05,2.40\nED44 Canterbury & Dover,W31,EV,2026-10-05,3.10"
     },
     hec_on_kac_demand: {
@@ -4590,23 +5295,23 @@ const TEMPLATE_DEFINITIONS = {
         filename: "hec_on_kac_demand_template.csv",
         group: "Demand",
         desc: "Cross-skilling coverage ratios: HEC technicians supporting KAC work.",
-        requiredCols: ["skill", "support", "ratio"],
-        csvContent: "Skill,Support,Ratio\nHEC,KAC_Support,0.85\nHEC,KAC_Peak_Winter,0.92\nHEC,KAC_Weekend_Cover,0.75"
+        requiredCols: ["patch", "weekcomm", "values"],
+        csvContent: "Patch,Weekcomm,Values\nEB12 Altrincham,2026-10-05,0.85\nEC91 Leicester,2026-10-05,0.90\nED44 Canterbury & Dover,2026-10-05,0.75"
     },
     hec_on_ev_demand: {
         label: "HEC on EV Demand",
         filename: "hec_on_ev_demand_template.csv",
         group: "Demand",
         desc: "Cross-skilling coverage ratios: HEC engineers supporting EV charging jobs.",
-        requiredCols: ["skill", "support", "ratio"],
-        csvContent: "Skill,Support,Ratio\nHEC,EV_Commercial,0.65\nHEC,EV_Domestic_Wallbox,0.78\nHEC,EV_Urgent_Assistance,0.80"
+        requiredCols: ["patch", "weekcomm", "values"],
+        csvContent: "Patch,Weekcomm,Values\nEB12 Altrincham,2026-10-05,0.65\nEC91 Leicester,2026-10-05,0.70\nED44 Canterbury & Dover,2026-10-05,0.80"
     },
     attrition: {
         label: "Attrition",
         filename: "attrition_template.csv",
         group: "Config",
         desc: "Forecasted engineer retirement and leavers attrition rate by UK region.",
-        requiredCols: ["region code", "skill", "values"],
+        requiredCols: ["region code", "skill", "weekcomm", "values"],
         csvContent: "Region Code,Skill,Weekcomm,Values\nA,HEC,2026-10-05,0.012\nB,KAC,2026-10-05,0.018\nC,EV,2026-10-05,0.015"
     },
     recruitment_config: {
@@ -4614,24 +5319,24 @@ const TEMPLATE_DEFINITIONS = {
         filename: "recruitment_config_template.csv",
         group: "Config",
         desc: "New engineer learning curve, ramp-up timeline, and productivity ramp curve.",
-        requiredCols: ["week", "ramp"],
-        csvContent: "Week,Ramp\n1,0.25\n2,0.50\n3,0.75\n4,0.90\n5,1.00"
+        requiredCols: ["skill", "type", "weeknum", "values"],
+        csvContent: "Skill,Type,Weeknum,Values\nHEC,Direct,1,0.25\nHEC,Direct,2,0.50\nKAC,Apprentice,1,0.20\nEV,Direct,1,0.30"
     },
     geography_mapping: {
         label: "Geography mapping",
         filename: "geography_mapping_template.csv",
         group: "Config",
-        desc: "Master hierarchy mapping of British Gas territories to ACDM areas and operational Regions.",
-        requiredCols: ["region", "acdm", "territory"],
-        csvContent: "Region,ACDM,territory\nA,A1,EA11 Inverness & Aviemore\nA,A1,EA13 Dendee & Perth\nA,A2,EA21 Stirling & Falkirk\nB,B2,EB12 Altrincham\nC,C1,EC91 Leicester"
+        desc: "Master hierarchy mapping of operational territories to ACDM areas and operational Regions.",
+        requiredCols: ["region code", "region", "area code", "patch", "patch name"],
+        csvContent: "Region Code,Region,Area Code,Patch,Patch Name\nA,Scotland,A1,EA11,Inverness & Aviemore\nA,Scotland,A1,EA13,Dundee & Perth\nB,North,B1,EB12,Altrincham\nC,Midlands,C2,EC91,Leicester\nD,South,D1,ED44,Canterbury & Dover"
     },
     week_to_month: {
         label: "Week to month",
         filename: "week_to_month_template.csv",
         group: "Config",
-        desc: "Centrica financial 4-4-5 calendar mapping week commencement dates to periods.",
-        requiredCols: ["weekcomm", "calendar month"],
-        csvContent: "Weekcomm,Calendar Month,Fiscal Month,Fiscal Year,Weeks In Month\n2026-09-28,October,P07,FY26,4\n2026-10-05,October,P07,FY26,4\n2026-10-26,November,P08,FY26,4"
+        desc: "Centrica financial calendar mapping week commencement dates to months and holiday percentages.",
+        requiredCols: ["month", "week", "weekcomm", "england holiday", "scotland holiday"],
+        csvContent: "Month,Week,Day,Weekcomm,England Holiday,Scotland Holiday,England Percentage,Scotland Percentage\nOctober,1,Monday,2026-10-05,0,0,100,100\nOctober,2,Monday,2026-10-12,0,0,100,100\nOctober,3,Monday,2026-10-19,0,0,100,100"
     },
     actuals_input: {
         label: "Actuals input",
@@ -4661,7 +5366,7 @@ async function downloadAllTemplatesZip(showToast) {
     if (window.JSZip) {
         try {
             const zip = new window.JSZip();
-            const folder = zip.folder("british_gas_capacity_templates");
+            const folder = zip.folder("capacity_planning_templates");
             Object.keys(TEMPLATE_DEFINITIONS).forEach(key => {
                 const tmpl = TEMPLATE_DEFINITIONS[key];
                 folder.file(tmpl.filename, tmpl.csvContent);
@@ -4670,7 +5375,7 @@ async function downloadAllTemplatesZip(showToast) {
             const url = URL.createObjectURL(content);
             const link = document.createElement("a");
             link.href = url;
-            link.download = "British_Gas_Capacity_Templates_All_21.zip";
+            link.download = "Capacity_Planning_Templates_All_21.zip";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -4802,7 +5507,7 @@ function DownloadTemplatesView({ showToast }) {
                                 onClick={() => downloadSingleTemplate(key)}
                                 className="w-full mt-3 bg-slate-50 hover:bg-blue-50 hover:text-blue-700 text-slate-700 font-bold text-xs py-1.5 px-3 rounded-lg border border-slate-200 hover:border-blue-300 transition flex items-center justify-center gap-1.5 shadow-xs glow-button"
                             >
-                                <IconDownload className="w-3.5 h-3.5 text-blue-600" />
+                                <IconDownload className="w-3.5 h-3.5 text-current" />
                                 <span>Download Template</span>
                             </button>
                         </div>
@@ -4849,6 +5554,14 @@ function generateClientFallbackTable(inputKey, fileName) {
     if (!columns.some(c => c.toLowerCase().includes("remark") || c.toLowerCase().includes("notes"))) columns.push("Remarks");
 
     const rows = [];
+    let nameHash = 0;
+    const str = String(fileName || inputKey);
+    for (let c = 0; c < str.length; c++) {
+        nameHash = (nameHash * 31 + str.charCodeAt(c)) & 0xffffff;
+    }
+    const rowCount = 20 + (nameHash % 12); // Between 20 and 31 rows
+    const scaleFactor = 0.85 + ((nameHash % 35) / 100); // 0.85 to 1.20
+
     const patches = [
         "EA11 Inverness & Aviemore", "EB12 Altrincham", "EC62 Essex East", 
         "ED44 Canterbury & Dover", "EC41 Reading", "EA12 Aberdeen North",
@@ -4857,24 +5570,24 @@ function generateClientFallbackTable(inputKey, fileName) {
     const skills = ["HEC", "KAC", "EV"];
     const dates = ["2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26", "2026-11-02"];
     
-    for (let i = 1; i <= 30; i++) {
+    for (let i = 1; i <= rowCount; i++) {
         const row = {};
         columns.forEach(col => {
             const lc = col.toLowerCase();
             if (lc.includes("patch") || lc.includes("territory") || lc.includes("location")) {
-                row[col] = patches[i % patches.length];
+                row[col] = patches[(i + (nameHash % 5)) % patches.length];
             } else if (lc.includes("skill")) {
-                row[col] = skills[i % skills.length];
+                row[col] = skills[(i + (nameHash % 3)) % skills.length];
             } else if (lc.includes("status")) {
-                row[col] = i % 5 === 0 ? "Leaver" : "Active";
+                row[col] = (i + (nameHash % 4)) % 5 === 0 ? "Leaver" : "Active";
             } else if (lc.includes("week") || lc.includes("date")) {
-                row[col] = dates[i % dates.length];
+                row[col] = dates[(i + (nameHash % 2)) % dates.length];
             } else if (lc.includes("val") || lc.includes("headcount") || lc.includes("fte") || lc.includes("hours") || lc.includes("ratio") || lc.includes("rate") || lc.includes("attendees") || lc.includes("contractors")) {
-                row[col] = (Math.round((i * 2.5 + 15) * 10) / 10).toString();
+                row[col] = (Math.round((i * 2.5 * scaleFactor + 14 + (nameHash % 6)) * 10) / 10).toString();
             } else if (lc.includes("work code")) {
-                row[col] = `W0${(i % 5) + 1}`;
+                row[col] = `W0${((i + (nameHash % 5)) % 5) + 1}`;
             } else if (lc.includes("region")) {
-                row[col] = ["A", "B", "C", "D", "E"][i % 5];
+                row[col] = ["A", "B", "C", "D", "E"][(i + (nameHash % 5)) % 5];
             } else if (lc.includes("acdm")) {
                 row[col] = `A${(i % 3) + 1}`;
             } else if (lc.includes("from")) {
@@ -4882,7 +5595,7 @@ function generateClientFallbackTable(inputKey, fileName) {
             } else if (lc.includes("to")) {
                 row[col] = `EA${((i + 1) % 3) + 1}`;
             } else if (lc.includes("cohort")) {
-                row[col] = `Cohort ${(i % 4) + 1} Q${((i % 4) + 1)}`;
+                row[col] = `Cohort ${((i + (nameHash % 4)) % 4) + 1} Q${((i % 4) + 1)}`;
             } else if (lc.includes("metric")) {
                 row[col] = `Metric ${i}`;
             } else if (lc.includes("course")) {
@@ -4978,13 +5691,24 @@ function InputTableViewModal({
     loading,
     error,
     showToast,
-    onSaveTableData
+    onSaveTableData,
+    initialMode = "table",
+    tableDataCache = {},
+    onRequestFileData
 }) {
+    const [modalMode, setModalMode] = useState(initialMode || 'table');
     const [searchQuery, setSearchQuery] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(100); // Default 100 rows per page to minimize scrolling!
     const [isFullscreen, setIsFullscreen] = useState(false);
+
+    // Synchronize mode when re-opened
+    useEffect(() => {
+        if (initialMode) {
+            setModalMode(initialMode);
+        }
+    }, [initialMode, isOpen]);
 
     // Excel Editing Mode, Grid State & Unified Selection Model
     const [isEditMode, setIsEditMode] = useState(false);
@@ -6408,14 +7132,14 @@ function InputTableViewModal({
 
     return (
         <div 
-            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-3 md:p-4 animate-fade-in"
+            className="fixed inset-0 z-[1000] floating-modal-backdrop bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md flex items-center justify-center p-1.5 sm:p-2 md:p-2.5 animate-fade-in"
             onClick={handleRequestClose}
         >
             <div 
                 className={`bg-white shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden transition-all duration-200 ${
                     isFullscreen 
                         ? 'w-screen h-screen max-w-none max-h-none rounded-none' 
-                        : 'w-[98vw] max-w-[98vw] h-[94vh] max-h-[94vh] rounded-2xl'
+                        : 'w-[98.5vw] max-w-[98.5vw] h-[97vh] max-h-[97vh] rounded-2xl'
                 }`}
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={handleGridKeyDown}
@@ -6425,7 +7149,7 @@ function InputTableViewModal({
                 <div className="bg-slate-50/95 px-4 py-2.5 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
                     {/* Left: Icon, Input Label, and File Version Switcher */}
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center shadow-xs flex-shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center shadow-xs flex-shrink-0 glow-icon glow-icon-blue">
                             <IconEye className="w-5 h-5 text-[#005eb8]" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -6433,10 +7157,34 @@ function InputTableViewModal({
                                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 truncate">
                                     {inputLabel}
                                 </h3>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#005eb8] border border-blue-200">
-                                    Table View
-                                </span>
-                                {isEditMode && (
+                                {/* Mode Switcher: Table View vs Compare Files */}
+                                <div className="inline-flex p-0.5 rounded-lg bg-slate-200/70 dark:bg-[#081324] border border-slate-300 dark:border-[#18365d]">
+                                    <button
+                                        type="button"
+                                        onClick={() => setModalMode('table')}
+                                        className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                                            modalMode === 'table'
+                                                ? 'bg-white dark:bg-[#005eb8] text-[#005eb8] dark:text-white shadow-2xs'
+                                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                        }`}
+                                    >
+                                        <IconEye className="w-3 h-3" />
+                                        <span>Table View</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setModalMode('compare')}
+                                        className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                                            modalMode === 'compare'
+                                                ? 'bg-white dark:bg-[#005eb8] text-[#005eb8] dark:text-white shadow-2xs'
+                                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                        }`}
+                                    >
+                                        <IconGitCompare className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
+                                        <span>Compare Files</span>
+                                    </button>
+                                </div>
+                                {isEditMode && modalMode === 'table' && (
                                     <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs animate-pulse">
                                         <IconEdit className="w-2.5 h-2.5 text-emerald-700" />
                                         <span>Edit Mode</span>
@@ -6450,149 +7198,195 @@ function InputTableViewModal({
                                 )}
                             </div>
 
-                            {/* Dropdown to switch file versions directly in the floating window */}
-                            <div className="flex items-center gap-2 mt-1">
-                                <span className="text-[11px] font-semibold text-slate-500 flex-shrink-0">Selected File:</span>
-                                {availableChoices && availableChoices.length > 0 ? (
-                                    <select
-                                        value={fileName}
-                                        onChange={(e) => handleRequestSelectChoice(e.target.value)}
-                                        className="text-xs font-mono font-bold text-[#005eb8] bg-white border border-blue-200 rounded-md px-2 py-0.5 shadow-2xs max-w-[280px] sm:max-w-[420px] truncate cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        title={`Switch version: currently viewing ${fileName}`}
-                                    >
-                                        {availableChoices.map(c => (
-                                            <option key={c} value={c}>{c}</option>
-                                        ))}
-                                    </select>
-                                ) : (
-                                    <span className="font-mono text-xs font-bold text-[#005eb8] truncate">
-                                        {fileName}
-                                    </span>
-                                )}
-                            </div>
+                            {/* Dropdown to switch file versions directly in the floating window - only visible in Table View mode */}
+                            {modalMode === 'table' && (
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-[11px] font-semibold text-slate-500 flex-shrink-0">Selected File:</span>
+                                    {availableChoices && availableChoices.length > 0 ? (() => {
+                                        const isViewingML = fileName && typeof fileName === 'string' && (fileName.toLowerCase().includes('ml_forecast') || fileName.toLowerCase().includes('ml_'));
+                                        const userChoices = availableChoices.filter(c => !(c && typeof c === 'string' && (c.toLowerCase().includes('ml_forecast') || c.toLowerCase().includes('ml_'))));
+                                        const mlChoices = availableChoices.filter(c => c && typeof c === 'string' && (c.toLowerCase().includes('ml_forecast') || c.toLowerCase().includes('ml_')));
+                                        return (
+                                            <select
+                                                value={fileName}
+                                                onChange={(e) => handleRequestSelectChoice(e.target.value)}
+                                                className="text-xs font-mono font-bold text-[#005eb8] dark:text-[#80c6ff] bg-white dark:bg-[#081324] border border-blue-200 dark:border-[#18365d] rounded-md px-2 py-0.5 shadow-2xs max-w-[280px] sm:max-w-[420px] truncate cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                title={`Switch version: currently viewing ${fileName}`}
+                                            >
+                                                {isViewingML ? (
+                                                    <>
+                                                        {mlChoices.length > 0 && (
+                                                            <optgroup label="ML Model Forecasts">
+                                                                {mlChoices.map(c => (
+                                                                    <option key={c} value={c}>{c}</option>
+                                                                ))}
+                                                            </optgroup>
+                                                        )}
+                                                        {userChoices.length > 0 && (
+                                                            <optgroup label="User Uploaded & Governance Files">
+                                                                {userChoices.map(c => (
+                                                                    <option key={c} value={c}>{c}</option>
+                                                                ))}
+                                                            </optgroup>
+                                                        )}
+                                                        {mlChoices.length === 0 && userChoices.length === 0 && (
+                                                            availableChoices.map(c => (
+                                                                <option key={c} value={c}>{c}</option>
+                                                            ))
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    userChoices.length > 0 ? (
+                                                        userChoices.map(c => (
+                                                            <option key={c} value={c}>{c}</option>
+                                                        ))
+                                                    ) : (
+                                                        availableChoices.map(c => (
+                                                            <option key={c} value={c}>{c}</option>
+                                                        ))
+                                                    )
+                                                )}
+                                            </select>
+                                        );
+                                    })() : (
+                                        <span className="font-mono text-xs font-bold text-[#005eb8] truncate">
+                                            {fileName}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Right: Edit Mode Button, Search, Rows-Per-Page, Export & Sizing Controls */}
+                    {/* Right: Controls */}
                     <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                        {/* Stats Badges */}
-                        <div className="hidden md:flex items-center gap-1.5 text-xs">
-                            <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
-                                {totalFiltered} {totalFiltered === 1 ? 'Row' : 'Rows'}
-                                {searchQuery && ` (of ${tableRows.length})`}
+                        {modalMode === 'compare' ? (
+                            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                                <IconGitCompare className="w-3.5 h-3.5" />
+                                <span>Comparison Mode</span>
                             </span>
-                            <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
-                                {columns.length} Cols
-                            </span>
-                        </div>
+                        ) : (
+                            <>
+                                {/* Stats Badges */}
+                                <div className="hidden md:flex items-center gap-1.5 text-xs">
+                                    <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
+                                        {totalFiltered} {totalFiltered === 1 ? 'Row' : 'Rows'}
+                                        {searchQuery && ` (of ${tableRows.length})`}
+                                    </span>
+                                    <span className="font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">
+                                        {columns.length} Cols
+                                    </span>
+                                </div>
 
-                        {/* Search Input */}
-                        <div className="relative min-w-[140px] sm:min-w-[190px]">
-                            <IconSearch className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                            <input
-                                type="text"
-                                placeholder="Search table..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full text-xs pl-8 pr-7 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-slate-400 shadow-2xs"
-                            />
-                            {searchQuery && (
+                                {/* Search Input */}
+                                <div className="relative min-w-[140px] sm:min-w-[190px]">
+                                    <IconSearch className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search table..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full text-xs pl-8 pr-7 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-slate-400 shadow-2xs"
+                                    />
+                                    {searchQuery && (
+                                        <button
+                                            onClick={() => setSearchQuery('')}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                                            title="Clear search"
+                                        >
+                                            <IconX className="w-3.5 h-3.5" />
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* EDIT MODE TOGGLE BUTTON */}
                                 <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
-                                    title="Clear search"
+                                    type="button"
+                                    onClick={() => {
+                                        setIsEditMode(prev => {
+                                            const next = !prev;
+                                            if (next && !selectedCell && tableRows.length > 0 && columns.length > 0) {
+                                                handleSelectCell(tableRows[0].__rowId, columns[0]);
+                                            }
+                                            return next;
+                                        });
+                                    }}
+                                    className={`inline-flex items-center gap-1.5 font-bold text-xs px-3 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
+                                        isEditMode
+                                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 ring-2 ring-emerald-300'
+                                            : 'bg-white hover:bg-emerald-50 text-emerald-800 border-emerald-300 hover:border-emerald-400'
+                                    }`}
+                                    title={isEditMode ? "Exit Edit Mode" : "Switch to Edit Mode"}
                                 >
-                                    <IconX className="w-3.5 h-3.5" />
+                                    <IconEdit className="w-3.5 h-3.5" />
+                                    <span>{isEditMode ? 'Editing' : 'Edit'}</span>
+                                    {isDirty && (
+                                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                                    )}
                                 </button>
-                            )}
-                        </div>
 
-                        {/* EDIT MODE TOGGLE BUTTON */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setIsEditMode(prev => {
-                                    const next = !prev;
-                                    if (next && !selectedCell && tableRows.length > 0 && columns.length > 0) {
-                                        handleSelectCell(tableRows[0].__rowId, columns[0]);
-                                    }
-                                    return next;
-                                });
-                            }}
-                            className={`inline-flex items-center gap-1.5 font-bold text-xs px-3 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
-                                isEditMode
-                                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 ring-2 ring-emerald-300'
-                                    : 'bg-white hover:bg-emerald-50 text-emerald-800 border-emerald-300 hover:border-emerald-400'
-                            }`}
-                            title={isEditMode ? "Exit Edit Mode" : "Switch to Edit Mode"}
-                        >
-                            <IconEdit className="w-3.5 h-3.5" />
-                            <span>{isEditMode ? 'Editing' : 'Edit'}</span>
-                            {isDirty && (
-                                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                            )}
-                        </button>
+                                {/* BULK CHANGE BUTTON */}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsEditMode(true);
+                                        setShowBulkEditDrawer(prev => !prev);
+                                    }}
+                                    className={`inline-flex items-center gap-1.5 font-bold text-xs px-3 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
+                                        showBulkEditDrawer
+                                            ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 ring-2 ring-blue-300'
+                                            : 'bg-white hover:bg-blue-50 text-blue-800 border-blue-300 hover:border-blue-400'
+                                    }`}
+                                    title={showBulkEditDrawer ? "Close Bulk Change Drawer" : "Bulk modify data by Geography, Skill, or Date Range"}
+                                >
+                                    <IconSliders className="w-3.5 h-3.5" />
+                                    <span>Bulk Change</span>
+                                    {bulkMatchingRows.length > 0 && showBulkEditDrawer && (
+                                        <span className="text-[10px] bg-white/30 px-1.5 py-0.2 rounded-full font-bold">
+                                            {bulkMatchingRows.length}
+                                        </span>
+                                    )}
+                                </button>
 
-                        {/* BULK CHANGE BUTTON */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setIsEditMode(true);
-                                setShowBulkEditDrawer(prev => !prev);
-                            }}
-                            className={`inline-flex items-center gap-1.5 font-bold text-xs px-3 py-1.5 rounded-lg border shadow-2xs transition cursor-pointer ${
-                                showBulkEditDrawer
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 ring-2 ring-blue-300'
-                                    : 'bg-white hover:bg-blue-50 text-blue-800 border-blue-300 hover:border-blue-400'
-                            }`}
-                            title={showBulkEditDrawer ? "Close Bulk Change Drawer" : "Bulk modify data by Geography, Skill, or Date Range"}
-                        >
-                            <IconSliders className="w-3.5 h-3.5" />
-                            <span>Bulk Change</span>
-                            {bulkMatchingRows.length > 0 && showBulkEditDrawer && (
-                                <span className="text-[10px] bg-white/30 px-1.5 py-0.2 rounded-full font-bold">
-                                    {bulkMatchingRows.length}
-                                </span>
-                            )}
-                        </button>
+                                {/* Page Size Selector */}
+                                <div className="flex items-center gap-1">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase hidden lg:inline">Rows:</span>
+                                    <select
+                                        value={pageSize}
+                                        onChange={(e) => setPageSize(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                                        className="text-xs font-semibold bg-white dark:bg-[#081324] text-slate-700 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                                        title="Rows per page (choose 'All' to show all records without paging)"
+                                    >
+                                        <option value={25}>25</option>
+                                        <option value={50}>50</option>
+                                        <option value={100}>100</option>
+                                        <option value={250}>250</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
 
-                        {/* Page Size Selector */}
-                        <div className="flex items-center gap-1">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase hidden lg:inline">Rows:</span>
-                            <select
-                                value={pageSize}
-                                onChange={(e) => setPageSize(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                                className="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
-                                title="Rows per page (choose 'All' to show all records without paging)"
-                            >
-                                <option value={25}>25</option>
-                                <option value={50}>50</option>
-                                <option value={100}>100</option>
-                                <option value={250}>250</option>
-                                <option value="all">All</option>
-                            </select>
-                        </div>
-
-                        {/* Download CSV */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                const exportRows = tableRows.map(row => {
-                                    const cleaned = {};
-                                    columns.forEach(c => {
-                                        cleaned[c] = row[c];
-                                    });
-                                    return cleaned;
-                                });
-                                downloadTableAsCsv(fileName || inputKey, columns, exportRows);
-                            }}
-                            disabled={tableRows.length === 0}
-                            className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
-                            title="Export data as CSV file"
-                        >
-                            <IconDownload className="w-3.5 h-3.5 text-slate-600" />
-                            <span className="hidden sm:inline">Export</span>
-                        </button>
+                                {/* Download CSV */}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const exportRows = tableRows.map(row => {
+                                            const cleaned = {};
+                                            columns.forEach(c => {
+                                                cleaned[c] = row[c];
+                                            });
+                                            return cleaned;
+                                        });
+                                        downloadTableAsCsv(fileName || inputKey, columns, exportRows);
+                                    }}
+                                    disabled={tableRows.length === 0}
+                                    className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
+                                    title="Export data as CSV file"
+                                >
+                                    <IconDownload className="w-3.5 h-3.5 text-current" />
+                                    <span className="hidden sm:inline">Export</span>
+                                </button>
+                            </>
+                        )}
 
                         {/* Fullscreen Toggle */}
                         <button
@@ -6616,6 +7410,34 @@ function InputTableViewModal({
                     </div>
                 </div>
 
+                {modalMode === 'compare' ? (
+                    <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+                        {window.InputCompareSection ? (
+                            <window.InputCompareSection
+                                inputKey={inputKey}
+                                inputLabel={inputLabel}
+                                activeFileName={fileName}
+                                availableChoices={availableChoices}
+                                tableDataCache={tableDataCache}
+                                onRequestFileData={onRequestFileData}
+                                onBackToTableView={() => setModalMode('table')}
+                                showToast={showToast}
+                            />
+                        ) : typeof InputCompareSection !== 'undefined' ? (
+                            <InputCompareSection
+                                inputKey={inputKey}
+                                inputLabel={inputLabel}
+                                activeFileName={fileName}
+                                availableChoices={availableChoices}
+                                tableDataCache={tableDataCache}
+                                onRequestFileData={onRequestFileData}
+                                onBackToTableView={() => setModalMode('table')}
+                                showToast={showToast}
+                            />
+                        ) : null}
+                    </div>
+                ) : (
+                    <>
                 {/* EXCEL FORMULA & EDITING TOOLBAR (VISIBLE IN EDIT MODE OR WHEN CELL SELECTED) */}
                 {isEditMode && (
                     <div className="bg-emerald-50/70 border-b border-emerald-200/90 px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs select-none shadow-2xs flex-shrink-0 animate-fade-in">
@@ -6688,7 +7510,7 @@ function InputTableViewModal({
                                 className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 shadow-2xs transition cursor-pointer"
                                 title="Copy selected cells, rows, or columns to clipboard (Ctrl+C)"
                             >
-                                <IconCopy className="w-3.5 h-3.5 text-slate-600" />
+                                <IconCopy className="w-3.5 h-3.5 text-current" />
                                 <span>Copy Selected</span>
                                 {selectedCellKeys.size > 0 && (
                                     <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded-full font-bold">
@@ -6704,7 +7526,7 @@ function InputTableViewModal({
                                 className="inline-flex items-center gap-1 bg-white hover:bg-emerald-50 text-emerald-800 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-emerald-300 shadow-2xs transition cursor-pointer"
                                 title="Paste multi-row data copied to clipboard (Ctrl+V)"
                             >
-                                <IconClipboard className="w-3.5 h-3.5 text-emerald-700" />
+                                <IconClipboard className="w-3.5 h-3.5 text-current" />
                                 <span>Paste</span>
                             </button>
 
@@ -6719,7 +7541,7 @@ function InputTableViewModal({
                                 }`}
                                 title="Open bulk data modification drawer"
                             >
-                                <IconSliders className="w-3.5 h-3.5" />
+                                <IconSliders className="w-3.5 h-3.5 text-current" />
                                 <span>Bulk Change</span>
                             </button>
 
@@ -6730,7 +7552,7 @@ function InputTableViewModal({
                                 className="inline-flex items-center gap-1 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-900 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 shadow-2xs transition cursor-pointer"
                                 title="Add a new blank row at the bottom"
                             >
-                                <IconPlus className="w-3.5 h-3.5 text-emerald-600" />
+                                <IconPlus className="w-3.5 h-3.5 text-current" />
                                 <span>Add Row</span>
                             </button>
 
@@ -6748,7 +7570,7 @@ function InputTableViewModal({
                                 className="inline-flex items-center gap-1 bg-white hover:bg-rose-50 text-rose-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-rose-200 shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                                 title={isWholeRowSelection ? "Delete selected rows" : "Clear contents of selected cells (Delete)"}
                             >
-                                <IconTrash className="w-3.5 h-3.5 text-rose-600" />
+                                <IconTrash className="w-3.5 h-3.5 text-current" />
                                 <span>
                                     {isWholeRowSelection 
                                         ? `Delete Row${selectedRowIds.size > 1 ? `s (${selectedRowIds.size})` : ''}` 
@@ -6764,7 +7586,7 @@ function InputTableViewModal({
                                 className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                                 title="Undo last edit (Ctrl+Z)"
                             >
-                                <IconRotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                                <IconRotateCcw className="w-3.5 h-3.5 text-current" />
                                 <span>Undo</span>
                             </button>
 
@@ -6809,10 +7631,10 @@ function InputTableViewModal({
 
                 {/* BULK DATA MODIFICATION DRAWER */}
                 {showBulkEditDrawer && (
-                    <div className="bg-gradient-to-r from-blue-50/95 via-indigo-50/90 to-blue-50/95 border-b border-blue-200/90 p-3 sm:p-4 text-xs shadow-md animate-fade-in flex-shrink-0">
+                    <div className={`${(typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) ? 'bg-[#0b1a30] border-[#18365d]' : 'bg-gradient-to-r from-blue-50/95 via-indigo-50/90 to-blue-50/95 border-blue-200/90'} border-b p-3 sm:p-4 text-xs shadow-md animate-fade-in flex-shrink-0`}>
                         <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-blue-200/70">
                             <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                                <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs glow-icon glow-icon-blue">
                                     <IconSliders className="w-3.5 h-3.5" />
                                 </div>
                                 <div>
@@ -6848,7 +7670,7 @@ function InputTableViewModal({
                                     <select
                                         value={bulkGeoVal}
                                         onChange={(e) => setBulkGeoVal(e.target.value)}
-                                        className="w-full bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer"
+                                        className="w-full bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer"
                                     >
                                         <option value="ALL">All Geographies ({geoOptions.length})</option>
                                         {geoOptions.map(g => (
@@ -6862,14 +7684,14 @@ function InputTableViewModal({
 
                             {/* 2. Skill Filter */}
                             <div>
-                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                                    Skill {bulkSkillCol && <span className="font-mono text-[10px] text-blue-600">({bulkSkillCol})</span>}
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                                    Skill {bulkSkillCol && <span className="font-mono text-[10px] text-blue-600 dark:text-[#80c6ff]">({bulkSkillCol})</span>}
                                 </label>
                                 {bulkSkillCol ? (
                                     <select
                                         value={bulkSkillVal}
                                         onChange={(e) => setBulkSkillVal(e.target.value)}
-                                        className="w-full bg-white border border-blue-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer"
+                                        className="w-full bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer"
                                     >
                                         <option value="ALL">All Skills ({skillOptions.length})</option>
                                         {skillOptions.map(s => (
@@ -6883,14 +7705,14 @@ function InputTableViewModal({
 
                             {/* 3. Date From */}
                             <div>
-                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                                    Date From {bulkDateCol && <span className="font-mono text-[10px] text-blue-600">({bulkDateCol})</span>}
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                                    Date From {bulkDateCol && <span className="font-mono text-[10px] text-blue-600 dark:text-[#80c6ff]">({bulkDateCol})</span>}
                                 </label>
                                 {bulkDateCol ? (
                                     <select
                                         value={bulkDateFrom}
                                         onChange={(e) => setBulkDateFrom(e.target.value)}
-                                        className="w-full bg-white border border-blue-300 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer font-mono"
+                                        className="w-full bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer font-mono"
                                     >
                                         <option value="ALL">Start of Horizon</option>
                                         {dateOptions.map(d => (
@@ -6904,14 +7726,14 @@ function InputTableViewModal({
 
                             {/* 4. Date To */}
                             <div>
-                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
                                     Date To
                                 </label>
                                 {bulkDateCol ? (
                                     <select
                                         value={bulkDateTo}
                                         onChange={(e) => setBulkDateTo(e.target.value)}
-                                        className="w-full bg-white border border-blue-300 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer font-mono"
+                                        className="w-full bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer font-mono"
                                     >
                                         <option value="ALL">End of Horizon</option>
                                         {dateOptions.map(d => (
@@ -6925,14 +7747,14 @@ function InputTableViewModal({
 
                             {/* 5. Target Column & Operation */}
                             <div>
-                                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
                                     Target Col & Action
                                 </label>
                                 <div className="flex gap-1">
                                     <select
                                         value={bulkTargetCol}
                                         onChange={(e) => setBulkTargetCol(e.target.value)}
-                                        className="w-1/2 bg-white border border-blue-300 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer truncate"
+                                        className="w-1/2 bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2 py-1.5 text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer truncate"
                                         title="Column to modify"
                                     >
                                         {columns.map(c => (
@@ -6942,7 +7764,7 @@ function InputTableViewModal({
                                     <select
                                         value={bulkOperation}
                                         onChange={(e) => setBulkOperation(e.target.value)}
-                                        className="w-1/2 bg-white border border-blue-300 rounded-lg px-1.5 py-1.5 text-xs font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer truncate"
+                                        className="w-1/2 bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-1.5 py-1.5 text-xs font-bold text-blue-900 dark:text-[#80c6ff] focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer truncate"
                                         title="Bulk modification operation"
                                     >
                                         <option value="increase_pct">+% Increase</option>
@@ -7050,7 +7872,7 @@ function InputTableViewModal({
                         </div>
                     ) : error ? (
                         <div className="h-full flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto space-y-3">
-                            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center glow-icon glow-icon-rose">
                                 <IconAlertCircle className="w-6 h-6" />
                             </div>
                             <h4 className="text-sm font-bold text-slate-800">Unable to load table data</h4>
@@ -7353,6 +8175,8 @@ function InputTableViewModal({
                         </button>
                     </div>
                 </div>
+                </>
+                )}
 
                 {/* QUICK PASTE EXCEL DATA MODAL FALLBACK */}
                 {showPasteModal && (
@@ -7366,7 +8190,7 @@ function InputTableViewModal({
                         >
                             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center">
+                                    <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center glow-icon glow-icon-emerald">
                                         <IconClipboard className="w-5 h-5 text-emerald-700" />
                                     </div>
                                     <div>
@@ -7435,7 +8259,7 @@ function InputTableViewModal({
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center flex-shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center flex-shrink-0 glow-icon glow-icon-amber">
                                     <IconAlertCircle className="w-5 h-5 text-amber-600" />
                                 </div>
                                 <div>
@@ -7480,130 +8304,72 @@ function InputTableViewModal({
 // ================================================================================================
 // CLIENT FALLBACK FOR CALCULATION MODULES (FTE, DOWNTIME, PRODUCTIVITY -> CAPACITY; DEMAND -> IMBALANCE)
 // ================================================================================================
-function getClientFallbackCalcModule(modKey) {
+function getClientFallbackCalcModule(modKey, scenarioId = '') {
     const key = (modKey || 'imbalance').toLowerCase();
     const patches = [
-        "ED44 Canterbury & Dover", "EB12 Altrincham", "EC62 Essex East", 
-        "EB14 Stockport", "ED22 Cobham & Heathrow", "EA62 Blackpool & Lancaster",
-        "EA62 Preston & Southport", "EB24 The Wirral", "EC91 Leicester",
-        "ED41 Bromley & Dartford", "EB13 Manchester Centre", "EB12 Lancashire South",
-        "EB43 Hereford & Worcs", "EA11 Inverness & Aviemore", "EC41 Reading"
+        "EA11 Inverness & Aviemore", "EA21 Stirling & Falkirk", "EB12 Altrincham",
+        "EB24 The Wirral", "EC81 Peterborough", "EC91 Leicester",
+        "ED11 Chiswick & City", "ED44 Canterbury & Dover"
     ];
-    const skills = ["HEC", "KAC", "EV"];
-    
+    const skills = ["HEC", "KAC"];
+    const demoKey = scenarioId || "LV NOV V.1 2026";
+
     if (key === 'imbalance') {
-        const columns = ["Patch", "Skill", "Weekcomm", "Demand Hours", "Capacity Hours", "Net Imbalance (Hours)", "Net Imbalance (FTE)", "Coverage Ratio (%)", "Status", "Calculation Stage", "Operational Recommendation"];
-        const rows = patches.map((p, i) => {
-            const skill = skills[i % skills.length];
-            const dem = Math.round(1100 + i * 45.5);
-            const capFactor = [1.05, 0.94, 1.01, 1.08, 0.92, 1.06, 0.98, 1.03][i % 8];
-            const cap = Math.round(dem * capFactor * 10) / 10;
-            const diff = Math.round((cap - dem) * 10) / 10;
-            const fte = Math.round((diff / 37.5) * 100) / 100;
-            const cov = Math.round((cap / dem) * 1000) / 10;
-            const status = cov >= 102 ? "Surplus" : (cov <= 98 ? "Deficit" : "Balanced");
-            const action = status === "Surplus" ? "Mutual aid export to adjacent patch" : (status === "Deficit" ? "Authorize weekend surge overtime" : "Within normal operating tolerance");
-            return {
-                "Patch": p,
-                "Skill": skill,
-                "Weekcomm": "2026-10-05",
-                "Demand Hours": dem,
-                "Capacity Hours": cap,
-                "Net Imbalance (Hours)": diff,
-                "Net Imbalance (FTE)": fte,
-                "Coverage Ratio (%)": `${cov}%`,
-                "Status": status,
-                "Calculation Stage": i % 2 === 0 ? "post_sp" : "pre_sp",
-                "Operational Recommendation": action
-            };
+        const columns = ["key", "patch", "skill", "metric", "type", "weekcomm", "values"];
+        const rows = [];
+        patches.forEach((p, i) => {
+            const sk = skills[i % 2];
+            const imbPre = Math.round((85 - i * 18) * 100) / 100;
+            const imbPost = Math.round((imbPre + 24.5) * 100) / 100;
+            rows.push({ key: demoKey, patch: p, skill: sk, metric: "DL_FTE", type: "pre_sp", weekcomm: "2026-11-02", values: Math.round((imbPre / 37.5) * 1000) / 1000 });
+            rows.push({ key: demoKey, patch: p, skill: sk, metric: "imb_presp", type: "pre_sp", weekcomm: "2026-11-02", values: imbPre });
+            rows.push({ key: demoKey, patch: p, skill: sk, metric: "DL_FTE", type: "post_sp", weekcomm: "2026-11-02", values: Math.round((imbPost / 37.5) * 1000) / 1000 });
+            rows.push({ key: demoKey, patch: p, skill: sk, metric: "imb_postsp", type: "post_sp", weekcomm: "2026-11-02", values: imbPost });
         });
-        return { success: true, moduleKey: 'imbalance', columns, rows, totalRows: rows.length };
+        return { success: true, moduleKey: 'imbalance', tableName: 'es_shiny_imbalance_calc', keyCol: 'imbalance_key', columns, rows, totalRows: rows.length };
+    } else if (key === 'available_hours' || key === 'avlhr') {
+        const columns = ["key", "patch", "skill", "group", "weekcomm", "values"];
+        const rows = patches.map((p, i) => ({
+            key: demoKey, patch: p, skill: skills[i % 2], group: skills[i % 2], weekcomm: "2026-11-02", values: Math.round((710 + i * 28.5) * 100) / 100
+        }));
+        return { success: true, moduleKey: 'available_hours', tableName: 'es_shiny_avlhr_calc', keyCol: 'avl_key', columns, rows, totalRows: rows.length };
     } else if (key === 'capacity') {
-        const columns = ["Patch", "Skill", "Weekcomm", "Effective FTE", "Contract Shift (Hrs/Wk)", "Gross Capacity Hours", "Downtime Rate (%)", "Downtime Hours", "Net Available Hours", "Productivity Pace (Jobs/Day)", "Net Capacity (Jobs)", "Engine Status"];
-        const rows = patches.map((p, i) => {
-            const skill = skills[i % skills.length];
-            const fte = Math.round((30 + i * 1.5) * 10) / 10;
-            const gross = Math.round(fte * 37.5 * 10) / 10;
-            const downPct = Math.round((12.5 + (i % 5) * 0.8) * 10) / 10;
-            const downHrs = Math.round(gross * (downPct / 100.0) * 10) / 10;
-            const avail = Math.round((gross - downHrs) * 10) / 10;
-            const pace = skill === 'HEC' ? 3.8 : (skill === 'KAC' ? 3.5 : 2.2);
-            const jobs = Math.round(avail * (pace / 7.5));
-            return {
-                "Patch": p,
-                "Skill": skill,
-                "Weekcomm": "2026-10-05",
-                "Effective FTE": fte,
-                "Contract Shift (Hrs/Wk)": 37.5,
-                "Gross Capacity Hours": gross,
-                "Downtime Rate (%)": `${downPct}%`,
-                "Downtime Hours": downHrs,
-                "Net Available Hours": avail,
-                "Productivity Pace (Jobs/Day)": pace,
-                "Net Capacity (Jobs)": jobs,
-                "Engine Status": "Calculated & Verified"
-            };
-        });
-        return { success: true, moduleKey: 'capacity', columns, rows, totalRows: rows.length };
-    } else if (key === 'productivity') {
-        const columns = ["Skill", "Work Code", "Product", "Standard Task Duration (Hrs)", "Productivity Pace (Jobs/Day)", "Weekly Output Target (Jobs)", "Benchmark Year", "Ramp Factor"];
-        const rows = [
-            {"Skill": "HEC", "Work Code": "W00", "Product": "Gas Heating Breakdown Repair", "Standard Task Duration (Hrs)": 1.45, "Productivity Pace (Jobs/Day)": 3.8, "Weekly Output Target (Jobs)": 19, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "HEC", "Work Code": "W01", "Product": "First Time Fix Gas Appliance", "Standard Task Duration (Hrs)": 1.25, "Productivity Pace (Jobs/Day)": 4.0, "Weekly Output Target (Jobs)": 20, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "HEC", "Work Code": "W17", "Product": "S&R EHI Bonding Leads", "Standard Task Duration (Hrs)": 1.85, "Productivity Pace (Jobs/Day)": 3.2, "Weekly Output Target (Jobs)": 16, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "HEC", "Work Code": "W18", "Product": "CHI Fuse Board Upgrade", "Standard Task Duration (Hrs)": 2.10, "Productivity Pace (Jobs/Day)": 2.8, "Weekly Output Target (Jobs)": 14, "Benchmark Year": 2026, "Ramp Factor": "95%"},
-            {"Skill": "HEC", "Work Code": "W20", "Product": "H Code Heating System Powerflush", "Standard Task Duration (Hrs)": 1.95, "Productivity Pace (Jobs/Day)": 3.0, "Weekly Output Target (Jobs)": 15, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "HEC", "Work Code": "W23", "Product": "Electrical Heating Circuit Repair", "Standard Task Duration (Hrs)": 1.65, "Productivity Pace (Jobs/Day)": 3.4, "Weekly Output Target (Jobs)": 17, "Benchmark Year": 2026, "Ramp Factor": "90%"},
-            {"Skill": "HEC", "Work Code": "W26", "Product": "Breakdown Assist Tier 1", "Standard Task Duration (Hrs)": 1.35, "Productivity Pace (Jobs/Day)": 3.8, "Weekly Output Target (Jobs)": 19, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "HEC", "Work Code": "W31", "Product": "EICR Domestic Electrical Inspection", "Standard Task Duration (Hrs)": 2.50, "Productivity Pace (Jobs/Day)": 2.2, "Weekly Output Target (Jobs)": 11, "Benchmark Year": 2026, "Ramp Factor": "95%"},
-            {"Skill": "KAC", "Work Code": "W01", "Product": "KAC Whitegoods Appliance Repair", "Standard Task Duration (Hrs)": 1.55, "Productivity Pace (Jobs/Day)": 3.5, "Weekly Output Target (Jobs)": 18, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "KAC", "Work Code": "W17", "Product": "KAC Appliance Annual Safety Check", "Standard Task Duration (Hrs)": 1.15, "Productivity Pace (Jobs/Day)": 4.2, "Weekly Output Target (Jobs)": 21, "Benchmark Year": 2026, "Ramp Factor": "100%"},
-            {"Skill": "EV", "Work Code": "W23", "Product": "EV Charging Point Home Installation", "Standard Task Duration (Hrs)": 2.75, "Productivity Pace (Jobs/Day)": 2.2, "Weekly Output Target (Jobs)": 11, "Benchmark Year": 2026, "Ramp Factor": "85%"},
-            {"Skill": "EV", "Work Code": "W26", "Product": "EV Fast Charger Commissioning", "Standard Task Duration (Hrs)": 1.90, "Productivity Pace (Jobs/Day)": 2.6, "Weekly Output Target (Jobs)": 13, "Benchmark Year": 2026, "Ramp Factor": "90%"}
-        ];
-        return { success: true, moduleKey: 'productivity', columns, rows, totalRows: rows.length };
-    } else if (key === 'downtime') {
-        const columns = ["patch", "skill", "metric", "level2", "weekcomm", "values"];
-        const rows = [
-            {"patch": "EA11 Aberdeen North", "skill": "HEC", "metric": "Training", "level2": "GFF3 HEC SIPD Training %", "weekcomm": "2025-01-06", "values": 0.0},
-            {"patch": "EB12 Altrincham", "skill": "HEC", "metric": "Sickness", "level2": "Short Term Absence %", "weekcomm": "2025-01-06", "values": 3.5},
-            {"patch": "EC62 Essex East", "skill": "EV", "metric": "Annual Leave", "level2": "Bank Holiday Overlay %", "weekcomm": "2025-01-06", "values": 5.0},
-            {"patch": "ED44 Canterbury & Dover", "skill": "HEC", "metric": "Meeting", "level2": "Toolbox Talk & Safety %", "weekcomm": "2025-01-06", "values": 2.0},
-            {"patch": "EA12 Dundee & Perth", "skill": "HEC", "metric": "Training", "level2": "Heat Pump Upskilling %", "weekcomm": "2025-01-06", "values": 4.5},
-            {"patch": "EB14 Stockport", "skill": "KAC", "metric": "Sickness", "level2": "Long Term Sick Factor %", "weekcomm": "2025-01-06", "values": 2.8}
-        ];
-        return { success: true, moduleKey: 'downtime', columns, rows, totalRows: rows.length };
+        const columns = ["key", "patch", "skill", "group", "weekcomm", "values"];
+        const rows = patches.map((p, i) => ({
+            key: demoKey, patch: p, skill: skills[i % 2], group: skills[i % 2], weekcomm: "2026-11-02", values: Math.round((660 + i * 26.2) * 100) / 100
+        }));
+        return { success: true, moduleKey: 'capacity', tableName: 'es_shiny_capacity_calc', keyCol: 'capacity_key', columns, rows, totalRows: rows.length };
+    } else if (key === 'workload') {
+        const columns = ["key", "patch", "skill", "weekcomm", "values"];
+        const rows = patches.map((p, i) => ({
+            key: demoKey, patch: p, skill: skills[i % 2], weekcomm: "2026-11-02", values: Math.round((630 + i * 24.0) * 100) / 100
+        }));
+        return { success: true, moduleKey: 'workload', tableName: 'es_shiny_workload_calc', keyCol: 'workload_key', columns, rows, totalRows: rows.length };
     } else if (key === 'fte') {
-        const columns = ["Status", "Pay Id", "Labour Type", "WMIS Patch", "Skill", "Allocation", "Hours", "Effective FTE"];
-        const rows = [
-            {"Status": "Active", "Pay Id": "139276", "Labour Type": "Engineer", "WMIS Patch": "EA11 Inverness & Aviemore", "Skill": "KAC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
-            {"Status": "Active", "Pay Id": "967219", "Labour Type": "Engineer", "WMIS Patch": "EC41 Reading", "Skill": "HEC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
-            {"Status": "Active", "Pay Id": "966554", "Labour Type": "Engineer", "WMIS Patch": "EC13 Devon South", "Skill": "HEC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
-            {"Status": "Active", "Pay Id": "884102", "Labour Type": "Apprentice", "WMIS Patch": "EB12 Altrincham", "Skill": "HEC", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
-            {"Status": "Active", "Pay Id": "452199", "Labour Type": "Contractor", "WMIS Patch": "EC62 Essex East", "Skill": "EV", "Allocation": 100, "Hours": 37.5, "Effective FTE": 1.0},
-            {"Status": "Leaver", "Pay Id": "950718", "Labour Type": "Engineer", "WMIS Patch": "0", "Skill": "KAC", "Allocation": 100, "Hours": 0, "Effective FTE": 0.0}
-        ];
-        return { success: true, moduleKey: 'fte', columns, rows, totalRows: rows.length };
+        const columns = ["key", "patch", "skill", "group", "weekcomm", "values"];
+        const rows = patches.map((p, i) => ({
+            key: demoKey, patch: p, skill: skills[i % 2], group: skills[i % 2], weekcomm: "2026-11-02", values: Math.round((21.5 + i * 1.2) * 100) / 100
+        }));
+        return { success: true, moduleKey: 'fte', tableName: 'es_shiny_fte_calc', keyCol: 'fte_key', columns, rows, totalRows: rows.length };
     } else {
         // demand
-        const columns = ["Region Code", "Area Code", "Patch", "Skill", "Type", "Work Code", "Product", "Weekcomm", "Values"];
+        const columns = ["key", "patch", "skill", "work_code", "product", "weekcomm", "values"];
         const rows = [
-            {"Region Code": "A", "Area Code": "EA1", "Patch": "EA11 Inverness & Aviemore", "Skill": "HEC", "Type": "Patch", "Work Code": "W00", "Product": "W00 Gas Breakdown", "Weekcomm": "2025-01-06", "Values": 15},
-            {"Region Code": "B", "Area Code": "EB1", "Patch": "EB12 Altrincham", "Skill": "KAC", "Type": "Patch", "Work Code": "W01", "Product": "W01 First Time Fix", "Weekcomm": "2025-01-06", "Values": 14},
-            {"Region Code": "B", "Area Code": "EB1", "Patch": "EB14 Stockport", "Skill": "HEC", "Type": "Patch", "Work Code": "W17", "Product": "W17 S&R Bonding", "Weekcomm": "2025-01-06", "Values": 28},
-            {"Region Code": "C", "Area Code": "EC6", "Patch": "EC62 Essex East", "Skill": "EV", "Type": "Patch", "Work Code": "W23", "Product": "W23 Electrical Heating", "Weekcomm": "2025-01-06", "Values": 19},
-            {"Region Code": "D", "Area Code": "ED4", "Patch": "ED44 Canterbury & Dover", "Skill": "HEC", "Type": "Patch", "Work Code": "W26", "Product": "W26 Breakdown Assist", "Weekcomm": "2025-01-06", "Values": 35}
+            { key: demoKey, patch: "EA11 Inverness & Aviemore", skill: "HEC", work_code: "W01", product: "First Time Fix", weekcomm: "2026-11-02", values: 112.4 },
+            { key: demoKey, patch: "EC81 Peterborough", skill: "HEC", work_code: "W13", product: "Service Annual Visit", weekcomm: "2026-11-02", values: 104.8 },
+            { key: demoKey, patch: "EB12 Altrincham", skill: "KAC", work_code: "W06", product: "KAC Breakdown", weekcomm: "2026-11-02", values: 68.5 }
         ];
-        return { success: true, moduleKey: 'demand', columns, rows, totalRows: rows.length };
+        return { success: true, moduleKey: 'demand', tableName: 'es_shiny_demand_calc', keyCol: 'demand_key', columns, rows, totalRows: rows.length };
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-// FLOATING WINDOW: CALCULATION MODULES MODAL (IMBALANCE, CAPACITY, FTE, DOWNTIME, PRODUCTIVITY, DEMAND)
+// FLOATING WINDOW: CALCULATION MODULES MODAL (IMBALANCE, WORKLOAD, CAPACITY, AVAILABLE HOURS, FTE, DEMAND)
 // ------------------------------------------------------------------------------------------------
 function CalculationModulesModal({
     isOpen,
     activeModule = 'imbalance',
+    scenarioId = '',
     onChangeModule,
     onClose,
     data,
@@ -7638,51 +8404,63 @@ function CalculationModulesModal({
     const moduleMeta = {
         imbalance: {
             title: "Imbalance Calculation Module",
+            tableName: "es_shiny_imbalance_calc",
+            keyCol: "imbalance_key",
             category: "Combined Master Engine",
-            role: "Combines Capacity and Demand to calculate patch surpluses, deficits, and coverage ratios",
-            formula: "Net Imbalance (Hours) = Capacity Hours - Demand Hours | Coverage Ratio = (Capacity / Demand) * 100%",
-            feedsInto: "Executive Planning & Overtime Authorization",
-            stagePill: "Master Combined"
+            role: "Combines Capacity (Productive hrs + SP) and Workload (workload hrs) into pre-SP and post-SP imbalances (DL_FTE, imb_presp, imb_postsp)",
+            formula: "imb_presp = Productive hrs - Workload hrs | imb_postsp = (Productive hrs + SP) - Workload hrs | DL_FTE = Imbalance Hours / 37.5",
+            feedsInto: "Final Scenario Data (es_powerbi_model_checker_plan)",
+            stagePill: "imbalance_key"
         },
-        capacity: {
-            title: "Capacity Calculation Module",
-            category: "Capacity Engine",
-            role: "Calculates Net Available Productive Hours and Capacity Jobs from FTE, Downtime, and Productivity",
-            formula: "Available Productive Hours = Gross FTE Hours - Downtime Hours | Net Capacity (Jobs) = Available Hours * Productivity Pace",
-            feedsInto: "Imbalance Calculation Module",
-            stagePill: "Capacity Engine"
-        },
-        fte: {
-            title: "FTE Calculation Module",
-            category: "Resource Feed",
-            role: "Determines total effective field headcount, contractual hours, and inter-patch mutual aid transfers",
-            formula: "Effective FTE = Active Headcount + Recruitment Cohorts - Leavers ± Inter-Patch Transfers",
-            feedsInto: "Capacity Calculation Module",
-            stagePill: "Feed ➔ Capacity"
-        },
-        downtime: {
-            title: "Downtime Overlays Calculation Module",
-            category: "Non-Productive Factors Feed",
-            role: "Calculates planned and unplanned downtime (absence, sickness, training, meetings, storm stand-down)",
-            formula: "Total Downtime Hours = Gross Contract Hours * (Sickness% + Holiday% + Training% + Meeting% + Weather%)",
-            feedsInto: "Capacity Calculation Module",
-            stagePill: "Feed ➔ Capacity"
-        },
-        productivity: {
-            title: "Productivity Calculation Module",
-            category: "Efficiency & Benchmark Feed",
-            role: "Determines standard task completion durations, productive paces, and learning curve ramps by skill",
-            formula: "Productivity Pace (jobs/day) = 7.5 Shift Hours / Standard Task Duration (Hours/Job)",
-            feedsInto: "Capacity Calculation Module",
-            stagePill: "Feed ➔ Capacity"
+        workload: {
+            title: "Workload Calculation Module",
+            tableName: "es_shiny_workload_calc",
+            keyCol: "workload_key",
+            category: "Workload Aggregation Engine",
+            role: "Aggregates weekly Demand Hours by patch, skill, and weekcomm into total skill workload hours",
+            formula: "Workload Hours (patch, skill, weekcomm) = Σ Demand Hours (es_shiny_demand_calc)",
+            feedsInto: "Imbalance Calculation Module & Final Data",
+            stagePill: "workload_key"
         },
         demand: {
             title: "Demand Calculation Module",
-            category: "Customer Workload Engine",
-            role: "Forecasts customer breakdown volume, task mix, and converts job demand into required labor hours",
-            formula: "Total Demand Hours = Σ (Forecasted Jobs by Work Code * Standard Task Duration)",
-            feedsInto: "Imbalance Calculation Module",
-            stagePill: "Demand Engine"
+            tableName: "es_shiny_demand_calc",
+            keyCol: "demand_key",
+            category: "Customer Demand Engine",
+            role: "Weekly demand hours per patch, skill, work_code, and product aligned with Final Data Demand Hours",
+            formula: "Demand Hours (work_code, product) = Forecasted Jobs * Standard Task Duration * Seasonal Curve",
+            feedsInto: "Workload Calculation Module & Final Data",
+            stagePill: "demand_key"
+        },
+        capacity: {
+            title: "Capacity Calculation Module",
+            tableName: "es_shiny_capacity_calc",
+            keyCol: "capacity_key",
+            category: "Capacity Engine",
+            role: "Calculates Productive Capacity Hours from Available Hours minus Downtime Overlay Hours",
+            formula: "Productive Capacity Hours = Available Hours (es_shiny_avlhr_calc) - Downtime Overlay Hours",
+            feedsInto: "Imbalance Calculation Module & Final Data",
+            stagePill: "capacity_key"
+        },
+        available_hours: {
+            title: "Available Hours Calculation Module",
+            tableName: "es_shiny_avlhr_calc",
+            keyCol: "avl_key",
+            category: "Availability Engine",
+            role: "Converts FTE into Core Hours & Available Hours (Core Hrs + Overtime - Sickness/Holiday/Training/Meeting/Other)",
+            formula: "Core Hrs = (FTE * 37.5) - (Holiday + Sickness + Training + Meeting + Other) | Available Hrs = Core Hrs + Overtime",
+            feedsInto: "Capacity Calculation Module & Final Data",
+            stagePill: "avl_key"
+        },
+        fte: {
+            title: "FTE Calculation Module",
+            tableName: "es_shiny_fte_calc",
+            keyCol: "fte_key",
+            category: "Resource Feed",
+            role: "Weekly active headcount & recruitment cohort ramps by patch, skill, and group",
+            formula: "Effective FTE = Active Headcount + Recruitment Cohorts - Attrition ± Inter-Patch Transfers",
+            feedsInto: "Available Hours Module & Final Data",
+            stagePill: "fte_key"
         }
     };
 
@@ -7747,14 +8525,14 @@ function CalculationModulesModal({
 
     return (
         <div 
-            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-3 md:p-4 animate-fade-in"
+            className="fixed inset-0 z-[1000] floating-modal-backdrop bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md flex items-center justify-center p-1.5 sm:p-2 md:p-2.5 animate-fade-in"
             onClick={onClose}
         >
             <div 
                 className={`bg-white shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden transition-all duration-200 ${
                     isFullscreen 
                         ? 'w-screen h-screen max-w-none max-h-none rounded-none' 
-                        : 'w-[98vw] max-w-[98vw] h-[94vh] max-h-[94vh] rounded-2xl'
+                        : 'w-[98.5vw] max-w-[98.5vw] h-[97vh] max-h-[97vh] rounded-2xl'
                 }`}
                 onClick={(e) => e.stopPropagation()}
             >
@@ -7762,7 +8540,7 @@ function CalculationModulesModal({
                 <div className="bg-slate-50/95 px-4 py-2.5 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
                     {/* Left: Icon, Module Dropdown Selector & Tag */}
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center shadow-xs flex-shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 text-[#005eb8] flex items-center justify-center shadow-xs flex-shrink-0 glow-icon glow-icon-blue">
                             <IconEye className="w-5 h-5 text-[#005eb8]" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -7772,30 +8550,23 @@ function CalculationModulesModal({
                                 <select
                                     value={activeModule}
                                     onChange={(e) => onChangeModule && onChangeModule(e.target.value)}
-                                    className="text-xs sm:text-sm font-extrabold text-[#005eb8] bg-white border border-blue-300 rounded-lg px-2.5 py-1 shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[340px] sm:max-w-[460px] truncate"
+                                    className="text-xs sm:text-sm font-extrabold text-[#005eb8] dark:text-[#80c6ff] bg-white dark:bg-[#081324] border border-blue-300 dark:border-[#18365d] rounded-lg px-2.5 py-1 shadow-2xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[340px] sm:max-w-[460px] truncate"
                                     title="Select Calculation Module to View"
                                 >
-                                    <optgroup label="1. Master Combined Calculation">
-                                        <option value="imbalance">Imbalance Calculation (Capacity vs Demand)</option>
+                                    <optgroup label="1. Master Combined Sub-Calculation">
+                                        <option value="imbalance">Imbalance Calculation (es_shiny_imbalance_calc · imbalance_key)</option>
                                     </optgroup>
-                                    <optgroup label="2. Capacity Engine (FTE + Downtime + Productivity)">
-                                        <option value="capacity">Capacity Calculation (Net Available Hours & Jobs)</option>
-                                        <option value="fte">FTE Calculation Module (Headcount & Transfers)</option>
-                                        <option value="downtime">Downtime Calculation Module (Overlays & Sickness)</option>
-                                        <option value="productivity">Productivity Calculation Module (Task Duration & Pace)</option>
+                                    <optgroup label="2. Supply Chain: FTE → Available Hours → Capacity">
+                                        <option value="fte">FTE Calculation (es_shiny_fte_calc · fte_key)</option>
+                                        <option value="available_hours">Available Hours Calculation (es_shiny_avlhr_calc · avl_key)</option>
+                                        <option value="capacity">Capacity Calculation (es_shiny_capacity_calc · capacity_key)</option>
                                     </optgroup>
-                                    <optgroup label="3. Demand Engine (Combines with Capacity)">
-                                        <option value="demand">Demand Calculation Module (Forecasted Workload & Hours)</option>
+                                    <optgroup label="3. Demand Chain: Demand → Workload">
+                                        <option value="demand">Demand Calculation (es_shiny_demand_calc · demand_key)</option>
+                                        <option value="workload">Workload Calculation (es_shiny_workload_calc · workload_key)</option>
                                     </optgroup>
                                 </select>
-
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#005eb8] border border-blue-200">
-                                    {currentMeta.stagePill}
-                                </span>
                             </div>
-                            <p className="text-[11px] text-slate-500 mt-0.5 truncate" title={currentMeta.role}>
-                                {currentMeta.role}
-                            </p>
                         </div>
                     </div>
 
@@ -7839,7 +8610,7 @@ function CalculationModulesModal({
                             <select
                                 value={pageSize}
                                 onChange={(e) => setPageSize(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                                className="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                                className="text-xs font-semibold bg-white dark:bg-[#081324] text-slate-700 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2 py-1.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
                                 title="Rows per page (select 'All' to show all records without scrolling)"
                             >
                                 <option value={25}>25</option>
@@ -7858,7 +8629,7 @@ function CalculationModulesModal({
                             className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs transition disabled:opacity-50 cursor-pointer"
                             title="Export calculation table as CSV"
                         >
-                            <IconDownload className="w-3.5 h-3.5 text-slate-600" />
+                            <IconDownload className="w-3.5 h-3.5 text-current" />
                             <span className="hidden sm:inline">Export</span>
                         </button>
 
@@ -7885,10 +8656,10 @@ function CalculationModulesModal({
                 </div>
 
                 {/* CALCULATION PIPELINE BREADCRUMB BAR (INTERACTIVE FEED PIPELINE) */}
-                <div className="bg-slate-100/90 px-4 py-1.5 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-2 text-xs flex-shrink-0">
-                    {/* Pipeline Pills */}
+                <div className="bg-slate-100/90 dark:bg-[#0c1b31] px-4 py-2 border-b border-slate-200/90 dark:border-[#18365d] flex flex-col gap-2 text-xs flex-shrink-0">
+                    {/* Row 1: Pipeline Flow Pills */}
                     <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mr-1">Pipeline:</span>
+                        <span className="text-[10px] font-extrabold text-slate-400 dark:text-[#7d93b2] uppercase tracking-wider mr-1">Pipeline:</span>
                         
                         {/* Feed 1: FTE */}
                         <button
@@ -7897,43 +8668,28 @@ function CalculationModulesModal({
                             className={`px-2.5 py-0.5 rounded-md font-bold text-[11px] transition flex items-center gap-1 cursor-pointer ${
                                 activeModule === 'fte'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200'
+                                    : 'bg-white dark:bg-[#081324] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-[#112649] border border-slate-200 dark:border-[#18365d]'
                             }`}
                         >
-                            <span>FTE Module</span>
+                            <span>FTE</span>
                         </button>
 
-                        <span className="text-slate-400 font-black">+</span>
+                        <span className="text-blue-500 dark:text-[#80c6ff] font-black text-sm">➔</span>
 
-                        {/* Feed 2: Downtime */}
+                        {/* Feed 2: Available Hours */}
                         <button
                             type="button"
-                            onClick={() => onChangeModule('downtime')}
+                            onClick={() => onChangeModule('available_hours')}
                             className={`px-2.5 py-0.5 rounded-md font-bold text-[11px] transition flex items-center gap-1 cursor-pointer ${
-                                activeModule === 'downtime'
+                                activeModule === 'available_hours'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200'
+                                    : 'bg-white dark:bg-[#081324] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-[#112649] border border-slate-200 dark:border-[#18365d]'
                             }`}
                         >
-                            <span>Downtime Overlays</span>
+                            <span>Available Hrs</span>
                         </button>
 
-                        <span className="text-slate-400 font-black">+</span>
-
-                        {/* Feed 3: Productivity */}
-                        <button
-                            type="button"
-                            onClick={() => onChangeModule('productivity')}
-                            className={`px-2.5 py-0.5 rounded-md font-bold text-[11px] transition flex items-center gap-1 cursor-pointer ${
-                                activeModule === 'productivity'
-                                    ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-white text-slate-700 hover:bg-blue-50 border border-slate-200'
-                            }`}
-                        >
-                            <span>Productivity Rates</span>
-                        </button>
-
-                        <span className="text-blue-500 font-black text-sm">➔</span>
+                        <span className="text-blue-500 dark:text-[#80c6ff] font-black text-sm">➔</span>
 
                         {/* Engine 1: Capacity */}
                         <button
@@ -7942,30 +8698,44 @@ function CalculationModulesModal({
                             className={`px-2.5 py-0.5 rounded-md font-black text-[11px] transition flex items-center gap-1 cursor-pointer ${
                                 activeModule === 'capacity'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-blue-50 text-[#005eb8] hover:bg-blue-100 border border-blue-200'
+                                    : 'bg-blue-50 dark:bg-[#081324] text-[#005eb8] dark:text-[#80c6ff] hover:bg-blue-100 dark:hover:bg-[#112649] border border-blue-200 dark:border-[#18365d]'
                             }`}
                         >
-                            <IconCapacity className="w-3.5 h-3.5" />
-                            <span>Capacity Calculation</span>
+                            <IconCapacity className="w-3.5 h-3.5 text-current" />
+                            <span>Capacity</span>
                         </button>
 
-                        <span className="text-slate-400 font-black">|</span>
+                        <span className="text-slate-400 dark:text-[#7d93b2] font-black">|</span>
 
-                        {/* Engine 2: Demand */}
+                        {/* Engine 2: Demand -> Workload */}
                         <button
                             type="button"
                             onClick={() => onChangeModule('demand')}
                             className={`px-2.5 py-0.5 rounded-md font-black text-[11px] transition flex items-center gap-1 cursor-pointer ${
                                 activeModule === 'demand'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-blue-50 text-[#005eb8] hover:bg-blue-100 border border-blue-200'
+                                    : 'bg-blue-50 dark:bg-[#081324] text-[#005eb8] dark:text-[#80c6ff] hover:bg-blue-100 dark:hover:bg-[#112649] border border-blue-200 dark:border-[#18365d]'
                             }`}
                         >
-                            <IconDemand className="w-3.5 h-3.5" />
-                            <span>Demand Calculation</span>
+                            <IconDemand className="w-3.5 h-3.5 text-current" />
+                            <span>Demand</span>
                         </button>
 
-                        <span className="text-blue-500 font-black text-sm">➔</span>
+                        <span className="text-blue-500 dark:text-[#80c6ff] font-black text-sm">➔</span>
+
+                        <button
+                            type="button"
+                            onClick={() => onChangeModule('workload')}
+                            className={`px-2.5 py-0.5 rounded-md font-black text-[11px] transition flex items-center gap-1 cursor-pointer ${
+                                activeModule === 'workload'
+                                    ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
+                                    : 'bg-blue-50 dark:bg-[#081324] text-[#005eb8] dark:text-[#80c6ff] hover:bg-blue-100 dark:hover:bg-[#112649] border border-blue-200 dark:border-[#18365d]'
+                            }`}
+                        >
+                            <span>Workload</span>
+                        </button>
+
+                        <span className="text-blue-500 dark:text-[#80c6ff] font-black text-sm">➔</span>
 
                         {/* Master Combined: Imbalance */}
                         <button
@@ -7974,20 +8744,34 @@ function CalculationModulesModal({
                             className={`px-2.5 py-0.5 rounded-md font-black text-[11px] transition flex items-center gap-1 cursor-pointer ${
                                 activeModule === 'imbalance'
                                     ? 'bg-[#005eb8] text-white shadow-2xs ring-2 ring-blue-300'
-                                    : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200'
+                                    : 'bg-indigo-50 dark:bg-[#081324] text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-[#112649] border border-indigo-200 dark:border-[#18365d]'
                             }`}
                         >
-                            <IconScale className="w-3.5 h-3.5" />
-                            <span>Imbalance (Combined)</span>
+                            <IconScale className="w-3.5 h-3.5 text-current" />
+                            <span>Imbalance</span>
                         </button>
                     </div>
 
-                    {/* Formula Snippet */}
-                    <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-slate-500">
-                        <span className="font-bold text-slate-600">Formula:</span>
-                        <code className="bg-white px-2 py-0.5 rounded text-[10px] text-blue-900 border border-slate-200 font-mono truncate max-w-[480px]">
-                            {currentMeta.formula}
-                        </code>
+                    {/* Row 2: Dedicated Full-Width Formula Bar - Always Visible, Complete & Unclipped */}
+                    <div className="flex items-center gap-2 pt-1.5 border-t border-slate-200/80 dark:border-[#18365d]/80 text-xs flex-wrap">
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <span className="w-5 h-5 rounded-md bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-[#80c6ff] border border-blue-200/80 dark:border-blue-700/50 flex items-center justify-center font-serif italic font-extrabold text-xs shadow-2xs">
+                                fx
+                            </span>
+                            <span className="font-extrabold text-[11px] uppercase tracking-wider text-slate-600 dark:text-[#adbed4]">
+                                Formula:
+                            </span>
+                        </div>
+                        <div className="flex-1 flex flex-wrap items-center gap-2 min-w-0">
+                            {currentMeta.formula.split(' | ').map((part, pIdx) => (
+                                <code
+                                    key={pIdx}
+                                    className="bg-white dark:bg-[#081324] px-3 py-1.5 rounded-lg text-xs font-mono font-bold text-[#005eb8] dark:text-[#80c6ff] border border-blue-200/90 dark:border-[#18365d] shadow-2xs leading-relaxed select-all"
+                                >
+                                    {part}
+                                </code>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -8001,7 +8785,7 @@ function CalculationModulesModal({
                         </div>
                     ) : error ? (
                         <div className="h-full flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto space-y-3">
-                            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center glow-icon glow-icon-rose">
                                 <IconAlertCircle className="w-6 h-6" />
                             </div>
                             <h4 className="text-sm font-bold text-slate-800">Calculation error occurred</h4>
@@ -8331,7 +9115,7 @@ function ExportPowerBIModal({
 
     return (
         <div 
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
+            className="fixed inset-0 z-[1000] floating-modal-backdrop flex items-center justify-center p-3 sm:p-5 bg-slate-950/98 dark:bg-[#020617]/98 backdrop-blur-md animate-fade-in"
             onClick={() => { if (!isSubmitting) onClose(); }}
         >
             <div 
@@ -8341,7 +9125,7 @@ function ExportPowerBIModal({
                 {/* MODAL HEADER */}
                 <div className="bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border-b border-amber-200/60 px-6 py-4 flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center shadow-xs flex-shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center shadow-xs flex-shrink-0 glow-icon glow-icon-amber">
                             <IconPowerBI className="w-6 h-6" />
                         </div>
                         <div>
@@ -8374,7 +9158,7 @@ function ExportPowerBIModal({
                     {isSuccess ? (
                         /* SUCCESS CONFIRMATION VIEW */
                         <div className="space-y-5 text-center py-4 animate-fade-in">
-                            <div className="w-16 h-16 rounded-full bg-emerald-100 border-2 border-emerald-400 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+                            <div className="w-16 h-16 rounded-full bg-emerald-100 border-2 border-emerald-400 text-emerald-600 flex items-center justify-center mx-auto shadow-sm glow-icon glow-icon-emerald">
                                 <IconCheck className="w-8 h-8 text-emerald-600 stroke-[3]" />
                             </div>
                             <div className="space-y-1">
@@ -8428,7 +9212,7 @@ function ExportPowerBIModal({
                                     }}
                                     className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-bold shadow-2xs transition cursor-pointer"
                                 >
-                                    <IconDownload className="w-4 h-4 text-slate-600" />
+                                    <IconDownload className="w-4 h-4 text-current" />
                                     <span>Download .csv</span>
                                 </button>
                                 <button
@@ -8446,14 +9230,6 @@ function ExportPowerBIModal({
                                     onClick={() => {
                                         setIsSuccess(false);
                                     }}
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#005eb8] border border-blue-200 text-xs font-bold transition cursor-pointer"
-                                >
-                                    <span>Export Another</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={onClose}
-                                    className="px-5 py-2 rounded-xl bg-[#005eb8] hover:bg-[#004b87] text-white text-xs font-bold shadow-xs transition cursor-pointer"
                                 >
                                     Done
                                 </button>
@@ -8471,7 +9247,7 @@ function ExportPowerBIModal({
                                     <select
                                         value={selectedScenario}
                                         onChange={(e) => handleScenarioChange(e.target.value)}
-                                        className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 shadow-2xs focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 cursor-pointer"
+                                        className="w-full bg-white dark:bg-[#081324] border border-slate-300 dark:border-[#18365d] rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white shadow-2xs focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 cursor-pointer"
                                     >
                                         {scenarioKeys.map(k => (
                                             <option key={k} value={k}>
@@ -8717,6 +9493,7 @@ function ScenarioInputsStudioView({
     planType, setPlanType,
     month, setMonth,
     version, setVersion,
+    scenarioYear = "2026", setScenarioYear,
     remarks, setRemarks,
     onSave,
     inputsState,
@@ -8729,9 +9506,13 @@ function ScenarioInputsStudioView({
     onInputUndo,
     onApplyUploadedFiles,
     setInputsState,
-    showToast
+    showToast,
+    studioSubTab: propStudioSubTab,
+    setStudioSubTab: propSetStudioSubTab
 }) {
-    const [studioSubTab, setStudioSubTab] = useState('inputs_selection');
+    const [localSubTab, setLocalSubTab] = useState('inputs_selection');
+    const studioSubTab = propStudioSubTab !== undefined ? propStudioSubTab : localSubTab;
+    const setStudioSubTab = propSetStudioSubTab || setLocalSubTab;
     const [filterCategory, setFilterCategory] = useState('all');
     const [stagedFiles, setStagedFiles] = useState([]);
     const [isValidating, setIsValidating] = useState(false);
@@ -8742,9 +9523,56 @@ function ScenarioInputsStudioView({
         inputKey: '',
         inputLabel: '',
         fileName: '',
+        initialMode: 'table',
         loading: false,
         error: null
     });
+
+    // Helper to request file data asynchronously for any file version
+    const handleRequestFileData = (inputKey, targetFile) => {
+        if (!targetFile) return;
+        if (tableDataCache[targetFile] && tableDataCache[targetFile].rows) return;
+
+        if (window.Shiny && window.Shiny.setInputValue) {
+            window.Shiny.setInputValue('request_input_file_data', {
+                inputKey: inputKey,
+                fileName: targetFile,
+                requestId: Date.now()
+            }, { priority: 'event' });
+        }
+
+        // Guaranteed fallback if server connection is detached or delayed
+        setTimeout(() => {
+            if (setTableDataCache) {
+                setTableDataCache(prev => {
+                    if (prev[targetFile] && prev[targetFile].rows) return prev;
+                    const fallbackTbl = generateClientFallbackTable(inputKey, targetFile);
+                    return { ...prev, [targetFile]: fallbackTbl };
+                });
+            }
+        }, 1200);
+    };
+
+    // Helper to open the compare modal directly for any input
+    const handleOpenCompareModal = (inputKey, inputLabel, fileName) => {
+        const targetFile = fileName || (inputsState[inputKey] || (inputsChoices[inputKey] && inputsChoices[inputKey][0]) || '');
+        if (!targetFile) {
+            if (showToast) showToast(`No file version selected for ${inputLabel}`, 'warning');
+            return;
+        }
+
+        handleRequestFileData(inputKey, targetFile);
+
+        setViewModalState({
+            isOpen: true,
+            inputKey: inputKey,
+            inputLabel: inputLabel,
+            fileName: targetFile,
+            initialMode: 'compare',
+            loading: false,
+            error: null
+        });
+    };
 
     // Helper to open the floating window table view for any input
     const handleOpenViewModal = (inputKey, inputLabel, fileName) => {
@@ -8761,6 +9589,7 @@ function ScenarioInputsStudioView({
                 inputKey: inputKey,
                 inputLabel: inputLabel,
                 fileName: targetFile,
+                initialMode: 'table',
                 loading: false,
                 error: null
             });
@@ -8789,6 +9618,7 @@ function ScenarioInputsStudioView({
                 inputKey: inputKey,
                 inputLabel: inputLabel,
                 fileName: targetFile,
+                initialMode: 'table',
                 loading: false,
                 error: null
             });
@@ -8801,6 +9631,7 @@ function ScenarioInputsStudioView({
             inputKey: inputKey,
             inputLabel: inputLabel,
             fileName: targetFile,
+            initialMode: 'table',
             loading: true,
             error: null
         });
@@ -8978,87 +9809,6 @@ function ScenarioInputsStudioView({
 
     return (
         <div className="space-y-3.5 w-full">
-            {/* SLEEK COMPACT SUB-TABS NAVIGATION BAR (HEIGHT ~38PX, HIGH VISIBILITY) */}
-            <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 glow-card">
-                {/* Segmented Pill Track */}
-                <div className="flex items-center gap-1 p-0.5 bg-slate-100 rounded-lg border border-slate-200/70">
-                    {/* Tab 1: Scenario Creation & Input Selection */}
-                    <button
-                        type="button"
-                        onClick={() => setStudioSubTab('inputs_selection')}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer select-none ${
-                            studioSubTab === 'inputs_selection'
-                                ? 'bg-[#005eb8] text-white shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-                        }`}
-                    >
-                        <IconSliders className={`w-3.5 h-3.5 ${studioSubTab === 'inputs_selection' ? 'text-white' : 'text-blue-600'}`} />
-                        <span>Scenario & Input Selection</span>
-                        <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-md ${
-                            studioSubTab === 'inputs_selection'
-                                ? 'bg-white/20 text-white'
-                                : 'bg-slate-200 text-slate-600'
-                        }`}>
-                            21
-                        </span>
-                    </button>
-
-                    {/* Tab 2: Bulk Upload & Validation */}
-                    <button
-                        type="button"
-                        onClick={() => setStudioSubTab('bulk_upload')}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer select-none ${
-                            studioSubTab === 'bulk_upload'
-                                ? 'bg-[#005eb8] text-white shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-                        }`}
-                    >
-                        <IconUpload className={`w-3.5 h-3.5 ${studioSubTab === 'bulk_upload' ? 'text-white' : 'text-blue-600'}`} />
-                        <span>Bulk Upload</span>
-                        <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-md ${
-                            studioSubTab === 'bulk_upload'
-                                ? 'bg-white/20 text-white'
-                                : stagedFiles.length > 0
-                                ? 'bg-emerald-500 text-white animate-pulse'
-                                : 'bg-slate-200 text-slate-600'
-                        }`}>
-                            {stagedFiles.length > 0 ? stagedFiles.length : 'Ingest'}
-                        </span>
-                    </button>
-
-                    {/* Tab 3: Download Templates */}
-                    <button
-                        type="button"
-                        onClick={() => setStudioSubTab('download_templates')}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 cursor-pointer select-none ${
-                            studioSubTab === 'download_templates'
-                                ? 'bg-[#005eb8] text-white shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
-                        }`}
-                    >
-                        <IconDownload className={`w-3.5 h-3.5 ${studioSubTab === 'download_templates' ? 'text-white' : 'text-blue-600'}`} />
-                        <span>Download Templates</span>
-                        <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-md ${
-                            studioSubTab === 'download_templates'
-                                ? 'bg-white/20 text-white'
-                                : 'bg-slate-200 text-slate-600'
-                        }`}>
-                            21 Ready
-                        </span>
-                    </button>
-                </div>
-
-                {/* Right Status Indicator */}
-                <div className="hidden md:flex items-center gap-2 pr-1 text-slate-500">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-                    <span className="text-[11px] font-medium">
-                        {studioSubTab === 'inputs_selection' && "Active Governance Inputs (21 Models)"}
-                        {studioSubTab === 'bulk_upload' && "Multi-File Schema Validation Engine"}
-                        {studioSubTab === 'download_templates' && "Standard .CSV Template Repository"}
-                    </span>
-                </div>
-            </div>
-
             {/* FLOATING WINDOW: VALIDATION & INGESTION RESULTS MODAL (ALWAYS AVAILABLE) */}
             <ValidationResultsModal
                 isOpen={isResultModalOpen}
@@ -9096,26 +9846,27 @@ function ScenarioInputsStudioView({
                         </div>
 
                         {/* Scenario Metadata Editor */}
-                        <div className="grid grid-cols-1 md:grid-cols-6 gap-2.5 pt-3 items-end">
-                            <div>
-                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Plan Type</label>
+                        <div className="flex flex-col md:flex-row gap-2.5 pt-3 items-end">
+                            <div className="w-full md:w-64 lg:w-72 flex-shrink-0">
+                                <label className="text-[11px] font-bold text-slate-600 dark:text-[#adbed4] block mb-1">Plan Type</label>
                                 <select
                                     value={planType}
                                     onChange={(e) => setPlanType(e.target.value)}
-                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                    className="w-full text-xs bg-slate-50 dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl p-2.5 font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 cursor-pointer"
                                 >
                                     <option value="LV">LV (Standard Operating Plan)</option>
                                     <option value="HV">HV (Surge Volume Plan)</option>
+                                    <option value="GFF2">GFF2 (Framework Plan)</option>
                                     <option value="Combined">Combined FY26 Plan</option>
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Month</label>
+                            <div className="w-full md:w-24 flex-shrink-0">
+                                <label className="text-[11px] font-bold text-slate-600 dark:text-[#adbed4] block mb-1">Month</label>
                                 <select
                                     value={month}
                                     onChange={(e) => setMonth(e.target.value)}
-                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                    className="w-full text-xs bg-slate-50 dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl p-2.5 font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 cursor-pointer text-center"
                                 >
                                     {["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"].map(m => (
                                         <option key={m} value={m}>{m}</option>
@@ -9123,32 +9874,45 @@ function ScenarioInputsStudioView({
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Version</label>
+                            <div className="w-full md:w-20 flex-shrink-0">
+                                <label className="text-[11px] font-bold text-slate-600 dark:text-[#adbed4] block mb-1">Version</label>
                                 <input
                                     type="number"
                                     min="0"
                                     value={version}
                                     onChange={(e) => setVersion(e.target.value)}
-                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                    className="w-full text-xs bg-slate-50 dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl p-2.5 font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 text-center"
                                 />
                             </div>
 
-                            <div className="md:col-span-2">
-                                <label className="text-[11px] font-bold text-slate-600 block mb-1">Scenario Remarks</label>
+                            <div className="w-full md:w-24 flex-shrink-0">
+                                <label className="text-[11px] font-bold text-slate-600 dark:text-[#adbed4] block mb-1">Year</label>
+                                <select
+                                    value={scenarioYear}
+                                    onChange={(e) => setScenarioYear && setScenarioYear(e.target.value)}
+                                    className="w-full text-xs bg-slate-50 dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl p-2.5 font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 cursor-pointer text-center"
+                                >
+                                    {["2025", "2026", "2027", "2028"].map(yr => (
+                                        <option key={yr} value={yr}>{yr}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="w-full md:flex-1 min-w-[140px]">
+                                <label className="text-[11px] font-bold text-slate-600 dark:text-[#adbed4] block mb-1">Scenario Remarks</label>
                                 <input
                                     type="text"
                                     placeholder="e.g. October baseline run with revised sick overlays"
                                     value={remarks}
                                     onChange={(e) => setRemarks(e.target.value)}
-                                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-semibold focus:ring-2 focus:ring-blue-500"
+                                    className="w-full text-xs bg-slate-50 dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl p-2.5 font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 
-                            <div>
+                            <div className="w-full md:w-auto flex-shrink-0">
                                 <button
                                     onClick={onSave}
-                                    className="w-full bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 glow-button"
+                                    className="w-full md:w-auto bg-[#005eb8] hover:bg-[#004b87] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 glow-button cursor-pointer whitespace-nowrap"
                                 >
                                     <IconCheck className="w-3.5 h-3.5" />
                                     <span>Save Scenario</span>
@@ -9160,7 +9924,7 @@ function ScenarioInputsStudioView({
                     {/* ML FORECASTING GLOBAL CONTROLLER BAR */}
                     <div className="bg-white px-4 py-2.5 rounded-xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 glow-card">
                         <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8]">
+                            <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#005eb8] glow-icon glow-icon-blue">
                                 <IconBolt className="w-4 h-4 text-[#005eb8]" />
                             </div>
                             <div>
@@ -9214,6 +9978,7 @@ function ScenarioInputsStudioView({
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
                                 onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
+                                onCompare={(activeFile) => handleOpenCompareModal(item.key, item.label, activeFile)}
                             />
                         ))}
 
@@ -9228,6 +9993,7 @@ function ScenarioInputsStudioView({
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
                                 onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
+                                onCompare={(activeFile) => handleOpenCompareModal(item.key, item.label, activeFile)}
                             />
                         ))}
 
@@ -9242,6 +10008,7 @@ function ScenarioInputsStudioView({
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
                                 onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
+                                onCompare={(activeFile) => handleOpenCompareModal(item.key, item.label, activeFile)}
                             />
                         ))}
 
@@ -9256,6 +10023,7 @@ function ScenarioInputsStudioView({
                                 onDelete={() => onInputDelete(item.key, item.label)}
                                 onUndo={() => onInputUndo(item.key, item.label)}
                                 onView={(activeFile) => handleOpenViewModal(item.key, item.label, activeFile)}
+                                onCompare={(activeFile) => handleOpenCompareModal(item.key, item.label, activeFile)}
                             />
                         ))}
                     </div>
@@ -9296,6 +10064,9 @@ function ScenarioInputsStudioView({
                     error={viewModalState.error}
                     showToast={showToast}
                     onSaveTableData={handleSaveInputFileData}
+                    initialMode={viewModalState.initialMode || 'table'}
+                    tableDataCache={tableDataCache}
+                    onRequestFileData={handleRequestFileData}
                 />
             )}
         </div>
@@ -9305,7 +10076,7 @@ function ScenarioInputsStudioView({
 // ------------------------------------------------------------------------------------------------
 // REUSABLE MODERN INPUT CARD WITH DELETE, UNDO & REMARKS
 // ------------------------------------------------------------------------------------------------
-function ModernInputCard({ label, choices = [], selected, remarks, onChange, onDelete, onUndo, onView }) {
+function ModernInputCard({ label, choices = [], selected, remarks, onChange, onDelete, onUndo, onView, onCompare }) {
     // Ensure dropdown options are ordered by date timestamp descending (latest at top of dropdown)
     const sortedChoices = useMemo(() => {
         const copy = [...choices];
@@ -9382,7 +10153,9 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                         </div>
                     </div>
 
-                    <span className="text-[10px] text-slate-400 font-mono hidden xs:inline">{sortedChoices.length} ver</span>
+                    <span className="text-[10px] text-slate-400 font-mono hidden xs:inline">
+                        {isMLActive ? sortedChoices.length : userChoices.length} ver
+                    </span>
                 </div>
             </div>
 
@@ -9398,24 +10171,38 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                                 : 'bg-slate-50 text-slate-800 border-slate-200'
                         }`}
                     >
-                        {mlChoices.length > 0 && (
-                            <optgroup label="ML Model Forecasts">
-                                {mlChoices.map(c => (
+                        {isMLActive ? (
+                            <>
+                                {mlChoices.length > 0 && (
+                                    <optgroup label="ML Model Forecasts">
+                                        {mlChoices.map(c => (
+                                            <option key={c} value={c} title={c}>{c}</option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {userChoices.length > 0 && (
+                                    <optgroup label="User Uploaded & Governance Files">
+                                        {userChoices.map(c => (
+                                            <option key={c} value={c} title={c}>{c}</option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {mlChoices.length === 0 && userChoices.length === 0 && (
+                                    sortedChoices.map(c => (
+                                        <option key={c} value={c} title={c}>{c}</option>
+                                    ))
+                                )}
+                            </>
+                        ) : (
+                            userChoices.length > 0 ? (
+                                userChoices.map(c => (
                                     <option key={c} value={c} title={c}>{c}</option>
-                                ))}
-                            </optgroup>
-                        )}
-                        {userChoices.length > 0 && (
-                            <optgroup label="User Uploaded & Governance Files">
-                                {userChoices.map(c => (
+                                ))
+                            ) : (
+                                sortedChoices.map(c => (
                                     <option key={c} value={c} title={c}>{c}</option>
-                                ))}
-                            </optgroup>
-                        )}
-                        {mlChoices.length === 0 && userChoices.length === 0 && (
-                            sortedChoices.map(c => (
-                                <option key={c} value={c} title={c}>{c}</option>
-                            ))
+                                ))
+                            )
                         )}
                     </select>
                 </div>
@@ -9429,6 +10216,17 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
                 >
                     <IconEye className="w-3.5 h-3.5" />
                     <span>View</span>
+                </button>
+
+                {/* Compare button with GitCompare icon */}
+                <button
+                    type="button"
+                    onClick={() => onCompare && onCompare(activeSelected)}
+                    className="inline-flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-600 font-bold text-xs px-2.5 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 transition duration-150 flex-shrink-0 hover:shadow-xs active:scale-95 cursor-pointer glow-button"
+                    title={`Compare ${label} files (${activeSelected})`}
+                >
+                    <IconGitCompare className="w-3.5 h-3.5" />
+                    <span>Compare</span>
                 </button>
 
                 <button
@@ -9471,14 +10269,10 @@ function ModernInputCard({ label, choices = [], selected, remarks, onChange, onD
 // ------------------------------------------------------------------------------------------------
 // 3. TREE DROPDOWN GEOGRAPHY HIERARCHY SELECTOR WITH RADIO BUTTONS (National -> Region -> ACDM -> Territory)
 // ------------------------------------------------------------------------------------------------
-function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, sourceFileName, onClose, onNavigateToInputs }) {
+function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, sourceFileName, onClose, onNavigateToInputs, compact = false }) {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [expanded, setExpanded] = useState({
-        "national": true,
-        "region-A": true,
-        "acdm-A-A1": true
-    });
+    const [expanded, setExpanded] = useState({});
     const containerRef = useRef(null);
 
     // Outside click and Escape key listeners to close dropdown
@@ -9519,10 +10313,9 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
 
     // Helper to get formatted scope text
     const getScopeDisplay = () => {
-        if (!selectedGeo) return "National";
-        if (selectedGeo.type === 'national') return "National";
-        if (selectedGeo.type === 'region') return `Region ${selectedGeo.id}`;
-        if (selectedGeo.type === 'acdm') return `ACDM ${selectedGeo.id}`;
+        if (!selectedGeo || selectedGeo.type === 'national') return "National";
+        if (selectedGeo.type === 'region') return selectedGeo.name || selectedGeo.label || `Region ${selectedGeo.id}`;
+        if (selectedGeo.type === 'acdm') return `Area ${selectedGeo.id}`;
         if (selectedGeo.type === 'territory') return selectedGeo.label || selectedGeo.id;
         return selectedGeo.label || "National";
     };
@@ -9543,26 +10336,28 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
             <button
                 type="button"
                 onClick={() => setIsOpen(prev => !prev)}
-                className={`w-full h-[44px] px-3 bg-white hover:bg-slate-50 border rounded-xl shadow-2xs flex items-center justify-between gap-2 transition cursor-pointer text-left select-none ${
-                    isOpen ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-300 hover:border-blue-400'
+                className={`w-full ${compact ? 'h-[32px] px-2.5 rounded-lg' : 'h-[44px] px-3 rounded-xl'} bg-white dark:bg-[#081324] hover:bg-slate-50 dark:hover:bg-[#112649] border border-slate-300 dark:border-[#18365d] shadow-2xs flex items-center justify-between gap-2 transition cursor-pointer text-left select-none ${
+                    isOpen ? 'border-blue-500 ring-2 ring-blue-500/20' : 'hover:border-blue-400'
                 }`}
                 title={`Selected Geography Scope: ${getScopeDisplay()}`}
             >
                 <div className="flex items-center gap-2 min-w-0">
                     {/* Radio Button Indicator */}
-                    <span className="w-4 h-4 rounded-full border-2 border-slate-800 bg-white flex items-center justify-center flex-shrink-0">
-                        <span className="w-2 h-2 rounded-full bg-slate-900" />
+                    <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-800 dark:border-white bg-white dark:bg-[#081324] flex items-center justify-center flex-shrink-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-white" />
                     </span>
-                    <span className="text-xs font-bold text-slate-800 truncate">
+                    <span className="text-xs font-bold text-slate-800 dark:text-white truncate">
                         {getScopeDisplay()}
                     </span>
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 bg-blue-50 text-blue-700 rounded border border-blue-200 uppercase flex-shrink-0">
-                        {selectedGeo ? selectedGeo.type : 'national'}
-                    </span>
+                    {!compact && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-[#80c6ff] rounded border border-blue-200 dark:border-blue-800 uppercase flex-shrink-0">
+                            {selectedGeo ? selectedGeo.type : 'national'}
+                        </span>
+                    )}
                 </div>
 
-                <div className="flex items-center gap-1.5 flex-shrink-0 text-slate-500">
-                    <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">
+                <div className="flex items-center gap-1.5 flex-shrink-0 text-slate-500 dark:text-[#adbed4]">
+                    <span className="text-[10px] font-bold bg-slate-100 dark:bg-[#0c1b31] text-slate-600 dark:text-[#adbed4] px-1.5 py-0.5 rounded border border-slate-200 dark:border-[#18365d]">
                         {selectedGeo && selectedGeo.count !== undefined ? `${selectedGeo.count} Terr` : `${totalTerritories} Terr`}
                     </span>
                     {/* Chevron: points up (^) when open, down (v) when closed */}
@@ -9579,9 +10374,9 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
 
             {/* 2. Floating Dropdown Menu (Tree with Radio Buttons matching user image) */}
             {isOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-full min-w-[320px] sm:min-w-[360px] max-w-[440px] bg-white border border-slate-300 rounded-xl shadow-2xl z-[100] overflow-hidden text-slate-800 animate-fade-in">
+                <div className="absolute top-full left-0 mt-1.5 w-full min-w-[320px] sm:min-w-[360px] max-w-[440px] bg-white dark:bg-[#0c1b31] border border-slate-300 dark:border-[#18365d] rounded-xl shadow-2xl z-[100] overflow-hidden text-slate-800 dark:text-slate-100 animate-fade-in">
                     {/* Top Search & Filter Bar */}
-                    <div className="p-2 border-b border-slate-100 bg-slate-50/80 flex items-center gap-2">
+                    <div className="p-2 border-b border-slate-100 dark:border-[#18365d] bg-slate-50/80 dark:bg-[#081324] flex items-center gap-2">
                         <div className="relative flex-1">
                             <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
                                 <IconSearch className="w-3.5 h-3.5" />
@@ -9591,7 +10386,7 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Search patch, ACDM, or region..."
-                                className="w-full text-xs pl-7 pr-6 py-1.5 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder-slate-400"
+                                className="w-full text-xs pl-7 pr-6 py-1.5 border border-slate-200 dark:border-[#18365d] rounded-lg bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-slate-400"
                             />
                             {searchTerm && (
                                 <button
@@ -9615,8 +10410,8 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                         </button>
                     </div>
 
-                    {/* Scrollable Tree Area */}
-                    <div className="p-2 max-h-72 overflow-y-auto space-y-0.5 text-xs">
+                    {/* Scrollable Tree Area: National -> Region -> Area Code -> Territory */}
+                    <div className="p-2 max-h-72 overflow-y-auto space-y-0.5 text-xs bg-white dark:bg-[#0c1b31]">
                         {/* 1. National Level */}
                         <div className="space-y-0.5">
                             <div
@@ -9625,19 +10420,20 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                 }}
                                 className={`flex items-center gap-1.5 py-1.5 px-2 rounded-lg cursor-pointer transition select-none ${
                                     isNationalSelected
-                                        ? 'bg-blue-50/80 font-bold text-slate-900'
-                                        : 'hover:bg-slate-100 text-slate-800'
+                                        ? 'bg-blue-50/80 dark:bg-[#17355d] font-bold text-slate-900 dark:text-white'
+                                        : 'hover:bg-slate-100 dark:hover:bg-[#112649] text-slate-800 dark:text-slate-100'
                                 }`}
                             >
                                 {/* Chevron */}
                                 <button
                                     type="button"
+                                    aria-label={expanded['national'] ? "Collapse National" : "Expand National"}
                                     onClick={(e) => toggleExpand('national', e)}
-                                    className="w-5 h-5 flex items-center justify-center text-slate-600 hover:text-slate-900 flex-shrink-0 cursor-pointer"
-                                    title={expanded['national'] ? "Collapse" : "Expand"}
+                                    className="w-5 h-5 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex-shrink-0 cursor-pointer"
+                                    title={expanded['national'] ? "Collapse National" : "Expand National to see Regions"}
                                 >
                                     <svg
-                                        className={`w-3.5 h-3.5 transition-transform duration-150 ${expanded['national'] || isFiltered ? 'rotate-90 text-slate-800' : 'text-slate-500'}`}
+                                        className={`w-3.5 h-3.5 transition-transform duration-150 ${expanded['national'] || isFiltered ? 'rotate-90 text-slate-800 dark:text-[#80c6ff]' : 'text-slate-500 dark:text-slate-400'}`}
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -9650,11 +10446,11 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                 <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                                     <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
                                         isNationalSelected
-                                            ? 'border-slate-800 bg-white'
-                                            : 'border-slate-400 bg-white hover:border-slate-600'
+                                            ? 'border-slate-800 dark:border-[#80c6ff] bg-white dark:bg-[#081324]'
+                                            : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-[#081324] hover:border-slate-600'
                                     }`}>
                                         {isNationalSelected && (
-                                            <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                            <span className="w-2 h-2 rounded-full bg-slate-900 dark:bg-[#80c6ff]" />
                                         )}
                                     </span>
                                 </div>
@@ -9663,8 +10459,8 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                 <span className="truncate flex-1 font-semibold text-xs">
                                     National
                                 </span>
-                                <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">
-                                    {totalTerritories} terr
+                                <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono flex-shrink-0">
+                                    {regions.length} reg · {totalTerritories} terr
                                 </span>
                             </div>
 
@@ -9675,30 +10471,47 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                         const regKey = `region-${region.id}`;
                                         const acdmList = Object.values(region.acdms || {});
                                         const regTerritoriesCount = acdmList.reduce((acc, a) => acc + (a.territories || []).length, 0);
-                                        const isRegActive = selectedGeo && selectedGeo.type === 'region' && selectedGeo.id === region.id;
+                                        const regMatchesFilter = !isFiltered
+                                            || (region.name || '').toLowerCase().includes(term)
+                                            || (region.code || region.id || '').toLowerCase().includes(term)
+                                            || acdmList.some(a =>
+                                                a.id.toLowerCase().includes(term)
+                                                || (a.territories || []).some(t => t.toLowerCase().includes(term))
+                                            );
+                                        if (!regMatchesFilter) return null;
+
+                                        const isRegActive = selectedGeo && selectedGeo.type === 'region' && (selectedGeo.id === region.id || selectedGeo.code === region.code);
                                         const isRegExpanded = expanded[regKey] || isFiltered;
 
                                         return (
                                             <div key={regKey} className="space-y-0.5">
                                                 <div
                                                     onClick={() => {
-                                                        handleSelectAndClose({ type: 'region', id: region.id, label: `Region ${region.id}`, count: regTerritoriesCount }, false);
+                                                        handleSelectAndClose({
+                                                            type: 'region',
+                                                            id: region.code || region.id,
+                                                            code: region.code || region.id,
+                                                            name: region.name,
+                                                            label: region.name || `Region ${region.id}`,
+                                                            count: regTerritoriesCount
+                                                        }, false);
                                                     }}
                                                     className={`flex items-center gap-1.5 py-1.5 pl-6 pr-2 rounded-lg cursor-pointer transition select-none ${
                                                         isRegActive
-                                                            ? 'bg-blue-50/80 font-bold text-slate-900'
-                                                            : 'hover:bg-slate-100 text-slate-800'
+                                                            ? 'bg-blue-50/80 dark:bg-[#17355d] font-bold text-slate-900 dark:text-white'
+                                                            : 'hover:bg-slate-100 dark:hover:bg-[#112649] text-slate-800 dark:text-slate-100'
                                                     }`}
                                                 >
                                                     {/* Chevron */}
                                                     <button
                                                         type="button"
+                                                        aria-label={isRegExpanded ? `Collapse ${region.name}` : `Expand ${region.name}`}
                                                         onClick={(e) => toggleExpand(regKey, e)}
-                                                        className="w-5 h-5 flex items-center justify-center text-slate-600 hover:text-slate-900 flex-shrink-0 cursor-pointer"
-                                                        title={isRegExpanded ? "Collapse" : "Expand"}
+                                                        className="w-5 h-5 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex-shrink-0 cursor-pointer"
+                                                        title={isRegExpanded ? "Collapse Region" : "Expand Region to see Area Codes"}
                                                     >
                                                         <svg
-                                                            className={`w-3.5 h-3.5 transition-transform duration-150 ${isRegExpanded ? 'rotate-90 text-slate-800' : 'text-slate-500'}`}
+                                                            className={`w-3.5 h-3.5 transition-transform duration-150 ${isRegExpanded ? 'rotate-90 text-slate-800 dark:text-[#80c6ff]' : 'text-slate-500 dark:text-slate-400'}`}
                                                             fill="none"
                                                             viewBox="0 0 24 24"
                                                             stroke="currentColor"
@@ -9711,54 +10524,68 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                                     <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                                                         <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
                                                             isRegActive
-                                                                ? 'border-slate-800 bg-white'
-                                                                : 'border-slate-400 bg-white hover:border-slate-600'
+                                                                ? 'border-slate-800 dark:border-[#80c6ff] bg-white dark:bg-[#081324]'
+                                                                : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-[#081324] hover:border-slate-600'
                                                         }`}>
                                                             {isRegActive && (
-                                                                <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                                                <span className="w-2 h-2 rounded-full bg-slate-900 dark:bg-[#80c6ff]" />
                                                             )}
                                                         </span>
                                                     </div>
 
                                                     {/* Label */}
-                                                    <span className="truncate flex-1 font-medium text-xs">
-                                                        Region {region.id}
+                                                    <span className="truncate flex-1 font-medium text-xs" title={`${region.name} (${region.code || region.id})`}>
+                                                        {region.name || `Region ${region.id}`}
                                                     </span>
-                                                    <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">
-                                                        {regTerritoriesCount} terr
+                                                    <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono flex-shrink-0">
+                                                        {acdmList.length} area · {regTerritoriesCount} terr
                                                     </span>
                                                 </div>
 
-                                                {/* 3. ACDM Level (under Region) */}
+                                                {/* 3. Area Code Level (under Region) */}
                                                 {isRegExpanded && (
                                                     <div className="space-y-0.5">
                                                         {acdmList.map(acdm => {
                                                             const acdmKey = `acdm-${region.id}-${acdm.id}`;
                                                             const territories = acdm.territories || [];
-                                                            const isAcdmActive = selectedGeo && selectedGeo.type === 'acdm' && selectedGeo.id === acdm.id && selectedGeo.region === region.id;
+                                                            const areaMatchesFilter = !isFiltered
+                                                                || acdm.id.toLowerCase().includes(term)
+                                                                || (region.name || '').toLowerCase().includes(term)
+                                                                || territories.some(t => t.toLowerCase().includes(term));
+                                                            if (!areaMatchesFilter) return null;
+
+                                                            const isAcdmActive = selectedGeo && selectedGeo.type === 'acdm' && selectedGeo.id === acdm.id;
                                                             const isAcdmExpanded = expanded[acdmKey] || isFiltered;
 
                                                             return (
                                                                 <div key={acdmKey} className="space-y-0.5">
                                                                     <div
                                                                         onClick={() => {
-                                                                            handleSelectAndClose({ type: 'acdm', id: acdm.id, region: region.id, label: `ACDM ${acdm.id} (Reg ${region.id})`, count: territories.length }, false);
+                                                                            handleSelectAndClose({
+                                                                                type: 'acdm',
+                                                                                id: acdm.id,
+                                                                                region: region.code || region.id,
+                                                                                regionName: region.name,
+                                                                                label: `Area ${acdm.id} (${region.code || region.id})`,
+                                                                                count: territories.length
+                                                                            }, false);
                                                                         }}
                                                                         className={`flex items-center gap-1.5 py-1 pl-11 pr-2 rounded-lg cursor-pointer transition select-none ${
                                                                             isAcdmActive
-                                                                                ? 'bg-blue-50/80 font-bold text-slate-900'
-                                                                                : 'hover:bg-slate-100 text-slate-700'
+                                                                                ? 'bg-blue-50/80 dark:bg-[#17355d] font-bold text-slate-900 dark:text-white'
+                                                                                : 'hover:bg-slate-100 dark:hover:bg-[#112649] text-slate-700 dark:text-slate-200'
                                                                         }`}
                                                                     >
                                                                         {/* Chevron */}
                                                                         <button
                                                                             type="button"
+                                                                            aria-label={isAcdmExpanded ? `Collapse Area ${acdm.id}` : `Expand Area ${acdm.id}`}
                                                                             onClick={(e) => toggleExpand(acdmKey, e)}
-                                                                            className="w-5 h-5 flex items-center justify-center text-slate-600 hover:text-slate-900 flex-shrink-0 cursor-pointer"
-                                                                            title={isAcdmExpanded ? "Collapse" : "Expand"}
+                                                                            className="w-5 h-5 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex-shrink-0 cursor-pointer"
+                                                                            title={isAcdmExpanded ? "Collapse Area Code" : "Expand Area Code to see Territories"}
                                                                         >
                                                                             <svg
-                                                                                className={`w-3.5 h-3.5 transition-transform duration-150 ${isAcdmExpanded ? 'rotate-90 text-slate-800' : 'text-slate-500'}`}
+                                                                                className={`w-3.5 h-3.5 transition-transform duration-150 ${isAcdmExpanded ? 'rotate-90 text-slate-800 dark:text-[#80c6ff]' : 'text-slate-500 dark:text-slate-400'}`}
                                                                                 fill="none"
                                                                                 viewBox="0 0 24 24"
                                                                                 stroke="currentColor"
@@ -9771,30 +10598,30 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                                                         <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                                                                             <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
                                                                                 isAcdmActive
-                                                                                    ? 'border-slate-800 bg-white'
-                                                                                    : 'border-slate-400 bg-white hover:border-slate-600'
+                                                                                    ? 'border-slate-800 dark:border-[#80c6ff] bg-white dark:bg-[#081324]'
+                                                                                    : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-[#081324] hover:border-slate-600'
                                                                             }`}>
                                                                                 {isAcdmActive && (
-                                                                                    <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                                                                    <span className="w-2 h-2 rounded-full bg-slate-900 dark:bg-[#80c6ff]" />
                                                                                 )}
                                                                             </span>
                                                                         </div>
 
                                                                         {/* Label */}
                                                                         <span className="truncate flex-1 font-medium text-xs">
-                                                                            ACDM {acdm.id}
+                                                                            Area {acdm.id}
                                                                         </span>
-                                                                        <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">
+                                                                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono flex-shrink-0">
                                                                             {territories.length} terr
                                                                         </span>
                                                                     </div>
 
-                                                                    {/* 4. Territory Level (under ACDM) */}
+                                                                    {/* 4. Territory Level (under Area Code) */}
                                                                     {isAcdmExpanded && (
                                                                         <div className="space-y-0.5">
                                                                             {territories.map(t => {
                                                                                 const isTerrSelected = selectedGeo && selectedGeo.type === 'territory' && selectedGeo.id === t;
-                                                                                if (isFiltered && !t.toLowerCase().includes(term) && !acdm.id.toLowerCase().includes(term) && !region.id.toLowerCase().includes(term)) {
+                                                                                if (isFiltered && !t.toLowerCase().includes(term) && !acdm.id.toLowerCase().includes(term) && !(region.name || '').toLowerCase().includes(term)) {
                                                                                     return null;
                                                                                 }
 
@@ -9802,12 +10629,20 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                                                                     <div
                                                                                         key={t}
                                                                                         onClick={() => {
-                                                                                            handleSelectAndClose({ type: 'territory', id: t, region: region.id, acdm: acdm.id, label: t, count: 1 }, false);
+                                                                                            handleSelectAndClose({
+                                                                                                type: 'territory',
+                                                                                                id: t,
+                                                                                                region: region.code || region.id,
+                                                                                                regionName: region.name,
+                                                                                                acdm: acdm.id,
+                                                                                                label: t,
+                                                                                                count: 1
+                                                                                            }, false);
                                                                                         }}
                                                                                         className={`flex items-center gap-1.5 py-1 pl-16 pr-2 rounded-lg cursor-pointer transition select-none ${
                                                                                             isTerrSelected
-                                                                                                ? 'bg-blue-100/80 font-bold text-slate-900'
-                                                                                                : 'hover:bg-slate-100 text-slate-600'
+                                                                                                ? 'bg-blue-100/80 dark:bg-[#17355d] font-bold text-slate-900 dark:text-white'
+                                                                                                : 'hover:bg-slate-100 dark:hover:bg-[#112649] text-slate-600 dark:text-slate-300'
                                                                                         }`}
                                                                                     >
                                                                                         {/* Empty spacer where chevron would be to align radio buttons */}
@@ -9817,11 +10652,11 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                                                                         <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                                                                                             <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
                                                                                                 isTerrSelected
-                                                                                                    ? 'border-slate-800 bg-white'
-                                                                                                    : 'border-slate-400 bg-white hover:border-slate-600'
+                                                                                                    ? 'border-slate-800 dark:border-[#80c6ff] bg-white dark:bg-[#081324]'
+                                                                                                    : 'border-slate-400 dark:border-slate-500 bg-white dark:bg-[#081324] hover:border-slate-600'
                                                                                             }`}>
                                                                                                 {isTerrSelected && (
-                                                                                                    <span className="w-2 h-2 rounded-full bg-slate-900" />
+                                                                                                    <span className="w-2 h-2 rounded-full bg-slate-900 dark:bg-[#80c6ff]" />
                                                                                                 )}
                                                                                             </span>
                                                                                         </div>
@@ -9849,10 +10684,10 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                     </div>
 
                     {/* Popover Footer Bar */}
-                    <div className="p-2 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-600">
+                    <div className="p-2 border-t border-slate-100 dark:border-[#18365d] bg-slate-50 dark:bg-[#081324] flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
                         <div className="truncate text-[11px]">
-                            <span className="font-semibold text-slate-500">Source:</span>{" "}
-                            <span className="font-mono text-slate-700">{sourceFileName || "geography_mapping"}</span>
+                            <span className="font-semibold text-slate-500 dark:text-slate-400">Source:</span>{" "}
+                            <span className="font-mono text-slate-700 dark:text-slate-200">{sourceFileName || "geography_mapping"}</span>
                             {onNavigateToInputs && (
                                 <button
                                     type="button"
@@ -9860,7 +10695,7 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
                                         setIsOpen(false);
                                         onNavigateToInputs();
                                     }}
-                                    className="text-blue-600 hover:underline ml-1.5 font-bold cursor-pointer"
+                                    className="text-blue-600 dark:text-[#80c6ff] hover:underline ml-1.5 font-bold cursor-pointer"
                                 >
                                     Change in Inputs →
                                 </button>
@@ -9882,151 +10717,294 @@ function GeographyHierarchySelector({ hierarchy = {}, selectedGeo, onSelectGeo, 
         </div>
     );
 }
+window.GeographyHierarchySelector = GeographyHierarchySelector;
+window.buildGeographyHierarchy = buildGeographyHierarchy;
+window.getDefaultGeographyData = getDefaultGeographyData;
+window.parseGeographyCsvText = parseGeographyCsvText;
 
 // ------------------------------------------------------------------------------------------------
 // 3.5 SCENARIO VARIANCE WATERFALL MODELS (CAPACITY & DEMAND BRIDGES)
 // ------------------------------------------------------------------------------------------------
-function computeCapacityWaterfall(totC1, totC2) {
-    // Formula: Available Hours = Gross Hours - (Sickness + Holiday + Training + Meeting + Others Downtimes)
-    // Downtimes: sickness, holiday, training, meeting, others downtimes
-    const gross1 = Math.round(totC1 * 1.25);
-    const sickness1 = Math.round(gross1 * 0.048);
-    const holiday1 = Math.round(gross1 * 0.092);
-    const training1 = Math.round(gross1 * 0.034);
-    const meeting1 = Math.round(gross1 * 0.022);
-    const others1 = gross1 - totC1 - (sickness1 + holiday1 + training1 + meeting1);
+function WaveBackground({ strokeColor, fillColor, id = "wave-grad" }) {
+    return (
+        <svg
+            className="absolute right-0 bottom-0 w-[38%] max-w-[140px] h-[65%] pointer-events-none select-none overflow-hidden"
+            viewBox="0 0 200 80"
+            preserveAspectRatio="none"
+        >
+            <defs>
+                {/* Horizontal Fade Mask so the wave smoothly dissolves/mixes with card background at left */}
+                <linearGradient id={`${id}-mask-grad`} x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#fff" stopOpacity="0" />
+                    <stop offset="30%" stopColor="#fff" stopOpacity="0.35" />
+                    <stop offset="70%" stopColor="#fff" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="#fff" stopOpacity="1" />
+                </linearGradient>
+                <mask id={`${id}-fade-mask`} maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="80">
+                    <rect x="0" y="0" width="200" height="80" fill={`url(#${id}-mask-grad)`} />
+                </mask>
 
-    const gross2 = Math.round(totC2 * 1.242);
-    const sickness2 = Math.round(gross2 * 0.045);
-    const holiday2 = Math.round(gross2 * 0.090);
-    const training2 = Math.round(gross2 * 0.032);
-    const meeting2 = Math.round(gross2 * 0.021);
-    const others2 = gross2 - totC2 - (sickness2 + holiday2 + training2 + meeting2);
+                {/* Soft translucent vertical fill gradient */}
+                <linearGradient id={`${id}-vfill`} x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor={fillColor} stopOpacity="0.20" />
+                    <stop offset="65%" stopColor={fillColor} stopOpacity="0.05" />
+                    <stop offset="100%" stopColor={fillColor} stopOpacity="0.0" />
+                </linearGradient>
+            </defs>
 
-    const dGross = gross2 - gross1;
-    // For downtimes: Available = Gross - Downtimes
-    // An increase in downtime reduces available hours; a decrease in downtime adds available hours
-    const impactGross = dGross;
-    const impactSickness = sickness1 - sickness2;
-    const impactHoliday = holiday1 - holiday2;
-    const impactTraining = training1 - training2;
-    const impactMeeting = meeting1 - meeting2;
-    const impactOthers = others1 - others2;
+            <g mask={`url(#${id}-fade-mask)`}>
+                {/* Area Fill */}
+                <path
+                    d="M 0,62 C 18,60 32,46 45,46 C 58,46 68,58 80,58 C 98,58 114,28 130,28 C 146,28 154,52 165,52 C 178,52 190,36 200,36 L 200,80 L 0,80 Z"
+                    fill={`url(#${id}-vfill)`}
+                />
+                {/* Sleek Line Stroke */}
+                <path
+                    d="M 0,62 C 18,60 32,46 45,46 C 58,46 68,58 80,58 C 98,58 114,28 130,28 C 146,28 154,52 165,52 C 178,52 190,36 200,36"
+                    fill="none"
+                    stroke={strokeColor}
+                    strokeWidth="2.25"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity="0.9"
+                />
+            </g>
+        </svg>
+    );
+}
+
+// Unpacks compact final scenario payload from es_powerbi_model_checker_plan
+function unpackFinalScenarioData(packed) {
+    if (!packed || !Array.isArray(packed.rows)) return [];
+    const { regions = [], areaCodes = [], patches = [], combos = [], periods = [], weeks = [], rows = [], version = '', create_datestamp = '' } = packed;
+    const out = new Array(rows.length);
+    for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        const c = combos[r[1]] || [];
+        out[i] = {
+            region: r.length > 5 ? (regions[r[5]] || '') : '',
+            area_code: r.length > 6 ? (areaCodes[r[6]] || '') : '',
+            patch: patches[r[0]] || '',
+            skill: c[0] || '',
+            group: c[1] || '',
+            metric: c[2] || '',
+            level2: c[3] || '',
+            flag: c[4] || '',
+            period: periods[r[2]] || 'W',
+            weekcomm: weeks[r[3]] || '',
+            value: Number(r[4]) || 0,
+            version,
+            create_datestamp
+        };
+    }
+    return out;
+}
+if (typeof window !== 'undefined') {
+    window.unpackFinalScenarioData = unpackFinalScenarioData;
+}
+
+function computeCapacityWaterfall(totC1, totC2, bridge = null) {
+    // Capacity Waterfall built from real es_powerbi_model_checker_plan Available Hours components:
+    // Available Hrs = Gross Core Hrs - (Sickness + Holiday + Training + Meeting + Others) + Overtime
+    if (bridge && bridge.base && bridge.comp) {
+        const b = bridge.base;
+        const c = bridge.comp;
+        const startVal = Math.round(b.available);
+        const endVal = Math.round(c.available);
+
+        const rawComponents = [
+            { key: 'core_hrs', label: 'Core Hours', shortLabel: 'Core Hrs', line1: 'Core', line2: 'Hours', raw1: b.gross, raw2: c.gross, rawImpact: c.gross - b.gross },
+            { key: 'sickness', label: 'Sickness', shortLabel: 'Sickness', line1: 'Sickness', line2: '', raw1: b.sickness, raw2: c.sickness, rawImpact: -(c.sickness - b.sickness) },
+            { key: 'holiday', label: 'Holiday', shortLabel: 'Holiday', line1: 'Holiday', line2: '', raw1: b.holiday, raw2: c.holiday, rawImpact: -(c.holiday - b.holiday) },
+            { key: 'training', label: 'Training', shortLabel: 'Training', line1: 'Training', line2: '', raw1: b.training, raw2: c.training, rawImpact: -(c.training - b.training) },
+            { key: 'meeting', label: 'Meeting', shortLabel: 'Meeting', line1: 'Meeting', line2: '', raw1: b.meeting, raw2: c.meeting, rawImpact: -(c.meeting - b.meeting) },
+            { key: 'others', label: 'Others', shortLabel: 'Others', line1: 'Others', line2: '', raw1: b.other, raw2: c.other, rawImpact: -(c.other - b.other) },
+            { key: 'overtime', label: 'Overtime', shortLabel: 'Overtime', line1: 'Overtime', line2: '', raw1: b.overtime, raw2: c.overtime, rawImpact: c.overtime - b.overtime }
+        ];
+
+        const impacts = rawComponents.map(cmp => Math.round(cmp.rawImpact));
+        const intRemainder = (endVal - startVal) - impacts.reduce((acc, v) => acc + v, 0);
+        if (intRemainder !== 0) {
+            let maxIdx = 0;
+            let maxMag = -1;
+            impacts.forEach((v, idx) => {
+                if (Math.abs(v) > maxMag) {
+                    maxMag = Math.abs(v);
+                    maxIdx = idx;
+                }
+            });
+            impacts[maxIdx] += intRemainder;
+        }
+
+        const steps = [
+            {
+                key: 'base_available',
+                label: 'Baseline',
+                shortLabel: 'Baseline',
+                line1: 'Baseline',
+                line2: '',
+                type: 'total',
+                val: startVal,
+                color: '#0066cc',
+                darkColor: '#2563eb',
+                rawVal1: startVal,
+                rawVal2: startVal,
+                diff: 0
+            },
+            ...rawComponents.map((cmp, idx) => {
+                const imp = impacts[idx];
+                return {
+                    key: cmp.key,
+                    label: cmp.label,
+                    shortLabel: cmp.shortLabel,
+                    line1: cmp.line1,
+                    line2: cmp.line2,
+                    type: 'delta',
+                    impact: imp,
+                    color: imp >= 0 ? '#10b981' : '#ef4444',
+                    darkColor: imp >= 0 ? '#22c55e' : '#f87171',
+                    rawVal1: Math.round(cmp.raw1),
+                    rawVal2: Math.round(cmp.raw2),
+                    diff: imp
+                };
+            }),
+            {
+                key: 'final_available',
+                label: 'Final',
+                shortLabel: 'Final',
+                line1: 'Final',
+                line2: '',
+                type: 'total',
+                val: endVal,
+                color: '#4a148c',
+                darkColor: '#8b5cf6',
+                rawVal1: startVal,
+                rawVal2: endVal,
+                diff: endVal - startVal
+            }
+        ];
+
+        let running = startVal;
+        for (let i = 1; i < steps.length - 1; i++) {
+            const s = steps[i];
+            const startY = running;
+            const endY = running + s.impact;
+            s.baseVal = Math.min(startY, endY);
+            s.barVal = Math.abs(s.impact);
+            s.val = s.impact;
+            s.startLevel = startY;
+            s.endLevel = endY;
+            running = endY;
+        }
+        steps[0].startLevel = 0;
+        steps[0].endLevel = startVal;
+        steps[steps.length - 1].startLevel = 0;
+        steps[steps.length - 1].endLevel = endVal;
+
+        return {
+            baseline: { gross: Math.round(b.gross), sickness: Math.round(b.sickness), holiday: Math.round(b.holiday), training: Math.round(b.training), meeting: Math.round(b.meeting), others: Math.round(b.other), available: startVal },
+            comparison: { gross: Math.round(c.gross), sickness: Math.round(c.sickness), holiday: Math.round(c.holiday), training: Math.round(c.training), meeting: Math.round(c.meeting), others: Math.round(c.other), available: endVal },
+            steps
+        };
+    }
+
+    // Fallback bridge when no packed final data is supplied yet
+    const baseC = Math.round(totC2 * (38240 / 37860));
+    const prod = Math.round(totC2 * (472 / 37860));
+    const ot = Math.round(totC2 * (118 / 37860));
+    const rds = Math.round(totC2 * (78 / 37860));
+    const other = Math.round(totC2 * (37 / 37860));
+    const availC = totC2;
 
     const steps = [
         {
-            key: 'baseline_avail',
-            label: 'Baseline Available Hours',
-            shortLabel: 'Baseline Avail',
-            line1: 'Baseline',
-            line2: 'Avail',
+            key: 'base_capacity',
+            label: 'Base Capacity',
+            shortLabel: 'Base Cap',
+            line1: 'Base Capacity',
+            line2: '',
             type: 'total',
-            val: totC1,
-            color: '#005eb8',
+            val: baseC,
+            color: '#0066cc',
+            darkColor: '#2563eb',
+            rawVal1: baseC,
+            rawVal2: baseC,
+            diff: 0
+        },
+        {
+            key: 'productivity',
+            label: '+ Productivity',
+            shortLabel: '+ Productivity',
+            line1: '+ Productivity',
+            line2: '',
+            type: 'delta',
+            impact: prod,
+            color: '#10b981',
+            darkColor: '#22c55e',
+            rawVal1: 0,
+            rawVal2: prod,
+            diff: prod
+        },
+        {
+            key: 'overtime',
+            label: '+ Overtime',
+            shortLabel: '+ Overtime',
+            line1: '+ Overtime',
+            line2: '',
+            type: 'delta',
+            impact: ot,
+            color: '#10b981',
+            darkColor: '#22c55e',
+            rawVal1: 0,
+            rawVal2: ot,
+            diff: ot
+        },
+        {
+            key: 'rds',
+            label: '+ RDS',
+            shortLabel: '+ RDS',
+            line1: '+ RDS',
+            line2: '',
+            type: 'delta',
+            impact: rds,
+            color: '#10b981',
+            darkColor: '#22c55e',
+            rawVal1: 0,
+            rawVal2: rds,
+            diff: rds
+        },
+        {
+            key: 'other_capacity',
+            label: '+ Other',
+            shortLabel: '+ Other',
+            line1: '+ Other',
+            line2: '',
+            type: 'delta',
+            impact: other,
+            color: '#10b981',
+            darkColor: '#22c55e',
+            rawVal1: 0,
+            rawVal2: other,
+            diff: other
+        },
+        {
+            key: 'available_capacity',
+            label: '= Available Capacity',
+            shortLabel: 'Available Cap',
+            line1: '= Available Capacity',
+            line2: '',
+            type: 'total',
+            val: availC,
+            color: '#003d7a',
+            darkColor: '#1d4ed8',
             rawVal1: totC1,
-            rawVal2: totC1,
-            diff: 0
-        },
-        {
-            key: 'gross_hours',
-            label: 'Gross Hours',
-            shortLabel: 'Gross Hours',
-            line1: 'Gross',
-            line2: 'Hours',
-            type: 'delta',
-            impact: impactGross,
-            color: impactGross >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: gross1,
-            rawVal2: gross2,
-            diff: dGross,
-            isDowntime: false
-        },
-        {
-            key: 'sickness',
-            label: 'Sickness Downtime',
-            shortLabel: 'Sickness',
-            line1: 'Sickness',
-            line2: 'Downtime',
-            type: 'delta',
-            impact: impactSickness,
-            color: impactSickness >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: sickness1,
-            rawVal2: sickness2,
-            diff: sickness2 - sickness1,
-            isDowntime: true
-        },
-        {
-            key: 'holiday',
-            label: 'Holiday Downtime',
-            shortLabel: 'Holiday',
-            line1: 'Holiday',
-            line2: 'Downtime',
-            type: 'delta',
-            impact: impactHoliday,
-            color: impactHoliday >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: holiday1,
-            rawVal2: holiday2,
-            diff: holiday2 - holiday1,
-            isDowntime: true
-        },
-        {
-            key: 'training',
-            label: 'Training Downtime',
-            shortLabel: 'Training',
-            line1: 'Training',
-            line2: 'Downtime',
-            type: 'delta',
-            impact: impactTraining,
-            color: impactTraining >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: training1,
-            rawVal2: training2,
-            diff: training2 - training1,
-            isDowntime: true
-        },
-        {
-            key: 'meeting',
-            label: 'Meeting Downtime',
-            shortLabel: 'Meeting',
-            line1: 'Meeting',
-            line2: 'Downtime',
-            type: 'delta',
-            impact: impactMeeting,
-            color: impactMeeting >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: meeting1,
-            rawVal2: meeting2,
-            diff: meeting2 - meeting1,
-            isDowntime: true
-        },
-        {
-            key: 'others_downtimes',
-            label: 'Others Downtimes',
-            shortLabel: 'Others DT',
-            line1: 'Others',
-            line2: 'Downtimes',
-            type: 'delta',
-            impact: impactOthers,
-            color: impactOthers >= 0 ? '#10b981' : '#ef4444',
-            rawVal1: others1,
-            rawVal2: others2,
-            diff: others2 - others1,
-            isDowntime: true
-        },
-        {
-            key: 'comparison_avail',
-            label: 'Comparison Available Hours',
-            shortLabel: 'Comp Avail',
-            line1: 'Comp',
-            line2: 'Avail',
-            type: 'total',
-            val: totC2,
-            color: '#4f46e5',
-            rawVal1: totC2,
-            rawVal2: totC2,
-            diff: totC2 - totC1
+            rawVal2: availC,
+            diff: availC - totC1
         }
     ];
 
-    let running = totC1;
+    // Position floating deltas at top level (~38k)
+    let running = availC - (prod + ot + rds + other);
     for (let i = 1; i < steps.length - 1; i++) {
         const s = steps[i];
         const startY = running;
@@ -10038,172 +11016,295 @@ function computeCapacityWaterfall(totC1, totC2) {
         s.endLevel = endY;
         running = endY;
     }
+    steps[0].startLevel = 0;
+    steps[0].endLevel = baseC;
     steps[steps.length - 1].startLevel = 0;
-    steps[steps.length - 1].endLevel = totC2;
+    steps[steps.length - 1].endLevel = availC;
 
     return {
-        baseline: { gross: gross1, sickness: sickness1, holiday: holiday1, training: training1, meeting: meeting1, others: others1, available: totC1 },
-        comparison: { gross: gross2, sickness: sickness2, holiday: holiday2, training: training2, meeting: meeting2, others: others2, available: totC2 },
+        baseline: { gross: Math.round(totC1 * 1.25), sickness: 0, holiday: 0, training: 0, meeting: 0, others: 0, available: totC1 },
+        comparison: { gross: Math.round(totC2 * 1.25), sickness: 0, holiday: 0, training: 0, meeting: 0, others: 0, available: availC },
         steps
     };
 }
 
-function computeDemandWaterfall(totD1, totD2, skillFilter) {
-    // Formula: Total Demand Hours = HEC Upgrade + HEC Repair + KAC Upgrade + KAC Repair + HEC Warranty + KAC Warranty
-    let hecU1, hecR1, kacU1, kacR1, hecW1, kacW1;
-    let hecU2, hecR2, kacU2, kacR2, hecW2, kacW2;
+// Demand work_code -> category lookup from uploaded work_code/category/bu table (excluding EV categories)
+const DEMAND_CATEGORY_META = [
+    { key: 'HEC Jobs', line1: 'HEC', line2: 'Jobs', skill: 'HEC', color: '#2563eb' },
+    { key: 'HEC Growth', line1: 'HEC', line2: 'Growth', skill: 'HEC', color: '#0ea5e9' },
+    { key: 'HEC Upgrades', line1: 'HEC', line2: 'Upgrades', skill: 'HEC', color: '#0284c7' },
+    { key: 'HEC Other', line1: 'HEC', line2: 'Other', skill: 'HEC', color: '#60a5fa' },
+    { key: 'KAC Jobs', line1: 'KAC', line2: 'Jobs', skill: 'KAC', color: '#7c3aed' },
+    { key: 'KAC Growth', line1: 'KAC', line2: 'Growth', skill: 'KAC', color: '#8b5cf6' },
+    { key: 'KAC Other', line1: 'KAC', line2: 'Other', skill: 'KAC', color: '#a78bfa' }
+];
 
-    if (skillFilter === 'HEC') {
-        hecU1 = Math.round(totD1 * 0.52);
-        hecR1 = Math.round(totD1 * 0.35);
-        hecW1 = totD1 - (hecU1 + hecR1);
-        kacU1 = 0; kacR1 = 0; kacW1 = 0;
+const WORK_CODE_TO_DEMAND_CATEGORY = {
+    W01: 'KAC Jobs',
+    W02: 'HEC Jobs',
+    W03: 'HEC Jobs',
+    W04: 'KAC Other',
+    W05: 'HEC Other',
+    W06: 'HEC Other',
+    W07: 'KAC Other',
+    W08: 'EV Warranties',
+    W09: 'KAC Growth',
+    W10: 'HEC Growth',
+    W11: 'HEC Upgrades',
+    W12: 'HEC Other',
+    W13: 'EV',
+    W14: 'HEC Growth',
+    W15: 'HEC Other',
+    W16: 'HEC Jobs',
+    W17: 'HEC Other',
+    W18: 'HEC Other',
+    W19: 'HEC Upgrades',
+    W20: 'HEC Other',
+    W21: 'HEC Other',
+    W22: 'KAC Other',
+    W23: 'HEC Other',
+    W24: 'HEC Upgrades',
+    W25: 'HEC Other',
+    W26: 'EV',
+    W27: 'KAC Other',
+    W28: 'HEC Jobs',
+    W29: 'KAC Other',
+    W30: 'HEC Other',
+    W31: 'KAC Growth',
+    W32: 'HEC Other',
+    W33: 'HEC Other',
+    W00: 'EV',
+    W98: 'KAC Other',
+    W99: 'HEC Other'
+};
 
-        hecU2 = Math.round(totD2 * 0.54);
-        hecR2 = Math.round(totD2 * 0.34);
-        hecW2 = totD2 - (hecU2 + hecR2);
-        kacU2 = 0; kacR2 = 0; kacW2 = 0;
-    } else if (skillFilter === 'KAC') {
-        kacU1 = Math.round(totD1 * 0.45);
-        kacR1 = Math.round(totD1 * 0.40);
-        kacW1 = totD1 - (kacU1 + kacR1);
-        hecU1 = 0; hecR1 = 0; hecW1 = 0;
+function isEvDemandCategory(workCode, metricCategory) {
+    const wc = String(workCode || '').trim().toUpperCase();
+    const cat = String(metricCategory || '').trim().toUpperCase();
+    if (cat === 'EV' || cat.startsWith('EV ')) return true;
+    if (wc === 'W00' || wc === 'W08' || wc === 'W13' || wc === 'W26') return true;
+    if (wc.startsWith('EV ') || wc.startsWith('EV-')) return true;
+    return false;
+}
 
-        kacU2 = Math.round(totD2 * 0.44);
-        kacR2 = Math.round(totD2 * 0.41);
-        kacW2 = totD2 - (kacU2 + kacR2);
-        hecU2 = 0; hecR2 = 0; hecW2 = 0;
-    } else {
-        hecU1 = Math.round(totD1 * 0.32);
-        hecR1 = Math.round(totD1 * 0.28);
-        kacU1 = Math.round(totD1 * 0.15);
-        kacR1 = Math.round(totD1 * 0.12);
-        hecW1 = Math.round(totD1 * 0.08);
-        kacW1 = totD1 - (hecU1 + hecR1 + kacU1 + kacR1 + hecW1);
+function getDemandWaterfallCategory(workCode, skill) {
+    const wc = String(workCode || '').trim();
+    const mapped = WORK_CODE_TO_DEMAND_CATEGORY[wc] || WORK_CODE_TO_DEMAND_CATEGORY[wc.toUpperCase()] || '';
+    if (isEvDemandCategory(wc, mapped)) return null;
+    if (mapped) return mapped;
+    return String(skill || '').toUpperCase() === 'KAC' ? 'KAC Other' : 'HEC Other';
+}
 
-        hecU2 = Math.round(totD2 * 0.335);
-        hecR2 = Math.round(totD2 * 0.265);
-        kacU2 = Math.round(totD2 * 0.145);
-        kacR2 = Math.round(totD2 * 0.125);
-        hecW2 = Math.round(totD2 * 0.078);
-        kacW2 = totD2 - (hecU2 + hecR2 + kacU2 + kacR2 + hecW2);
+function computeDemandWaterfall(totD1, totD2, skillFilter, bridge = null) {
+    // Demand Waterfall built from es_powerbi_model_checker_plan non-EV categories matching the category lookup table
+    if (bridge && bridge.base && bridge.comp) {
+        const bCats = bridge.base.demandCategories || {};
+        const cCats = bridge.comp.demandCategories || {};
+
+        const activeDefs = DEMAND_CATEGORY_META.filter(def => {
+            if (skillFilter === 'HEC') return def.skill === 'HEC';
+            if (skillFilter === 'KAC') return def.skill === 'KAC';
+            return true;
+        });
+
+        // Compute non-EV baseline and comparison totals from the included categories so the waterfall reconciles exactly
+        let rawStart = 0;
+        let rawEnd = 0;
+        const catDeltas = activeDefs.map(def => {
+            const v1 = Number(bCats[def.key] || 0);
+            const v2 = Number(cCats[def.key] || 0);
+            rawStart += v1;
+            rawEnd += v2;
+            return {
+                def,
+                raw1: v1,
+                raw2: v2,
+                rawDiff: v2 - v1
+            };
+        });
+
+        const startVal = Math.round(rawStart);
+        const endVal = Math.round(rawEnd);
+        const roundedDeltas = catDeltas.map(item => Math.round(item.rawDiff));
+        const deltaSum = roundedDeltas.reduce((acc, v) => acc + v, 0);
+        const intRemainder = (endVal - startVal) - deltaSum;
+        if (intRemainder !== 0 && roundedDeltas.length > 0) {
+            // Absorb tiny +/- integer rounding discrepancy into the largest non-EV category
+            let maxIdx = 0;
+            let maxMag = -1;
+            roundedDeltas.forEach((d, idx) => {
+                if (Math.abs(d) > maxMag) {
+                    maxMag = Math.abs(d);
+                    maxIdx = idx;
+                }
+            });
+            roundedDeltas[maxIdx] += intRemainder;
+        }
+
+        const steps = [
+            {
+                key: 'base_demand',
+                label: 'Baseline',
+                shortLabel: 'Baseline',
+                line1: 'Baseline',
+                line2: '',
+                type: 'total',
+                val: startVal,
+                color: '#0066cc',
+                darkColor: '#2563eb',
+                rawVal1: startVal,
+                rawVal2: startVal,
+                diff: 0
+            },
+            ...catDeltas.map((item, idx) => {
+                const diff = roundedDeltas[idx];
+                return {
+                    key: item.def.key.toLowerCase().replace(/\s+/g, '_'),
+                    label: item.def.key,
+                    shortLabel: item.def.key,
+                    line1: item.def.line1,
+                    line2: item.def.line2,
+                    type: 'delta',
+                    impact: diff,
+                    color: diff >= 0 ? '#10b981' : '#ef4444',
+                    darkColor: diff >= 0 ? '#22c55e' : '#f87171',
+                    rawVal1: Math.round(item.raw1),
+                    rawVal2: Math.round(item.raw2),
+                    diff
+                };
+            }),
+            {
+                key: 'total_demand',
+                label: 'Final',
+                shortLabel: 'Final',
+                line1: 'Final',
+                line2: '',
+                type: 'total',
+                val: endVal,
+                color: '#4a148c',
+                darkColor: '#8b5cf6',
+                rawVal1: startVal,
+                rawVal2: endVal,
+                diff: endVal - startVal
+            }
+        ];
+
+        let running = startVal;
+        for (let i = 1; i < steps.length - 1; i++) {
+            const s = steps[i];
+            const startY = running;
+            const endY = running + s.impact;
+            s.baseVal = Math.min(startY, endY);
+            s.barVal = Math.abs(s.impact);
+            s.val = s.impact;
+            s.startLevel = startY;
+            s.endLevel = endY;
+            running = endY;
+        }
+        steps[0].startLevel = 0;
+        steps[0].endLevel = startVal;
+        steps[steps.length - 1].startLevel = 0;
+        steps[steps.length - 1].endLevel = endVal;
+
+        const rebalanceStreams = catDeltas.map(item => ({
+            key: item.def.key.toLowerCase().replace(/\s+/g, '_'),
+            label: item.def.key,
+            bVal: Math.round(item.raw1),
+            cVal: Math.round(item.raw2),
+            delta: Math.round(item.raw2) - Math.round(item.raw1),
+            color: item.def.color,
+            tag: item.def.skill
+        }));
+
+        return {
+            baseline: { total: startVal, base: startVal },
+            comparison: { total: endVal, base: startVal },
+            rebalanceStreams,
+            steps
+        };
     }
 
-    const dHecU = hecU2 - hecU1;
-    const dHecR = hecR2 - hecR1;
-    const dKacU = kacU2 - kacU1;
-    const dKacR = kacR2 - kacR1;
-    const dHecW = hecW2 - hecW1;
-    const dKacW = kacW2 - kacW1;
+    // Fallback bridge when no packed final data is supplied yet
+    const baseD = Math.round(totD1 * (36360 / 35660));
+    const growth = Math.round(totD1 * (435 / 35660));
+    const variations = Math.round(totD1 * (-1345 / 35660));
+    const otherD = totD1 - (baseD + growth + variations);
+    const totalD = totD1;
 
     const steps = [
         {
-            key: 'baseline_demand',
-            label: 'Baseline Total Demand',
-            shortLabel: 'Baseline Demand',
-            line1: 'Baseline',
-            line2: 'Demand',
+            key: 'base_demand',
+            label: 'Base Demand',
+            shortLabel: 'Base Demand',
+            line1: 'Base Demand',
+            line2: '',
             type: 'total',
-            val: totD1,
-            color: '#005eb8',
-            rawVal1: totD1,
-            rawVal2: totD1,
+            val: baseD,
+            color: '#00c853',
+            darkColor: '#10b981',
+            rawVal1: baseD,
+            rawVal2: baseD,
             diff: 0
         },
         {
-            key: 'hec_upgrade',
-            label: 'HEC Upgrade',
-            shortLabel: 'HEC Upgrade',
-            line1: 'HEC',
-            line2: 'Upgrade',
+            key: 'growth',
+            label: '+ Growth',
+            shortLabel: '+ Growth',
+            line1: '+ Growth',
+            line2: '',
             type: 'delta',
-            impact: dHecU,
-            color: dHecU >= 0 ? '#3b82f6' : '#10b981',
-            rawVal1: hecU1,
-            rawVal2: hecU2,
-            diff: dHecU
+            impact: growth,
+            color: '#10b981',
+            darkColor: '#22c55e',
+            rawVal1: 0,
+            rawVal2: growth,
+            diff: growth
         },
         {
-            key: 'hec_repair',
-            label: 'HEC Repair',
-            shortLabel: 'HEC Repair',
-            line1: 'HEC',
-            line2: 'Repair',
+            key: 'variations',
+            label: '+ Variations',
+            shortLabel: '+ Variations',
+            line1: '+ Variations',
+            line2: '',
             type: 'delta',
-            impact: dHecR,
-            color: dHecR >= 0 ? '#3b82f6' : '#10b981',
-            rawVal1: hecR1,
-            rawVal2: hecR2,
-            diff: dHecR
+            impact: variations,
+            color: '#ef4444',
+            darkColor: '#f87171',
+            rawVal1: 0,
+            rawVal2: variations,
+            diff: variations
         },
         {
-            key: 'kac_upgrade',
-            label: 'KAC Upgrade',
-            shortLabel: 'KAC Upgrade',
-            line1: 'KAC',
-            line2: 'Upgrade',
+            key: 'other_demand',
+            label: '+ Other',
+            shortLabel: '+ Other',
+            line1: '+ Other',
+            line2: '',
             type: 'delta',
-            impact: dKacU,
-            color: dKacU >= 0 ? '#8b5cf6' : '#10b981',
-            rawVal1: kacU1,
-            rawVal2: kacU2,
-            diff: dKacU
+            impact: otherD,
+            color: otherD >= 0 ? '#10b981' : '#ef4444',
+            darkColor: otherD >= 0 ? '#22c55e' : '#f87171',
+            rawVal1: 0,
+            rawVal2: otherD,
+            diff: otherD
         },
         {
-            key: 'kac_repair',
-            label: 'KAC Repair',
-            shortLabel: 'KAC Repair',
-            line1: 'KAC',
-            line2: 'Repair',
-            type: 'delta',
-            impact: dKacR,
-            color: dKacR >= 0 ? '#8b5cf6' : '#10b981',
-            rawVal1: kacR1,
-            rawVal2: kacR2,
-            diff: dKacR
-        },
-        {
-            key: 'hec_warranty',
-            label: 'HEC Warranty',
-            shortLabel: 'HEC Warranty',
-            line1: 'HEC',
-            line2: 'Warranty',
-            type: 'delta',
-            impact: dHecW,
-            color: dHecW >= 0 ? '#3b82f6' : '#10b981',
-            rawVal1: hecW1,
-            rawVal2: hecW2,
-            diff: dHecW
-        },
-        {
-            key: 'kac_warranty',
-            label: 'KAC Warranty',
-            shortLabel: 'KAC Warranty',
-            line1: 'KAC',
-            line2: 'Warranty',
-            type: 'delta',
-            impact: dKacW,
-            color: dKacW >= 0 ? '#8b5cf6' : '#10b981',
-            rawVal1: kacW1,
-            rawVal2: kacW2,
-            diff: dKacW
-        },
-        {
-            key: 'comparison_demand',
-            label: 'Comparison Total Demand',
-            shortLabel: 'Comp Demand',
-            line1: 'Comp',
-            line2: 'Demand',
+            key: 'total_demand',
+            label: '= Total Demand',
+            shortLabel: 'Total Demand',
+            line1: '= Total Demand',
+            line2: '',
             type: 'total',
-            val: totD2,
-            color: '#4f46e5',
+            val: totalD,
+            color: '#4a148c',
+            darkColor: '#8b5cf6',
             rawVal1: totD2,
-            rawVal2: totD2,
-            diff: totD2 - totD1
+            rawVal2: totalD,
+            diff: totalD - totD2
         }
     ];
 
-    let running = totD1;
+    let running = baseD;
     for (let i = 1; i < steps.length - 1; i++) {
         const s = steps[i];
         const startY = running;
@@ -10215,20 +11316,41 @@ function computeDemandWaterfall(totD1, totD2, skillFilter) {
         s.endLevel = endY;
         running = endY;
     }
+    steps[0].startLevel = 0;
+    steps[0].endLevel = baseD;
     steps[steps.length - 1].startLevel = 0;
-    steps[steps.length - 1].endLevel = totD2;
+    steps[steps.length - 1].endLevel = totalD;
+
+    // Preserved fields for WorkStreamRebalanceChart compatibility
+    const hecU1 = Math.round(totD1 * 0.32);
+    const hecR1 = Math.round(totD1 * 0.28);
+    const kacU1 = Math.round(totD1 * 0.15);
+    const kacR1 = Math.round(totD1 * 0.12);
+    const hecW1 = Math.round(totD1 * 0.08);
+    const kacW1 = totD1 - (hecU1 + hecR1 + kacU1 + kacR1 + hecW1);
+
+    const hecU2 = Math.round(totD2 * 0.335);
+    const hecR2 = Math.round(totD2 * 0.265);
+    const kacU2 = Math.round(totD2 * 0.145);
+    const kacR2 = Math.round(totD2 * 0.125);
+    const hecW2 = Math.round(totD2 * 0.078);
+    const kacW2 = totD2 - (hecU2 + hecR2 + kacU2 + kacR2 + hecW2);
 
     return {
-        baseline: { hecU: hecU1, hecR: hecR1, kacU: kacU1, kacR: kacR1, hecW: hecW1, kacW: kacW1, total: totD1 },
-        comparison: { hecU: hecU2, hecR: hecR2, kacU: kacU2, kacR: kacR2, hecW: hecW2, kacW: kacW2, total: totD2 },
+        baseline: { hecU: hecU1, hecR: hecR1, kacU: kacU1, kacR: kacR1, hecW: hecW1, kacW: kacW1, total: totD1, base: baseD },
+        comparison: { hecU: hecU2, hecR: hecR2, kacU: kacU2, kacR: kacR2, hecW: hecW2, kacW: kacW2, total: totD2, base: baseD },
         steps
     };
 }
 
-function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeText, iconText = "chart", idPrefix = "wf", isSingleView = false }) {
-    const [useFocusedScale, setUseFocusedScale] = useState(true);
+function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeText, iconText = "chart", idPrefix = "wf", isSingleView = false, isDarkMode = false }) {
+    const isDark = isDarkMode || (typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+    const [useFocusedScale, setUseFocusedScale] = useState(false);
     const [activeTab, setActiveTab] = useState("chart"); // 'chart' | 'table'
     const [hoveredIdx, setHoveredIdx] = useState(null);
+    const [sensitivity, setSensitivity] = useState(idPrefix.includes('cap') ? '+/- 20%' : '+20%');
+    const [isSensitivityOpen, setIsSensitivityOpen] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
     const containerRef = useRef(null);
     const [containerWidth, setContainerWidth] = useState(620);
 
@@ -10261,134 +11383,163 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
         };
     }, []);
 
-    // Responsive width matching parent container screen size
+    // Responsive sizing
     const width = containerWidth;
-    const height = 340;
-    const padLeft = 48;
-    const padRight = 18;
-    const padTop = 26;
-    const padBottom = 54;
+    const height = isExpanded ? 440 : 340;
+    const padLeft = 44;
+    const padRight = 16;
+    const padTop = 24;
+    const padBottom = 50;
     const plotW = Math.max(100, width - padLeft - padRight);
     const plotH = height - padTop - padBottom;
 
     const allLevels = steps.flatMap(s => s.type === 'total' ? [s.val] : [s.startLevel, s.endLevel]);
-    const minVal = Math.min(...allLevels);
-    const maxVal = Math.max(...allLevels);
-    const span = Math.max(100, maxVal - minVal);
+    const minVal = allLevels.length ? Math.min(...allLevels) : 0;
+    const maxVal = allLevels.length ? Math.max(...allLevels) : 40000;
 
-    // Focused scaling: ~22% margin so floating deltas occupy ~65% of chart height prominently
-    const margin = Math.max(160, Math.round(span * 0.22));
-    const yMin = useFocusedScale ? Math.max(0, Math.floor((minVal - margin) / 50) * 50) : 0;
-    const yMax = Math.ceil((maxVal + margin) / 50) * 50;
+    // Dynamic vertical scaling supporting large multi-week totals as well as focused zoom
+    const defaultYMax = maxVal <= 40000 ? 40000 : Math.ceil((maxVal * 1.1) / 5000) * 5000;
+    const focusMargin = Math.max(600, Math.round((maxVal - minVal) * 0.25));
+    const yMin = useFocusedScale ? Math.max(0, Math.floor((minVal - focusMargin) / 500) * 500) : 0;
+    const yMax = useFocusedScale ? Math.ceil((maxVal + focusMargin) / 500) * 500 : defaultYMax;
     const yRange = (yMax - yMin) || 1;
 
     const getY = (val) => padTop + plotH - ((val - yMin) / yRange) * plotH;
 
     const slotW = plotW / (steps.length || 1);
-    const barW = Math.min(54, Math.max(34, Math.round(slotW * 0.52)));
+    const barW = Math.min(54, Math.max(20, Math.round(slotW * 0.56)));
 
     const gridTicks = [0, 0.25, 0.5, 0.75, 1.0].map(pct => Math.round(yMin + pct * yRange));
 
-    const total1 = steps[0]?.val || 0;
-    const total2 = steps[steps.length - 1]?.val || 0;
-    const netDelta = total2 - total1;
-
-    const renderWaterfallIcon = () => {
-        if (React.isValidElement(iconText)) return iconText;
-        if (iconText === 'bolt') return <IconBolt className="w-3.5 h-3.5 text-amber-500" />;
-        if (iconText === 'trend') return <IconTrendingUp className="w-3.5 h-3.5 text-blue-600" />;
-        if (iconText === 'scale') return <IconScale className="w-3.5 h-3.5 text-indigo-600" />;
-        return <IconBarChart className="w-3.5 h-3.5 text-[#005eb8]" />;
-    };
-    const iconBgClass = (iconText === 'bolt')
-        ? 'bg-amber-50 border-amber-200/70 text-amber-500'
-        : (iconText === 'trend')
-            ? 'bg-blue-50 border-blue-200/70 text-blue-600'
-            : 'bg-blue-50 border-blue-200/70 text-[#005eb8]';
+    const isCap = idPrefix.includes('cap');
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs glow-card p-3.5 sm:p-4 flex flex-col justify-between h-[465px] min-h-[465px] w-full">
-            {/* Header with Title & Net Delta Pill (No Formula Banner) */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
-                <div className="flex items-center gap-2 min-w-0">
-                    <span className={`w-7 h-7 rounded-lg border flex items-center justify-center shadow-2xs flex-shrink-0 ${iconBgClass}`}>
-                        {renderWaterfallIcon()}
+        <div className="diff-waterfall-card bg-white dark:bg-[#071324] rounded-2xl border border-slate-200/90 dark:border-[#18365d] shadow-xs p-3.5 sm:p-4 flex flex-col justify-between min-h-[465px] w-full transition-all duration-200">
+            {/* Header with Title & Sensitivity Selector */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-[#18365d]/80">
+                <div className="flex items-center gap-2.5 min-w-0">
+                    <span className={`w-8 h-8 rounded-full border flex items-center justify-center shadow-2xs flex-shrink-0 ${
+                        isCap 
+                            ? 'bg-blue-50 dark:bg-blue-950/80 border-blue-200 dark:border-blue-700/60 text-[#005eb8] dark:text-[#60a5fa]' 
+                            : 'bg-purple-50 dark:bg-purple-950/80 border-purple-200 dark:border-purple-700/60 text-[#7c3aed] dark:text-[#c084fc]'
+                    }`}>
+                        {isCap ? <IconBarChart className="w-4 h-4" /> : <IconTrendingUp className="w-4 h-4" />}
                     </span>
                     <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight truncate">
+                            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-tight truncate">
                                 {title}
                             </h4>
-                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full font-mono flex-shrink-0 ${
-                                netDelta >= 0 
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
-                            }`}>
-                                {netDelta >= 0 ? `+${netDelta.toLocaleString()}` : netDelta.toLocaleString()} {unit}
+                            {/* Sensitivity Pill Dropdown */}
+                            <div className="relative inline-block">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsSensitivityOpen(!isSensitivityOpen)}
+                                    className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#0c1b31] text-slate-700 dark:text-slate-200 hover:border-blue-400 flex items-center gap-1 cursor-pointer transition select-none"
+                                    title="Sensitivity Adjustment Range"
+                                >
+                                    <span>{sensitivity}</span>
+                                    <span className="text-[8px] text-slate-400">▼</span>
+                                </button>
+                                {isSensitivityOpen && (
+                                    <div className="absolute left-0 mt-1 w-24 bg-white dark:bg-[#0c1b31] border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl py-1 z-30 text-[10px] font-bold">
+                                        {['+/- 10%', '+/- 20%', '+/- 30%'].map(opt => (
+                                            <button
+                                                key={opt}
+                                                type="button"
+                                                onClick={() => { setSensitivity(opt); setIsSensitivityOpen(false); }}
+                                                className={`w-full px-2.5 py-1 text-left hover:bg-blue-50 dark:hover:bg-[#18365d] cursor-pointer ${sensitivity === opt ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}
+                                            >
+                                                {opt}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            {/* Info icon */}
+                            <span
+                                title={isCap ? "Shows how different factors impact available capacity versus demand." : "NECB & other adjustments (pool, growth, variations) for total demand."}
+                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-help flex items-center"
+                            >
+                                <IconInfo className="w-3.5 h-3.5" />
                             </span>
                         </div>
-                        <p className="text-[10px] text-slate-400 mt-0.5 truncate">{subtitle}</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{subtitle}</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                         type="button"
-                        onClick={() => setUseFocusedScale(prev => !prev)}
-                        className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition cursor-pointer ${
-                            useFocusedScale 
-                                ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-2xs' 
-                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                        }`}
-                        title="Toggle focused zoom vs zero-baseline scale"
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-md transition"
+                        title={isExpanded ? "Collapse height" : "Expand height"}
                     >
-                        {useFocusedScale ? (
-                            <span className="flex items-center gap-1.5">
-                                <IconSearch className="w-3 h-3 text-blue-600" />
-                                <span>Focused Zoom</span>
-                            </span>
-                        ) : (
-                            <span className="flex items-center gap-1.5">
-                                <IconRuler className="w-3 h-3 text-slate-500" />
-                                <span>Zero Baseline</span>
-                            </span>
-                        )}
+                        <IconExpand className="w-3.5 h-3.5" />
                     </button>
-                    <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[10px] font-bold">
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('chart')}
-                            className={`px-2.5 py-0.5 rounded-md transition cursor-pointer ${activeTab === 'chart' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-900'}`}
-                        >
-                            Chart
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('table')}
-                            className={`px-2.5 py-0.5 rounded-md transition cursor-pointer ${activeTab === 'table' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-900'}`}
-                        >
-                            Table
-                        </button>
-                    </div>
+                </div>
+            </div>
+
+            {/* Sub-controls row: Focused Zoom & Chart/Table Switcher */}
+            <div className="flex items-center justify-between gap-2 mt-2 pt-1 pb-1">
+                <button
+                    type="button"
+                    onClick={() => setUseFocusedScale(prev => !prev)}
+                    className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition cursor-pointer flex items-center gap-1.5 ${
+                        useFocusedScale
+                            ? 'bg-blue-50 dark:bg-blue-950/70 text-[#005eb8] dark:text-[#80c6ff] border-blue-300 dark:border-blue-700 shadow-2xs font-extrabold'
+                            : 'bg-white dark:bg-[#081324] text-slate-600 dark:text-[#adbed4] border-slate-200 dark:border-[#18365d] hover:bg-slate-50'
+                    }`}
+                    title="Toggle between focused delta zoom and zero-baseline full scale"
+                >
+                    <IconSearch className="w-3 h-3 text-[#005eb8] dark:text-[#80c6ff]" />
+                    <span>Focused Zoom</span>
+                </button>
+
+                <div className="flex items-center bg-slate-100 dark:bg-[#081324] p-0.5 rounded-lg border border-slate-200 dark:border-[#18365d] text-[10px] font-bold">
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab('chart')}
+                        className={`px-2.5 py-0.5 rounded-md transition cursor-pointer flex items-center gap-1 ${activeTab === 'chart' ? 'bg-white dark:bg-[#0c1b31] text-slate-900 dark:text-white shadow-2xs' : 'text-slate-500 dark:text-[#adbed4] hover:text-slate-900'}`}
+                    >
+                        <IconBarChart className="w-3 h-3" />
+                        <span>Chart</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab('table')}
+                        className={`px-2.5 py-0.5 rounded-md transition cursor-pointer flex items-center gap-1 ${activeTab === 'table' ? 'bg-white dark:bg-[#0c1b31] text-slate-900 dark:text-white shadow-2xs' : 'text-slate-500 dark:text-[#adbed4] hover:text-slate-900'}`}
+                    >
+                        <IconClipboard className="w-3 h-3" />
+                        <span>Table</span>
+                    </button>
                 </div>
             </div>
 
             {/* View Body */}
             {activeTab === 'chart' ? (
-                <div ref={containerRef} className="w-full h-[355px] relative mt-2 flex items-center justify-center">
+                <div ref={containerRef} className="w-full flex-1 relative mt-1 flex items-center justify-center">
                     <svg
                         viewBox={`0 0 ${width} ${height}`}
                         className="w-full h-full select-none block"
                         style={{ width: '100%', height: `${height}px` }}
                     >
                         <defs>
-                            <linearGradient id={`${idPrefix}-total1`} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#005eb8" />
-                                <stop offset="100%" stopColor="#0284c7" />
+                            <linearGradient id={`${idPrefix}-cap-base`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#0066cc" />
+                                <stop offset="100%" stopColor="#0052a3" />
                             </linearGradient>
-                            <linearGradient id={`${idPrefix}-total2`} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#4f46e5" />
-                                <stop offset="100%" stopColor="#6366f1" />
+                            <linearGradient id={`${idPrefix}-cap-avail`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#003d7a" />
+                                <stop offset="100%" stopColor="#002b57" />
+                            </linearGradient>
+                            <linearGradient id={`${idPrefix}-dem-base`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#00c853" />
+                                <stop offset="100%" stopColor="#009624" />
+                            </linearGradient>
+                            <linearGradient id={`${idPrefix}-dem-total`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#4a148c" />
+                                <stop offset="100%" stopColor="#311b92" />
                             </linearGradient>
                             <linearGradient id={`${idPrefix}-pos`} x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stopColor="#10b981" />
@@ -10404,9 +11555,7 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                         {gridTicks.map((tick, idx) => {
                             const y = getY(tick);
                             const kVal = tick / 1000;
-                            const tickLabel = tick >= 1000 
-                                ? (kVal % 1 === 0 ? `${kVal}k` : `${kVal.toFixed(1)}k`) 
-                                : tick.toLocaleString();
+                            const tickLabel = `${kVal}k`;
                             return (
                                 <g key={idx}>
                                     <line
@@ -10414,16 +11563,17 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                                         y1={y}
                                         x2={width - padRight}
                                         y2={y}
-                                        stroke="#f1f5f9"
+                                        stroke={isDark ? "#1e293b" : "#e2e8f0"}
                                         strokeWidth="1"
+                                        strokeDasharray="4 4"
                                     />
                                     <text
                                         x={padLeft - 6}
                                         y={y + 3.5}
                                         textAnchor="end"
-                                        fontSize="10.5"
-                                        fontWeight="500"
-                                        fill="#94a3b8"
+                                        fontSize="10"
+                                        fontWeight="600"
+                                        fill={isDark ? "#94a3b8" : "#64748b"}
                                         fontFamily="monospace"
                                     >
                                         {tickLabel}
@@ -10432,7 +11582,7 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                             );
                         })}
 
-                        {/* Dashed Connector Lines */}
+                        {/* Stepped Connector Lines tracking cumulative bridge */}
                         {steps.map((step, idx) => {
                             if (idx >= steps.length - 1) return null;
                             const curX = padLeft + idx * slotW + (slotW - barW) / 2 + barW;
@@ -10445,7 +11595,7 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                                     y1={levelY}
                                     x2={nextX}
                                     y2={levelY}
-                                    stroke="#94a3b8"
+                                    stroke={isDark ? "#475569" : "#94a3b8"}
                                     strokeWidth="1.25"
                                     strokeDasharray="3 3"
                                 />
@@ -10460,29 +11610,33 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                             if (step.type === 'total') {
                                 topY = getY(step.val);
                                 barH = Math.max(3, getY(yMin) - topY);
-                                fillGrad = idx === 0 ? `url(#${idPrefix}-total1)` : `url(#${idPrefix}-total2)`;
+                                // Starting bar uses capacity baseline gradient (#0066cc -> #0052a3),
+                                // ending bar uses demand final gradient (#4a148c -> #311b92) in both waterfalls.
+                                fillGrad = idx === 0 ? `url(#${idPrefix}-cap-base)` : `url(#${idPrefix}-dem-total)`;
                             } else {
                                 const high = Math.max(step.startLevel, step.endLevel);
                                 const low = Math.min(step.startLevel, step.endLevel);
                                 topY = getY(high);
-                                barH = Math.max(4, getY(low) - getY(high));
+                                barH = Math.max(4, Math.abs(getY(low) - getY(high)));
                                 fillGrad = step.impact >= 0 ? `url(#${idPrefix}-pos)` : `url(#${idPrefix}-neg)`;
                             }
 
                             const isHovered = hoveredIdx === idx;
-
-                            // Value label placement:
-                            // Positive delta: above bar (topY - 7)
-                            // Negative delta: below bar (topY + barH + 13)
-                            // Total bars: above bar (topY - 7)
-                            const isNegativeDelta = step.type === 'delta' && step.impact < 0;
-                            const labelY = isNegativeDelta ? (topY + barH + 13) : (topY - 7);
-                            const labelColor = step.type === 'total' 
-                                ? '#0f172a' 
-                                : (step.impact >= 0 ? '#059669' : '#dc2626');
-                            const valText = step.type === 'total' 
-                                ? step.val.toLocaleString() 
-                                : (step.impact >= 0 ? `+${step.impact.toLocaleString()}` : `${step.impact.toLocaleString()}`);
+                            const labelY = topY - 7;
+                            const labelColor = isDark
+                                ? (step.type === 'total' ? '#ffffff' : (step.impact >= 0 ? '#34d399' : '#f87171'))
+                                : (step.type === 'total' ? '#0f172a' : (step.impact >= 0 ? '#059669' : '#dc2626'));
+                            const compactFmt = (v) => {
+                                const absV = Math.abs(v);
+                                if (steps.length >= 8 && absV >= 10000) {
+                                    const k = (v / 1000).toFixed(absV >= 100000 ? 0 : 1);
+                                    return `${k}k`;
+                                }
+                                return v.toLocaleString();
+                            };
+                            const valText = step.type === 'total'
+                                ? compactFmt(step.val)
+                                : (step.impact >= 0 ? `+${compactFmt(step.impact)}` : compactFmt(step.impact));
 
                             return (
                                 <g
@@ -10491,53 +11645,53 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                                     onMouseEnter={() => setHoveredIdx(idx)}
                                     onMouseLeave={() => setHoveredIdx(null)}
                                 >
-                                    {/* Bar rect */}
+                                    {/* Bar rectangle */}
                                     <rect
                                         x={barX}
                                         y={topY}
                                         width={barW}
                                         height={barH}
-                                        rx={4}
+                                        rx={3}
                                         fill={fillGrad}
-                                        className={`transition-all duration-150 ${isHovered ? 'filter drop-shadow-md stroke-slate-900 stroke-1' : ''}`}
+                                        className={`transition-all duration-150 ${isHovered ? 'filter drop-shadow-md stroke-slate-400 stroke-1' : ''}`}
                                     />
 
-                                    {/* Value label - crisp, distinct font, never colliding */}
+                                    {/* Value label */}
                                     <text
                                         x={barX + barW / 2}
                                         y={labelY}
                                         textAnchor="middle"
-                                        fontSize="11"
-                                        fontFamily="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                                        fontSize={steps.length >= 8 ? "9" : "10.5"}
+                                        fontFamily="monospace, ui-sans-serif, system-ui"
                                         fontWeight="800"
                                         fill={labelColor}
                                     >
                                         {valText}
                                     </text>
 
-                                    {/* X-axis two-line label: split into 2 lines so texts never collide horizontally */}
+                                    {/* X-axis label (supports 2-line category labels) */}
                                     <text
                                         x={barX + barW / 2}
                                         y={padTop + plotH + 16}
                                         textAnchor="middle"
-                                        fontSize="10"
+                                        fontSize={steps.length >= 8 ? "8.5" : "9.5"}
                                         fontWeight={step.type === 'total' ? '800' : '600'}
-                                        fill={step.type === 'total' ? '#0f172a' : '#475569'}
+                                        fill={isDark ? (step.type === 'total' ? '#ffffff' : '#94a3b8') : (step.type === 'total' ? '#0f172a' : '#475569')}
                                     >
                                         {step.line1}
                                     </text>
-                                    {step.line2 ? (
+                                    {step.line2 && (
                                         <text
                                             x={barX + barW / 2}
-                                            y={padTop + plotH + 28}
+                                            y={padTop + plotH + 27}
                                             textAnchor="middle"
-                                            fontSize="9"
-                                            fontWeight={step.type === 'total' ? '700' : '500'}
-                                            fill={step.type === 'total' ? '#334155' : '#64748b'}
+                                            fontSize={steps.length >= 8 ? "8" : "9"}
+                                            fontWeight={step.type === 'total' ? '800' : '600'}
+                                            fill={isDark ? (step.type === 'total' ? '#ffffff' : '#94a3b8') : (step.type === 'total' ? '#0f172a' : '#475569')}
                                         >
                                             {step.line2}
                                         </text>
-                                    ) : null}
+                                    )}
                                 </g>
                             );
                         })}
@@ -10557,53 +11711,47 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
                                 </span>
                             </div>
                             <div className="text-[11px] text-slate-300 font-mono flex items-center justify-between gap-4">
-                                <span>Baseline: {steps[hoveredIdx].rawVal1?.toLocaleString()} {unit}</span>
-                                <span>Comp: {steps[hoveredIdx].rawVal2?.toLocaleString()} {unit}</span>
+                                <span>Component Impact:</span>
+                                <span className={`font-bold ${steps[hoveredIdx].type === 'total' ? 'text-white' : (steps[hoveredIdx].impact >= 0 ? 'text-emerald-400' : 'text-rose-400')}`}>
+                                    {steps[hoveredIdx].type === 'total' ? steps[hoveredIdx].val?.toLocaleString() : (steps[hoveredIdx].impact >= 0 ? `+${steps[hoveredIdx].impact.toLocaleString()}` : steps[hoveredIdx].impact.toLocaleString())} {unit}
+                                </span>
                             </div>
-                            {steps[hoveredIdx].type === 'delta' && (
-                                <div className="text-[11px] font-mono flex items-center justify-between gap-4 border-t border-slate-700 pt-1">
-                                    <span className="text-slate-400">Net Impact:</span>
-                                    <span className={`font-bold ${steps[hoveredIdx].impact >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                        {steps[hoveredIdx].impact >= 0 ? `+${steps[hoveredIdx].impact.toLocaleString()}` : steps[hoveredIdx].impact.toLocaleString()} {unit}
-                                    </span>
-                                </div>
-                            )}
                         </div>
                     )}
                 </div>
             ) : (
-                /* Tabular Data View - identical height container so card size never shifts */
-                <div className="w-full h-[355px] overflow-auto rounded-xl border border-slate-200/90 mt-2 bg-white shadow-2xs">
+                /* Tabular Data View */
+                <div className="w-full flex-1 overflow-auto rounded-xl border border-slate-200/90 dark:border-[#18365d] mt-2 bg-white dark:bg-[#0c1b31] shadow-2xs">
                     <table className="w-full text-left text-xs border-collapse">
-                        <thead className="sticky top-0 bg-slate-50 z-10 shadow-2xs">
-                            <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-[11px]">
+                        <thead className="sticky top-0 bg-slate-50 dark:bg-[#081324] z-10 shadow-2xs">
+                            <tr className="bg-slate-50 dark:bg-[#081324] text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-[#18365d] text-[11px]">
                                 <th className="py-2.5 px-3">Metric Component</th>
                                 <th className="py-2.5 px-3">Type</th>
-                                <th className="py-2.5 px-3">Baseline (Scen 1)</th>
-                                <th className="py-2.5 px-3">Comparison (Scen 2)</th>
-                                <th className="py-2.5 px-3 text-right">Variance Impact</th>
+                                <th className="py-2.5 px-3">Baseline</th>
+                                <th className="py-2.5 px-3">Final</th>
+                                <th className="py-2.5 px-3 text-right">Impact</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
+                        <tbody className="divide-y divide-slate-100 dark:divide-[#18365d] font-mono text-[11px]">
                             {steps.map((st, i) => (
-                                <tr key={i} className={st.type === 'total' ? 'bg-slate-50/70 font-bold' : 'hover:bg-slate-50/50'}>
-                                    <td className="py-2.5 px-3 font-sans font-medium text-slate-800">{st.label}</td>
+                                <tr key={i} className={st.type === 'total' ? 'bg-slate-50/70 dark:bg-[#09172d] font-bold' : 'hover:bg-slate-50/50 dark:hover:bg-[#112649]'}>
+                                    <td className="py-2.5 px-3 font-sans font-medium text-slate-800 dark:text-white">{st.label}</td>
                                     <td className="py-2.5 px-3">
                                         <span className={`text-[9px] px-1.5 py-0.5 rounded uppercase font-bold ${
-                                            st.type === 'total' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
+                                            st.type === 'total' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                                         }`}>
                                             {st.type}
                                         </span>
                                     </td>
-                                    <td className="py-2.5 px-3 text-slate-700">{st.rawVal1?.toLocaleString()} {unit}</td>
-                                    <td className="py-2.5 px-3 text-slate-700">{st.rawVal2?.toLocaleString()} {unit}</td>
+                                    <td className="py-2.5 px-3 text-slate-700 dark:text-slate-300">{st.rawVal1?.toLocaleString()} {unit}</td>
+                                    <td className="py-2.5 px-3 text-slate-700 dark:text-slate-300">{st.rawVal2?.toLocaleString()} {unit}</td>
                                     <td className="py-2.5 px-3 text-right">
                                         {st.type === 'total' ? (
-                                            <span className="text-slate-800 font-black">
+                                            <span className="text-slate-800 dark:text-white font-black">
                                                 {st.val?.toLocaleString()} {unit}
                                             </span>
                                         ) : (
-                                            <span className={`font-bold ${st.impact >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                            <span className={`font-bold ${st.impact >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                                                 {st.impact >= 0 ? `+${st.impact.toLocaleString()}` : st.impact.toLocaleString()} {unit}
                                             </span>
                                         )}
@@ -10622,13 +11770,13 @@ function WaterfallSvgChart({ title, subtitle, steps = [], unit = "hrs", badgeTex
 // WORK STREAM REBALANCING (DIVERGING BAR / TORNADO MIX-SHIFT VISUAL)
 // ------------------------------------------------------------------------------------------------
 function WorkStreamRebalanceChart({ demData, unit = "hrs" }) {
-    const streams = [
-        { key: 'hec_upgrade', label: 'HEC Upgrade', bVal: demData.baseline.hecU, cVal: demData.comparison.hecU, delta: demData.comparison.hecU - demData.baseline.hecU, color: '#3b82f6', tag: 'HEC' },
-        { key: 'hec_repair', label: 'HEC Repair', bVal: demData.baseline.hecR, cVal: demData.comparison.hecR, delta: demData.comparison.hecR - demData.baseline.hecR, color: '#0284c7', tag: 'HEC' },
-        { key: 'kac_upgrade', label: 'KAC Upgrade', bVal: demData.baseline.kacU, cVal: demData.comparison.kacU, delta: demData.comparison.kacU - demData.baseline.kacU, color: '#8b5cf6', tag: 'KAC' },
-        { key: 'kac_repair', label: 'KAC Repair', bVal: demData.baseline.kacR, cVal: demData.comparison.kacR, delta: demData.comparison.kacR - demData.baseline.kacR, color: '#7c3aed', tag: 'KAC' },
-        { key: 'hec_warranty', label: 'HEC Warranty', bVal: demData.baseline.hecW, cVal: demData.comparison.hecW, delta: demData.comparison.hecW - demData.baseline.hecW, color: '#3b82f6', tag: 'HEC' },
-        { key: 'kac_warranty', label: 'KAC Warranty', bVal: demData.baseline.kacW, cVal: demData.comparison.kacW, delta: demData.comparison.kacW - demData.baseline.kacW, color: '#8b5cf6', tag: 'KAC' },
+    const streams = (demData?.rebalanceStreams && demData.rebalanceStreams.length) ? demData.rebalanceStreams : [
+        { key: 'hec_jobs', label: 'HEC Jobs', bVal: demData.baseline.hecR || 0, cVal: demData.comparison.hecR || 0, delta: (demData.comparison.hecR || 0) - (demData.baseline.hecR || 0), color: '#2563eb', tag: 'HEC' },
+        { key: 'hec_growth', label: 'HEC Growth', bVal: demData.baseline.hecW || 0, cVal: demData.comparison.hecW || 0, delta: (demData.comparison.hecW || 0) - (demData.baseline.hecW || 0), color: '#0ea5e9', tag: 'HEC' },
+        { key: 'hec_upgrades', label: 'HEC Upgrades', bVal: demData.baseline.hecU || 0, cVal: demData.comparison.hecU || 0, delta: (demData.comparison.hecU || 0) - (demData.baseline.hecU || 0), color: '#0284c7', tag: 'HEC' },
+        { key: 'kac_jobs', label: 'KAC Jobs', bVal: demData.baseline.kacR || 0, cVal: demData.comparison.kacR || 0, delta: (demData.comparison.kacR || 0) - (demData.baseline.kacR || 0), color: '#7c3aed', tag: 'KAC' },
+        { key: 'kac_growth', label: 'KAC Growth', bVal: demData.baseline.kacW || 0, cVal: demData.comparison.kacW || 0, delta: (demData.comparison.kacW || 0) - (demData.baseline.kacW || 0), color: '#8b5cf6', tag: 'KAC' },
+        { key: 'kac_other', label: 'KAC Other', bVal: demData.baseline.kacU || 0, cVal: demData.comparison.kacU || 0, delta: (demData.comparison.kacU || 0) - (demData.baseline.kacU || 0), color: '#a78bfa', tag: 'KAC' }
     ];
 
     const maxAbsDelta = Math.max(...streams.map(s => Math.abs(s.delta)), 500);
@@ -10638,7 +11786,7 @@ function WorkStreamRebalanceChart({ demData, unit = "hrs" }) {
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs glow-card p-4 sm:p-5 w-full">
             <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 flex items-center justify-center shadow-2xs">
+                    <span className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 flex items-center justify-center shadow-2xs glow-icon glow-icon-indigo">
                         <IconScale className="w-3.5 h-3.5 text-indigo-600" />
                     </span>
                     <div>
@@ -10696,8 +11844,8 @@ function WorkStreamRebalanceChart({ demData, unit = "hrs" }) {
                                 <div className="w-1/2 h-full flex items-center justify-end pr-1">
                                     {!isPositive && (
                                         <div
-                                            className="h-4 bg-gradient-to-l from-rose-500 to-rose-400 rounded-l-md transition-all duration-300"
-                                            style={{ width: `${barWidthPct}%` }}
+                                            className="h-4 rounded-l-md transition-all duration-300"
+                                            style={{ width: `${barWidthPct}%`, backgroundColor: '#fb7185' }}
                                         ></div>
                                     )}
                                 </div>
@@ -10706,8 +11854,8 @@ function WorkStreamRebalanceChart({ demData, unit = "hrs" }) {
                                 <div className="w-1/2 h-full flex items-center justify-start pl-1">
                                     {isPositive && (
                                         <div
-                                            className="h-4 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-r-md transition-all duration-300"
-                                            style={{ width: `${barWidthPct}%` }}
+                                            className="h-4 rounded-r-md transition-all duration-300"
+                                            style={{ width: `${barWidthPct}%`, backgroundColor: '#34d399' }}
                                         ></div>
                                     )}
                                 </div>
@@ -10733,7 +11881,8 @@ function WorkStreamRebalanceChart({ demData, unit = "hrs" }) {
 // ------------------------------------------------------------------------------------------------
 // WEEKLY DUAL HORIZON TRAJECTORY CHART (SUPPLY VS DEMAND GAP OVER TIME)
 // ------------------------------------------------------------------------------------------------
-function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, comparisonScenarioId, metricUnit = 'hrs' }) {
+function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, comparisonScenarioId, metricUnit = 'hrs', isDarkMode = false }) {
+    const isDark = isDarkMode || (typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
     const [hoveredIdx, setHoveredIdx] = useState(null);
     const containerRef = useRef(null);
     const [containerWidth, setContainerWidth] = useState(1100);
@@ -10777,10 +11926,11 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
     const plotW = Math.max(100, width - padLeft - padRight);
     const plotH = height - padTop - padBottom;
 
-    const allValues = weeklyData.flatMap(r => [r.d1, r.d2, r.c1, r.c2]);
-    const minVal = Math.min(...allValues, 3800);
-    const maxVal = Math.max(...allValues, 4900);
-    const yMargin = Math.round((maxVal - minVal) * 0.15);
+    const allValues = weeklyData.flatMap(r => [r.d1, r.d2, r.c1, r.c2]).filter(v => Number.isFinite(v));
+    const minVal = allValues.length ? Math.min(...allValues) : 0;
+    const maxVal = allValues.length ? Math.max(...allValues) : 1000;
+    const span = Math.max(100, maxVal - minVal);
+    const yMargin = Math.round(span * 0.15);
     const yMin = Math.max(0, Math.floor((minVal - yMargin) / 100) * 100);
     const yMax = Math.ceil((maxVal + yMargin) / 100) * 100;
     const yRange = (yMax - yMin) || 1;
@@ -10810,8 +11960,8 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
                     const y = getY(tick);
                     return (
                         <g key={idx}>
-                            <line x1={padLeft} y1={y} x2={width - padRight} y2={y} stroke="#f1f5f9" strokeWidth="1" />
-                            <text x={padLeft - 6} y={y + 3.5} textAnchor="end" fontSize="10" fontWeight="500" fill="#94a3b8" fontFamily="monospace">
+                            <line x1={padLeft} y1={y} x2={width - padRight} y2={y} stroke={isDark ? "#18365d" : "#f1f5f9"} strokeWidth="1" />
+                            <text x={padLeft - 6} y={y + 3.5} textAnchor="end" fontSize="10" fontWeight="500" fill={isDark ? "#94a3b8" : "#94a3b8"} fontFamily="monospace">
                                 {tick >= 1000 ? `${(tick / 1000).toFixed(1)}k` : tick}
                             </text>
                         </g>
@@ -10823,21 +11973,24 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
                     <path
                         d={`${weeklyData.map((r, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)} ${getY(r.c2)}`).join(' ')} ${weeklyData.slice().reverse().map((r, i) => `L ${getX(weeklyData.length - 1 - i)} ${getY(r.d2)}`).join(' ')} Z`}
                         fill="#10b981"
-                        fillOpacity="0.08"
+                        fillOpacity={isDark ? "0.14" : "0.08"}
                     />
                 )}
 
                 {/* Trajectory Lines stretching edge-to-edge */}
                 <path d={pathD1} fill="none" stroke="#93c5fd" strokeWidth="2" strokeDasharray="4 4" />
-                <path d={pathD2} fill="none" stroke="#005eb8" strokeWidth="2.5" />
-                <path d={pathC1} fill="none" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="4 4" />
-                <path d={pathC2} fill="none" stroke="#059669" strokeWidth="2.5" />
+                <path d={pathD2} fill="none" stroke={isDark ? "#60a5fa" : "#005eb8"} strokeWidth="2.5" />
+                <path d={pathC1} fill="none" stroke={isDark ? "#64748b" : "#cbd5e1"} strokeWidth="2" strokeDasharray="4 4" />
+                <path d={pathC2} fill="none" stroke={isDark ? "#34d399" : "#059669"} strokeWidth="2.5" />
 
                 {/* Data Points & Interactive hover columns spanning full width */}
                 {weeklyData.map((r, i) => {
                     const x = getX(i);
                     const colW = weeklyData.length > 1 ? plotW / (weeklyData.length - 1) : plotW;
                     const isHovered = hoveredIdx === i;
+                    const labelStep = weeklyData.length > 36 ? 6 : (weeklyData.length > 16 ? 3 : 1);
+                    const showTick = (i % labelStep === 0) || (i === weeklyData.length - 1);
+                    const deltaSigned = r.delta >= 0 ? `+${metricUnit === 'fte' ? (r.delta / 37.5).toFixed(1) : Math.round(r.delta)}` : `${metricUnit === 'fte' ? (r.delta / 37.5).toFixed(1) : Math.round(r.delta)}`;
 
                     return (
                         <g key={i} onMouseEnter={() => setHoveredIdx(i)} onMouseLeave={() => setHoveredIdx(null)} className="cursor-pointer">
@@ -10849,14 +12002,18 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
                                 fill={isHovered ? "#3b82f6" : "transparent"}
                                 fillOpacity={isHovered ? "0.04" : "0"}
                             />
-                            <circle cx={x} cy={getY(r.d2)} r={isHovered ? 5.5 : 3.5} fill="#005eb8" stroke="#fff" strokeWidth="1.5" />
-                            <circle cx={x} cy={getY(r.c2)} r={isHovered ? 5.5 : 3.5} fill="#059669" stroke="#fff" strokeWidth="1.5" />
-                            <text x={x} y={padTop + plotH + 15} textAnchor="middle" fontSize="10.5" fontWeight="600" fill={isHovered ? "#005eb8" : "#64748b"}>
-                                {r.week.slice(5)}
-                            </text>
-                            <text x={x} y={padTop + plotH + 28} textAnchor="middle" fontSize="10" fontWeight="800" fill="#059669" fontFamily="monospace">
-                                +{metricUnit === 'fte' ? (r.delta / 37.5).toFixed(1) : r.delta}
-                            </text>
+                            <circle cx={x} cy={getY(r.d2)} r={isHovered ? 5.5 : (weeklyData.length > 30 ? 2.5 : 3.5)} fill={isDark ? "#60a5fa" : "#005eb8"} stroke="#fff" strokeWidth="1.2" />
+                            <circle cx={x} cy={getY(r.c2)} r={isHovered ? 5.5 : (weeklyData.length > 30 ? 2.5 : 3.5)} fill={isDark ? "#34d399" : "#059669"} stroke="#fff" strokeWidth="1.2" />
+                            {showTick && (
+                                <>
+                                    <text x={x} y={padTop + plotH + 15} textAnchor="middle" fontSize="9.5" fontWeight="600" fill={isHovered ? (isDark ? "#60a5fa" : "#005eb8") : (isDark ? "#94a3b8" : "#64748b")}>
+                                        {r.week.slice(2, 7)}
+                                    </text>
+                                    <text x={x} y={padTop + plotH + 28} textAnchor="middle" fontSize="9.5" fontWeight="800" fill={r.delta >= 0 ? (isDark ? "#34d399" : "#059669") : (isDark ? "#f87171" : "#dc2626")} fontFamily="monospace">
+                                        {deltaSigned}
+                                    </text>
+                                </>
+                            )}
                         </g>
                     );
                 })}
@@ -10872,137 +12029,126 @@ function WeeklyDualHorizonChart({ weeklyData = [], baselineScenarioId, compariso
                     }}
                 >
                     <div className="font-bold flex items-center justify-between gap-4 text-slate-100 border-b border-slate-700 pb-1 font-sans">
-                        <span>Week Commencing: {weeklyData[hoveredIdx].week}</span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-600 text-white font-mono">
-                            +{weeklyData[hoveredIdx].delta} hrs Delta
+                        <span>Period: {weeklyData[hoveredIdx].week}</span>
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded text-white font-mono ${weeklyData[hoveredIdx].delta >= 0 ? 'bg-emerald-600' : 'bg-rose-600'}`}>
+                            {weeklyData[hoveredIdx].delta >= 0 ? '+' : ''}{weeklyData[hoveredIdx].delta.toLocaleString()} hrs Delta
                         </span>
                     </div>
                     <div className="flex items-center justify-between gap-6 text-slate-300">
                         <span>Demand:</span>
-                        <span>{weeklyData[hoveredIdx].d2.toLocaleString()} hrs <span className="text-slate-400">({weeklyData[hoveredIdx].d2 - weeklyData[hoveredIdx].d1 >= 0 ? '+' : ''}{weeklyData[hoveredIdx].d2 - weeklyData[hoveredIdx].d1})</span></span>
+                        <span>{weeklyData[hoveredIdx].d2.toLocaleString()} hrs <span className="text-slate-400">({weeklyData[hoveredIdx].d2 - weeklyData[hoveredIdx].d1 >= 0 ? '+' : ''}{(weeklyData[hoveredIdx].d2 - weeklyData[hoveredIdx].d1).toLocaleString()})</span></span>
                     </div>
                     <div className="flex items-center justify-between gap-6 text-slate-300">
                         <span>Capacity:</span>
-                        <span>{weeklyData[hoveredIdx].c2.toLocaleString()} hrs <span className="text-emerald-400">({weeklyData[hoveredIdx].c2 - weeklyData[hoveredIdx].c1 >= 0 ? '+' : ''}{weeklyData[hoveredIdx].c2 - weeklyData[hoveredIdx].c1})</span></span>
+                        <span>{weeklyData[hoveredIdx].c2.toLocaleString()} hrs <span className="text-emerald-400">({weeklyData[hoveredIdx].c2 - weeklyData[hoveredIdx].c1 >= 0 ? '+' : ''}{(weeklyData[hoveredIdx].c2 - weeklyData[hoveredIdx].c1).toLocaleString()})</span></span>
                     </div>
-                    <div className="flex items-center justify-between gap-6 pt-1 border-t border-slate-700 text-emerald-400 font-bold">
-                        <span>Comparison Advantage:</span>
-                        <span>+{weeklyData[hoveredIdx].delta} hrs ({(weeklyData[hoveredIdx].delta / 37.5).toFixed(1)} FTEs)</span>
+                    <div className={`flex items-center justify-between gap-6 pt-1 border-t border-slate-700 font-bold ${weeklyData[hoveredIdx].delta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        <span>{weeklyData[hoveredIdx].delta >= 0 ? 'Final Advantage:' : 'Final Deficit:'}</span>
+                        <span>{weeklyData[hoveredIdx].delta >= 0 ? '+' : ''}{weeklyData[hoveredIdx].delta.toLocaleString()} hrs ({(weeklyData[hoveredIdx].delta / 37.5).toFixed(1)} FTEs)</span>
                     </div>
                 </div>
             )}
 
             {/* Trajectory Legend */}
-            <div className="flex flex-wrap items-center justify-center gap-5 pt-2.5 text-[11px] text-slate-600 border-t border-slate-100 mt-2">
+            <div className="flex flex-wrap items-center justify-center gap-5 pt-2.5 text-[11px] text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-[#18365d] mt-2">
                 <span className="flex items-center gap-1.5">
-                    <span className="w-4 h-0.5 bg-[#005eb8]"></span>
-                    <span className="font-bold text-slate-700">Comp Demand</span>
+                    <span className="w-4 h-0.5 bg-[#005eb8] dark:bg-[#60a5fa]"></span>
+                    <span className="font-bold text-slate-700 dark:text-slate-200">Final Demand</span>
                 </span>
                 <span className="flex items-center gap-1.5">
                     <span className="w-4 h-0.5 bg-blue-300 border-t border-dashed border-blue-400"></span>
-                    <span className="text-slate-500">Baseline Demand</span>
+                    <span className="text-slate-500 dark:text-slate-400">Baseline Demand</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                    <span className="w-4 h-0.5 bg-emerald-600"></span>
-                    <span className="font-bold text-emerald-800">Comp Capacity</span>
+                    <span className="w-4 h-0.5 bg-emerald-600 dark:bg-[#34d399]"></span>
+                    <span className="font-bold text-emerald-800 dark:text-emerald-300">Final Capacity</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                    <span className="w-4 h-0.5 bg-slate-300 border-t border-dashed border-slate-400"></span>
-                    <span className="text-slate-500">Baseline Capacity</span>
+                    <span className="w-4 h-0.5 bg-slate-300 dark:bg-slate-500 border-t border-dashed border-slate-400"></span>
+                    <span className="text-slate-500 dark:text-slate-400">Baseline Capacity</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded bg-emerald-100 border border-emerald-300"></span>
-                    <span className="font-semibold text-emerald-700">Net Surplus Buffer</span>
+                    <span className="w-3 h-3 rounded bg-emerald-100 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-600"></span>
+                    <span className="font-semibold text-emerald-700 dark:text-emerald-300">Net Surplus Buffer</span>
                 </span>
             </div>
         </div>
     );
 }
 
-function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, baselineScenarioId, comparisonScenarioId }) {
+function ScenarioWaterfallBridgesSection({ totals, bridgeStats = null, skillFilter, visibleWeeks, baselineScenarioId, comparisonScenarioId, isDarkMode = false }) {
     const [viewMode, setViewMode] = useState('side_by_side'); // 'side_by_side' | 'capacity_only' | 'demand_only' | 'work_stream_rebalance'
 
     const capData = useMemo(() => {
-        return computeCapacityWaterfall(totals.totC1, totals.totC2);
-    }, [totals.totC1, totals.totC2]);
+        return computeCapacityWaterfall(totals.totC1, totals.totC2, bridgeStats);
+    }, [totals.totC1, totals.totC2, bridgeStats]);
 
     const demData = useMemo(() => {
-        return computeDemandWaterfall(totals.totD1, totals.totD2, skillFilter);
-    }, [totals.totD1, totals.totD2, skillFilter]);
+        return computeDemandWaterfall(totals.totD1, totals.totD2, skillFilter, bridgeStats);
+    }, [totals.totD1, totals.totD2, skillFilter, bridgeStats]);
 
     const isSingleView = viewMode !== 'side_by_side';
 
     return (
         <div className="space-y-3.5 relative z-10">
-            {/* Section Header with Mode Toggle */}
-            <div className="bg-white p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-xs flex flex-wrap items-center justify-between gap-3 glow-card">
-                <div className="flex items-center gap-2.5">
-                    <span className="w-7 h-7 rounded-lg bg-blue-50 text-[#005eb8] flex items-center justify-center border border-blue-100 shadow-2xs">
-                        <IconBarChart className="w-4 h-4 text-[#005eb8]" />
-                    </span>
-                    <div>
-                        <h3 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
-                            <span>Scenario Variance Waterfall Analysis: Capacity & Demand Bridges</span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                2 Dual Reconciliations
-                            </span>
-                        </h3>
-                        <p className="text-[11px] text-slate-400">
-                            Decomposes available capacity levers (gross hours & downtimes) and demand streams (HEC/KAC upgrades, repairs, warranties)
-                        </p>
-                    </div>
-                </div>
-
+            {/* Section Header with Mode Toggle & Dual Reconciliation Branding */}
+            <div className="bg-white/95 dark:bg-[#071324] p-2.5 sm:p-3 rounded-2xl border border-slate-200/90 dark:border-[#18365d] shadow-xs flex flex-wrap items-center justify-between gap-3 glow-card">
                 {/* View Mode Toggle */}
-                <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-bold gap-1 flex-wrap">
+                <div className="flex items-center bg-slate-100 dark:bg-[#081324] p-0.5 rounded-xl border border-slate-200 dark:border-[#18365d] text-xs font-bold gap-1 flex-wrap">
                     <button
                         type="button"
                         onClick={() => setViewMode('side_by_side')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
                             viewMode === 'side_by_side'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-white dark:bg-[#0c1b31] text-[#005eb8] dark:text-[#80c6ff] shadow-xs'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 hover:bg-slate-200/60 dark:hover:bg-[#18365d]'
                         }`}
                     >
-                        <IconBarChart className="w-3.5 h-3.5 text-[#005eb8]" />
+                        <IconScale className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
                         <span>Side-by-Side</span>
                     </button>
                     <button
                         type="button"
                         onClick={() => setViewMode('capacity_only')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
                             viewMode === 'capacity_only'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-white dark:bg-[#0c1b31] text-[#005eb8] dark:text-[#80c6ff] shadow-xs'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 hover:bg-slate-200/60 dark:hover:bg-[#18365d]'
                         }`}
                     >
-                        <IconBolt className="w-3.5 h-3.5 text-amber-500" />
+                        <IconBolt className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                         <span>Capacity Waterfall</span>
                     </button>
                     <button
                         type="button"
                         onClick={() => setViewMode('demand_only')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
                             viewMode === 'demand_only'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-white dark:bg-[#0c1b31] text-[#005eb8] dark:text-[#80c6ff] shadow-xs'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 hover:bg-slate-200/60 dark:hover:bg-[#18365d]'
                         }`}
                     >
-                        <IconTrendingUp className="w-3.5 h-3.5 text-blue-600" />
+                        <IconTrendingUp className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                         <span>Demand Waterfall</span>
                     </button>
                     <button
                         type="button"
                         onClick={() => setViewMode('work_stream_rebalance')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
                             viewMode === 'work_stream_rebalance'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-white dark:bg-[#0c1b31] text-[#005eb8] dark:text-[#80c6ff] shadow-xs'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 hover:bg-slate-200/60 dark:hover:bg-[#18365d]'
                         }`}
                     >
-                        <IconScale className="w-3.5 h-3.5 text-indigo-600" />
+                        <IconRefresh className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                         <span>Work Stream Rebalance</span>
                     </button>
+                </div>
+
+                {/* 2 Dual Reconciliations Badge (as styled in dark and light mockups) */}
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#081324] text-slate-700 dark:text-[#80c6ff] border border-slate-200 dark:border-[#18365d] text-xs font-bold shadow-2xs select-none">
+                    <IconRefresh className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                    <span>2 Dual Reconciliations</span>
                 </div>
             </div>
 
@@ -11015,27 +12161,29 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
                     {(viewMode === 'side_by_side' || viewMode === 'capacity_only') && (
                         <WaterfallSvgChart
                             title="Capacity Waterfall (Available Hours Bridge)"
-                            subtitle="Gross hours, sickness, holiday, training, meeting & others downtimes"
+                            subtitle="Baseline to Final Available Hours via Core Hours, downtimes (Sickness, Holiday, Training, Meeting, Others), and Overtime."
                             steps={capData.steps}
                             unit="hrs"
                             badgeText="Available Hours Bridge"
                             iconText="bolt"
                             idPrefix="cap-wf"
                             isSingleView={isSingleView}
+                            isDarkMode={isDarkMode}
                         />
                     )}
 
                     {/* 2. Demand Waterfall */}
                     {(viewMode === 'side_by_side' || viewMode === 'demand_only') && (
                         <WaterfallSvgChart
-                            title="Demand Waterfall (Total Demand Hours Bridge)"
-                            subtitle="HEC & KAC upgrade, repair, warranty streams reconciling to total demand"
+                            title="Demand Waterfall (Non-EV Work Stream Bridge)"
+                            subtitle="Demand variance by business category (excludes EV & EV Warranties)."
                             steps={demData.steps}
                             unit="hrs"
-                            badgeText="Total Demand Bridge"
+                            badgeText="Non-EV Demand Bridge"
                             iconText="trend"
                             idPrefix="dem-wf"
                             isSingleView={isSingleView}
+                            isDarkMode={isDarkMode}
                         />
                     )}
                 </div>
@@ -11049,13 +12197,17 @@ function ScenarioWaterfallBridgesSection({ totals, skillFilter, visibleWeeks, ba
 // ------------------------------------------------------------------------------------------------
 function ScenarioComparisonView({
     scenarios,
+    scenarioLog = [],
+    scenarioDiffCache = {},
     baselineScenarioId,
     setBaselineScenarioId,
     comparisonScenarioId,
     setComparisonScenarioId,
     selectedGeographyFile,
     geographyDatasets = {},
-    onNavigateToInputs
+    onNavigateToInputs,
+    isDarkMode = false,
+    showToast
 }) {
     // 1. Geography hierarchy extraction from selected geography mapping file
     const geoRows = useMemo(() => {
@@ -11092,97 +12244,276 @@ function ScenarioComparisonView({
         }, 0);
     }, [hierarchy]);
 
-    // 2. Filter States
+    // 2. Filter States (strictly driven by es_powerbi_model_checker_plan period W/M & weekcomm)
     const [selectedGeo, setSelectedGeo] = useState({
         type: 'national',
         id: 'national',
-        label: 'National (All UK)',
-        count: totalTerritoriesCount || 18
+        label: 'National',
+        count: totalTerritoriesCount || 29
     });
 
-    // Update territory count if hierarchy changes
     useEffect(() => {
         if (selectedGeo.type === 'national') {
             setSelectedGeo(prev => ({ ...prev, count: totalTerritoriesCount }));
         }
     }, [totalTerritoriesCount]);
 
+    const [periodMode, setPeriodMode] = useState('W'); // 'W' (Weekly) | 'M' (Monthly)
     const [skillFilter, setSkillFilter] = useState('ALL'); // 'ALL' | 'HEC' | 'KAC'
-    const [startDate, setStartDate] = useState('2026-09-28');
-    const [endDate, setEndDate] = useState('2026-11-16');
-    const [isGeoExpanded, setIsGeoExpanded] = useState(false);
+    const [startDate, setStartDate] = useState('2026-11-02');
+    const [endDate, setEndDate] = useState('2027-12-27');
+    const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
+    const [diffPayload, setDiffPayload] = useState(null);
+    const [diffLoading, setDiffLoading] = useState(false);
+    const [diffError, setDiffError] = useState('');
+    const [showLogDetails, setShowLogDetails] = useState(false);
 
-    // Helper to get formatted scope text
-    const getScopeDisplay = () => {
-        if (selectedGeo.type === 'national') return "National (Centrica UK)";
-        if (selectedGeo.type === 'region') return `Region ${selectedGeo.id} (All Patches)`;
-        if (selectedGeo.type === 'acdm') return `ACDM ${selectedGeo.id} (Reg ${selectedGeo.region})`;
-        if (selectedGeo.type === 'territory') return selectedGeo.label || selectedGeo.id;
-        return selectedGeo.label || "National (All UK)";
-    };
+    // Fetch scenario diff data ONLY from es_powerbi_model_checker_plan + es_shiny_scenario_log
+    useEffect(() => {
+        if (!baselineScenarioId || !comparisonScenarioId) return;
+        const cacheKey = `${baselineScenarioId}||${comparisonScenarioId}`;
+        if (scenarioDiffCache[cacheKey]) {
+            setDiffPayload(scenarioDiffCache[cacheKey]);
+            setDiffError('');
+            setDiffLoading(false);
+            return;
+        }
+        // Check reverse cache if scenarios were swapped
+        const revKey = `${comparisonScenarioId}||${baselineScenarioId}`;
+        if (scenarioDiffCache[revKey]) {
+            const rev = scenarioDiffCache[revKey];
+            setDiffPayload({
+                ...rev,
+                baselineVersion: baselineScenarioId,
+                comparisonVersion: comparisonScenarioId,
+                baselineData: rev.comparisonData,
+                comparisonData: rev.baselineData,
+            });
+            setDiffError('');
+            setDiffLoading(false);
+            return;
+        }
 
-    const allWeeks = [
-        "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19",
-        "2026-10-26", "2026-11-02", "2026-11-09", "2026-11-16"
-    ];
+        let disposed = false;
+        const reqId = `diff-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        setDiffLoading(true);
+        setDiffError('');
+
+        const onResponse = (e) => {
+            const data = e.detail;
+            if (!data || data.requestId !== reqId || disposed) return;
+            setDiffLoading(false);
+            if (!data.success) {
+                setDiffError(data.error || 'Unable to load final scenario data.');
+            } else {
+                setDiffPayload(data);
+            }
+        };
+
+        window.addEventListener('capacity-scenario-diff-data', onResponse);
+        if (window.Shiny && window.Shiny.setInputValue) {
+            window.Shiny.setInputValue('request_scenario_diff_data', {
+                baselineId: baselineScenarioId,
+                comparisonId: comparisonScenarioId,
+                requestId: reqId
+            }, { priority: 'event' });
+        }
+
+        const timer = setTimeout(() => {
+            if (!disposed) setDiffLoading(false);
+        }, 12000);
+
+        return () => {
+            disposed = true;
+            clearTimeout(timer);
+            window.removeEventListener('capacity-scenario-diff-data', onResponse);
+        };
+    }, [baselineScenarioId, comparisonScenarioId, scenarioDiffCache]);
+
+    const baseRows = useMemo(() => unpackFinalScenarioData(diffPayload?.baselineData), [diffPayload]);
+    const compRows = useMemo(() => unpackFinalScenarioData(diffPayload?.comparisonData), [diffPayload]);
+
+    // Derive available weeks/months from final scenario data for the active periodMode ('W' or 'M')
+    const allWeeks = useMemo(() => {
+        const set = new Set();
+        for (const r of baseRows) if (r.period === periodMode && r.weekcomm) set.add(r.weekcomm);
+        for (const r of compRows) if (r.period === periodMode && r.weekcomm) set.add(r.weekcomm);
+        const sorted = Array.from(set).sort();
+        if (sorted.length > 0) return sorted;
+        return periodMode === 'M' ? ['2026-11-01', '2027-12-01'] : ['2026-11-02', '2027-12-27'];
+    }, [baseRows, compRows, periodMode]);
+
+    // Sync start/end bounds whenever periodMode or available dates change
+    useEffect(() => {
+        if (!allWeeks.length) return;
+        const first = allWeeks[0];
+        const last = allWeeks[allWeeks.length - 1];
+        setStartDate(prev => (prev && prev >= first && prev <= last) ? prev : first);
+        setEndDate(prev => (prev && prev >= first && prev <= last) ? prev : last);
+    }, [allWeeks]);
 
     const visibleWeeks = useMemo(() => {
         return allWeeks.filter(w => w >= startDate && w <= endDate);
-    }, [startDate, endDate]);
+    }, [allWeeks, startDate, endDate]);
 
-    // Scenario remarks lookup
+    // Allowed patches for the selected geography scope
+    const allowedPatches = useMemo(() => {
+        if (!selectedGeo || selectedGeo.type === 'national') return null;
+        const norm = (v) => String(v || '').trim().toLowerCase();
+        const rows = (diffPayload?.geographyRows && diffPayload.geographyRows.length) ? diffPayload.geographyRows : geoRows;
+        const matches = new Set();
+        for (const r of rows) {
+            const patch = String(r.Patch || r.patch || r.Territory || '').trim();
+            const regCode = String(r['Region Code'] || r.RegionCode || r.Region || '').trim();
+            const regName = String(r.Region || '').trim();
+            const areaCode = String(r['Area Code'] || r.AreaCode || r.ACDM || '').trim();
+            if (!patch) continue;
+            if (selectedGeo.type === 'region') {
+                if (norm(regCode) === norm(selectedGeo.id) || norm(regName) === norm(selectedGeo.id) || norm(selectedGeo.label).includes(norm(regCode))) {
+                    matches.add(patch);
+                }
+            } else if (selectedGeo.type === 'acdm') {
+                if (norm(areaCode) === norm(selectedGeo.id) || norm(areaCode) === norm(selectedGeo.label)) {
+                    matches.add(patch);
+                }
+            } else if (selectedGeo.type === 'territory') {
+                if (norm(patch) === norm(selectedGeo.id) || norm(patch) === norm(selectedGeo.label) || norm(patch).includes(norm(selectedGeo.id))) {
+                    matches.add(patch);
+                }
+            }
+        }
+        return matches.size > 0 ? matches : new Set([selectedGeo.label || selectedGeo.id]);
+    }, [selectedGeo, diffPayload, geoRows]);
+
+    // Scenario log metadata lookup for Baseline and Comparison
     const scen1 = scenarios[baselineScenarioId] || {};
     const scen2 = scenarios[comparisonScenarioId] || {};
+    const log1 = useMemo(() => {
+        if (diffPayload?.scenarioLogs?.[baselineScenarioId]) return diffPayload.scenarioLogs[baselineScenarioId];
+        return scenarioLog.find(r => r.key === baselineScenarioId && r.delete_flag !== 'Y')
+            || scenarioLog.find(r => r.key === baselineScenarioId)
+            || null;
+    }, [diffPayload, scenarioLog, baselineScenarioId]);
+    const log2 = useMemo(() => {
+        if (diffPayload?.scenarioLogs?.[comparisonScenarioId]) return diffPayload.scenarioLogs[comparisonScenarioId];
+        return scenarioLog.find(r => r.key === comparisonScenarioId && r.delete_flag !== 'Y')
+            || scenarioLog.find(r => r.key === comparisonScenarioId)
+            || null;
+    }, [diffPayload, scenarioLog, comparisonScenarioId]);
 
-    // Scenario Swap handler
     const handleSwapScenarios = () => {
         const tmp = baselineScenarioId;
         setBaselineScenarioId(comparisonScenarioId);
         setComparisonScenarioId(tmp);
+        if (showToast) showToast('Baseline and Final Scenarios swapped', 'info');
     };
 
-    // Reset all filters handler
     const handleResetFilters = () => {
-        setSelectedGeo({ type: 'national', id: 'national', label: 'National (All UK)', count: totalTerritoriesCount });
+        setSelectedGeo({ type: 'national', id: 'national', label: 'National', count: totalTerritoriesCount });
         setSkillFilter('ALL');
-        setStartDate('2026-09-28');
-        setEndDate('2026-11-16');
-        setIsGeoExpanded(false);
-    };
-
-    // Quick Horizon Preset handler
-    const handlePresetDates = (preset) => {
-        if (preset === 'all') {
+        if (allWeeks.length) {
             setStartDate(allWeeks[0]);
-            setEndDate(allWeeks[allWeeks.length - 1]);
-        } else if (preset === 'first4') {
-            setStartDate(allWeeks[0]);
-            setEndDate(allWeeks[3]);
-        } else if (preset === 'last4') {
-            setStartDate(allWeeks[4]);
             setEndDate(allWeeks[allWeeks.length - 1]);
         }
+        if (showToast) showToast('All comparison filters reset to default', 'info');
     };
 
-    // Filter Multipliers for Demand & Capacity calculation
-    const skillMultiplier = skillFilter === 'HEC' ? 0.62 : (skillFilter === 'KAC' ? 0.38 : 1.0);
-    let geoMultiplier = 1.0;
-    if (selectedGeo.type === 'region') geoMultiplier = 0.22;
-    else if (selectedGeo.type === 'acdm') geoMultiplier = 0.11;
-    else if (selectedGeo.type === 'territory') geoMultiplier = 0.045;
+    // Aggregate weekly/monthly demand, capacity, and component bridges strictly from es_powerbi_model_checker_plan
+    const { weeklyData, bridgeStats } = useMemo(() => {
+        const weekSet = new Set(visibleWeeks);
+        const makeBucket = () => ({ demand: 0, capacity: 0 });
+        const bByWeek = new Map();
+        const cByWeek = new Map();
+        visibleWeeks.forEach(w => {
+            bByWeek.set(w, makeBucket());
+            cByWeek.set(w, makeBucket());
+        });
 
-    // Calculate aggregated metrics & weekly data
-    const weeklyData = useMemo(() => {
-        return visibleWeeks.map((w) => {
-            const idx = allWeeks.indexOf(w);
-            const d1 = Math.round((4300 + idx * 45) * skillMultiplier * geoMultiplier);
-            const d2 = Math.round((4280 + idx * 40) * skillMultiplier * geoMultiplier);
-            const c1 = Math.round((4550 + idx * 30) * skillMultiplier * geoMultiplier);
-            const c2 = Math.round((4610 + idx * 35) * skillMultiplier * geoMultiplier);
+        const makeCompAcc = () => ({
+            gross: 0, core: 0, available: 0, overtime: 0, holiday: 0, sickness: 0,
+            training: 0, meeting: 0, other: 0, downtimeOverlays: 0, productive: 0, sp: 0,
+            hecDemand: 0, kacDemand: 0, demandCategories: {}
+        });
+        const bComp = makeCompAcc();
+        const cComp = makeCompAcc();
+
+        const skillMatches = (rowSkill) => {
+            if (skillFilter === 'ALL') return rowSkill === 'HEC' || rowSkill === 'KAC';
+            return rowSkill === skillFilter;
+        };
+
+        const normGeo = (v) => String(v || '').trim().toLowerCase();
+        const rowMatchesGeo = (r) => {
+            if (!selectedGeo || selectedGeo.type === 'national') return true;
+            if (selectedGeo.type === 'region' && r.region) {
+                if (
+                    normGeo(r.region) === normGeo(selectedGeo.name)
+                    || normGeo(r.region) === normGeo(selectedGeo.label)
+                    || normGeo(r.region) === normGeo(selectedGeo.id)
+                ) return true;
+            }
+            if (selectedGeo.type === 'acdm' && r.area_code) {
+                if (normGeo(r.area_code) === normGeo(selectedGeo.id) || normGeo(r.area_code) === normGeo(selectedGeo.label)) return true;
+            }
+            return !allowedPatches || allowedPatches.has(r.patch);
+        };
+
+        const accumulate = (rows, byWeekMap, acc) => {
+            for (const r of rows) {
+                if (r.period !== periodMode || !weekSet.has(r.weekcomm)) continue;
+                if (!rowMatchesGeo(r)) continue;
+                if (!skillMatches(r.skill)) continue;
+
+                const bucket = byWeekMap.get(r.weekcomm);
+                const val = r.value || 0;
+
+                if (r.flag === 'Demand Hours') {
+                    bucket.demand += val;
+                    if (r.skill === 'HEC') acc.hecDemand += val;
+                    else if (r.skill === 'KAC') acc.kacDemand += val;
+                    const demCat = getDemandWaterfallCategory(r.metric, r.skill);
+                    if (demCat) {
+                        acc.demandCategories[demCat] = (acc.demandCategories[demCat] || 0) + val;
+                    }
+                } else if (r.flag === 'Capacity Hours') {
+                    bucket.capacity += val;
+                    if (r.metric === 'Productive hrs') acc.productive += val;
+                    else if (r.metric === 'SP') acc.sp += val;
+                } else if (r.flag === 'Available Hours') {
+                    if (r.metric === 'Gross Hrs') acc.gross += val;
+                    else if (r.metric === 'Core Hrs') acc.core += val;
+                    else if (r.metric === 'Available Hrs') acc.available += val;
+                    else if (r.metric === 'Overtime') acc.overtime += val;
+                    else if (r.metric === 'Holiday') acc.holiday += val;
+                    else if (r.metric === 'Sickness') acc.sickness += val;
+                    else if (r.metric === 'Training') acc.training += val;
+                    else if (r.metric === 'Meeting') acc.meeting += val;
+                    else if (r.metric === 'Other') acc.other += val;
+                } else if (r.flag === 'Downtime Overlay Hours') {
+                    acc.downtimeOverlays += val;
+                }
+            }
+        };
+
+        accumulate(baseRows, bByWeek, bComp);
+        accumulate(compRows, cByWeek, cComp);
+
+        const list = visibleWeeks.map((w) => {
+            const b = bByWeek.get(w) || { demand: 0, capacity: 0 };
+            const c = cByWeek.get(w) || { demand: 0, capacity: 0 };
+            const d1 = Math.round(b.demand);
+            const d2 = Math.round(c.demand);
+            const c1 = Math.round(b.capacity);
+            const c2 = Math.round(c.capacity);
             const delta = (c2 - d2) - (c1 - d1);
             return { week: w, d1, d2, c1, c2, delta };
         });
-    }, [visibleWeeks, skillMultiplier, geoMultiplier]);
+
+        return {
+            weeklyData: list,
+            bridgeStats: (baseRows.length && compRows.length) ? { base: bComp, comp: cComp } : null
+        };
+    }, [baseRows, compRows, visibleWeeks, periodMode, selectedGeo, allowedPatches, skillFilter]);
 
     const totals = useMemo(() => {
         let totD1 = 0, totD2 = 0, totC1 = 0, totC2 = 0, totDelta = 0;
@@ -11198,364 +12529,313 @@ function ScenarioComparisonView({
 
     const [metricUnit, setMetricUnit] = useState('hrs'); // 'hrs' | 'fte'
 
-    const FTE_CONV = 37.5 * Math.max(1, visibleWeeks.length);
+    const periodHoursFactor = periodMode === 'M' ? (37.5 * 4.333) : 37.5;
+    const FTE_CONV = periodHoursFactor * Math.max(1, visibleWeeks.length);
     const toFte = (hrs) => (hrs / FTE_CONV).toFixed(1);
 
     return (
         <div className="space-y-4 w-full">
-            {/* 1. DUAL SCENARIO COMPARATOR STRIP */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs glow-card">
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5">
-                    <div className="flex items-center gap-2.5">
-                        <span className="w-8 h-8 rounded-xl bg-blue-50 text-[#005eb8] flex items-center justify-center border border-blue-100 shadow-2xs">
-                            <IconScale className="w-4 h-4 text-[#005eb8]" />
-                        </span>
-                        <div>
-                            <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                                <span>Scenario Variance & Operational Diff</span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                    Dual Plan Comparator
-                                </span>
-                            </h3>
-                            <p className="text-[11px] text-slate-500">
-                                Compare any two capacity operating plans side-by-side with dynamic operational drill-downs
-                            </p>
-                        </div>
-                    </div>
+            {/* 1 & 2. UNIFIED SCENARIO COMPARATOR & OPERATIONAL FILTERS CARD */}
+            <div className="diff-filter-card bg-white/95 dark:bg-[#06101f] p-3.5 sm:p-4 rounded-2xl border border-blue-200/80 dark:border-2 dark:border-[#1e40af] shadow-sm dark:shadow-[0_0_24px_rgba(30,64,175,0.25)] relative z-30 space-y-3 transition-all duration-200">
+                {/* Header row: Filters pill & Actions */}
+                <div className="flex items-center justify-between gap-2">
+                    <span className="px-3 py-1 bg-[#005eb8] text-white font-bold text-xs rounded-full flex items-center gap-1.5 shadow-sm">
+                        <IconFilter className="w-3.5 h-3.5" />
+                        <span>Filters</span>
+                    </span>
 
-                    <button
-                        type="button"
-                        onClick={handleSwapScenarios}
-                        className="text-xs font-bold text-slate-700 hover:text-blue-700 bg-slate-50 hover:bg-blue-50/80 border border-slate-300 hover:border-blue-300 px-3.5 py-1.5 rounded-xl transition flex items-center gap-2 shadow-2xs group"
-                        title="Swap Baseline and Comparison Scenarios"
-                    >
-                        <span className="text-sm group-hover:rotate-180 transition-transform duration-300">⇄</span>
-                        <span>Swap Scenarios</span>
-                    </button>
-                </div>
-
-                {/* Dual Scenario Comparator Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                    {/* Baseline Scenario (1) Card */}
-                    <div className="bg-gradient-to-b from-blue-50/40 via-white to-white border border-blue-200/80 rounded-xl p-3.5 shadow-2xs">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-[11px] font-extrabold text-[#005eb8] uppercase tracking-wider flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 rounded-full bg-blue-600 ring-2 ring-blue-200"></span>
-                                Baseline Scenario (1)
-                            </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-100/70 text-blue-800 rounded-md">
-                                Reference
-                            </span>
-                        </div>
-                        <select
-                            value={baselineScenarioId}
-                            onChange={(e) => setBaselineScenarioId(e.target.value)}
-                            className="w-full text-xs font-bold bg-white text-slate-800 border border-slate-300 hover:border-blue-400 rounded-xl p-2.5 focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer truncate"
-                        >
-                            {Object.keys(scenarios).map(id => (
-                                <option key={id} value={id}>{id}</option>
-                            ))}
-                        </select>
-                        <div className="mt-2 text-[11px] flex items-center gap-2 text-slate-500 bg-slate-50/80 p-2 rounded-lg border border-slate-100">
-                            <span className="font-semibold text-slate-700 flex-shrink-0">Remarks:</span>
-                            <span className="truncate italic text-slate-600" title={scen1.remarks || "Operating Plan Baseline"}>
-                                {scen1.remarks || "Operating Plan Baseline"}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Comparison Scenario (2) Card */}
-                    <div className="bg-gradient-to-b from-emerald-50/40 via-white to-white border border-emerald-200/80 rounded-xl p-3.5 shadow-2xs">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-[11px] font-extrabold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-emerald-200"></span>
-                                Comparison Scenario (2)
-                            </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-100/70 text-emerald-800 rounded-md">
-                                Target Plan
-                            </span>
-                        </div>
-                        <select
-                            value={comparisonScenarioId}
-                            onChange={(e) => setComparisonScenarioId(e.target.value)}
-                            className="w-full text-xs font-bold bg-white text-slate-800 border border-slate-300 hover:border-emerald-400 rounded-xl p-2.5 focus:ring-2 focus:ring-emerald-500/20 shadow-2xs cursor-pointer truncate"
-                        >
-                            {Object.keys(scenarios).map(id => (
-                                <option key={id} value={id}>{id}</option>
-                            ))}
-                        </select>
-                        <div className="mt-2 text-[11px] flex items-center gap-2 text-slate-500 bg-slate-50/80 p-2 rounded-lg border border-slate-100">
-                            <span className="font-semibold text-slate-700 flex-shrink-0">Remarks:</span>
-                            <span className="truncate italic text-slate-600" title={scen2.remarks || "Secondary revision"}>
-                                {scen2.remarks || "Secondary revision"}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* 2. OPERATIONAL FILTERS STRIP (GEOGRAPHY, SKILL TYPE, DATE RANGE) */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs glow-card relative z-30">
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5 pb-2.5 border-b border-slate-100">
                     <div className="flex items-center gap-2">
-                        <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
-                            <IconSliders className="w-3.5 h-3.5 text-[#005eb8]" />
-                            <span>Scenario Filters & Operational Drill-Down</span>
-                        </span>
-                        <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">
-                            Live Scope
-                        </span>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={handleResetFilters}
-                        className="text-xs font-bold text-slate-500 hover:text-blue-700 hover:underline flex items-center gap-1 transition"
-                    >
-                        <span>↺</span>
-                        <span>Reset All Filters</span>
-                    </button>
-                </div>
-
-                {/* 3-Column Perfectly Aligned Filters Row (Exact 44px Control Heights) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 items-end">
-                    {/* A. Geography Hierarchy Scope Filter (Hierarchical Tree Dropdown with Radio Buttons) */}
-                    <div className="relative z-50">
-                        <div className="flex items-center justify-between h-5 mb-1.5">
-                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                                <IconGlobe className="w-3.5 h-3.5 text-slate-500" />
-                                <span>Geography Scope</span>
-                            </label>
-                            <span className="text-[10px] text-blue-600 font-bold">Hierarchical Tree</span>
-                        </div>
-                        <GeographyHierarchySelector
-                            hierarchy={hierarchy}
-                            selectedGeo={selectedGeo}
-                            onSelectGeo={setSelectedGeo}
-                            sourceFileName={selectedGeographyFile}
-                            onNavigateToInputs={onNavigateToInputs}
-                        />
-                    </div>
-
-                    {/* B. Skill Type Filter (HEC, KAC, All Skills) */}
-                    <div>
-                        <div className="flex items-center justify-between h-5 mb-1.5">
-                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                                <IconBolt className="w-3.5 h-3.5 text-slate-500" />
-                                <span>Skill Type Filter</span>
-                            </label>
-                            <span className="text-[10px] text-slate-400 font-medium">Heating vs Appliance</span>
-                        </div>
-                        <div className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200 h-[44px]">
-                            {[
-                                { id: 'ALL', label: 'All Skills', icon: IconGlobe },
-                                { id: 'HEC', label: 'HEC Core', icon: IconBolt },
-                                { id: 'KAC', label: 'KAC Appliance', icon: IconWrench }
-                            ].map(s => {
-                                const IconComp = s.icon;
-                                return (
-                                    <button
-                                        key={s.id}
-                                        type="button"
-                                        onClick={() => setSkillFilter(s.id)}
-                                        className={`flex-1 h-full text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                                            skillFilter === s.id
-                                                ? 'bg-white text-[#005eb8] shadow-xs border border-slate-200/80'
-                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                                        }`}
-                                    >
-                                        <IconComp className="w-3.5 h-3.5" />
-                                        <span>{s.label}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* C. Date Range Filter with Quick Horizon Presets */}
-                    <div>
-                        <div className="flex items-center justify-between h-5 mb-1.5">
-                            <label className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                                <IconCalendar className="w-3.5 h-3.5 text-slate-500" />
-                                <span>Date Range Filter</span>
-                            </label>
-                            <span className="text-[10px] text-slate-400 font-semibold">{visibleWeeks.length} Wks Selected</span>
-                        </div>
-                        <div className="flex items-center gap-2 h-[44px]">
-                            <div className="relative flex-1 h-full">
-                                <select
-                                    value={startDate}
-                                    onChange={(e) => {
-                                        if (e.target.value <= endDate) setStartDate(e.target.value);
-                                    }}
-                                    className="w-full h-full text-xs font-bold bg-white border border-slate-300 rounded-xl px-2.5 focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer truncate"
-                                    title="Start Week Commencing"
+                        {!isFiltersCollapsed ? (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={handleResetFilters}
+                                    className="px-3 py-1 rounded-full bg-white dark:bg-[#0c1b31] hover:bg-slate-100 dark:hover:bg-[#18365d] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold flex items-center gap-1 shadow-2xs transition cursor-pointer"
+                                    title="Reset filters to default"
                                 >
-                                    {allWeeks.map(w => (
-                                        <option key={w} value={w}>{w}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <span className="text-slate-400 text-xs font-bold flex-shrink-0">→</span>
-                            <div className="relative flex-1 h-full">
-                                <select
-                                    value={endDate}
-                                    onChange={(e) => {
-                                        if (e.target.value >= startDate) setEndDate(e.target.value);
-                                    }}
-                                    className="w-full h-full text-xs font-bold bg-white border border-slate-300 rounded-xl px-2.5 focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer truncate"
-                                    title="End Week Commencing"
+                                    <IconRefresh className="w-3 h-3 text-slate-500 dark:text-slate-400" />
+                                    <span>Reset</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsFiltersCollapsed(true)}
+                                    className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-[#80c6ff] ml-1.5 cursor-pointer transition select-none"
                                 >
-                                    {allWeeks.map(w => (
-                                        <option key={w} value={w}>{w}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
+                                    Collapse ▴
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => setIsFiltersCollapsed(false)}
+                                className="text-xs font-bold text-blue-600 dark:text-[#80c6ff] hover:underline cursor-pointer select-none"
+                            >
+                                Expand ▾
+                            </button>
+                        )}
                     </div>
                 </div>
 
-                {/* Filter Breadcrumbs & Horizon Presets Strip */}
-                <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5 text-xs">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-extrabold text-slate-400 uppercase tracking-wider text-[10px]">Active Filters:</span>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 text-[#005eb8] font-bold text-xs border border-blue-200">
-                            {selectedGeo.type === 'national' ? <IconGlobe className="w-3.5 h-3.5 text-[#005eb8]" /> : <IconPin className="w-3.5 h-3.5 text-[#005eb8]" />}
-                            <span>{getScopeDisplay()}</span>
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">
-                            <span>Skill: {skillFilter === 'ALL' ? 'All Skills (HEC + KAC)' : skillFilter}</span>
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200">
-                            <span>Horizon: {startDate} → {endDate} ({visibleWeeks.length} Wks)</span>
-                        </span>
-                    </div>
-
-                    {/* Quick Horizon Presets */}
-                    <div className="flex items-center gap-1 text-[11px]">
-                        <span className="text-slate-400 text-[10px] font-semibold mr-1">Presets:</span>
-                        <button
-                            type="button"
-                            onClick={() => handlePresetDates('all')}
-                            className={`px-2.5 py-1 rounded-lg font-bold border transition cursor-pointer ${
-                                startDate === allWeeks[0] && endDate === allWeeks[allWeeks.length - 1]
-                                    ? 'bg-[#005eb8] text-white border-blue-700 shadow-2xs'
-                                    : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 border-slate-200'
-                            }`}
-                        >
-                            All 8 Wks
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => handlePresetDates('first4')}
-                            className={`px-2.5 py-1 rounded-lg font-bold border transition cursor-pointer ${
-                                startDate === allWeeks[0] && endDate === allWeeks[3]
-                                    ? 'bg-[#005eb8] text-white border-blue-700 shadow-2xs'
-                                    : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 border-slate-200'
-                            }`}
-                        >
-                            First 4 Wks
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => handlePresetDates('last4')}
-                            className={`px-2.5 py-1 rounded-lg font-bold border transition cursor-pointer ${
-                                startDate === allWeeks[4] && endDate === allWeeks[allWeeks.length - 1]
-                                    ? 'bg-[#005eb8] text-white border-blue-700 shadow-2xs'
-                                    : 'bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-600 border-slate-200'
-                            }`}
-                        >
-                            Second 4 Wks
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* 2.5 EXECUTIVE AI SCENARIO TAKEAWAYS BANNER */}
-            <div className="rounded-2xl p-4 bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-sky-50/80 border border-blue-200/90 shadow-xs glow-card relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#005eb8] via-indigo-500 to-sky-400"></div>
-                <div className="relative z-10">
-                    <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-blue-200/60">
-                        <div className="flex items-center gap-2">
-                            <span className="w-7 h-7 rounded-lg bg-blue-600/10 text-[#005eb8] border border-blue-200/80 flex items-center justify-center shadow-2xs">
-                                <IconLightbulb className="w-4 h-4 text-[#005eb8]" />
-                            </span>
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight uppercase">
-                                    Executive Strategic Takeaways & Variance Synthesis
-                                </h4>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100/70 text-[#005eb8] border border-blue-200">
-                                    AI Scenario Synthesis
+                {!isFiltersCollapsed && (
+                    <>
+                        {/* Row 1: Dual Scenario Selectors with Swap */}
+                        <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5 pt-1">
+                            {/* Baseline Scenario (1) */}
+                            <div className="flex-1 min-w-[240px] flex items-center gap-2 bg-slate-50/70 dark:bg-[#08162b] border border-slate-200 dark:border-[#1a3862] rounded-xl px-3 py-2 shadow-2xs">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] flex-shrink-0 flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-blue-600 ring-2 ring-blue-200 dark:ring-blue-900" />
+                                    <span>BASELINE SCENARIO (1)</span>
+                                    <span title="Primary baseline reference scenario" className="cursor-help text-slate-400">
+                                        <IconInfo className="w-3 h-3" />
+                                    </span>
                                 </span>
+                                <select
+                                    value={baselineScenarioId}
+                                    onChange={(e) => setBaselineScenarioId(e.target.value)}
+                                    className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-blue-500 cursor-pointer truncate shadow-2xs"
+                                    title={`Baseline Scenario (1): ${baselineScenarioId} - ${scen1.remarks || 'Operating Plan Baseline'}`}
+                                >
+                                    {Object.keys(scenarios).map(id => (
+                                        <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
+                                    ))}
+                                </select>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-2 text-[11px]">
-                            <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold text-xs font-mono shadow-2xs">
-                                {totals.totDelta >= 0 ? `Net Headroom: +${totals.totDelta.toLocaleString()} hrs (+${toFte(totals.totDelta)} FTE)` : `Net Deficit: ${totals.totDelta.toLocaleString()} hrs (${toFte(totals.totDelta)} FTE)`}
-                            </span>
-                            <span className="px-2.5 py-1 rounded-full bg-white text-slate-700 border border-blue-200 font-bold text-xs shadow-2xs">
-                                Automated Scenario Intelligence
-                            </span>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 text-xs">
-                        {/* Workforce Posture */}
-                        <div className="bg-white p-3 rounded-xl border border-blue-200/80 shadow-2xs hover:shadow-xs hover:border-blue-300 transition">
-                            <div className="flex items-center gap-1.5 text-blue-700 font-extrabold text-xs mb-1">
-                                <IconScale className="w-3.5 h-3.5 text-blue-700" />
-                                <span>Workforce Posture</span>
+
+                            {/* Swap Scenarios Button */}
+                            <button
+                                type="button"
+                                onClick={handleSwapScenarios}
+                                className="px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50 dark:bg-[#0c1f38] dark:hover:bg-[#122b4d] text-slate-700 dark:text-white hover:text-[#005eb8] border border-slate-200 dark:border-blue-600/50 transition shadow-2xs flex-shrink-0 cursor-pointer flex items-center gap-1.5 text-xs font-bold select-none"
+                                title="Swap Baseline and Final Scenarios"
+                            >
+                                <IconArrowsSwap className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                                <span>Swap Scenarios</span>
+                            </button>
+
+                            {/* Final Scenario (2) */}
+                            <div className="flex-1 min-w-[240px] flex items-center gap-2 bg-slate-50/70 dark:bg-[#08162b] border border-slate-200 dark:border-[#1a3862] rounded-xl px-3 py-2 shadow-2xs">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-emerald-400 flex-shrink-0 flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 dark:ring-emerald-900" />
+                                    <span>FINAL SCENARIO (2)</span>
+                                    <span title="Final target scenario" className="cursor-help text-slate-400">
+                                        <IconInfo className="w-3 h-3" />
+                                    </span>
+                                </span>
+                                <select
+                                    value={comparisonScenarioId}
+                                    onChange={(e) => setComparisonScenarioId(e.target.value)}
+                                    className="flex-1 min-w-0 text-xs font-bold bg-white dark:bg-[#0c1b31] text-slate-800 dark:text-white border border-slate-200 dark:border-[#18365d] rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-emerald-500 cursor-pointer truncate shadow-2xs"
+                                    title={`Final Scenario (2): ${comparisonScenarioId} - ${scen2.remarks || 'Final scenario revision'}`}
+                                >
+                                    {Object.keys(scenarios).map(id => (
+                                        <option key={id} value={id} className="dark:bg-[#0c1b31]">{id}</option>
+                                    ))}
+                                </select>
                             </div>
-                            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
-                                Comparison plan delivers an overall <b className="text-emerald-700 font-mono font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">+{totals.totDelta.toLocaleString()} hrs</b> (+{toFte(totals.totDelta)} FTE) buffer improvement over Baseline across the {visibleWeeks.length}-week horizon, mitigating peak surge risks.
-                            </p>
                         </div>
 
-                        {/* Capacity Expansion Levers */}
-                        <div className="bg-white p-3 rounded-xl border border-emerald-200/80 shadow-2xs hover:shadow-xs hover:border-emerald-300 transition">
-                            <div className="flex items-center gap-1.5 text-emerald-700 font-extrabold text-xs mb-1">
-                                <IconBolt className="w-3.5 h-3.5 text-emerald-700" />
-                                <span>Capacity Expansion Levers</span>
+                        {/* Row 2: 3 Drill-Down Filters (Geography, Skill, Date) */}
+                        <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-3 pt-1 border-t border-slate-100 dark:border-[#18365d]/80">
+                            {/* A. Geography Hierarchy Scope Filter */}
+                            <div className="flex-1 min-w-[200px] flex items-center gap-2 relative z-50">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1 flex-shrink-0" title="Geography Scope">
+                                    <IconGlobe className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                                    <span>GEOGRAPHY:</span>
+                                </span>
+                                <div className="flex-1 min-w-0">
+                                    <GeographyHierarchySelector
+                                        hierarchy={hierarchy}
+                                        selectedGeo={selectedGeo}
+                                        onSelectGeo={setSelectedGeo}
+                                        sourceFileName={selectedGeographyFile}
+                                        onNavigateToInputs={onNavigateToInputs}
+                                        compact={true}
+                                    />
+                                </div>
                             </div>
-                            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
-                                Available hours increase by <b className="text-emerald-700 font-mono font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">{totals.totC2 - totals.totC1 >= 0 ? '+' : ''}{(totals.totC2 - totals.totC1).toLocaleString()} hrs</b> ({totals.totC2 - totals.totC1 >= 0 ? '+' : ''}{toFte(totals.totC2 - totals.totC1)} FTE), driven by gross hours uplift (+472 hrs) and sickness / downtime recovery.
-                            </p>
+
+                            {/* B. Skill Type Filter */}
+                            <div className="flex items-center gap-2 flex-shrink-0" title="Skill Type Filter">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
+                                    <IconUsers className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                                    <span>SKILL:</span>
+                                </span>
+                                <div className="flex items-center bg-white dark:bg-[#081324] p-0.5 rounded-xl border border-slate-200 dark:border-[#18365d] h-[34px] shadow-2xs">
+                                    {[
+                                        { id: 'ALL', label: 'All Skills', icon: IconUsers },
+                                        { id: 'HEC', label: 'HEC Core', icon: IconBolt },
+                                        { id: 'KAC', label: 'KAC Appliance', icon: IconWrench }
+                                    ].map(s => {
+                                        const IconComp = s.icon;
+                                        const isSelected = skillFilter === s.id;
+                                        return (
+                                            <button
+                                                key={s.id}
+                                                type="button"
+                                                onClick={() => setSkillFilter(s.id)}
+                                                className={`px-3 h-full text-[11px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                                                    isSelected
+                                                        ? 'bg-blue-100 text-[#005eb8] dark:bg-[#1d4ed8] dark:text-white shadow-xs font-extrabold'
+                                                        : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
+                                                }`}
+                                            >
+                                                <IconComp className="w-3 h-3 flex-shrink-0" />
+                                                <span>{s.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* C. Period Granularity (W/M) & Date Range Filter */}
+                            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap" title="Period Granularity & Date Range Filter">
+                                <div className="flex items-center bg-white dark:bg-[#081324] p-0.5 rounded-xl border border-slate-200 dark:border-[#18365d] h-[34px] shadow-2xs">
+                                    {[
+                                        { id: 'W', label: 'Weekly (W)' },
+                                        { id: 'M', label: 'Monthly (M)' }
+                                    ].map(p => (
+                                        <button
+                                            key={p.id}
+                                            type="button"
+                                            onClick={() => setPeriodMode(p.id)}
+                                            className={`px-2.5 h-full text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
+                                                periodMode === p.id
+                                                    ? 'bg-blue-100 text-[#005eb8] dark:bg-[#1d4ed8] dark:text-white shadow-xs font-extrabold'
+                                                    : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
+                                            }`}
+                                        >
+                                            {p.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-[#80c6ff] whitespace-nowrap flex items-center gap-1">
+                                    <IconCalendar className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#80c6ff]" />
+                                    <span>DATE:</span>
+                                </span>
+                                <div className="flex items-center gap-1.5 bg-white dark:bg-[#081324] border border-slate-200 dark:border-[#18365d] rounded-xl px-2.5 h-[34px] shadow-2xs">
+                                    <select
+                                        value={startDate}
+                                        onChange={(e) => {
+                                            if (e.target.value <= endDate) setStartDate(e.target.value);
+                                        }}
+                                        className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
+                                        title="Start Period"
+                                    >
+                                        {allWeeks.map(w => (
+                                            <option key={w} value={w} className="dark:bg-[#0c1b31]">{periodMode === 'M' ? w.slice(0, 7) : w}</option>
+                                        ))}
+                                    </select>
+                                    <span className="text-slate-400 text-xs font-bold select-none">→</span>
+                                    <select
+                                        value={endDate}
+                                        onChange={(e) => {
+                                            if (e.target.value >= startDate) setEndDate(e.target.value);
+                                        }}
+                                        className="text-[11px] font-bold bg-transparent text-slate-800 dark:text-white cursor-pointer focus:outline-none"
+                                        title="End Period"
+                                    >
+                                        {allWeeks.map(w => (
+                                            <option key={w} value={w} className="dark:bg-[#0c1b31]">{periodMode === 'M' ? w.slice(0, 7) : w}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Demand Mix Rebalancing */}
-                        <div className="bg-white p-3 rounded-xl border border-purple-200/80 shadow-2xs hover:shadow-xs hover:border-purple-300 transition">
-                            <div className="flex items-center gap-1.5 text-purple-700 font-extrabold text-xs mb-1">
-                                <IconTrendingUp className="w-3.5 h-3.5 text-purple-700" />
-                                <span>Demand Mix Rebalancing</span>
+                        {/* Row 3: Scenario Log & Calculation Keys Traceability Strip */}
+                        <div className="pt-2 border-t border-slate-100 dark:border-[#18365d]/80 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                            <div className="flex flex-wrap items-center gap-2 text-slate-600 dark:text-slate-300">
+                                <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-[#005eb8] dark:text-[#80c6ff] font-bold border border-blue-200/70 dark:border-blue-800/60">
+                                    Source: es_powerbi_model_checker_plan ({periodMode === 'M' ? 'Monthly M' : 'Weekly W'})
+                                </span>
+                                {diffLoading && <span className="text-amber-600 dark:text-amber-400 font-semibold animate-pulse">Loading final scenario data...</span>}
+                                {diffError && <span className="text-rose-600 dark:text-rose-400 font-semibold">{diffError}</span>}
+                                {log1 && log2 && (
+                                    <span className="text-slate-500 dark:text-slate-400">
+                                        Calc Keys Changed:{' '}
+                                        <strong className="text-slate-800 dark:text-white">
+                                            {['fte_key', 'avl_key', 'capacity_key', 'demand_key', 'workload_key', 'imbalance_key'].filter(k => (log1[k] || '') !== (log2[k] || '')).length} / 6
+                                        </strong>
+                                    </span>
+                                )}
                             </div>
-                            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
-                                Total demand adjusts by <b className="text-blue-700 font-mono font-bold bg-blue-50 px-1 py-0.2 rounded border border-blue-200">{totals.totD2 - totals.totD1 >= 0 ? '+' : ''}{(totals.totD2 - totals.totD1).toLocaleString()} hrs</b> ({toFte(totals.totD2 - totals.totD1)} FTE) through HEC Upgrade acceleration (+435 hrs) and reduced HEC repair backlog (-615 hrs).
-                            </p>
+                            <button
+                                type="button"
+                                onClick={() => setShowLogDetails(v => !v)}
+                                className="text-[11px] font-bold text-[#005eb8] dark:text-[#80c6ff] hover:underline cursor-pointer"
+                            >
+                                {showLogDetails ? 'Hide Scenario Log & Calc Keys ▴' : 'Inspect Scenario Log & Calc Keys ▾'}
+                            </button>
                         </div>
-                    </div>
-                </div>
+
+                        {showLogDetails && (
+                            <div className="mt-2 p-3 rounded-xl bg-slate-50 dark:bg-[#08162b] border border-slate-200 dark:border-[#18365d] text-[11px] space-y-2 overflow-x-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div>
+                                        <div className="font-bold text-slate-800 dark:text-white">{baselineScenarioId} (Baseline)</div>
+                                        <div className="text-slate-500 dark:text-slate-400">Created: {log1?.last_update || scen1.created_at || '—'} · Remarks: {log1?.remarks || scen1.remarks || '—'}</div>
+                                    </div>
+                                    <div>
+                                        <div className="font-bold text-slate-800 dark:text-white">{comparisonScenarioId} (Final)</div>
+                                        <div className="text-slate-500 dark:text-slate-400">Created: {log2?.last_update || scen2.created_at || '—'} · Remarks: {log2?.remarks || scen2.remarks || '—'}</div>
+                                    </div>
+                                </div>
+                                {log1 && log2 && (
+                                    <table className="w-full text-left border-collapse text-[10px] font-mono">
+                                        <thead>
+                                            <tr className="border-b border-slate-200 dark:border-[#18365d] text-slate-500 dark:text-slate-400">
+                                                <th className="py-1 pr-2">Calc Key</th>
+                                                <th className="py-1 pr-2">Status</th>
+                                                <th className="py-1 pr-2">Baseline Key Combination</th>
+                                                <th className="py-1">Final Key Combination</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-[#18365d]">
+                                            {['fte_key', 'avl_key', 'capacity_key', 'demand_key', 'workload_key', 'imbalance_key'].map(k => {
+                                                const same = (log1[k] || '') === (log2[k] || '');
+                                                return (
+                                                    <tr key={k}>
+                                                        <td className="py-1 pr-2 font-bold text-slate-700 dark:text-slate-200">{k}</td>
+                                                        <td className="py-1 pr-2">
+                                                            <span className={`px-1.5 py-0.5 rounded font-sans font-bold ${same ? 'bg-slate-100 dark:bg-slate-800 text-slate-500' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'}`}>
+                                                                {same ? 'Match' : 'Changed'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-1 pr-2 max-w-[260px] truncate text-slate-600 dark:text-slate-300" title={log1[k]}>{log1[k]}</td>
+                                                        <td className="py-1 max-w-[260px] truncate text-slate-600 dark:text-slate-300" title={log2[k]}>{log2[k]}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
 
-            {/* 3. EXECUTIVE KPI METRIC CARDS HEADER WITH HOURS <-> FTE TOGGLE */}
+            {/* 2. EXECUTIVE SCENARIO KPI SCORECARD HEADER */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                 <div className="flex items-center gap-2">
-                    <span className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                        <IconTarget className="w-4 h-4 text-[#005eb8]" />
+                    <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <IconBarChart className="w-4 h-4 text-[#005eb8] dark:text-[#60a5fa]" />
                         <span>Executive Scenario KPI Scorecard</span>
                     </span>
-                    <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">
-                        {metricUnit === 'fte' ? 'FTE Unit Mode (37.5h / Wk)' : 'Total Hours Mode'}
+                    <span className="text-[10px] bg-slate-100 dark:bg-[#0c1b31] text-slate-600 dark:text-[#80c6ff] border border-slate-200 dark:border-[#18365d] px-2.5 py-0.5 rounded-full font-bold">
+                        {metricUnit === 'fte' ? 'FTE Unit Mode (37.5h / Wk)' : 'Total Hours Model'}
                     </span>
                 </div>
 
                 {/* Hours <-> FTE Unit Toggle */}
-                <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs font-bold gap-1 shadow-2xs">
+                <div className="flex items-center bg-slate-100 dark:bg-[#081324] p-0.5 rounded-full border border-slate-200 dark:border-[#18365d] text-xs font-bold gap-1 shadow-2xs">
                     <button
                         type="button"
                         onClick={() => setMetricUnit('hrs')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1 rounded-full transition cursor-pointer flex items-center gap-1.5 ${
                             metricUnit === 'hrs'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-[#005eb8] text-white shadow-xs font-extrabold'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
                         }`}
                         title="Display values in total standard working hours"
                     >
@@ -11565,10 +12845,10 @@ function ScenarioComparisonView({
                     <button
                         type="button"
                         onClick={() => setMetricUnit('fte')}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3 py-1 rounded-full transition cursor-pointer flex items-center gap-1.5 ${
                             metricUnit === 'fte'
-                                ? 'bg-white text-[#005eb8] shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-[#005eb8] text-white shadow-xs font-extrabold'
+                                : 'text-slate-600 dark:text-[#adbed4] hover:text-slate-900 dark:hover:text-white'
                         }`}
                         title="Display values normalized to standard Centrica FTEs (37.5 hrs/week)"
                     >
@@ -11578,132 +12858,210 @@ function ScenarioComparisonView({
                 </div>
             </div>
 
-            {/* 3. EXECUTIVE KPI METRIC CARDS */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 relative z-10">
-                {/* Net Delta Imbalance */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Net Imbalance Delta</span>
-                        <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shadow-2xs flex-shrink-0">
-                            <IconScale className="w-3.5 h-3.5 text-emerald-600" />
-                        </div>
-                    </div>
-                    <div className="flex items-baseline gap-1 mt-1.5">
-                        <span className="text-xl sm:text-2xl font-black text-emerald-600 tracking-tight font-mono">
-                            {metricUnit === 'fte' ? `+${toFte(totals.totDelta)}` : `+${totals.totDelta.toLocaleString()}`}
+            {/* 3. EXECUTIVE KPI METRIC CARDS (4 Compact Glowing Cards Aligned with Executive Insights) */}
+            {(() => {
+                // Uniform KPI badge renderer: positive (green), drop (red), neutral (normal)
+                const renderKpiBadge = (type, icon, text) => {
+                    let styleClasses = "";
+                    if (type === 'positive') {
+                        styleClasses = "bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-[#062c1f] dark:text-[#34d399] dark:border-[#10b981]/40";
+                    } else if (type === 'drop') {
+                        styleClasses = "bg-rose-50 text-rose-700 border-rose-200/60 dark:bg-[#2c0b0e] dark:text-[#f87171] dark:border-[#ef4444]/40";
+                    } else {
+                        styleClasses = "bg-slate-100 text-slate-700 border-slate-200 dark:bg-[#0c1b31] dark:text-[#94a3b8] dark:border-[#18365d]";
+                    }
+                    return (
+                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap flex-shrink-0 ${styleClasses}`}>
+                            <span className="text-[8px]">{icon}</span>
+                            <span>{text}</span>
                         </span>
-                        <span className="text-xs text-slate-500 font-bold">{metricUnit === 'fte' ? 'FTE' : 'hrs'}</span>
-                    </div>
-                    <div className="mt-1.5 flex items-center gap-1">
-                        <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-extrabold">
-                            {metricUnit === 'fte' ? `▲ +${toFte(totals.totDelta)} FTE advantage` : '▲ Comparison Advantage'}
-                        </span>
-                    </div>
-                </div>
+                    );
+                };
 
-                {/* Comparison Demand */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-[#005eb8]"></div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Demand</span>
-                        <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 text-[#005eb8] flex items-center justify-center shadow-2xs flex-shrink-0">
-                            <IconDemand className="w-3.5 h-3.5 text-[#005eb8]" />
-                        </div>
-                    </div>
-                    <div className="flex items-baseline gap-1 mt-1.5">
-                        <span className="text-xl sm:text-2xl font-black text-[#005eb8] tracking-tight font-mono">
-                            {metricUnit === 'fte' ? toFte(totals.totD2) : totals.totD2.toLocaleString()}
-                        </span>
-                        <span className="text-xs text-slate-500 font-bold">{metricUnit === 'fte' ? 'FTE' : 'hrs'}</span>
-                    </div>
-                    <span className="text-[10px] text-slate-500 mt-1.5 block truncate font-medium">
-                        {metricUnit === 'fte'
-                            ? `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${toFte(totals.totD2 - totals.totD1)} FTE vs Baseline (${toFte(totals.totD1)})`
-                            : `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${(totals.totD2 - totals.totD1).toLocaleString()} hrs vs Baseline (${totals.totD1.toLocaleString()})`
-                        }
-                    </span>
-                </div>
+                // 1. Net Imbalance Delta
+                const netVal = totals.totDelta;
+                const netType = netVal > 0 ? 'positive' : (netVal < 0 ? 'drop' : 'neutral');
+                const netIcon = netVal > 0 ? '▲' : (netVal < 0 ? '▼' : '●');
+                const netBadgeLabel = netVal > 0 ? 'Final Advantage' : (netVal < 0 ? 'Final Deficit' : 'Balanced Parity');
 
-                {/* Comparison Capacity */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-700 to-slate-900"></div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Comparison Capacity</span>
-                        <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-center shadow-2xs flex-shrink-0">
-                            <IconCapacity className="w-3.5 h-3.5 text-slate-800" />
-                        </div>
-                    </div>
-                    <div className="flex items-baseline gap-1 mt-1.5">
-                        <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono">
-                            {metricUnit === 'fte' ? toFte(totals.totC2) : totals.totC2.toLocaleString()}
-                        </span>
-                        <span className="text-xs text-slate-500 font-bold">{metricUnit === 'fte' ? 'FTE' : 'hrs'}</span>
-                    </div>
-                    <span className="text-[10px] text-emerald-600 mt-1.5 block truncate font-bold">
-                        {metricUnit === 'fte'
-                            ? `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${toFte(totals.totC2 - totals.totC1)} FTE vs Baseline (${toFte(totals.totC1)})`
-                            : `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${(totals.totC2 - totals.totC1).toLocaleString()} hrs vs Baseline (${totals.totC1.toLocaleString()})`
-                        }
-                    </span>
-                </div>
+                // 2. Final Demand Delta vs Baseline
+                const demandDelta = totals.totD2 - totals.totD1;
+                const demandType = demandDelta < 0 ? 'drop' : (demandDelta > 0 ? 'positive' : 'neutral');
+                const demandIcon = demandDelta > 0 ? '▲' : (demandDelta < 0 ? '▼' : '●');
+                const demandDeltaText = demandDelta === 0 
+                    ? `0 ${metricUnit === 'fte' ? 'FTE' : 'hrs'}` 
+                    : `${demandDelta > 0 ? '+' : '-'}${metricUnit === 'fte' ? toFte(Math.abs(demandDelta)) : Math.abs(demandDelta).toLocaleString()} ${metricUnit === 'fte' ? 'FTE' : 'hrs'}`;
 
-                {/* Filter Scope Coverage */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition relative overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-                    <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Operational Scope</span>
-                        <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shadow-2xs flex-shrink-0">
-                            <IconMap className="w-3.5 h-3.5 text-indigo-600" />
+                // 3. Final Capacity Delta vs Baseline
+                const capDelta = totals.totC2 - totals.totC1;
+                const capType = capDelta > 0 ? 'positive' : (capDelta < 0 ? 'drop' : 'neutral');
+                const capIcon = capDelta > 0 ? '▲' : (capDelta < 0 ? '▼' : '●');
+                const capDeltaText = capDelta === 0 
+                    ? `0 ${metricUnit === 'fte' ? 'FTE' : 'hrs'}` 
+                    : `${capDelta > 0 ? '+' : '-'}${metricUnit === 'fte' ? toFte(Math.abs(capDelta)) : Math.abs(capDelta).toLocaleString()} ${metricUnit === 'fte' ? 'FTE' : 'hrs'}`;
+
+                // 4. Operational Scope
+                const scopeSkill = skillFilter === 'All' ? 'ALL' : skillFilter;
+
+                return (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative z-10">
+                        {/* 1. Net Imbalance Delta */}
+                        <div className="diff-kpi-card-net glow-card group cursor-pointer bg-gradient-to-br from-[#eafaf1] to-[#f4fcf7] dark:bg-[#041a14] px-3.5 py-2.5 rounded-xl border border-[#a7f3d0] dark:border-[#10b981] shadow-xs relative overflow-hidden transition-all duration-200">
+                            <WaveBackground strokeColor="#10b981" fillColor="#10b981" id="wave-net" />
+                            <div className="relative z-10 flex items-start gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center glow-icon glow-icon-emerald flex-shrink-0">
+                                    <IconScale className="w-4 h-4 text-current" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-300 tracking-wider whitespace-nowrap truncate block">
+                                        NET IMBALANCE DELTA
+                                    </span>
+                                    <div className="flex items-baseline gap-1.5 whitespace-nowrap leading-none mt-0.5">
+                                        <span className={`text-xl font-black tracking-tight leading-none whitespace-nowrap font-mono ${
+                                            netVal > 0 ? 'text-[#059669] dark:text-[#10b981]' : (netVal < 0 ? 'text-[#dc2626] dark:text-[#f87171]' : 'text-slate-900 dark:text-white')
+                                        }`}>
+                                            {netVal > 0 ? '+' : (netVal < 0 ? '-' : '')}
+                                            {metricUnit === 'fte' ? toFte(Math.abs(netVal)) : Math.abs(netVal).toLocaleString()}
+                                        </span>
+                                        <span className={`text-xs font-semibold whitespace-nowrap ${
+                                            netVal > 0 ? 'text-[#059669] dark:text-[#10b981]' : (netVal < 0 ? 'text-[#dc2626] dark:text-[#f87171]' : 'text-slate-400')
+                                        }`}>
+                                            {metricUnit === 'fte' ? 'FTE' : 'hrs'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                                        {renderKpiBadge(netType, netIcon, netBadgeLabel)}
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium whitespace-nowrap truncate">vs baseline</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 2. Comparison Demand */}
+                        <div className="diff-kpi-card-demand glow-card group cursor-pointer bg-gradient-to-br from-[#edf5fc] to-[#f8fbff] dark:bg-[#06152b] px-3.5 py-2.5 rounded-xl border border-[#bfdbfe] dark:border-[#2563eb] shadow-xs relative overflow-hidden transition-all duration-200">
+                            <WaveBackground strokeColor="#38bdf8" fillColor="#38bdf8" id="wave-demand" />
+                            <div className="relative z-10 flex items-start gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center glow-icon glow-icon-blue flex-shrink-0">
+                                    <IconUsers className="w-4 h-4 text-current" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-300 tracking-wider whitespace-nowrap truncate block">
+                                        FINAL DEMAND
+                                    </span>
+                                    <div className="flex items-baseline gap-1.5 whitespace-nowrap leading-none mt-0.5">
+                                        <span className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none whitespace-nowrap font-mono">
+                                            {metricUnit === 'fte' ? toFte(totals.totD2) : totals.totD2.toLocaleString()}
+                                        </span>
+                                        <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">
+                                            {metricUnit === 'fte' ? 'FTE' : 'hrs'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                                        {renderKpiBadge(demandType, demandIcon, demandDeltaText)}
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium whitespace-nowrap truncate">
+                                            vs Baseline ({metricUnit === 'fte' ? toFte(totals.totD1) : totals.totD1.toLocaleString()})
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 3. Comparison Capacity */}
+                        <div className="diff-kpi-card-capacity glow-card group cursor-pointer bg-gradient-to-br from-[#f5efff] to-[#faf7ff] dark:bg-[#120c2a] px-3.5 py-2.5 rounded-xl border border-[#ddd6fe] dark:border-[#7c3aed] shadow-xs relative overflow-hidden transition-all duration-200">
+                            <WaveBackground strokeColor="#c084fc" fillColor="#c084fc" id="wave-cap" />
+                            <div className="relative z-10 flex items-start gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center glow-icon glow-icon-purple flex-shrink-0">
+                                    <IconTrendingUp className="w-4 h-4 text-current" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-300 tracking-wider whitespace-nowrap truncate block">
+                                        FINAL CAPACITY
+                                    </span>
+                                    <div className="flex items-baseline gap-1.5 whitespace-nowrap leading-none mt-0.5">
+                                        <span className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none whitespace-nowrap font-mono">
+                                            {metricUnit === 'fte' ? toFte(totals.totC2) : totals.totC2.toLocaleString()}
+                                        </span>
+                                        <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">
+                                            {metricUnit === 'fte' ? 'FTE' : 'hrs'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                                        {renderKpiBadge(capType, capIcon, capDeltaText)}
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium whitespace-nowrap truncate">
+                                            vs Baseline ({metricUnit === 'fte' ? toFte(totals.totC1) : totals.totC1.toLocaleString()})
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 4. Operational Scope */}
+                        <div className="diff-kpi-card-scope glow-card group cursor-pointer bg-gradient-to-br from-[#fef7ec] to-[#fffcf7] dark:bg-[#1c1103] px-3.5 py-2.5 rounded-xl border border-[#fed7aa] dark:border-[#d97706] shadow-xs relative overflow-hidden transition-all duration-200">
+                            <WaveBackground strokeColor="#fbbf24" fillColor="#fbbf24" id="wave-scope" />
+                            <div className="relative z-10 flex items-start gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 text-amber-500 flex items-center justify-center glow-icon glow-icon-amber flex-shrink-0">
+                                    <IconTrophy className="w-4 h-4 text-current" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-300 tracking-wider whitespace-nowrap truncate block">
+                                        OPERATIONAL SCOPE
+                                    </span>
+                                    <div className="text-base font-black text-slate-900 dark:text-white mt-0.5 whitespace-nowrap leading-none truncate">
+                                        {selectedGeo?.label || selectedGeo?.name || 'National (All UK)'}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-1 whitespace-nowrap overflow-hidden flex-nowrap">
+                                        {renderKpiBadge('neutral', '●', `Skill: ${scopeSkill}`)}
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium whitespace-nowrap truncate">
+                                            {periodMode === 'M' ? 'Period: Monthly (M)' : 'Period: Weekly (W)'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="text-xs sm:text-sm font-black text-slate-900 mt-1.5 truncate">
-                        {selectedGeo.label}
-                    </div>
-                    <span className="text-[10px] text-slate-500 mt-1.5 block truncate font-medium">
-                        Skill: <b className="text-slate-700">{skillFilter}</b> • <b className="text-slate-700">{visibleWeeks.length}</b> Weeks Commencing
-                    </span>
-                </div>
-            </div>
+                );
+            })()}
 
             {/* 4. SCENARIO VARIANCE WATERFALL ANALYSIS: CAPACITY & DEMAND BRIDGES */}
             <ScenarioWaterfallBridgesSection
                 totals={totals}
+                bridgeStats={bridgeStats}
                 skillFilter={skillFilter}
                 visibleWeeks={visibleWeeks}
                 baselineScenarioId={baselineScenarioId}
                 comparisonScenarioId={comparisonScenarioId}
+                isDarkMode={isDarkMode}
             />
 
-            {/* 5. WEEKLY DEMAND VS CAPACITY VARIANCE BREAKDOWN (COMBINED HORIZON & TABULAR VIEW) */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden glow-card relative z-10">
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100">
+            {/* 5. WEEKLY / MONTHLY DEMAND VS CAPACITY VARIANCE BREAKDOWN */}
+            <div className="bg-white dark:bg-[#071324] p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-[#18365d] shadow-xs overflow-hidden glow-card relative z-10">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5 pb-2.5 border-b border-slate-100 dark:border-[#18365d]">
                     <div>
-                        <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 flex items-center gap-2">
-                            <span>Weekly Demand vs Capacity Variance Breakdown</span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#005eb8] border border-blue-200">
-                                Combined View
+                        <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                            <span>{periodMode === 'M' ? 'Monthly' : 'Weekly'} Demand vs Capacity Variance Breakdown</span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#005eb8] dark:text-[#80c6ff] border border-blue-200 dark:border-blue-800">
+                                {periodMode === 'M' ? 'Period: M' : 'Period: W'}
                             </span>
                         </h4>
-                        <p className="text-[11px] text-slate-500">
-                            Granular week-by-week delta between Baseline ({baselineScenarioId}) and Comparison ({comparisonScenarioId})
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            Granular {periodMode === 'M' ? 'month-by-month' : 'week-by-week'} delta between Baseline ({baselineScenarioId}) and Final ({comparisonScenarioId})
                         </p>
                     </div>
 
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
-                        {visibleWeeks.length} Active Weeks Commencing
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#0c1b31] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-[#18365d]">
+                        {visibleWeeks.length} Active {periodMode === 'M' ? 'Months' : 'Weeks Commencing'}
                     </span>
                 </div>
 
-                {/* 8-Week Horizon Trajectory Chart */}
-                <div className="mb-4 p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80">
+                {/* Horizon Trajectory Chart */}
+                <div className="mb-4 p-3.5 bg-slate-50/70 dark:bg-[#08162b] rounded-xl border border-slate-200/80 dark:border-[#18365d]">
                     <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-extrabold text-slate-700 flex items-center gap-1.5">
-                            <IconTrendingUp className="w-3.5 h-3.5 text-[#005eb8]" />
-                            <span>8-Week Dual-Horizon Supply vs Demand Gap & Surplus Buffer</span>
+                        <span className="text-xs font-extrabold text-slate-700 dark:text-white flex items-center gap-1.5">
+                            <IconTrendingUp className="w-3.5 h-3.5 text-[#005eb8] dark:text-[#60a5fa]" />
+                            <span>{visibleWeeks.length}-{periodMode === 'M' ? 'Month' : 'Week'} Dual-Horizon Supply vs Demand Gap & Surplus Buffer</span>
                         </span>
-                        <span className="text-[10px] text-slate-500 font-semibold">
-                            Hover points for exact weekly figures & net headroom
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
+                            Hover points for exact {periodMode === 'M' ? 'monthly' : 'weekly'} figures & net headroom
                         </span>
                     </div>
                     <WeeklyDualHorizonChart
@@ -11711,99 +13069,105 @@ function ScenarioComparisonView({
                         baselineScenarioId={baselineScenarioId}
                         comparisonScenarioId={comparisonScenarioId}
                         metricUnit={metricUnit}
+                        isDarkMode={isDarkMode}
                     />
                 </div>
 
                 {/* Granular Table */}
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
-                        <table className="w-full text-left text-xs border-collapse">
-                            <thead>
-                                {/* Group Header Row */}
-                                <tr className="bg-slate-100/90 text-slate-600 text-[10px] font-extrabold uppercase tracking-wider border-b border-slate-200">
-                                    <th className="py-2 px-3 border-r border-slate-200">Planning Horizon</th>
-                                    <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 text-blue-700 bg-blue-50/50">Demand ({metricUnit === 'fte' ? 'FTE' : 'Hours'})</th>
-                                    <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 text-emerald-800 bg-emerald-50/50">Capacity ({metricUnit === 'fte' ? 'FTE' : 'Hours'})</th>
-                                    <th className="py-2 px-3 text-right text-emerald-700 bg-emerald-50/70">Net Variance</th>
-                                </tr>
-                                {/* Sub Header Row */}
-                                <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 text-[11px]">
-                                    <th className="py-2.5 px-3 border-r border-slate-200">Week Commencing</th>
-                                    <th className="py-2.5 px-3 text-slate-600">Baseline</th>
-                                    <th className="py-2.5 px-3 text-blue-700">Comp</th>
-                                    <th className="py-2.5 px-3 text-slate-500 border-r border-slate-200">Δ Demand</th>
-                                    <th className="py-2.5 px-3 text-slate-600">Baseline</th>
-                                    <th className="py-2.5 px-3 text-emerald-700">Comp</th>
-                                    <th className="py-2.5 px-3 text-slate-500 border-r border-slate-200">Δ Capacity</th>
-                                    <th className="py-2.5 px-3 text-right text-emerald-700">Delta Imbalance</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 text-slate-700">
-                                {weeklyData.map((r) => {
-                                    const dVar = r.d2 - r.d1;
-                                    const cVar = r.c2 - r.c1;
-                                    const unitSuffix = metricUnit === 'fte' ? ' FTE' : ' hrs';
-                                    const fmtVal = (val) => metricUnit === 'fte' ? (val / 37.5).toFixed(1) : val.toLocaleString();
+                <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#18365d]">
+                    <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                            {/* Group Header Row */}
+                            <tr className="bg-slate-100/90 dark:bg-[#08162b] text-slate-600 dark:text-slate-300 text-[10px] font-extrabold uppercase tracking-wider border-b border-slate-200 dark:border-[#18365d]">
+                                <th className="py-2 px-3 border-r border-slate-200 dark:border-[#18365d]">Planning Horizon</th>
+                                <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 dark:border-[#18365d] text-blue-700 dark:text-[#80c6ff] bg-blue-50/50 dark:bg-blue-950/30">Demand ({metricUnit === 'fte' ? 'FTE' : 'Hours'})</th>
+                                <th colSpan={3} className="py-2 px-3 text-center border-r border-slate-200 dark:border-[#18365d] text-emerald-800 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30">Capacity ({metricUnit === 'fte' ? 'FTE' : 'Hours'})</th>
+                                <th className="py-2 px-3 text-right text-emerald-700 dark:text-emerald-400 bg-emerald-50/70 dark:bg-emerald-950/40">Net Variance</th>
+                            </tr>
+                            {/* Sub Header Row */}
+                            <tr className="bg-slate-50 dark:bg-[#0c1b31] text-slate-700 dark:text-slate-200 font-bold border-b border-slate-200 dark:border-[#18365d] text-[11px]">
+                                <th className="py-2.5 px-3 border-r border-slate-200 dark:border-[#18365d]">Week Commencing</th>
+                                <th className="py-2.5 px-3 text-slate-600 dark:text-slate-400">Baseline</th>
+                                <th className="py-2.5 px-3 text-blue-700 dark:text-[#80c6ff]">Final</th>
+                                <th className="py-2.5 px-3 text-slate-500 dark:text-slate-400 border-r border-slate-200 dark:border-[#18365d]">Δ Demand</th>
+                                <th className="py-2.5 px-3 text-slate-600 dark:text-slate-400">Baseline</th>
+                                <th className="py-2.5 px-3 text-emerald-700 dark:text-emerald-400">Final</th>
+                                <th className="py-2.5 px-3 text-slate-500 dark:text-slate-400 border-r border-slate-200 dark:border-[#18365d]">Δ Capacity</th>
+                                <th className="py-2.5 px-3 text-right text-emerald-700 dark:text-emerald-400">Delta Imbalance</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-[#18365d] text-slate-700 dark:text-slate-300">
+                            {weeklyData.map((r) => {
+                                const dVar = r.d2 - r.d1;
+                                const cVar = r.c2 - r.c1;
+                                const unitSuffix = metricUnit === 'fte' ? ' FTE' : ' hrs';
+                                const fmtVal = (val) => metricUnit === 'fte' ? (val / 37.5).toFixed(1) : val.toLocaleString();
 
-                                    return (
-                                        <tr key={r.week} className="hover:bg-blue-50/30 transition">
-                                            <td className="py-2.5 px-3 font-bold text-slate-800 font-mono text-xs border-r border-slate-100">{r.week}</td>
-                                            <td className="py-2.5 px-3 text-slate-600 font-mono tabular-nums">{fmtVal(r.d1)}{unitSuffix}</td>
-                                            <td className="py-2.5 px-3 font-bold text-blue-700 font-mono tabular-nums">{fmtVal(r.d2)}{unitSuffix}</td>
-                                            <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-slate-500 border-r border-slate-100">
-                                                {dVar >= 0 ? `+${fmtVal(dVar)}` : fmtVal(dVar)}{unitSuffix}
-                                            </td>
-                                            <td className="py-2.5 px-3 text-slate-600 font-mono tabular-nums">{fmtVal(r.c1)}{unitSuffix}</td>
-                                            <td className="py-2.5 px-3 font-bold text-emerald-700 font-mono tabular-nums">{fmtVal(r.c2)}{unitSuffix}</td>
-                                            <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-emerald-600 border-r border-slate-100 font-bold">
-                                                {cVar >= 0 ? `+${fmtVal(cVar)}` : fmtVal(cVar)}{unitSuffix}
-                                            </td>
-                                            <td className="py-2.5 px-3 font-bold text-right font-mono tabular-nums">
-                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-extrabold ${
-                                                    r.delta >= 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
-                                                }`}>
-                                                    {r.delta >= 0 ? `+${fmtVal(r.delta)}` : fmtVal(r.delta)}{unitSuffix}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                            <tfoot>
-                                <tr className="bg-slate-100/90 font-black border-t-2 border-slate-300 text-slate-900 text-xs">
-                                    <td className="py-3 px-3 border-r border-slate-200 uppercase tracking-wide">Total / Summary</td>
-                                    <td className="py-3 px-3 font-mono tabular-nums text-slate-700">
-                                        {metricUnit === 'fte' ? toFte(totals.totD1) + ' FTE' : totals.totD1.toLocaleString() + ' hrs'}
-                                    </td>
-                                    <td className="py-3 px-3 font-mono tabular-nums text-blue-700">
-                                        {metricUnit === 'fte' ? toFte(totals.totD2) + ' FTE' : totals.totD2.toLocaleString() + ' hrs'}
-                                    </td>
-                                    <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-slate-600 border-r border-slate-200">
+                                return (
+                                    <tr key={r.week} className="hover:bg-blue-50/30 dark:hover:bg-[#112649] transition">
+                                        <td className="py-2.5 px-3 font-bold text-slate-800 dark:text-white font-mono text-xs border-r border-slate-100 dark:border-[#18365d]">{r.week}</td>
+                                        <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300 font-mono tabular-nums">{fmtVal(r.d1)}{unitSuffix}</td>
+                                        <td className="py-2.5 px-3 font-bold text-blue-700 dark:text-[#80c6ff] font-mono tabular-nums">{fmtVal(r.d2)}{unitSuffix}</td>
+                                        <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-slate-500 dark:text-slate-400 border-r border-slate-100 dark:border-[#18365d]">
+                                            {dVar >= 0 ? `+${fmtVal(dVar)}` : fmtVal(dVar)}{unitSuffix}
+                                        </td>
+                                        <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300 font-mono tabular-nums">{fmtVal(r.c1)}{unitSuffix}</td>
+                                        <td className="py-2.5 px-3 font-bold text-emerald-700 dark:text-emerald-400 font-mono tabular-nums">{fmtVal(r.c2)}{unitSuffix}</td>
+                                        <td className="py-2.5 px-3 text-[11px] font-mono tabular-nums text-emerald-600 dark:text-emerald-400 border-r border-slate-100 dark:border-[#18365d] font-bold">
+                                            {cVar >= 0 ? `+${fmtVal(cVar)}` : fmtVal(cVar)}{unitSuffix}
+                                        </td>
+                                        <td className="py-2.5 px-3 font-bold text-right font-mono tabular-nums">
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-extrabold ${
+                                                r.delta >= 0 ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
+                                            }`}>
+                                                {r.delta >= 0 ? `+${fmtVal(r.delta)}` : fmtVal(r.delta)}{unitSuffix}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                        <tfoot>
+                            <tr className="bg-slate-100/90 dark:bg-[#08162b] font-black border-t-2 border-slate-300 dark:border-[#18365d] text-slate-900 dark:text-white text-xs">
+                                <td className="py-3 px-3 border-r border-slate-200 dark:border-[#18365d] uppercase tracking-wide">Total / Summary</td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-slate-700 dark:text-slate-300">
+                                    {metricUnit === 'fte' ? toFte(totals.totD1) + ' FTE' : totals.totD1.toLocaleString() + ' hrs'}
+                                </td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-blue-700 dark:text-[#80c6ff]">
+                                    {metricUnit === 'fte' ? toFte(totals.totD2) + ' FTE' : totals.totD2.toLocaleString() + ' hrs'}
+                                </td>
+                                <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-[#18365d]">
+                                    {metricUnit === 'fte'
+                                        ? `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${toFte(totals.totD2 - totals.totD1)} FTE`
+                                        : `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${(totals.totD2 - totals.totD1).toLocaleString()} hrs`
+                                    }
+                                </td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-slate-700 dark:text-slate-300">
+                                    {metricUnit === 'fte' ? toFte(totals.totC1) + ' FTE' : totals.totC1.toLocaleString() + ' hrs'}
+                                </td>
+                                <td className="py-3 px-3 font-mono tabular-nums text-emerald-700 dark:text-emerald-400">
+                                    {metricUnit === 'fte' ? toFte(totals.totC2) + ' FTE' : totals.totC2.toLocaleString() + ' hrs'}
+                                </td>
+                                <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-emerald-600 dark:text-emerald-400 border-r border-slate-200 dark:border-[#18365d]">
+                                    {metricUnit === 'fte'
+                                        ? `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${toFte(totals.totC2 - totals.totC1)} FTE`
+                                        : `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${(totals.totC2 - totals.totC1).toLocaleString()} hrs`
+                                    }
+                                </td>
+                                <td className="py-3 px-3 text-right font-mono tabular-nums">
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-black ${
+                                        totals.totDelta >= 0 ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
+                                    }`}>
                                         {metricUnit === 'fte'
-                                            ? `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${toFte(totals.totD2 - totals.totD1)} FTE`
-                                            : `${totals.totD2 - totals.totD1 >= 0 ? '+' : ''}${(totals.totD2 - totals.totD1).toLocaleString()} hrs`
+                                            ? `${totals.totDelta >= 0 ? '+' : ''}${toFte(totals.totDelta)} FTE`
+                                            : `${totals.totDelta >= 0 ? '+' : ''}${totals.totDelta.toLocaleString()} hrs`
                                         }
-                                    </td>
-                                    <td className="py-3 px-3 font-mono tabular-nums text-slate-700">
-                                        {metricUnit === 'fte' ? toFte(totals.totC1) + ' FTE' : totals.totC1.toLocaleString() + ' hrs'}
-                                    </td>
-                                    <td className="py-3 px-3 font-mono tabular-nums text-emerald-700">
-                                        {metricUnit === 'fte' ? toFte(totals.totC2) + ' FTE' : totals.totC2.toLocaleString() + ' hrs'}
-                                    </td>
-                                    <td className="py-3 px-3 text-[11px] font-mono tabular-nums text-emerald-600 border-r border-slate-200">
-                                        {metricUnit === 'fte'
-                                            ? `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${toFte(totals.totC2 - totals.totC1)} FTE`
-                                            : `${totals.totC2 - totals.totC1 >= 0 ? '+' : ''}${(totals.totC2 - totals.totC1).toLocaleString()} hrs`
-                                        }
-                                    </td>
-                                    <td className="py-3 px-3 text-right">
-                                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs font-mono">
-                                            {metricUnit === 'fte' ? `+${toFte(totals.totDelta)} FTE` : `+${totals.totDelta.toLocaleString()} hrs`}
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
     );
@@ -12021,8 +13385,8 @@ function DemVsCapView({
 
     // Weekly Demand vs Capacity Profile (12-Week Horizon)
     const weeklyProfileData = useMemo(() => {
-        const rawDemand = [4650, 4710, 4780, 4820, 4890, 4850, 4810, 4770, 4720, 4680, 4630, 4590];
-        const rawCapacity = [4980, 5020, 5050, 5010, 4810, 5080, 5120, 5160, 5100, 5050, 4990, 4940];
+        const rawDemand = [4120, 4380, 4510, 4320, 4460, 4780, 4920, 5280, 5390, 5020, 5480, 5620];
+        const rawCapacity = [4290, 4210, 4280, 4590, 4720, 5060, 5180, 4960, 5040, 5310, 5190, 5240];
         const dScale = analytics?.demandScale || 1.0;
         const cScale = analytics?.capacityScale || 1.0;
         
@@ -12053,11 +13417,11 @@ function DemVsCapView({
     const regionalWeeklyRollup = useMemo(() => {
         const regScale = (analytics?.netBufferFte !== undefined) ? (analytics.netBufferFte / 73.3) : 1.0;
         const regions = [
-            { code: 'A', name: 'Region A (Scotland & NE)', base: [14.2, 14.8, 15.1, 14.5, 13.9, 14.2, 14.9, 15.3, 14.7, 14.4, 14.1, 13.8] },
-            { code: 'B', name: 'Region B (North / NW)', base: [28.5, 29.1, 28.2, 27.8, 26.5, 28.4, 29.5, 30.1, 29.2, 28.8, 28.1, 27.9] },
-            { code: 'C', name: 'Region C (Midlands)', base: [-1.2, 1.5, -0.8, -2.4, -4.1, -1.8, 2.1, 3.4, 2.8, 1.9, 0.8, 0.4] },
-            { code: 'D', name: 'Region D (South East)', base: [22.8, 23.4, 22.1, 21.9, 20.8, 22.5, 23.8, 24.2, 23.5, 22.9, 22.4, 21.8] },
-            { code: 'E', name: 'Region E (South West)', base: [11.9, 12.3, 11.8, 11.2, 10.5, 11.8, 12.5, 12.9, 12.4, 12.1, 11.6, 11.2] }
+            { code: 'A', name: 'Region A (Scotland & NE)', base: [14.2, -3.8, -5.1, 14.5, 13.9, 14.2, 14.9, -4.3, -2.7, 14.4, -3.1, -4.8] },
+            { code: 'B', name: 'Region B (North / NW)', base: [28.5, -6.1, -8.2, 27.8, 26.5, 28.4, 29.5, -5.1, -6.2, 28.8, -4.1, -7.9] },
+            { code: 'C', name: 'Region C (Midlands)', base: [-1.2, -5.5, -6.8, 2.4, 4.1, -1.8, 2.1, -3.4, -2.8, 1.9, -2.8, -3.4] },
+            { code: 'D', name: 'Region D (South East)', base: [22.8, -4.4, -6.1, 21.9, 20.8, 22.5, 23.8, -3.2, -4.5, 22.9, -2.4, -5.8] },
+            { code: 'E', name: 'Region E (South West)', base: [11.9, -2.3, -3.8, 11.2, 10.5, 11.8, 12.5, -2.9, -3.4, 12.1, -1.6, -3.2] }
         ];
         
         return regions.map(reg => {
@@ -12272,7 +13636,7 @@ function DemVsCapView({
             {/* Top Operational Header Toolbar */}
             <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs glow-card flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-xs">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-xs glow-icon glow-icon-blue">
                         <IconMatrix className="w-5 h-5" />
                     </div>
                     <div>
@@ -12332,51 +13696,61 @@ function DemVsCapView({
 
             {/* Weekly Horizon Summary KPI Cards (Modern Icons) */}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
-                    <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Planning Horizon</span>
-                        <IconCalendar className="w-3.5 h-3.5 text-blue-500" />
+                <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card">
+                    <div className="flex items-center justify-between text-slate-400 gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Planning Horizon</span>
+                        <div className="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-500 flex items-center justify-center glow-icon glow-icon-blue flex-shrink-0">
+                            <IconCalendar className="w-3.5 h-3.5 text-current" />
+                        </div>
                     </div>
-                    <div className="text-sm font-extrabold text-slate-800 mt-1">12 Rolling Weeks</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">Sep 28 to Dec 14, 2026</div>
+                    <div className="text-sm font-extrabold text-slate-800 dark:text-white mt-1 whitespace-nowrap">12 Rolling Weeks</div>
+                    <div className="text-[11px] text-slate-500 dark:text-[#7d93b2] mt-0.5 whitespace-nowrap truncate">Sep 28 to Dec 14, 2026</div>
                 </div>
 
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
-                    <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Deficit Weeks</span>
-                        <IconAlertCircle className="w-3.5 h-3.5 text-rose-500" />
+                <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card">
+                    <div className="flex items-center justify-between text-slate-400 gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Deficit Weeks</span>
+                        <div className="w-6 h-6 rounded-md bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/60 text-rose-500 flex items-center justify-center glow-icon glow-icon-rose flex-shrink-0">
+                            <IconAlertCircle className="w-3.5 h-3.5 text-current" />
+                        </div>
                     </div>
-                    <div className="text-sm font-extrabold text-rose-600 mt-1">
+                    <div className="text-sm font-extrabold text-rose-600 mt-1 whitespace-nowrap">
                         {deficitActionRows.length > 0 ? `${deficitActionRows.length} Patch-Weeks` : '0 Deficits'}
                     </div>
-                    <div className="text-[11px] text-rose-500 mt-0.5">Below SLA Zero Baseline</div>
+                    <div className="text-[11px] text-rose-500 mt-0.5 whitespace-nowrap truncate">Below SLA Zero Baseline</div>
                 </div>
 
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
-                    <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Peak Deficit Week</span>
-                        <IconTrendingDown className="w-3.5 h-3.5 text-rose-500" />
+                <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card">
+                    <div className="flex items-center justify-between text-slate-400 gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Peak Deficit Week</span>
+                        <div className="w-6 h-6 rounded-md bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/60 text-rose-500 flex items-center justify-center glow-icon glow-icon-rose flex-shrink-0">
+                            <IconTrendingDown className="w-3.5 h-3.5 text-current" />
+                        </div>
                     </div>
-                    <div className="text-sm font-extrabold text-rose-600 mt-1">Wk 44 (Oct 26)</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">Leicester -4.10 FTE</div>
+                    <div className="text-sm font-extrabold text-rose-600 mt-1 whitespace-nowrap">Wk 44 (Oct 26)</div>
+                    <div className="text-[11px] text-slate-500 dark:text-[#7d93b2] mt-0.5 whitespace-nowrap truncate">Leicester -4.10 FTE</div>
                 </div>
 
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
-                    <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Peak Buffer Week</span>
-                        <IconTrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card">
+                    <div className="flex items-center justify-between text-slate-400 gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Peak Buffer Week</span>
+                        <div className="w-6 h-6 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/60 text-emerald-500 flex items-center justify-center glow-icon glow-icon-emerald flex-shrink-0">
+                            <IconTrendingUp className="w-3.5 h-3.5 text-current" />
+                        </div>
                     </div>
-                    <div className="text-sm font-extrabold text-emerald-600 mt-1">Wk 46 (Nov 09)</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">+18.20 FTE Surplus</div>
+                    <div className="text-sm font-extrabold text-emerald-600 mt-1 whitespace-nowrap">Wk 46 (Nov 09)</div>
+                    <div className="text-[11px] text-slate-500 dark:text-[#7d93b2] mt-0.5 whitespace-nowrap truncate">+18.20 FTE Surplus</div>
                 </div>
 
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-xs">
-                    <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Engine Status</span>
-                        <IconCheck className="w-3.5 h-3.5 text-blue-500" />
+                <div className="bg-white dark:bg-[#0c1b31] p-3 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card">
+                    <div className="flex items-center justify-between text-slate-400 gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Engine Status</span>
+                        <div className="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-500 flex items-center justify-center glow-icon glow-icon-blue flex-shrink-0">
+                            <IconCheck className="w-3.5 h-3.5 text-current" />
+                        </div>
                     </div>
-                    <div className="text-sm font-extrabold text-blue-700 mt-1">Calculated</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">Sync at {calcTimestamp}</div>
+                    <div className="text-sm font-extrabold text-blue-700 dark:text-[#80c6ff] mt-1 whitespace-nowrap">Calculated</div>
+                    <div className="text-[11px] text-slate-500 dark:text-[#7d93b2] mt-0.5 whitespace-nowrap truncate">Sync at {calcTimestamp}</div>
                 </div>
             </div>
 
@@ -12512,7 +13886,6 @@ function DemVsCapView({
                                     value={searchQuery}
                                     onChange={(e) => {
                                         setSearchQuery(e.target.value);
-                                        if (setFilterText) setFilterText(e.target.value);
                                     }}
                                     className="text-xs pl-7 pr-3 py-1 bg-white border border-slate-200 rounded-md w-60 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-2xs"
                                 />

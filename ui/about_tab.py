@@ -17,7 +17,7 @@ def create_about_tab():
             # Application Overview
             ui.div(
                 {"class": "card border shadow-sm p-4 mb-4 bg-white"},
-                ui.div({"class": "section-banner-header"}, "British Gas Field Capacity Planning Application"),
+                ui.div({"class": "section-banner-header"}, "Field Capacity Planning Application"),
                 ui.p(
                     "This PyShiny application manages field engineering capacity and demand alignment across UK regions and patches. "
                     "Planners configure and evaluate multiple operational scenarios by dynamically swapping input files and version parameters."

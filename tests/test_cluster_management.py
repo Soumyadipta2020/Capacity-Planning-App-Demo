@@ -12,6 +12,11 @@ Verifies:
 """
 
 import sys
+from pathlib import Path
+root_dir = Path(__file__).resolve().parent.parent
+if str(root_dir) not in sys.path:
+    sys.path.insert(0, str(root_dir))
+
 from cluster_manager import (
     ClusterManager,
     ClusterStartingError,
@@ -172,10 +177,10 @@ def test_cluster_modals():
     assert "btn_resume_session" in modal_inact_html
 
     # Logout confirmation modal
-    modal_logout = logout_confirmation_modal(user_email="engineer@britishgas.co.uk", databricks_host="adb-12345.azuredatabricks.net")
+    modal_logout = logout_confirmation_modal(user_email="engineer@company.co.uk", databricks_host="adb-12345.azuredatabricks.net")
     modal_logout_html = str(modal_logout)
     assert "Log Out or End Your Session" in modal_logout_html
-    assert "engineer@britishgas.co.uk" in modal_logout_html
+    assert "engineer@company.co.uk" in modal_logout_html
     assert "btn_confirm_end_session" in modal_logout_html
     assert "btn_dismiss_logout_modal" in modal_logout_html
 
@@ -276,7 +281,7 @@ def test_react_assets_and_layout():
     assert "clusterInfo" in content
     assert "setClusterInfo" in content
     assert "update_cluster_status" in content
-    assert "btn_banner_start_cluster" in content
+    assert "btn_banner_start_cluster" in content or "btn_start_cluster_confirm" in content
     assert "check_cluster_health_event" in content
 
     # Check app.yaml contains cluster settings

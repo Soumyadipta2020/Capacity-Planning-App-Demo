@@ -2,6 +2,7 @@
 __pycache__/
 *.py[codz]
 *$py.class
+/data/es_powerbi_model_checker_plan.csv
 
 # C extensions
 *.so

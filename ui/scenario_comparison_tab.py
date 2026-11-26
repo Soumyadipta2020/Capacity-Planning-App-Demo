@@ -78,10 +78,10 @@ def create_scenario_comparison_tab():
                     ),
                     ui.div(
                         {"class": "col-md-6"},
-                        ui.h5("Scenario 2", class_="fw-bold text-success"),
+                        ui.h5("Final Scenario", class_="fw-bold text-success"),
                         ui.input_select(
                             "cmp_scenario_2",
-                            "Choose Comparison Scenario:",
+                            "Choose Final Scenario:",
                             choices=scenario_choices,
                             selected=default_scen_2,
                             width="100%"

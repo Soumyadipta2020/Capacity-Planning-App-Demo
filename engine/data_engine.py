@@ -513,6 +513,18 @@ class CapacityDataEngine:
                         self._verified_tables.add("es_shiny_scenarios")
                         already_existing.append("es_shiny_scenarios")
 
+                    for extra_tbl, ens_fn in (
+                        (EnvironmentConfig.get_scenario_log_table_name(), self.ensure_scenario_log_table),
+                        (EnvironmentConfig.get_final_plan_table_name(), self.ensure_final_plan_table),
+                        *((EnvironmentConfig.get_subcalc_table_name(sk), lambda _sk=sk: self.ensure_subcalc_table(_sk)) for sk in EnvironmentConfig.SUBCALC_TABLE_NAMES),
+                    ):
+                        if extra_tbl.lower() not in spark_tables:
+                            ens_fn()
+                            created.append(extra_tbl)
+                        else:
+                            self._verified_tables.add(extra_tbl)
+                            already_existing.append(extra_tbl)
+
                     for key in EnvironmentConfig.OPERATIONAL_INPUT_LABELS.keys():
                         tbl_name = self.get_table_name(key)
                         if tbl_name.lower() not in spark_tables:
@@ -539,7 +551,7 @@ class CapacityDataEngine:
                 with self.cluster_manager.get_cursor() as cur:
                     self.ensure_schema_exists(cursor=cur)
 
-                    # Ensure scenarios table
+                    # Ensure scenarios, scenario log, and final plan tables
                     scen_table = "es_shiny_scenarios"
                     was_verified = scen_table in self._verified_tables
                     self.ensure_scenarios_table(cursor=cur)
@@ -547,6 +559,21 @@ class CapacityDataEngine:
                         created.append(scen_table)
                     else:
                         already_existing.append(scen_table)
+
+                    for extra_tbl, ens_fn in (
+                        (EnvironmentConfig.get_scenario_log_table_name(), self.ensure_scenario_log_table),
+                        (EnvironmentConfig.get_final_plan_table_name(), self.ensure_final_plan_table),
+                        *((EnvironmentConfig.get_subcalc_table_name(sk), lambda cursor=None, _sk=sk: self.ensure_subcalc_table(_sk, cursor=cursor)) for sk in EnvironmentConfig.SUBCALC_TABLE_NAMES),
+                    ):
+                        was_v = extra_tbl in self._verified_tables
+                        try:
+                            ens_fn(cursor=cur)
+                            if not was_v:
+                                created.append(extra_tbl)
+                            else:
+                                already_existing.append(extra_tbl)
+                        except Exception as e:
+                            print(f"[Warning] Failed ensuring table '{extra_tbl}': {e}")
 
                     # Ensure all 21 operational tables
                     for key in EnvironmentConfig.OPERATIONAL_INPUT_LABELS.keys():
@@ -715,12 +742,9 @@ class CapacityDataEngine:
         Queries Databricks Unity Catalog when compute is running, else reads local storage.
         """
         df = self.load_table(input_key, file_version=filename)
-        display_df = df.copy()
-
         # Clean nulls for JSON serialization
-        display_df = display_df.where(pd.notnull(display_df), None)
-        columns = [str(c) for c in display_df.columns]
-        rows = display_df.to_dict(orient="records")
+        from data_manager import sanitize_dataframe_for_json
+        columns, rows = sanitize_dataframe_for_json(df)
 
         table_name = self.get_table_name(input_key)
         full_path = f"{self.catalog}.{self.schema}.{table_name}"
@@ -866,6 +890,224 @@ class CapacityDataEngine:
         with self.cluster_manager.get_cursor() as cur:
             cur.execute(delete_sql)
         print(f"[Databricks Unity Catalog] Scenario '{scenario_id}' deleted from '{full_table_path}'.")
+
+    # ---------------------------------------------------------------------------
+    # Scenario Log (`es_shiny_scenario_log`) & Final Plan (`es_powerbi_model_checker_plan`)
+    # ---------------------------------------------------------------------------
+
+    def ensure_scenario_log_table(self, cursor=None) -> bool:
+        table_name = EnvironmentConfig.get_scenario_log_table_name()
+        self._validate_identifier(table_name)
+        full_table_path = self._full_table_name(table_name)
+        if table_name in self._verified_tables:
+            return True
+
+        from engine.scenario_data_engine import SCENARIO_LOG_COLUMNS, load_scenario_log
+        with self._init_lock:
+            if table_name in self._verified_tables:
+                return True
+            seed_df = load_scenario_log(engine=None)
+            if seed_df.empty:
+                seed_df = pd.DataFrame(columns=SCENARIO_LOG_COLUMNS)
+
+            if self.spark is not None:
+                try:
+                    self.spark.sql(f"CREATE SCHEMA IF NOT EXISTS {self._schema_name()}")
+                    if not self.spark.catalog.tableExists(f"{self.catalog}.{self.schema}.{table_name}") and not seed_df.empty:
+                        self.spark.createDataFrame(seed_df).write.format("delta").mode("ignore").saveAsTable(full_table_path)
+                    self._verified_tables.add(table_name)
+                    return True
+                except Exception as e:
+                    print(f"[Warning] Spark scenario_log init failed: {e}")
+
+            def _exec(cur):
+                cur.execute(f"CREATE SCHEMA IF NOT EXISTS {self._schema_name()}")
+                cur.execute(f"SHOW TABLES IN {self._schema_name()} LIKE '{table_name}'")
+                if not cur.fetchall():
+                    cols_ddl = ",\n  ".join(f"`{c}` STRING" for c in SCENARIO_LOG_COLUMNS)
+                    cur.execute(f"CREATE TABLE IF NOT EXISTS {full_table_path} (\n  {cols_ddl}\n) USING DELTA")
+                    if not seed_df.empty:
+                        for stmt in self._build_batch_insert_sql(full_table_path, seed_df):
+                            cur.execute(stmt)
+                self._verified_tables.add(table_name)
+                return True
+
+            if cursor is not None:
+                return _exec(cursor)
+            with self.cluster_manager.get_cursor() as cur:
+                return _exec(cur)
+
+    def ensure_final_plan_table(self, cursor=None) -> bool:
+        table_name = EnvironmentConfig.get_final_plan_table_name()
+        self._validate_identifier(table_name)
+        full_table_path = self._full_table_name(table_name)
+        if table_name in self._verified_tables:
+            return True
+
+        from engine.scenario_data_engine import FINAL_DATA_COLUMNS, load_final_scenario_data
+        with self._init_lock:
+            if table_name in self._verified_tables:
+                return True
+            seed_df = load_final_scenario_data(engine=None)
+
+            if self.spark is not None:
+                try:
+                    self.spark.sql(f"CREATE SCHEMA IF NOT EXISTS {self._schema_name()}")
+                    if not self.spark.catalog.tableExists(f"{self.catalog}.{self.schema}.{table_name}") and not seed_df.empty:
+                        self.spark.createDataFrame(seed_df).write.format("delta").mode("ignore").saveAsTable(full_table_path)
+                    self._verified_tables.add(table_name)
+                    return True
+                except Exception as e:
+                    print(f"[Warning] Spark final_plan init failed: {e}")
+
+            def _exec(cur):
+                cur.execute(f"CREATE SCHEMA IF NOT EXISTS {self._schema_name()}")
+                cur.execute(f"SHOW TABLES IN {self._schema_name()} LIKE '{table_name}'")
+                if not cur.fetchall():
+                    col_types = {c: ("DOUBLE" if c == "value" else "STRING") for c in FINAL_DATA_COLUMNS}
+                    cols_ddl = ",\n  ".join(f"`{c}` {col_types[c]}" for c in FINAL_DATA_COLUMNS)
+                    cur.execute(f"CREATE TABLE IF NOT EXISTS {full_table_path} (\n  {cols_ddl}\n) USING DELTA")
+                    if not seed_df.empty:
+                        for stmt in self._build_batch_insert_sql(full_table_path, seed_df, batch_size=500):
+                            cur.execute(stmt)
+                else:
+                    cur.execute(f"DESCRIBE TABLE {full_table_path}")
+                    existing_cols = {str(r[0]).strip().lower() for r in cur.fetchall() if r and not str(r[0]).startswith("#")}
+                    missing = [c for c in FINAL_DATA_COLUMNS if c.lower() not in existing_cols]
+                    if missing:
+                        col_types = {c: ("DOUBLE" if c == "value" else "STRING") for c in FINAL_DATA_COLUMNS}
+                        add_ddl = ", ".join(f"`{c}` {col_types[c]}" for c in missing)
+                        cur.execute(f"ALTER TABLE {full_table_path} ADD COLUMNS ({add_ddl})")
+                self._verified_tables.add(table_name)
+                return True
+
+            if cursor is not None:
+                return _exec(cursor)
+            with self.cluster_manager.get_cursor() as cur:
+                return _exec(cur)
+
+    def load_scenario_log_table(self) -> Optional[pd.DataFrame]:
+        table_name = EnvironmentConfig.get_scenario_log_table_name()
+        full_table_path = self._full_table_name(table_name)
+        self.ensure_scenario_log_table()
+        with self.cluster_manager.get_cursor() as cur:
+            cur.execute(f"SELECT * FROM {full_table_path}")
+            try:
+                return cur.fetchall_arrow().to_pandas()
+            except Exception:
+                cols = [d[0] for d in cur.description]
+                return pd.DataFrame(cur.fetchall(), columns=cols)
+
+    def save_scenario_log_to_databricks(self, df_log: pd.DataFrame) -> None:
+        table_name = EnvironmentConfig.get_scenario_log_table_name()
+        full_table_path = self._full_table_name(table_name)
+        self.ensure_scenario_log_table()
+        with self.cluster_manager.get_cursor() as cur:
+            cur.execute(f"DELETE FROM {full_table_path}")
+            for stmt in self._build_batch_insert_sql(full_table_path, df_log):
+                cur.execute(stmt)
+
+    def load_final_plan_table(self, version: Optional[str] = None, period: Optional[str] = None) -> Optional[pd.DataFrame]:
+        table_name = EnvironmentConfig.get_final_plan_table_name()
+        full_table_path = self._full_table_name(table_name)
+        self.ensure_final_plan_table()
+        clauses = []
+        if version:
+            clauses.append(f"version = {self._sql_literal(version)}")
+        if period:
+            clauses.append(f"period = {self._sql_literal(period)}")
+        where_sql = f" WHERE {' AND '.join(clauses)}" if clauses else ""
+        with self.cluster_manager.get_cursor() as cur:
+            cur.execute(f"SELECT * FROM {full_table_path}{where_sql}")
+            try:
+                return cur.fetchall_arrow().to_pandas()
+            except Exception:
+                cols = [d[0] for d in cur.description]
+                return pd.DataFrame(cur.fetchall(), columns=cols)
+
+    def save_final_plan_version_to_databricks(self, version: str, df_rows: pd.DataFrame) -> None:
+        table_name = EnvironmentConfig.get_final_plan_table_name()
+        full_table_path = self._full_table_name(table_name)
+        self.ensure_final_plan_table()
+        with self.cluster_manager.get_cursor() as cur:
+            cur.execute(f"DELETE FROM {full_table_path} WHERE version = {self._sql_literal(version)}")
+            for stmt in self._build_batch_insert_sql(full_table_path, df_rows, batch_size=500):
+                cur.execute(stmt)
+
+    def delete_final_plan_version_from_databricks(self, version: str) -> None:
+        table_name = EnvironmentConfig.get_final_plan_table_name()
+        full_table_path = self._full_table_name(table_name)
+        self.ensure_final_plan_table()
+        with self.cluster_manager.get_cursor() as cur:
+            cur.execute(f"DELETE FROM {full_table_path} WHERE version = {self._sql_literal(version)}")
+
+    # ---------------------------------------------------------------------------
+    # 6 Sub-Calculation Delta Tables (fte, avlhr, capacity, demand, workload, imbalance)
+    # ---------------------------------------------------------------------------
+
+    def ensure_subcalc_table(self, subcalc_key: str, cursor=None) -> bool:
+        from engine.scenario_data_engine import SUBCALC_SPECS, load_subcalc_data
+        table_name = EnvironmentConfig.get_subcalc_table_name(subcalc_key)
+        self._validate_identifier(table_name)
+        full_table_path = self._full_table_name(table_name)
+        if table_name in self._verified_tables:
+            return True
+
+        cols = SUBCALC_SPECS[subcalc_key]["columns"]
+        with self._init_lock:
+            if table_name in self._verified_tables:
+                return True
+            seed_df = load_subcalc_data(subcalc_key, engine=None)
+
+            if self.spark is not None:
+                try:
+                    self.spark.sql(f"CREATE SCHEMA IF NOT EXISTS {self._schema_name()}")
+                    if not self.spark.catalog.tableExists(f"{self.catalog}.{self.schema}.{table_name}") and not seed_df.empty:
+                        self.spark.createDataFrame(seed_df).write.format("delta").mode("ignore").saveAsTable(full_table_path)
+                    self._verified_tables.add(table_name)
+                    return True
+                except Exception as e:
+                    print(f"[Warning] Spark subcalc '{subcalc_key}' init failed: {e}")
+
+            def _exec(cur):
+                cur.execute(f"CREATE SCHEMA IF NOT EXISTS {self._schema_name()}")
+                cur.execute(f"SHOW TABLES IN {self._schema_name()} LIKE '{table_name}'")
+                if not cur.fetchall():
+                    col_types = {c: ("DOUBLE" if c == "values" else "STRING") for c in cols}
+                    cols_ddl = ",\n  ".join(f"`{c}` {col_types[c]}" for c in cols)
+                    cur.execute(f"CREATE TABLE IF NOT EXISTS {full_table_path} (\n  {cols_ddl}\n) USING DELTA")
+                    if not seed_df.empty:
+                        for stmt in self._build_batch_insert_sql(full_table_path, seed_df, batch_size=500):
+                            cur.execute(stmt)
+                self._verified_tables.add(table_name)
+                return True
+
+            if cursor is not None:
+                return _exec(cursor)
+            with self.cluster_manager.get_cursor() as cur:
+                return _exec(cur)
+
+    def load_subcalc_table(self, subcalc_key: str, calc_key_value: Optional[str] = None) -> Optional[pd.DataFrame]:
+        table_name = EnvironmentConfig.get_subcalc_table_name(subcalc_key)
+        full_table_path = self._full_table_name(table_name)
+        self.ensure_subcalc_table(subcalc_key)
+        where_sql = f" WHERE `key` = {self._sql_literal(calc_key_value)}" if calc_key_value else ""
+        with self.cluster_manager.get_cursor() as cur:
+            cur.execute(f"SELECT * FROM {full_table_path}{where_sql}")
+            try:
+                return cur.fetchall_arrow().to_pandas()
+            except Exception:
+                cols = [d[0] for d in cur.description]
+                return pd.DataFrame(cur.fetchall(), columns=cols)
+
+    def save_subcalc_key_to_databricks(self, subcalc_key: str, calc_key_value: str, df_rows: pd.DataFrame) -> None:
+        table_name = EnvironmentConfig.get_subcalc_table_name(subcalc_key)
+        full_table_path = self._full_table_name(table_name)
+        self.ensure_subcalc_table(subcalc_key)
+        with self.cluster_manager.get_cursor() as cur:
+            cur.execute(f"DELETE FROM {full_table_path} WHERE `key` = {self._sql_literal(calc_key_value)}")
+            for stmt in self._build_batch_insert_sql(full_table_path, df_rows, batch_size=500):
+                cur.execute(stmt)
 
     def append_uploaded_file_to_databricks(self, input_key: str, filename: str, df: pd.DataFrame) -> None:
         """
