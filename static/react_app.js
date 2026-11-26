@@ -11844,8 +11844,8 @@ function WorkStreamRebalanceChart({ demData, unit = "hrs" }) {
                                 <div className="w-1/2 h-full flex items-center justify-end pr-1">
                                     {!isPositive && (
                                         <div
-                                            className="h-4 bg-gradient-to-l from-rose-500 to-rose-400 rounded-l-md transition-all duration-300"
-                                            style={{ width: `${barWidthPct}%` }}
+                                            className="h-4 rounded-l-md transition-all duration-300"
+                                            style={{ width: `${barWidthPct}%`, backgroundColor: '#fb7185' }}
                                         ></div>
                                     )}
                                 </div>
@@ -11854,8 +11854,8 @@ function WorkStreamRebalanceChart({ demData, unit = "hrs" }) {
                                 <div className="w-1/2 h-full flex items-center justify-start pl-1">
                                     {isPositive && (
                                         <div
-                                            className="h-4 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-r-md transition-all duration-300"
-                                            style={{ width: `${barWidthPct}%` }}
+                                            className="h-4 rounded-r-md transition-all duration-300"
+                                            style={{ width: `${barWidthPct}%`, backgroundColor: '#34d399' }}
                                         ></div>
                                     )}
                                 </div>
