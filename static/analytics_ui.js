@@ -279,6 +279,11 @@ const decisionMeasures = [
   ['shortage','Gross shortfall','h'], ['gap','Capacity imbalance','h']
 ];
 const decisionMeasure = key => decisionMeasures.find(([id])=>id===key);
+const finalDecisionBundle = bundle => bundle?.mode==='final_data';
+const decisionMeasuresFor = bundle => finalDecisionBundle(bundle) ? decisionMeasures.filter(([id])=>id!=='jobs') : decisionMeasures;
+const decisionRecordTitle = bundle => finalDecisionBundle(bundle) ? 'Final plan records' : 'Source records';
+const decisionRecordVersion = (bundle,source) => finalDecisionBundle(bundle)
+  ? bundle.finalData?.version || bundle.scenarioId : bundle?.sources?.[source]?.version;
 const decisionValue = (key,value,format) => value==null ? 'Unavailable' : format(value)+' '+decisionMeasure(key)[2];
 const decisionSigned = (value,format) => {
   const absolute = Math.round(Math.abs(value)*10)/10;
@@ -305,7 +310,9 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
   baseline, baselineId, setBaselineId, comparisonEnabled, setComparisonEnabled, baseData, geographyChanges, presentation}) {
   const imbalance = presentation==='imbalance';
   const [view,setView] = React.useState(imbalance?'matrix':'table');
-  const [measure,setMeasure] = React.useState('gap');
+  const [requestedMeasure,setMeasure] = React.useState('gap');
+  const availableMeasures = decisionMeasuresFor(bundle);
+  const measure = availableMeasures.some(([id])=>id===requestedMeasure) ? requestedMeasure : 'demand';
   const [showPlanValues,setShowPlanValues] = React.useState(false);
   const [interval, setInterval] = React.useState('month');
   const [locationLevel,setLocationLevel] = React.useState('auto');
@@ -351,7 +358,7 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
     if (Math.abs(gap) < 1e-8) return 'Balanced';
     return (gap < 0 ? 'Short ' : '+') + format(Math.abs(gap)) + ' h';
   };
-  const tableMeasures = allColumns ? decisionMeasures : ['fte','downtime','capacity','demand','gap'].map(decisionMeasure);
+  const tableMeasures = allColumns ? availableMeasures : ['fte','downtime','capacity','demand','gap'].map(decisionMeasure);
   const metrics = tableMeasures.map(([key,label,unit])=>[
     key,key==='gap'?'Gap (h)':key==='capacity'?'Available (h)':key==='demand'?'Required (h)':unit==='h'?label+' (h)':label
   ]);
@@ -830,7 +837,7 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
               label: 'Required hours',
               value: format(totals.demand),
               unit: totals.demand != null ? 'hrs' : null,
-              note: totals.partialByMeasure.demand ? 'Some job durations are missing' : 'Forecast work',
+              note: totals.partialByMeasure.demand ? (finalDecisionBundle(bundle)?'Some required hours are missing':'Some job durations are missing') : 'Forecast work',
               badgeType: 'info',
               badgeIcon: '●',
               badgeText: 'Demand',
@@ -919,7 +926,7 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
       </p>}
       {view!=='table' && <div className="ds-plan-view-controls">
         <label>Measure<select aria-label="Planning measure" value={measure} onChange={e=>setMeasure(e.target.value)}>
-          {decisionMeasures.map(([id,label])=><option key={id} value={id}>{label}</option>)}
+          {availableMeasures.map(([id,label])=><option key={id} value={id}>{label}</option>)}
         </select></label>
         {periodSwitch('Capacity plan period')}
         {view==='matrix' && <>
@@ -981,7 +988,7 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
           <option value="skill">Skill</option><option value="week">Week</option>
         </select></label>
           <label className="ds-shortfalls-toggle"><input type="checkbox" checked={allColumns}
-            onChange={event=>setAllColumns(event.target.checked)}/> All 8 measures</label>
+            onChange={event=>setAllColumns(event.target.checked)}/> All {availableMeasures.length} measures</label>
         </div>
         {visibleRows.length ? <>
           <div className="ds-gap-key" aria-label="Gap column key">
@@ -1041,10 +1048,11 @@ function DecisionStudioImpact({impact, format, V, baseline, revised}) {
       if (!sources[driver]?.includes(row.source)) continue;
       for (const original of [row,row.jobTime].filter(Boolean)) records.set(original.source+':'+original.row,original);
     }
+    const rowLabel = finalDecisionBundle(bundle) ? 'Plan row' : 'Source row';
     const values = [...records.values()].map(row=>({
-      ...row.raw, Source:row.source, Version:bundle?.sources?.[row.source]?.version, 'Source row':row.row
+      ...row.raw, Source:row.source, Version:decisionRecordVersion(bundle,row.source), [rowLabel]:row.row
     }));
-    const fields = [...new Set(['Source','Version','Source row',...values.flatMap(Object.keys)])];
+    const fields = [...new Set(['Source','Version',rowLabel,...values.flatMap(Object.keys)])];
     return <AnalyticsTable title={label} rows={values} pageSize={12}
       columns={fields.map(key=>({key,label:key}))}/>;
   };
@@ -1090,17 +1098,19 @@ function DecisionStudioImpact({impact, format, V, baseline, revised}) {
     {(remove.groups>0 || add.groups>0) && <p className="ds-context">
       Outside the bridge: {remove.groups} baseline groups ({signed(remove.hours)} h assessed gap) and {add.groups} selected-plan groups
       ({signed(add.hours)} h assessed gap). Includes missing evidence or changed geography.</p>}
-    {driver==='demand' && <p className="ds-context">For {impact.demandBridge.rows.length} matched work-code groups,
+    {driver==='demand' && !finalDecisionBundle(baseline) && !finalDecisionBundle(revised) &&
+      <p className="ds-context">For {impact.demandBridge.rows.length} matched work-code groups,
       volume {signed(impact.demandBridge.volume)} h · mix {signed(impact.demandBridge.mix)} h · duration {signed(impact.demandBridge.duration)} h.
       {impact.demandBridge.excluded.length ? ' '+impact.demandBridge.excluded.length+' groups are outside this decomposition.' : ''}</p>}
-    {driver==='roster' && <AnalyticsTable title="Roster changes by Pay ID" rows={rosterChanges()} columns={[
+    {driver==='roster' && !finalDecisionBundle(baseline) && !finalDecisionBundle(revised) &&
+      <AnalyticsTable title="Roster changes by Pay ID" rows={rosterChanges()} columns={[
       {key:'id',label:'Pay ID'},{key:'status',label:'Plan change'},{key:'hours',label:'Working hours'},
       {key:'allocation',label:'Allocation %'},{key:'location',label:'Location'},{key:'skill',label:'Skill'},
       {key:'change',label:'Allocated hours change'}
     ]}/>}
     {driver && <div className="ds-impact-grid">
-      {sourceTable(impact.beforeEvidence,baseline,'Baseline source records')}
-      {sourceTable(impact.afterEvidence,revised,'Selected plan source records')}
+      {sourceTable(impact.beforeEvidence,baseline,'Baseline · '+decisionRecordTitle(baseline))}
+      {sourceTable(impact.afterEvidence,revised,'Selected plan · '+decisionRecordTitle(revised))}
     </div>}
   </section>;
 }
@@ -1149,6 +1159,8 @@ function DecisionStudioBreakdownEvidence({A,V,metric,format,bundle,baseline,assu
   const [selectedWeek,setSelectedWeek] = React.useState('');
   const {key,title,detail,before} = metric;
   const [,label,unit] = decisionMeasure(key);
+  const selectedPlan = side==='plan' ? bundle : baseline;
+  const rowLabel = finalDecisionBundle(selectedPlan) ? 'Plan row' : 'Source row';
   const entries = side==='plan' ? detail.planEvidence : detail.baselineEvidence;
   const timeline = React.useMemo(()=>{
     const plan = new Map(), base = new Map();
@@ -1170,12 +1182,11 @@ function DecisionStudioBreakdownEvidence({A,V,metric,format,bundle,baseline,assu
     const source = entry.row.source;
     if (!groups.has(source)) groups.set(source,[]);
     groups.get(source).push({
-      'Source row':entry.row.row, 'Modeled week':entry.cell.week,
+      [rowLabel]:entry.row.row, 'Modeled week':entry.cell.week,
       ...entry.row.raw, ...(entry.row.jobTime && {['Matched duration ('+assumptions.jobTimeUnit+')']:entry.row.jobTime.value}),
       ['Contribution ('+unit+')']:format(entry.contribution)
     });
   }
-  const selectedPlan = side==='plan' ? bundle : baseline;
   const change = decisionChange(key,detail.value,format);
   return <AnalyticsDrawer title={label+' breakdown'} subtitle={title} eyebrow="Decision Studio" panelClassName="ds-planning-drawer"
     onClose={onClose}>
@@ -1201,8 +1212,11 @@ function DecisionStudioBreakdownEvidence({A,V,metric,format,bundle,baseline,assu
             ...(before ? [{key:'baseline',label:'Baseline',color:'var(--ds-chart-baseline, #9c6644)',dash:'6 4'}] : [])]}
           selectedKey={selectedWeek} onSelect={row=>setSelectedWeek(current=>current===row.key?'':row.key)}
           actionLabel="Select a week" onClearSelection={()=>setSelectedWeek('')}/>}
+      {finalDecisionBundle(selectedPlan) && <section className="ds-drill-section">
+        <h3>Final plan records</h3><p className="ds-context">Scenario version · {decisionRecordVersion(selectedPlan)}</p>
+      </section>}
       {[...groups].map(([source,records])=><AnalyticsTable key={side+source}
-        title={selectedPlan?.sources?.[source]?.version || source.replaceAll('_',' ')}
+        title={finalDecisionBundle(selectedPlan) ? decisionRecordTitle(selectedPlan) : decisionRecordVersion(selectedPlan,source) || source.replaceAll('_',' ')}
         rows={records} columns={[...new Set(records.flatMap(Object.keys))].map(key=>({key,label:key}))}/>)}
       {!groups.size && <p className="ds-context">{detail.title.endsWith('Other modeled adjustments')
         ? 'This figure reconciles modeled capacity with its source components.' : 'No source records for this breakdown in the selected plan.'}</p>}
@@ -1515,6 +1529,10 @@ function DecisionStudioEvidence({A, geographyChanges, metric, format, gapLabel, 
   const recordReport = recordSide==='baseline' ? (recordScope ? recordScope.before : before)
     : (recordScope ? recordScope.report : report);
   const recordBundle = recordSide==='baseline' ? baseline : bundle;
+  const finalPlan = finalDecisionBundle(bundle);
+  const finalRecords = finalDecisionBundle(recordBundle);
+  const recordTitle = decisionRecordTitle(recordBundle);
+  const rowLabel = finalRecords ? 'Plan row' : 'Source row';
   const isShortfallMeasure = key==='gap' || key==='shortage';
   const hours = value => value==null?'Unavailable':format(value)+' h';
   const heatRows = report.assessed.map(row => ({...row,region:[row.region, report.level==='area' && row.area,
@@ -1590,14 +1608,16 @@ function DecisionStudioEvidence({A, geographyChanges, metric, format, gapLabel, 
   const figures = {
     gap:[['Required',hours(report.assessedDemand)],['Available',hours(report.assessedCapacity)],['Gross shortfall',hours(gross)]],
     shortage:[['Net imbalance',gapLabel(report.gap)]],
-    fte:[['Allocated roster hours',hours(report.rosterWeeks ? report.roster : null)],['Eligible people',format(report.headcount)],
+    fte:[['Allocated roster hours',hours(report.rosterWeeks ? report.roster : null)],
+      ...(report.headcount!=null ? [['Eligible people',format(report.headcount)]] : []),
       ['Weeks used for FTE',format(report.fteWeeks)]],
     roster:[['Average allocated FTE',format(report.fte)],['Weeks in roster',format(report.rosterWeeks)]],
     downtime:[['Assessed roster',hours(report.downtime!=null ? report.assessedRoster : null)],
       ['Roster availability',report.downtimeRate==null?'Unavailable':format(100-report.downtimeRate)+'%'],
       ['Downtime share',report.downtimeRate==null?'Unavailable':format(report.downtimeRate)+'%']],
     capacity:[['Roster',hours(report.rosterWeeks ? report.roster : null)],['Downtime',hours(report.downtime)]],
-    demand:[['Matched hours',hours(report.demand)],['Unmatched job rows',format(relevant.filter(entry=>entry.hours===null).length)]]
+    demand:finalPlan ? [['Required hours',hours(report.demand)]]
+      : [['Matched hours',hours(report.demand)],['Unmatched job rows',format(relevant.filter(entry=>entry.hours===null).length)]]
   }[key] || [];
   if (firstWeek) figures.push(['First short week',firstWeek.week],['Worst short week',worstWeek.week+' · '+hours(worstWeek.gross)]);
   const explanation = {
@@ -1606,17 +1626,18 @@ function DecisionStudioEvidence({A, geographyChanges, metric, format, gapLabel, 
     fte:'Allocated roster hours divided by '+format(assumptions.standardHours)+' standard hours per FTE per week.',
     downtime:'Hours deducted from the roster using '+({hours:'fixed hours',percent:'a percentage of roster hours',perFte:'hours per FTE'}[assumptions.downtime] || 'the selected downtime method')+'. Availability uses assessed roster hours before additional cover.',
     capacity:'Roster hours after downtime, plus any eligible cover and transfers.',
-    demand:'Forecast jobs multiplied by their matching job duration.',
+    demand:finalPlan?'Required hours from the final plan, grouped by work code and week.':'Forecast jobs multiplied by their matching job duration.',
     jobs:'Submitted forecast jobs in this scope.',
     roster:'Allocated working hours before downtime and other adjustments.',
     shortage:'Shortages in assessed groups before available surplus offsets the net position.'
   }[key];
   const sourceNames = {
-    ...names,demand_input:'Forecast demand',job_time_assumptions:'Job durations',resource_plan:'Resource plan',
+    ...names,demand_input:finalRecords?'Required hours':'Forecast demand',job_time_assumptions:'Job durations',
+    resource_plan:finalRecords?'FTE and gross roster hours':'Resource plan',
     downtime_overlays_hours:'Downtime in hours',downtime_overlays_percentage:'Downtime percentages',downtime_overlays_hours_fte:'Downtime hours per FTE'
   };
   const tabs = [
-    ['breakdown','Breakdown','trend'],['records','Source records','file'],
+    ['breakdown','Breakdown','trend'],['records',decisionRecordTitle(bundle),'file'],
     ...(responseGroups.length && isShortfallMeasure ? [['test','Test a change','sliders']] : [])
   ];
   const openRecords = group => {setRecordScope(null);setFocus(group);setRecordSide('plan');setStage('records');};
@@ -1703,7 +1724,8 @@ function DecisionStudioEvidence({A, geographyChanges, metric, format, gapLabel, 
         {activeChart==='heatmap' && <V.Heatmap title="Gap by skill and week" rows={heatRows} onSelect={openRecords}/>}
       </div>}
       {['fte','roster'].includes(key) && <section className="ds-drill-section"><h3>{key==='fte'?'How FTE is calculated':'How roster hours are calculated'}</h3>
-        <p>Weekly working hours are adjusted by each worker’s allocation. {key==='fte'?'The selected period is shown as an average per roster week.':'The selected period includes allocated hours across its roster weeks.'}</p>
+        <p>{finalPlan?'Calculated roster hours are grouped by patch, skill and week.':'Weekly working hours are adjusted by each worker’s allocation.'}
+          {' '}{key==='fte'?'The selected period is shown as an average per roster week.':'The selected period includes allocated hours across its roster weeks.'}</p>
         {key==='fte' && report.fteWeeks!==report.rosterWeeks &&
           <p className="ds-context">This location contributes to the parent’s {report.fteWeeks}-week FTE average.</p>}
         {rosterParts.size+baselineRosterParts.size>0 && <div className="ds-scroll" tabIndex="0" aria-label="Roster contributions">
@@ -1722,18 +1744,19 @@ function DecisionStudioEvidence({A, geographyChanges, metric, format, gapLabel, 
               })}</tbody></table>
         </div>}
         <button type="button" className="ds-drill-link" onClick={()=>{setRosterPath(null);setStage('records');}}>
-          Open resource plan <AnalyticsIcon name="chevron" size={13}/></button>
+          {finalPlan?'Open final plan records':'Open resource plan'} <AnalyticsIcon name="chevron" size={13}/></button>
       </section>}
       {key==='capacity' && <>
         {report.unallocated!==0 && <p className="ds-context">{hours(report.unallocated)} held at region level.</p>}
         <DecisionStudioProductivity A={A} report={report} before={before} productivity={productivity}
           baselineProductivity={baselineProductivity} format={format}/>
       </>}
-      {['demand','jobs'].includes(key) && <AnalyticsTable title="Forecast work by job code and week" rows={rankedDemand.map(({row,hours})=>({
+      {['demand','jobs'].includes(key) && <AnalyticsTable title={finalPlan?'Required hours by work code and week':'Forecast work by job code and week'} rows={rankedDemand.map(({row,hours})=>({
         patch:row.patch,week:row.week,code:row.workCode,jobs:row.jobs,duration:row.jobTime?.value,hours
       }))} searchable={false} pageSize={12} columns={[
-        {key:'patch',label:'Patch'},{key:'week',label:'Week'},{key:'code',label:'Work code'},{key:'jobs',label:'Jobs'},
-        {key:'duration',label:'Duration ('+assumptions.jobTimeUnit+')'},{key:'hours',label:'Required hours',render:row=>format(row.hours)}
+        {key:'patch',label:'Patch'},{key:'week',label:'Week'},{key:'code',label:'Work code'},
+        ...(finalPlan ? [] : [{key:'jobs',label:'Jobs'},{key:'duration',label:'Duration ('+assumptions.jobTimeUnit+')'}]),
+        {key:'hours',label:'Required hours',render:row=>format(row.hours)}
       ]}/>}
       {isShortfallMeasure && <>
         {singleShortage ? <section className="ds-drill-section">
@@ -1759,7 +1782,7 @@ function DecisionStudioEvidence({A, geographyChanges, metric, format, gapLabel, 
       {before && <details className="ds-source"><summary><strong>All metrics</strong><AnalyticsIcon name="chevron" size={13}/></summary>
         <div className="ds-scroll ds-operational-comparison" tabIndex="0" aria-label="Operational comparison"><table>
           <thead><tr><th scope="col">Measure</th><th scope="col">Baseline</th><th scope="col">Selected plan</th><th scope="col">Change</th></tr></thead>
-          <tbody>{decisionMeasures.map(([id,name])=>{
+          <tbody>{decisionMeasuresFor(bundle).map(([id,name])=>{
             const {baseline,selected,change} = comparisonFor(id);
             return <tr key={id}><th scope="row">{name}{id==='gap' && ' (matched groups)'}</th>
               <td>{decisionValue(id,baseline,format)}</td>
@@ -1779,7 +1802,9 @@ function DecisionStudioEvidence({A, geographyChanges, metric, format, gapLabel, 
         {['plan','baseline'].map(side=><button type="button" key={side} aria-pressed={recordSide===side}
           onClick={()=>{setRecordSide(side);setFocus(null);}}>{side==='plan'?'Selected plan records':'Baseline records'}</button>)}
       </div>}
-      <section className="ds-drill-section"><h3>{metric.sourceBundle || recordSide==='baseline'?'Baseline records':'Supporting records'}</h3>
+      <section className="ds-drill-section">
+        <h3>{finalRecords ? recordTitle : metric.sourceBundle || recordSide==='baseline'?'Baseline records':'Supporting records'}</h3>
+        {finalRecords && <p className="ds-context ds-source-version">Scenario version · {decisionRecordVersion(recordBundle)}</p>}
         <p className="ds-context">{focus ? [focus.patch || focus.area || focus.region,focus.skill,focus.week].filter(Boolean).join(' · ')
           : recordScope?.label || [category,downtimeType].filter(Boolean).join(' · ') || rosterPath?.join(' · ') ||
             (filteredComparison?'Records from the groups used in the gap comparison.':'Records used for the selected figure.')}</p>
@@ -1796,14 +1821,14 @@ function DecisionStudioEvidence({A, geographyChanges, metric, format, gapLabel, 
           </button></dt><dd>{decisionValue(key,value,format)}</dd>
         </div>)}</dl>
       </details>}
-      {!sources.size && <p>No contributing source records for this selection.</p>}
+      {!sources.size && <p>No contributing records for this selection.</p>}
       {[...sources].map(([source, records])=><details key={source} open={sources.size===1} className="ds-source">
         <summary><AnalyticsIcon name="file" size={16}/><strong>{sourceNames[source] || source.replace(/_/g,' ')}</strong>
           <span>{records.size} {records.size===1?'record':'records'}</span><AnalyticsIcon name="chevron" size={13}/></summary>
-        <p className="ds-context ds-source-version">{recordBundle?.sources?.[source]?.version || recordBundle?.scenarioId}</p>
-        <AnalyticsTable title="Source records" rows={[...records.values()].map(({row,hours,known})=>({
-          ...row.raw,'Source row':row.row,...(known?{'Modeled hours':format(hours)}:{})
-        }))} pageSize={12} columns={[...new Set(['Source row',...[...records.values()].flatMap(({row,known})=>
+        {!finalRecords && <p className="ds-context ds-source-version">{decisionRecordVersion(recordBundle,source) || recordBundle?.scenarioId}</p>}
+        <AnalyticsTable title={recordTitle} rows={[...records.values()].map(({row,hours,known})=>({
+          ...row.raw,[rowLabel]:row.row,...(known?{'Modeled hours':format(hours)}:{})
+        }))} pageSize={12} columns={[...new Set([rowLabel,...[...records.values()].flatMap(({row,known})=>
           [...Object.keys(row.raw),...(known?['Modeled hours']:[])])])].map(name=>({key:name,label:name}))}/>
       </details>)}
     </div>}
@@ -3308,9 +3333,9 @@ function AnalyticsWorkspace({
           onChecks={()=>navigate('checks')}/>}
         {!busy && bundle && presentation==='workload' && <>
           <DecisionStudioMonthlyWorkload A={A} V={V} data={data} filter={filter} setFilter={setFilter}/>
-          <details className="ds-panel ds-workload-detail"><summary>Weekly workload and decisions</summary>
+          {!data.isFinalData && <details className="ds-panel ds-workload-detail"><summary>Weekly workload and decisions</summary>
             <AnalyticsWorkloadOutlook mode="workload" report={outlook} planningDate={planningDate} onDateChange={setPlanningDate} onExplore={explore} onSource={sourceDetail}/>
-          </details>
+          </details>}
         </>}
         {!busy && bundle && presentation==='checks' && <AnalyticsWorkloadOutlook mode="checks" report={outlook}
           planningDate={planningDate} onDateChange={setPlanningDate} onExplore={explore} onSource={sourceDetail}/>}
@@ -3417,10 +3442,13 @@ function AnalyticsWorkspace({
         </div>
         {error && <div role="alert" className="p-4 rounded-xl border border-rose-200 dark:border-rose-800/60 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-sm mt-3">{error}</div>}
         {busy && <div role="status" className={panel + ' text-sm text-slate-500 dark:text-[#adbed4] animate-pulse mt-3'}>Reading selected source versions and baseline…</div>}
-        {detail && <AnalyticsDrawer title={detail.title} eyebrow={detail.diff ? 'Scenario comparison' : detail.issues ? 'Evidence coverage' : 'Source evidence'} subtitle={detail.diff ? 'Understand exactly which source records changed.' : detail.issues ? 'Inspect the checks behind the data-coverage result.' : 'Browse original records and their selected source versions.'} onClose={() => setDetail(null)}>
-          {detail.diff ? <AnalyticsDiffBrowser rows={detail.diff} comparison={detail.comparison || {}} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-record-changes.csv', rows)} /> : detail.issues ? <AnalyticsIssueBrowser issues={detail.issues} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-evidence-issues.csv', rows)} onInspect={r => sourceDetail(r.source, r.row ? (data.facts[r.source] || []).filter(x => x.row === r.row) : undefined)} /> : <AnalyticsRecordBrowser key={detail.title} rows={detailRows} columns={sourceColumns} sources={activeSources} sourceKey={detail.source} query={sourceSearch} onQueryChange={setSourceSearch} page={sourcePage} onPageChange={setSourcePage} onExport={rows => csv('analytics-source-evidence.csv', rows.map(r => ({
+        {detail && <AnalyticsDrawer title={detail.title} eyebrow={detail.diff ? 'Scenario comparison' : detail.issues ? 'Evidence coverage' : decisionRecordTitle(bundle)}
+          subtitle={detail.diff ? 'Understand exactly which records changed.' : detail.issues ? 'Inspect the checks behind the data-coverage result.'
+            : finalDecisionBundle(bundle) ? 'Scenario version · '+decisionRecordVersion(bundle) : 'Browse original records and their selected source versions.'}
+          onClose={() => setDetail(null)}>
+          {detail.diff ? <AnalyticsDiffBrowser rows={detail.diff} comparison={detail.comparison || {}} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-record-changes.csv', rows)} /> : detail.issues ? <AnalyticsIssueBrowser issues={detail.issues} query={sourceSearch} onQueryChange={setSourceSearch} onExport={rows => csv('analytics-evidence-issues.csv', rows)} onInspect={r => sourceDetail(r.source, r.row ? (data.facts[r.source] || []).filter(x => x.row === r.row) : undefined)} /> : <AnalyticsRecordBrowser key={detail.title} planVersion={finalDecisionBundle(bundle) && detailRows.some(row => row.raw?.version) ? decisionRecordVersion(bundle) : undefined} rows={detailRows} columns={sourceColumns} sources={activeSources} sourceKey={detail.source} query={sourceSearch} onQueryChange={setSourceSearch} page={sourcePage} onPageChange={setSourcePage} onExport={rows => csv('analytics-source-evidence.csv', rows.map(r => ({
         input: r.source,
-        version: activeSources[r.source]?.version || bundle?.scenarioId,
+        version: decisionRecordVersion(bundle,r.source) || activeSources[r.source]?.version || bundle?.scenarioId,
         sourceRow: r.row,
         ...r.raw
       })))} />}

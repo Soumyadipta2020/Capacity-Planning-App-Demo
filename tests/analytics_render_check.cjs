@@ -161,13 +161,13 @@ console.log(`PASS: ${count} investigation renderers, source/diff/issue dialogs a
     app = renderApp();
     assert.equal(workspace(app).props.presentation,'summary');
     const submenu = find(app,node=>node.props?.id==='capacity-navigation-decision_studio');
-    navigationItem(submenu,'Capacity Imbalance').props.onClick({stopPropagation(){}});
+    navigationItem(submenu,'Imbalances').props.onClick({stopPropagation(){}});
     app = renderApp();
     assert.equal(workspace(app).props.presentation,'imbalance');
-    assert.equal(navigationItem(app,'Capacity Imbalance').props['aria-current'],'page');
+    assert.equal(navigationItem(app,'Imbalances').props['aria-current'],'page');
     workspace(app).props.onPresentationChange('summary');
     app = renderApp();
-    assert.equal(navigationItem(app,'Decision Studio').props['aria-current'],'page');
+    assert.equal(navigationItem(app,'Capacity Drilldown').props['aria-current'],'page');
     navigationItem(app,'Inputs & Parameters').props.onClick();
     app = renderApp();
     assert.ok(find(app,node=>node.props?.id==='capacity-navigation-inputs'));

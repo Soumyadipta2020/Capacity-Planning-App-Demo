@@ -7,6 +7,39 @@ const demand = (patch, value, date = week) => ({Patch:patch, Skill:'S', WorkCode
 const staff = (id, wmis, hours, start = week) => ({
   'Pay Id':id, Wmis:wmis, Skill:'S', Status:'Active', Hours:hours, Allocation:100, 'Up Date':start
 });
+test('final plans preserve hours and FTE across periods without supplying jobs or headcount', () => {
+  const assumptions = {...A.defaults,jobTimeUnit:'minutes'};
+  const scope = {area:'A1',skill:'HEC',start:'2026-11-01',end:'2026-11-30'};
+  const plan = extraDemand => A.extract({mode:'final_data',scenarioId:'November',finalData:{
+    patches:['P1','P2'],regions:['A'],areaCodes:['A1','A2'],periods:['W','M'],weeks:[week,next],
+    combos:[
+      ['HEC','HEC','FTE','','FTE'],
+      ['HEC','HEC','Gross Hrs','','Available Hours'],
+      ['HEC','HEC','Holiday','','Available Hours'],
+      ['HEC','HEC','Overtime','','Available Hours'],
+      ['HEC','General','SP','','Capacity Hours'],
+      ['HEC','HEC','W1','','Demand Hours']
+    ],
+    rows:[week,next].flatMap((_,index)=>[2,75,10,4,3,42+extraDemand]
+      .map((value,combo)=>[0,combo,0,index,value,0,0])).concat([
+      [1,5,0,0,200,0,1], [0,5,1,0,84+extraDemand*2,0,0]
+    ])
+  }});
+  const data = plan(0);
+  const model = A.model(data,scope,assumptions,{},true);
+  const before = A.planningSummary(model.rows,'area',assumptions);
+  const after = A.planningSummary(A.model(plan(4),scope,assumptions,{},true).rows,'area',assumptions);
+  assert.deepEqual(A.planningMeasures(before),{jobs:null,demand:84,roster:150,capacity:144,gap:60,shortage:0,fte:2,downtime:20});
+  assert.equal(before.headcount,null);
+  assert.ok(!data.facts.resource_plan.some(row=>row.n.payid));
+  assert.deepEqual(data.facts.job_time_assumptions,[]);
+  assert.equal(A.planningMeasureChange(before,after,'demand',[],assumptions),8);
+  assert.equal(A.planningMeasureChange(before,after,'gap',[],assumptions),-8);
+  assert.equal(A.planningBreakdown(before,'demand','skill',assumptions).get(JSON.stringify(['HEC','W1'])).value,84);
+  const readiness = A.workloadOutlook(data,scope,week,model,assumptions).readiness;
+  assert.ok(readiness.some(check=>check.title==='Required hours' && check.ready));
+  assert.ok(readiness.some(check=>check.title==='FTE and gross roster hours' && check.ready));
+});
 test('calendar planning periods preserve leap days, quarter ends and week-commencing groups', () => {
   assert.deepEqual(A.calendarBounds('2028-02'),{start:'2028-02-01',end:'2028-02-29'});
   assert.deepEqual(A.calendarBounds('2027'),{start:'2027-01-01',end:'2027-12-31'});

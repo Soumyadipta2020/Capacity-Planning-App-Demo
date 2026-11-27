@@ -293,13 +293,8 @@
         };
 
         if (kind === 2) {
-          const jobTime = {
-            ...base, source: 'job_time_assumptions', value: 1,
-            n: { patch: patchName, skill, workcode: metric, weekcomm: wkStr, values: 1 }
-          };
-          facts.job_time_assumptions.push(jobTime);
           facts.demand_input.push({
-            ...base, source: 'demand_input', jobs: val, jobTime, matched: true,
+            ...base, source: 'demand_input', jobs: null, demandHours: val,
             n: { patch: patchName, skill, workcode: metric, product: level2, weekcomm: wkStr, values: val }
           });
         } else if (kind === 3) {
@@ -307,7 +302,7 @@
           const hrs = gross !== undefined ? gross : val * 37.5;
           facts.resource_plan.push({
             ...base, source: 'resource_plan',
-            n: { payid: `${patchName}|${skill}`, wmis: patchName, skill, status: 'Active', hours: hrs, allocation: 100, labourtype: group, update: wkStr }
+            n: { wmis: patchName, skill, status: 'Active', hours: hrs, allocation: 100, labourtype: group, update: wkStr }
           });
         } else if (kind === 4) {
           const targetSkill = comboTargetSkill[ci];
@@ -398,19 +393,11 @@
         };
 
         if (r.flag === 'Demand Hours') {
-          const jobTime = {
-            ...base,
-            source: 'job_time_assumptions',
-            value: 1,
-            n: { patch: r.patch, skill: r.skill, workcode: r.metric, weekcomm: r.weekcomm, values: 1 }
-          };
-          facts.job_time_assumptions.push(jobTime);
           facts.demand_input.push({
             ...base,
             source: 'demand_input',
-            jobs: r.value,
-            jobTime,
-            matched: true,
+            jobs: null,
+            demandHours: r.value,
             n: { patch: r.patch, skill: r.skill, workcode: r.metric, product: r.level2, weekcomm: r.weekcomm, values: r.value }
           });
         } else if (r.flag === 'FTE' && (r.skill === 'HEC' || r.skill === 'KAC')) {
@@ -420,7 +407,6 @@
             ...base,
             source: 'resource_plan',
             n: {
-              payid: `${r.patch}|${r.skill}`,
               wmis: r.patch,
               skill: r.skill,
               status: 'Active',
@@ -501,7 +487,6 @@
     });
     const virtualSources = {
       demand_input: makeSrc(facts.demand_input, 'Demand Hours'),
-      job_time_assumptions: makeSrc(facts.job_time_assumptions, 'Demand Hours'),
       resource_plan: makeSrc(facts.resource_plan, 'FTE / Gross Hrs'),
       downtime_overlays_hours: makeSrc(facts.downtime_overlays_hours, 'Downtime & Losses'),
       downtime_overlays_percentage: makeSrc(facts.downtime_overlays_percentage, 'Downtime %'),
@@ -707,13 +692,14 @@
     };
     (facts.demand_input || []).filter(r => inScope(r, filter) && r.week).forEach(r => {
       const c = ensure(r);
+      const hours = r.demandHours ?? (r.matched ? r.jobs * r.jobTime.value / (a.jobTimeUnit === 'minutes' ? 60 : 1) : null);
       c.jobs += r.jobs || 0;
-      if (r.matched) {
-        c.matchedJobs += r.jobs;
-        c.demand += r.jobs * r.jobTime.value / (a.jobTimeUnit === 'minutes' ? 60 : 1);
+      if (r.matched) c.matchedJobs += r.jobs;
+      if (hours!=null) {
+        c.demand += hours;
         if (geographic) c.demandKnown = true;
       } else c.unmatched++;
-      record(c, r, r.matched ? r.jobs * r.jobTime.value / (a.jobTimeUnit === 'minutes' ? 60 : 1) : null);
+      record(c,r,hours);
     });
     // Roster is a snapshot in legacy bundles, or already weekly-dated in final_data bundles.
     (facts.resource_plan || []).filter(r => inScope(r, filter) && !r.duplicate && text(r.n.status).toLowerCase() === 'active').forEach(r => {
@@ -881,7 +867,8 @@
     });
     rows.forEach(c => {
       c.partial = c.unmatched > 0;
-      c.comparable = c.region !== 'Unmapped' && c.matchedJobs > 0 && (!c.partial || a.allowPartial) && c.roster + c.recruits + c.overtime + c.contractors + Math.max(0, c.support) + Math.max(0, c.transfers) > 0;
+      c.comparable = c.region !== 'Unmapped' && (data.isFinalData ? c.demand>0 : c.matchedJobs>0)
+        && (!c.partial || a.allowPartial) && c.roster + c.recruits + c.overtime + c.contractors + Math.max(0, c.support) + Math.max(0, c.transfers) > 0;
       if (geographic) {
         c.capacityKnown = c.region !== 'Unmapped' && (c.rosterKnown || c.evidence.some(entry =>
           ['overtime','ctr_capacity','recruitment_grounded','recruitment_ungrounded','fte_transfer','hec_on_kac_demand','hec_on_ev_demand'].includes(entry.row.source)));
@@ -946,6 +933,7 @@
     const eligibleRoster = new Set(downtimeRows);
     const downtime = downtimeRows.length ? sum(downtimeRows,'appliedDowntime') : null;
     const evidence = rows.flatMap(cell => (cell.evidence || []).map(entry => ({...entry,cell})));
+    const staffIds = evidence.filter(entry=>entry.row.source==='resource_plan').map(entry=>text(entry.row.n.payid));
     // Parent-only capacity and local deficits can overlap within the same skill/week.
     // Count the larger shortfall there, then add distinct groups across the period.
     let grossShortfall = null;
@@ -964,7 +952,7 @@
     return {
       roster, rosterWeeks, fteWeeks, downtime, assessedRoster, evidence, assessed, level, grossShortfall, capacityRows, downtimeRows,
       jobs: evidence.some(entry => entry.row.source === 'demand_input' && entry.row.jobs != null) ? sum(rows,'jobs') : null,
-      headcount: new Set(evidence.filter(e => e.row.source === 'resource_plan').map(e => e.row.n.payid).filter(Boolean)).size,
+      headcount: staffIds.length && staffIds.every(Boolean) ? new Set(staffIds).size : null,
       fte: rosterWeeks && fteWeeks && assumptions.standardHours > 0 ? roster / fteWeeks / assumptions.standardHours : null,
       downtimeRate: downtime !== null && assessedRoster > 0 ? 100 * downtime / assessedRoster : null,
       capacity: capacityRows.length ? sum(capacityRows,'capacity') : null,
@@ -1165,7 +1153,18 @@
     const patches=aggregate(future,r=>r.patch), skills=aggregate(future,r=>r.skill);
     const mapped=sum(future.filter(r=>r.region!=='Unmapped'),'jobs'), matched=sum(future.filter(r=>r.matched),'jobs');
     const calendar=new Set((data.facts.week_to_month||[]).filter(r=>!r.duplicate&&r.week).map(r=>r.week));
-    const readiness=[
+    const plannedHours = data.isFinalData ? submitted.filter(r=>r.demandHours!=null && r.week && r.week>=anchor) : [];
+    const plannedWeeks = [...new Set(plannedHours.map(r=>r.week))];
+    const mappedHours = plannedHours.filter(r=>r.region && r.region!=='Unmapped').length;
+    const readiness=data.isFinalData ? [
+      {source:'demand_input',title:'Required hours',ready:plannedHours.length>0,
+        detail:plannedHours.length ? `${plannedHours.length} calculated demand rows across ${plannedWeeks.length} weeks.`
+          : 'No final plan demand hours on or after the planning week in this scope.'},
+      {source:'geography_mapping',title:'Location mapping',ready:plannedHours.length>0 && mappedHours===plannedHours.length,
+        detail:`${mappedHours} of ${plannedHours.length} demand rows have a region mapping.`},
+      {source:'week_to_month',title:'Week coverage',ready:plannedWeeks.length>0 && plannedWeeks.every(w=>calendar.has(w)),
+        detail:`${plannedWeeks.filter(w=>calendar.has(w)).length} of ${plannedWeeks.length} demand weeks appear in the plan calendar.`}
+    ] : [
       {source:'demand_input',title:'Upcoming forecast',ready:future.length>0,detail:future.length?`${future.length} valid rows in ${weekly.length} submitted weeks. Missing weeks remain unknown.`:'No valid demand rows on or after the planning week in this scope.'},
       {source:'geography_mapping',title:'Location mapping',ready:totalJobs>0&&mapped===totalJobs,detail:totalJobs>0?`${totalJobs-mapped} of ${totalJobs} upcoming jobs have no authoritative region mapping.`:'No valid upcoming job volume to check.'},
       {source:'job_time_assumptions',title:'Job durations',ready:totalJobs>0&&matched===totalJobs,detail:totalJobs>0?`${totalJobs-matched} upcoming jobs lack a unique matching duration. Model assumption: ${a.jobTimeUnit} per job.`:'No valid upcoming job volume to check.'},
@@ -1173,7 +1172,8 @@
     ];
     let extraCoverKnown=true;
     for(const [source,enabled,fields,title] of [
-      ['resource_plan',true,['status','payid','wmis','skill','hours','allocation'],'Staffing inputs'],
+      ['resource_plan',true,['status','wmis','skill','hours','allocation',...(data.isFinalData?[]:['payid'])],
+        data.isFinalData?'FTE and gross roster hours':'Staffing inputs'],
       ['overtime',a.includeOvertime,['authorized','overtimehours','skill','weekcomm'],'Overtime inputs'],
       ['ctr_capacity',a.includeContractors,['status','contractorhours','skill','weekcomm'],'Contractor inputs']
     ]) {

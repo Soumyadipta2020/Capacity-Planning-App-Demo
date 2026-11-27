@@ -277,5 +277,38 @@ console.log('PASS: independent filter removal, dependent patch reset, week navig
   assert.equal(gapChart.props.data[0].grossMarker,-16.5);
   assert.ok(gapChart.props.series.some(series=>series.marker));
   assert.ok(gapChart.props.series.some(series=>series.signedColors));
+  const finalBundle = {mode:'final_data',scenarioId:'Selected',finalData:{
+    version:'NOV 2026 V2',regions:['A'],areaCodes:['A1'],patches:['A'],periods:['W'],weeks:[week],
+    combos:[['HEC','HEC','FTE','','FTE'],['HEC','HEC','W1','Repair','Demand Hours']],
+    rows:[[0,0,0,0,2,0,0],[0,1,0,0,42,0,0]]
+  }};
+  const finalData = A.extract(finalBundle);
+  const renderFinal = studioHarness('DecisionStudioOverview',{
+    A,V,bundle:finalBundle,scenarioId:'Selected',data:finalData,baseData:A.extract(null),scenarios:{Selected:{}},
+    filter:{},assumptions:A.defaults,comparisonEnabled:false,geographyChanges:[]
+  });
+  const allMeasures = find(renderFinal(),node=>node.type==='label' && node.props.className==='ds-shortfalls-toggle');
+  assert.ok(html(allMeasures).includes('All 7 measures'));
+  allMeasures.props.children[0].props.onChange({target:{checked:true}});
+  assert.ok(!html(renderFinal()).includes('Forecast jobs'));
+  find(renderFinal(),node=>node.type==='button' && node.props.children==='Matrix').props.onClick();
+  assert.ok(!html(renderFinal()).includes('Forecast jobs'));
+  const finalSummary = summary(finalBundle);
+  const renderFinalDrawer = studioHarness('DecisionStudioEvidence',{
+    ...drawerProps,bundle:finalBundle,baseline:null,metric:{key:'demand',report:finalSummary,title:'Planning horizon'}
+  });
+  const details = html(renderFinalDrawer());
+  assert.ok(details.includes('Required hours by work code and week'));
+  assert.ok(!details.includes('Duration ('));
+  assert.ok(!details.includes('>Jobs<'));
+  find(renderFinalDrawer(),node=>node.type==='button'
+    && Array.isArray(node.props.children) && node.props.children.includes('Final plan records')).props.onClick();
+  const finalRecords = html(renderFinalDrawer());
+  assert.ok(finalRecords.includes('Scenario version · NOV 2026 V2'));
+  assert.ok(finalRecords.includes('Plan row'));
+  const renderFinalFte = studioHarness('DecisionStudioEvidence',{
+    ...drawerProps,bundle:finalBundle,baseline:null,metric:{key:'fte',report:finalSummary,title:'Planning horizon'}
+  });
+  assert.ok(!html(renderFinalFte()).includes('Eligible people'));
   console.log('PASS: scoped FTE trends, downtime hours and baseline comparison, and capacity distribution record drilldown');
 }
