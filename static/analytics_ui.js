@@ -249,28 +249,599 @@ function DecisionStudioMonthlyWorkload({A, V, data, filter, setFilter}) {
   </div>;
 }
 
-function DecisionStudioResponsiveTrend({Trend, data, measure, ...props}) {
+function DecisionStudioResponsiveTrend({Trend, data, measure, fill = false, ...props}) {
   const container = React.useRef(null);
-  const [width,setWidth] = React.useState(700);
+  const [plot,setPlot] = React.useState({width:700,height:276});
   React.useEffect(()=>{
-    const plot = container.current?.querySelector('svg.av-trend-svg');
-    if (!plot || typeof ResizeObserver==='undefined') return;
-    const observer = new ResizeObserver(([entry])=>setWidth(Math.max(240,Math.round(entry.contentRect.width))));
-    observer.observe(plot);
+    const svg = container.current?.querySelector('svg.av-trend-svg');
+    if (!svg || typeof ResizeObserver==='undefined') return;
+    const observer = new ResizeObserver(([{contentRect}])=>{
+      const width = Math.max(240,Math.round(contentRect.width));
+      const height = fill ? Math.max(140,Math.round(contentRect.height)) : 276;
+      setPlot(current=>current.width===width && current.height===height ? current : {width,height});
+    });
+    observer.observe(svg);
     return ()=>observer.disconnect();
-  },[data.length>0]);
+  },[data.length>0,fill]);
   return <div className="ds-overview-chart" data-measure={measure} ref={container}>
-    <Trend data={data} plotWidth={width} {...props}/>
+    <Trend data={data} plotWidth={plot.width} plotHeight={fill ? plot.height : undefined} embedded={fill} {...props}/>
   </div>;
 }
 
-function DecisionStudioDemandTrend({Trend, chart, periodSwitch, periodLabel, focusedPeriod, setFocusedPeriod}) {
-  return <DecisionStudioResponsiveTrend Trend={Trend} title="Demand and available capacity"
-      tools={periodSwitch} subtitle="Hours by planning period" actionLabel={'Select a '+periodLabel+' to filter'}
-      data={chart} selectedKey={focusedPeriod} onClearSelection={()=>setFocusedPeriod('')} series={[
+function DecisionStudioOutlookTrend({Trend, chart, periodSwitch, periodLabel, focusedPeriod, setFocusedPeriod, imbalance}) {
+  return <DecisionStudioResponsiveTrend Trend={Trend} title={imbalance ? 'Net imbalance over time' : 'Demand and available capacity'}
+      measure={imbalance ? 'gap' : undefined} fill signed={imbalance} tools={periodSwitch}
+      actionLabel={'Select a '+periodLabel+' to filter'} data={chart} selectedKey={focusedPeriod}
+      onClearSelection={()=>setFocusedPeriod('')} series={imbalance ? [
+        {key:'gap',label:'Net imbalance',bar:true,signedColors:true,color:'var(--ds-change-negative)'}
+      ] : [
         {key:'demand',label:'Required hours',color:'var(--ds-chart-demand)',bar:true},
         {key:'capacity',label:'Available capacity',color:'var(--ds-chart-capacity)'}
       ]} onSelect={row=>setFocusedPeriod(old=>old===row.key?'':row.key)}/>;
+}
+
+function decisionDriverGroupLabel(value) {
+  const name = String(value ?? '').trim();
+  return /^(?:-|nan|n\/a|unspecified type|available hours deduction)$/i.test(name) ? '' : name;
+}
+
+const decisionDriverProduct = entry=>entry.row.n.product;
+
+function decisionDriverHasBreakdown(evidence, field, parentName) {
+  let firstLabel;
+  for (const entry of evidence) {
+    const label = decisionDriverGroupLabel(field(entry));
+    if (!label || label===parentName) continue;
+    if (field!==decisionDriverProduct || (firstLabel && firstLabel!==label)) return true;
+    firstLabel = label;
+  }
+  return false;
+}
+
+function decisionDriverGroups(evidence, [dimension,...remaining]) {
+  const groups = new Map();
+  for (const entry of evidence) {
+    const label = decisionDriverGroupLabel(dimension(entry));
+    if (!groups.has(label)) groups.set(label,[]);
+    groups.get(label).push(entry);
+  }
+  return [...groups].map(([label,entries])=>({id:label,name:label || 'Not specified',evidence:entries,
+    value:entries.reduce((total,entry)=>total+entry.contribution,0),dimensions:remaining}))
+    .sort((a,b)=>Math.abs(b.value)-Math.abs(a.value) || a.name.localeCompare(b.name));
+}
+
+function decisionImbalanceDrivers(A, report, measure, assumptions) {
+  const cells = new Set(report.assessed.filter(group=>group.comparable).flatMap(group=>group.cells));
+  const scoped = {...report,capacity:report.assessedCapacity,demand:report.assessedDemand,capacityRows:[...cells],
+    evidence:report.evidence.filter(entry=>cells.has(entry.cell) && entry.hours!=null)};
+  const skill = entry=>entry.cell.skill;
+  const groups = [...A.planningBreakdown(scoped,measure,'skill',assumptions).values()];
+  const components = groups.filter(group=>group.path.length===1).map(group=>{
+    const name = group.path[0];
+    const dimensions = measure==='demand' ? [entry=>entry.row.workCode,decisionDriverProduct]
+      : name==='Allocated roster hours' ? [skill,entry=>entry.row.n.labourtype]
+      : name==='Downtime deducted' ? [entry=>entry.row.category,entry=>entry.row.n.level2]
+      : name==='Contractor cover' ? [entry=>entry.row.n.supplier || entry.row.n.agency,skill] : [skill];
+    return {id:name,name,dimensions,measure,value:group.value,
+      evidence:group.evidence.filter(entry=>Math.abs(entry.contribution)>1e-8),
+      note:name==='Other modeled adjustments' ? 'Difference between assessed capacity and recorded components.' : undefined};
+  }).filter(node=>node.evidence.length || Math.abs(node.value)>1e-8);
+  if (measure==='demand') return components.sort((a,b)=>b.value-a.value || a.name.localeCompare(b.name));
+  const rank = name=>['Allocated roster hours','Downtime deducted'].includes(name)
+    ? ['Allocated roster hours','Downtime deducted'].indexOf(name) : name==='Other modeled adjustments' ? 3 : 2;
+  return components.sort((a,b)=>rank(a.name)-rank(b.name) || Math.abs(b.value)-Math.abs(a.value));
+}
+
+function DecisionStudioImbalanceDrivers({A, report, assumptions, format, onRecords}) {
+  const [expanded,setExpanded] = React.useState([]);
+  const [pages,setPages] = React.useState({});
+  const [bounds,setBounds] = React.useState({width:720,height:380});
+  const viewport = React.useRef(null);
+  const hasGap = report.gap!=null;
+  React.useEffect(()=>{setExpanded([]);setPages({});},[report]);
+  React.useEffect(()=>{
+    const element = viewport.current;
+    if (!element || typeof ResizeObserver==='undefined') return;
+    const observer = new ResizeObserver(([{contentRect:{width,height}}])=>{
+      if (width && height) setBounds({width:Math.floor(width),height:Math.floor(height)});
+    });
+    observer.observe(element);
+    return ()=>observer.disconnect();
+  },[hasGap]);
+  const activeMeasure = expanded[1];
+  const components = React.useMemo(()=>activeMeasure ? decisionImbalanceDrivers(A,report,activeMeasure,assumptions) : [],
+    [A,report,activeMeasure,assumptions]);
+  const branches = [
+    {id:'capacity',name:'Available capacity',value:report.assessedCapacity,measure:'capacity',sign:'+'},
+    {id:'demand',name:'Required hours',value:report.assessedDemand,measure:'demand',sign:'−'}
+  ];
+  const root = {id:'imbalance',name:'Net capacity imbalance',value:report.gap,children:branches,signed:true};
+  const columns = [];
+  let nodes = hasGap ? [root] : [];
+  let parents = [];
+  for (let depth=0;nodes.length;depth++) {
+    const items = nodes.map(node=>{
+      const dimension = node.dimensions?.findIndex(field=>decisionDriverHasBreakdown(node.evidence,field,node.name)) ?? -1;
+      return {...node,dimension,canExpand:node.sign!=null || !!node.children?.length || dimension>=0};
+    });
+    const selected = depth<expanded.length ? items.findIndex(node=>node.id===expanded[depth] && node.canExpand) : -1;
+    columns.push({items,parents,selected,depth});
+    if (selected<0) break;
+    const node = items[selected];
+    const children = node.children || (node.sign!=null ? components : decisionDriverGroups(node.evidence,node.dimensions.slice(node.dimension)));
+    nodes = children.length ? children.map(child=>({...child,measure:child.measure || node.measure}))
+      : [{id:null,name:'No contributing hours',note:'This branch has no hours in the selected scope.',measure:node.measure}];
+    parents = [...parents,node.name];
+  }
+  const latest = columns.at(-1);
+  if (!latest) return <p className="ds-context">No comparable capacity and demand hours in this scope.</p>;
+  const {width:graphWidth,height:graphHeight} = bounds;
+  const narrow = graphWidth<500;
+  const inset = narrow ? 8 : 16, columnGap = narrow ? 19 : 42, rowGap = 10;
+  const nodeHeight = narrow ? 88 : 82, rowStep = nodeHeight+rowGap;
+  const pageSize = Math.max(1,Math.min(4,Math.floor((graphHeight-2*inset+rowGap)/rowStep)));
+  const totalPages = Math.ceil(latest.items.length/pageSize);
+  const pageKey = JSON.stringify(expanded);
+  const activePage = Math.min(pages[pageKey] || 0,totalPages-1);
+  const offset = activePage*pageSize;
+  const pageItems = latest.items.slice(offset,offset+pageSize);
+  const visible = columns.slice(narrow ? -2 : -3);
+  const nodeWidth = Math.min(204,Math.floor((graphWidth-2*inset-(visible.length-1)*columnGap)/visible.length));
+  const groupWidth = visible.length*nodeWidth+(visible.length-1)*columnGap;
+  const groupHeight = pageItems.length*rowStep-rowGap;
+  const leftInset = Math.max(inset,Math.floor((graphWidth-groupWidth)/2));
+  const topInset = Math.max(inset,Math.floor((graphHeight-groupHeight)/2));
+  const lanes = visible.map((column,index)=>{
+    const isLatest = column===latest;
+    return {...column,left:leftInset+index*(nodeWidth+columnGap),
+      top:topInset+(isLatest ? 0 : (groupHeight-nodeHeight)/2),
+      items:isLatest ? pageItems : [column.items[column.selected]],selected:isLatest ? -1 : 0};
+  });
+  const turnPage = page => setPages(current=>({...current,[pageKey]:page}));
+
+  function renderNode(node, column, depth, index) {
+    const open = column.selected===index;
+    const canInspect = !node.canExpand && !!node.evidence?.length;
+    const value = node.value==null ? 'Unavailable' : (node.signed || node.value<0 ? decisionSigned(node.value,format) : format(node.value))+' h';
+    const contents = <>
+      <span className="ds-driver-name"><strong>{node.name}</strong>
+        {(node.canExpand || canInspect) && <span className="ds-driver-glyph" aria-hidden="true">
+          {node.canExpand ? open ? '−' : '+' : <AnalyticsIcon name="file" size={12}/>}
+        </span>}
+      </span>
+      {node.id!==null && <span className="ds-driver-value" data-tone={node.value<0 ? 'shortfall' : node.signed && node.value>0 ? 'surplus' : undefined}>
+        {node.sign && <span aria-hidden="true">{node.sign} </span>}{value}
+      </span>}
+      {canInspect && <small>View {node.evidence.length.toLocaleString('en-GB')} {node.evidence.length===1?'record':'records'}</small>}
+      {node.note && <small className="ds-driver-note" title={node.note}>{node.note}</small>}
+    </>;
+    return <li key={node.id ?? 'empty'} data-measure={node.measure} data-root={depth===0}>
+      {node.canExpand || canInspect ? <button type="button" className="ds-driver-row" aria-expanded={node.canExpand ? open : undefined}
+        onClick={event=>{
+          if (node.canExpand) setExpanded(open ? expanded.slice(0,depth) : [...expanded.slice(0,depth),node.id]);
+          else onRecords(node,[...column.parents,node.name],event?.currentTarget);
+        }}>{contents}</button> : <div className="ds-driver-row">{contents}</div>}
+    </li>;
+  }
+
+  return <div className="ds-driver-overview" data-narrow={narrow}>
+    <div className="ds-driver-controls">
+      <p className="ds-driver-scope">{report.comparable.toLocaleString('en-GB')} of {report.assessed.length.toLocaleString('en-GB')} {report.level}–skill–week groups assessed
+        {report.partial && ' · Some data is incomplete'}</p>
+      <button type="button" aria-label="Back one level" className="ds-driver-back" disabled={!expanded.length}
+        onClick={()=>setExpanded(expanded.slice(0,-1))}><span aria-hidden="true">‹</span> Back</button>
+    </div>
+    {parents.length>0 && <nav className="ds-driver-trail" aria-label="Driver path">
+      {narrow && parents.length>1 ? <>
+        <button type="button" onClick={()=>setExpanded(expanded.slice(0,1))}>Imbalance</button><span aria-hidden="true">›</span>
+        <select aria-label="Jump to a driver level" value={parents.length} onChange={event=>setExpanded(expanded.slice(0,Number(event.target.value)))}>
+          {parents.slice(1).map((name,index)=><option key={index} value={index+2}>{name}</option>)}
+        </select>
+      </> : parents.map((name,index)=><React.Fragment key={index}>
+        {index>0 && <span aria-hidden="true">›</span>}
+        {index===parents.length-1 ? <strong aria-current="location" title={name}>{name}</strong>
+          : <button type="button" onClick={()=>setExpanded(expanded.slice(0,index+1))}>{name}</button>}
+      </React.Fragment>)}
+    </nav>}
+    <div className="ds-driver-scroll" ref={viewport} role="region" aria-label="Imbalance driver graph">
+      <div className="ds-driver-graph" style={{width:graphWidth,height:graphHeight,'--driver-node-height':nodeHeight+'px','--driver-row-gap':rowGap+'px'}}>
+        <svg className="ds-driver-links" width={graphWidth} height={graphHeight} aria-hidden="true" focusable="false">
+          {lanes.slice(1).map((column,index)=>{
+            const previous = lanes[index];
+            const start = previous.left+nodeWidth, middle = start+columnGap/2, end = column.left;
+            const parentY = previous.top+nodeHeight/2, y = column.top+nodeHeight/2;
+            return <g key={index}>
+              <path data-measure={column.selected===0 ? column.items[0].measure : undefined} data-selected={column.selected===0}
+                d={`M${start} ${parentY} H${middle} M${middle} ${y} V${y+(column.items.length-1)*rowStep}`}/>
+              {column.items.map((node,row)=><path key={node.id ?? 'empty'} data-measure={node.measure}
+                d={`M${middle} ${y+row*rowStep} H${end}`} data-selected={row===column.selected}/>)}
+            </g>;
+          })}
+        </svg>
+        {lanes.map(column=><ul key={column.depth} className="ds-driver-column"
+          aria-label={column.parents.at(-1) || 'Net imbalance'} style={{left:column.left,top:column.top,width:nodeWidth}}>
+          {column.items.map((node,row)=>renderNode(node,column,column.depth,row))}
+        </ul>)}
+      </div>
+    </div>
+    <div className="ds-driver-pages" data-paging={totalPages>1} aria-hidden={totalPages<=1 ? true : undefined}>
+      <button type="button" disabled={activePage===0} onClick={()=>turnPage(activePage-1)}>Previous</button>
+      <span aria-live="polite">{offset+1}–{offset+pageItems.length} of {latest.items.length}</span>
+      <button type="button" disabled={activePage+1>=totalPages} onClick={()=>turnPage(activePage+1)}>Show more</button>
+    </div>
+  </div>;
+}
+
+function DecisionStudioDriversDrawer({A,V,report,assumptions,format,bundle,scope,gapLabel,onClose}) {
+  const [records,setRecords] = React.useState(null);
+  const trigger = React.useRef(null);
+  const graphBack = React.useRef(null);
+  React.useEffect(()=>{
+    if (records) graphBack.current?.focus();
+    else if (trigger.current?.isConnected) trigger.current.focus();
+  },[records]);
+  const inspect = (node,path,button) => {
+    trigger.current = button;
+    setRecords({key:node.measure,title:path.slice(1).join(' › '),detail:{
+      title:node.name,planValue:node.value,value:node.value,planEvidence:node.evidence,baselineEvidence:[]
+    }});
+  };
+  return <AnalyticsDrawer title="Imbalance drivers" eyebrow="Decision Studio" subtitle={scope}
+    panelClassName="ds-drivers-drawer" footer="Selected plan · assessed capacity minus demand" onClose={onClose}>
+    <div className="ds-drivers-main" hidden={!!records}>
+      <div className="ds-drivers-net"><span>Net position</span>
+        <strong data-tone={report.gap<0?'shortfall':report.gap>0?'surplus':undefined}>{gapLabel(report.gap)}</strong></div>
+      <DecisionStudioImbalanceDrivers A={A} report={report} assumptions={assumptions} format={format} onRecords={inspect}/>
+    </div>
+    {records && <section className="ds-drivers-records" aria-label="Driver records">
+      <header className="ds-drivers-record-heading">
+        <button type="button" ref={graphBack} className="ds-driver-back" onClick={()=>setRecords(null)}>
+          <span aria-hidden="true">‹</span> Back to graph
+        </button>
+        <h3>{records.title}</h3>
+      </header>
+      <div className="ds-drivers-record-body">
+        <DecisionStudioBreakdownEvidence embedded A={A} V={V} metric={records} format={format} bundle={bundle} assumptions={assumptions}/>
+      </div>
+    </section>}
+  </AnalyticsDrawer>;
+}
+
+// Basemap simplified from Natural Earth 1:50m Admin 0 Countries (public domain).
+// The labeled anchors are indicative locations for operational planning regions.
+const decisionGreatBritainOutline = [
+  'M144,237L134,243L129,242L126,239L124,238L119,238L120,237L121,236L116,234L108,237L102,231L120,220L123,215L121,206L111,209L118,201L126,197L133,196L137,198L136,195L137,194L142,197L137,192L141,176L136,177L129,166L131,161L134,158L138,157L130,157L123,161L118,160L114,162L112,161L109,160L108,163L106,162L104,159L104,158L104,156L112,144L108,139L109,134L109,133L113,133L112,133L109,131L109,130L110,128L103,135L103,130L104,129L106,126L100,132L97,147L94,147L98,137L96,136L98,126L103,114L96,119L88,115L95,112L93,110L97,102L93,98L97,95L95,93L94,92L95,89L96,88L97,87L104,87L100,82L101,78L106,78L105,72L108,70L115,72L138,69L135,76L123,85L122,86L122,88L124,88L125,88L120,94L134,91L153,91L155,92L157,93L158,96L158,97L146,117L133,123L140,122L144,124L144,126L133,131L126,130L138,133L145,131L152,134L160,142L167,163L176,168L185,177L184,178L183,179L188,189L182,186L176,187L179,187L182,187L188,193L191,196L192,200L187,206L191,209L195,205L203,205L214,212L211,226L206,229L205,233L198,234L201,238L193,241L209,243L209,245L209,248L202,254L190,258L174,258L164,254L165,256L162,258L154,259L154,262L138,259L132,261L128,270L119,267L111,269L105,275L96,274L108,263L119,247L136,247L147,234L146,235Z',
+  'M119,196L120,197L122,197L116,201L113,195L115,194L117,194Z',
+  'M170,24L169,24L168,22L169,19Z',
+  'M165,23L170,25L166,39L166,32L160,29L164,28L161,24L165,21L166,21Z',
+  'M137,59L142,62L133,60L134,57Z',
+  'M105,145L101,144L101,139L104,140Z',
+  'M94,124L88,125L85,125L88,120L86,118L89,117L94,120Z',
+  'M88,134L90,139L86,141L86,137L83,139L83,137Z',
+  'M91,136L89,135L95,129L94,132Z',
+  'M87,75L82,82L84,83L74,90L73,88L77,86L73,84L73,80L79,79L78,77L87,72Z',
+  'M88,96L88,100L96,102L91,107L90,103L85,103L78,97L85,92Z',
+  'M71,92L73,93L71,95L69,95L66,94Z',
+  'M70,105L68,105L68,99L70,99L70,99L70,105Z',
+  'M169,259L166,262L161,260L165,257L168,258Z',
+].join('');
+const decisionNorthernIrelandOutline = 'M87,178L80,179L74,170L69,177L65,177L56,169L62,166L60,163L66,162L71,154L88,151L95,160L92,165L97,164L99,168L96,167L97,173L90,179L88,179Z';
+const decisionIrelandOutline = 'M71,154L66,162L60,163L62,166L56,169L65,177L69,177L74,170L80,179L88,179L85,181L90,206L83,220L85,222L76,224L76,224L75,222L57,232L52,231L53,234L45,238L29,240L34,236L24,238L33,231L21,233L20,231L28,225L20,225L20,224L21,223L30,222L28,218L32,215L46,212L44,211L43,210L41,212L40,213L28,214L35,208L38,202L44,199L34,198L28,196L30,195L25,194L25,191L31,189L28,187L30,185L33,185L33,184L33,183L30,183L28,183L29,178L25,175L33,173L37,173L40,175L42,173L50,174L49,173L48,172L56,165L51,165L46,164L52,159L54,152L64,150L65,153L64,157L65,156L67,155L66,150L69,147L75,150Z';
+const decisionMapViewport = [12,10,210,272];
+const decisionMapMaxZoom = 3.5;
+const decisionMapAspect = decisionMapViewport[2]/decisionMapViewport[3];
+function decisionMapCamera(x,y,zoom,aspect=decisionMapAspect) {
+  const [left,top,fullWidth,fullHeight] = decisionMapViewport;
+  const scale = Math.min(decisionMapMaxZoom,Math.max(1,zoom));
+  const height = Math.max(fullHeight,fullWidth/aspect)/scale, width = height*aspect;
+  const halfWidth = Math.min(fullWidth,width)/2, halfHeight = Math.min(fullHeight,height)/2;
+  return {x:Math.min(left+fullWidth-halfWidth,Math.max(left+halfWidth,x)),
+    y:Math.min(top+fullHeight-halfHeight,Math.max(top+halfHeight,y)),zoom:scale,width,height};
+}
+const decisionMapFocus = decisionMapCamera(140,174,1.29);
+const decisionMapFull = decisionMapCamera(117,146,1);
+const decisionMapPanKeys = {ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
+const decisionMapLocations = {
+  A: {name:'Scotland & Northern England',x:129,y:122},
+  B: {name:'North West',x:140,y:179},
+  C: {name:'Midlands',x:162,y:212},
+  D: {name:'London & South East',x:186,y:244},
+  E: {name:'South West',x:124,y:256},
+};
+
+// Representative locations for the planning patch names. Used for visual positioning only.
+const decisionPatchCoordinates = {
+  'EA11 Inverness & Aviemore':[-4.22,57.48],
+  'EA12 Aberdeen North':[-2.12,57.18],
+  'EA12 Aberdeen South':[-2.15,57.10],
+  'EA13 Dundee & Perth':[-3.16,56.44],
+  'EA13 Fife':[-3.16,56.19],
+  'EA21 Dunbartonshire & Glasgow North':[-4.32,55.96],
+  'EA21 Stirling & Falkirk':[-3.94,56.12],
+  'EA31 Clyde Coast':[-4.80,55.96],
+  'EA31 Glasgow South & Renfrewshire':[-4.38,55.78],
+  'EA32 South West Ayrshire':[-4.63,55.43],
+  'EA33 Dumfriesshire':[-3.61,55.07],
+  'EA41 East Lothian Coast':[-2.72,55.99],
+  'EB12 Altrincham':[-2.35,53.39],
+  'EB13 Manchester Centre':[-2.24,53.48],
+  'EB14 Stockport':[-2.15,53.40],
+  'EB24 The Wirral':[-3.10,53.35],
+  'EB43 Hereford & Worcs':[-2.45,52.14],
+  'EC11 Cornwall':[-5.05,50.31],
+  'EC13 Devon South':[-3.58,50.49],
+  'EC22 Cheltenham & Gloucester':[-2.10,51.88],
+  'EC31 New Forest':[-1.62,50.89],
+  'EC41 Reading':[-0.97,51.46],
+  'EC62 Essex East':[0.90,51.89],
+  'EC81 Peterborough':[-0.24,52.57],
+  'EC91 Leicester':[-1.13,52.64],
+  'ED11 Chiswick & City':[-0.23,51.50],
+  'ED22 Cobham & Heathrow':[-0.43,51.34],
+  'ED41 Bromley & Dartford':[0.09,51.42],
+  'ED44 Canterbury & Dover':[1.08,51.26]
+};
+
+function decisionPatchMapGeometry() {
+  const points = Object.entries(decisionPatchCoordinates).map(([code,[longitude,latitude]]) =>
+    ({code,x:16+(longitude+10.65)*16,y:12+(61-latitude)*24}));
+  const offsets = [[0,0],[0,-8],[-8,0],[8,0],[0,8],[-8,-8],[8,-8],[-8,8],[8,8],[-16,0],[16,0],[0,16],[0,-16]];
+  const placed = [];
+  return Object.fromEntries(points.map(point => {
+    const [dx,dy] = offsets.find(([x,y]) => placed.every(pin=>Math.hypot(pin.x-point.x-x,pin.y-point.y-y)>=7)) || [0,0];
+    const pin = {x:point.x+dx,y:point.y+dy};
+    placed.push(pin);
+    let polygon = [[0,0],[232,0],[232,290],[0,290]];
+    for (const neighbour of points) {
+      if (point===neighbour) continue;
+      const x = neighbour.x-point.x, y = neighbour.y-point.y;
+      const midpoint = (neighbour.x**2+neighbour.y**2-point.x**2-point.y**2)/2;
+      const distance = vertex => vertex[0]*x+vertex[1]*y-midpoint;
+      const inside = [];
+      for (let i=0;i<polygon.length;i++) {
+        const start = polygon[i], end = polygon[(i+1)%polygon.length];
+        const startDistance = distance(start), endDistance = distance(end);
+        if (startDistance<=0) inside.push(start);
+        if ((startDistance<=0)!==(endDistance<=0)) {
+          const fraction = startDistance/(startDistance-endDistance);
+          inside.push(start.map((coordinate,axis)=>coordinate+fraction*(end[axis]-coordinate)));
+        }
+      }
+      polygon = inside;
+    }
+    const path = 'M'+polygon.map(vertex=>vertex.map(n=>n.toFixed(1)).join(',')).join('L')+'Z';
+    return [point.code,{pin,point,path}];
+  }));
+}
+
+const decisionPatchGeometry = decisionPatchMapGeometry();
+const decisionMapViews = [['regions','Regions'],['pins','Patch pins'],['shading','Patch shading']];
+
+function DecisionStudioRegionMap({A, rows, beforeRows, level, assumptions, measure, format, onSelect, tools, trend, view='regions', onViewChange}) {
+  const [hoveredCode,setHoveredCode] = React.useState(null);
+  const [selectedCode,setSelectedCode] = React.useState(null);
+  const [savedCamera,setCamera] = React.useState(decisionMapFocus);
+  const [mapAspect,setMapAspect] = React.useState(decisionMapAspect);
+  const [dragging,setDragging] = React.useState(false);
+  const canvas = React.useRef(null);
+  const drag = React.useRef(null);
+  const suppressClick = React.useRef(false);
+  const byPatch = view!=='regions';
+  const figures = React.useMemo(() => {
+    const groupByLocation = cells => {
+      const groups = new Map();
+      for (const row of cells) {
+        const code = byPatch ? row.patch || '' : row.region || '';
+        if (!groups.has(code)) groups.set(code,[]);
+        groups.get(code).push(row);
+      }
+      return groups;
+    };
+    const current = groupByLocation(rows);
+    const baseline = groupByLocation(beforeRows || []);
+    const codes = [...new Set([...current.keys(),...baseline.keys()])].sort((left,right) =>
+      !left ? 1 : !right ? -1 : left.localeCompare(right));
+    return codes.map(code => {
+      const region = !byPatch && Object.hasOwn(decisionMapLocations,code) ? decisionMapLocations[code] : null;
+      const geometry = byPatch && Object.hasOwn(decisionPatchGeometry,code) ? decisionPatchGeometry[code] : null;
+      const plan = current.get(code) || [], base = baseline.get(code) || [];
+      const report = A.planningSummary(plan,byPatch?'patch':level,assumptions);
+      const before = beforeRows ? A.planningSummary(base,byPatch?'patch':level,assumptions) : null;
+      return {code,region,geometry,report,before,value:report[measure],area:(plan[0] || base[0])?.area,
+        name:byPatch ? code || 'Without a patch' : region?.name || (code && code!=='Unmapped' ? 'Region '+code : 'Unmapped locations')};
+    });
+  },[A,rows,beforeRows,level,assumptions,measure,byPatch]);
+  const mode = trend ? 'trend' : 'map';
+  const showMap = mode==='map' && figures.length>0;
+  React.useEffect(()=>{
+    if (!showMap || !canvas.current || typeof ResizeObserver==='undefined') return;
+    const observer = new ResizeObserver(([{contentRect}])=>{
+      if (contentRect.width && contentRect.height) setMapAspect(contentRect.width/contentRect.height);
+    });
+    observer.observe(canvas.current);
+    return ()=>observer.disconnect();
+  },[showMap]);
+  const gap = measure==='gap';
+  const mapTitle = (gap ? 'Capacity imbalance' : 'Available capacity') + (byPatch ? ' by patch' : ' by region');
+  const title = trend ? (gap ? 'Net imbalance over time' : 'Demand and available capacity') : mapTitle;
+  const plotted = figures.filter(figure => figure.region || figure.geometry);
+  const max = Math.max(0,...plotted.map(figure => Math.abs(figure.value ?? 0)));
+  const appearance = ({value}) => {
+    if (value==null) return {tone:'missing',strength:0,label:'Unavailable'};
+    if (gap && Math.abs(value)<1e-8) return {tone:'neutral',strength:0,label:'0 h'};
+    return {tone:gap ? (value<0 ? 'shortfall' : 'surplus') : 'capacity',
+      strength:max ? Math.min(3,Math.max(1,Math.ceil(3*Math.abs(value)/max))) : 1,
+      label:(gap ? (value<0 ? '−' : '+') : '')+format(Math.abs(value))+' h'};
+  };
+  const lookup = code => figures.find(figure=>figure.code===code);
+  const chosenPatch = byPatch ? lookup(selectedCode) || plotted.find(figure=>figure.value!=null) || figures[0] : null;
+  const active = lookup(hoveredCode) || chosenPatch;
+  const partial = figure => figure.value!=null && figure.report.partialByMeasure[measure];
+  const describe = (figure,label) => `${figure.name}, ${label}${partial(figure) ? ', partial assessment' : ''}`;
+  const detail = figure => onSelect(measure,figure.report,figure.name,figure.before);
+  const badge = figure => {
+    const {tone,strength} = appearance(figure);
+    return {'data-tone':tone,'data-strength':strength,'data-active':active?.code===figure.code};
+  };
+  const selectFigure = figure => byPatch ? setSelectedCode(figure.code) : detail(figure);
+  const previewEvents = figure => ({
+    onMouseEnter:()=>setHoveredCode(figure.code),onMouseLeave:()=>setHoveredCode(null),
+    onClick:()=>selectFigure(figure)
+  });
+  const mapMarkEvents = figure => ({
+    ...previewEvents(figure),
+    onPointerUp:event=>{
+      if (event.pointerType!=='touch' || drag.current?.moved) return;
+      suppressClick.current = true;
+      setHoveredCode(null);
+      selectFigure(figure);
+    }
+  });
+  const clipId = 'ds-patch-coast-'+measure;
+  const camera = decisionMapCamera(savedCamera.x,savedCamera.y,savedCamera.zoom,mapAspect);
+  const {width:mapWidth,height:mapHeight} = camera;
+  const mapLeft = camera.x-mapWidth/2, mapTop = camera.y-mapHeight/2;
+  const zoomMap = factor => {
+    setHoveredCode(null);
+    setCamera(decisionMapCamera(camera.x,camera.y,camera.zoom*factor,mapAspect));
+  };
+  const startPan = event => {
+    if (event.button!==0 || drag.current) return;
+    suppressClick.current = false;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    drag.current = {id:event.pointerId,x:event.clientX,y:event.clientY,camera,
+      unitsX:mapWidth/bounds.width,unitsY:mapHeight/bounds.height,moved:false};
+  };
+  const movePan = event => {
+    const start = drag.current;
+    if (!start || event.pointerId!==start.id) return;
+    const dx = event.clientX-start.x, dy = event.clientY-start.y;
+    if (!start.moved) {
+      if (Math.hypot(dx,dy)<5) return;
+      start.moved = true;
+      suppressClick.current = true;
+      if (start.camera.zoom===1) return;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      setHoveredCode(null);
+      setDragging(true);
+    }
+    if (start.camera.zoom>1) setCamera(decisionMapCamera(start.camera.x-dx*start.unitsX,start.camera.y-dy*start.unitsY,start.camera.zoom,mapAspect));
+  };
+  const endPan = event => {
+    if (drag.current?.id!==event.pointerId) return;
+    drag.current = null;
+    setDragging(false);
+  };
+  const mapKey = event => {
+    const direction = decisionMapPanKeys[event.key];
+    if (direction) {
+      setCamera(decisionMapCamera(camera.x+direction[0]*18/camera.zoom,camera.y+direction[1]*18/camera.zoom,camera.zoom,mapAspect));
+      setHoveredCode(null);
+    } else if (event.key==='+' || event.key==='=') zoomMap(1.25);
+    else if (event.key==='-') zoomMap(1/1.25);
+    else return;
+    event.preventDefault();
+  };
+
+  return <section className={'ds-panel ds-region-map ds-outlook-card'+(gap ? ' ds-imbalance-outlook' : '')}
+    aria-label={title} data-view={view} data-mode={mode}>
+    <div className="ds-heading ds-region-map-heading">
+      <div><h2><span className="ds-chart-icon"><AnalyticsIcon name={trend?'trend':gap?'scale':'bolt'} size={15}/></span>{title}</h2>
+        <p className="ds-context">{trend ? (gap ? 'Selected plan · capacity minus demand by period' : 'Hours by planning period') :
+          view==='shading' ? 'Approximate areas around patch locations' :
+          gap ? 'Selected plan · capacity minus demand' : 'Selected plan · after downtime and cover'}</p></div>
+      <div className="ds-map-tools">
+        {onViewChange && <label className="ds-map-variant" aria-hidden={mode!=='map' ? true : undefined}>Map view<select aria-label="Map view" value={view}
+          tabIndex={mode!=='map' ? -1 : undefined} disabled={mode!=='map'}
+          onChange={event=>{setHoveredCode(null);onViewChange(event.target.value);}}>
+          {decisionMapViews.map(([id,label])=><option key={id} value={id}>{label}</option>)}
+        </select></label>}
+        {tools}
+      </div>
+    </div>
+    {trend ? <div className="ds-outlook-trend">{trend}</div> : figures.length ? <div className="ds-region-map-content">
+      <div className="ds-region-map-body">
+        <div className="ds-region-map-frame">
+          <div className="ds-map-navigation" role="group" aria-label="Map controls">
+            <button type="button" aria-label="Zoom in" title="Zoom in" disabled={camera.zoom>=decisionMapMaxZoom} onClick={()=>zoomMap(1.25)}>+</button>
+            <button type="button" aria-label="Zoom out" title="Zoom out" disabled={camera.zoom<=1} onClick={()=>zoomMap(1/1.25)}>−</button>
+            <button type="button" className="ds-map-fit" onClick={()=>{setHoveredCode(null);setCamera(decisionMapFull);}}>Fit UK</button>
+          </div>
+          <div className="ds-region-map-art" ref={canvas}
+            role="group" aria-label="Map. Use arrow keys to pan and plus or minus to zoom." tabIndex={0}
+            data-dragging={dragging} data-can-pan={camera.zoom>1}
+            onPointerDown={startPan} onPointerMove={movePan} onPointerUp={endPan} onPointerCancel={endPan}
+            onLostPointerCapture={endPan} onPointerLeave={event=>{if (!drag.current?.moved) endPan(event);}}
+            onKeyDown={mapKey} onClickCapture={event=>{
+              if (!suppressClick.current) return;
+              suppressClick.current = false;
+              event.stopPropagation();
+            }}>
+            <svg viewBox={[mapLeft,mapTop,mapWidth,mapHeight].join(' ')} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+              <path className="ds-map-context" d={decisionIrelandOutline}/>
+              <path className={byPatch?'ds-map-context':'ds-map-country'} d={decisionNorthernIrelandOutline}/>
+              <path className="ds-map-country" d={decisionGreatBritainOutline}/>
+              {view==='shading' && <>
+                <defs><clipPath id={clipId}><path d={decisionGreatBritainOutline}/></clipPath></defs>
+                <g clipPath={'url(#'+clipId+')'}>{plotted.map(figure=><path key={figure.code} className="ds-map-cell"
+                  d={figure.geometry.path} {...badge(figure)} {...mapMarkEvents(figure)}/>)}</g>
+              </>}
+              {view==='pins' && plotted.map(figure=>{
+                const {pin,point} = figure.geometry;
+                return <g className="ds-map-patch-pin" key={figure.code} {...badge(figure)} {...mapMarkEvents(figure)}>
+                  {(pin.x!==point.x || pin.y!==point.y) && <line x1={point.x} x2={pin.x} y1={point.y} y2={pin.y}/>}
+                  <circle cx={pin.x} cy={pin.y} r="5" className="ds-map-patch-hit"/>
+                  <circle cx={pin.x} cy={pin.y} r="3.4" className="ds-map-patch-dot"/>
+                </g>;
+              })}
+            </svg>
+            {!byPatch && plotted.map(figure=><button type="button" key={figure.code} className="ds-region-pin" tabIndex={-1}
+              aria-label={describe(figure,appearance(figure).label)+'. View details'} {...badge(figure)}
+              style={{left:100*(figure.region.x-mapLeft)/mapWidth+'%',top:100*(figure.region.y-mapTop)/mapHeight+'%'}} {...mapMarkEvents(figure)}>
+              {figure.code}</button>)}
+          </div>
+        </div>
+        {byPatch && active ? <div className="ds-map-patch-panel">
+          <label>Patch<select aria-label="Map patch" value={chosenPatch.code}
+            onChange={event=>{setHoveredCode(null);setSelectedCode(event.target.value);}}>
+            {figures.map(figure=><option key={figure.code} value={figure.code}>{figure.name}</option>)}
+          </select></label>
+          <div className="ds-map-patch-summary" {...badge(active)} aria-live="polite">
+            <header><strong>{active.name}</strong>{active.area && <small>Area {active.area}</small>}</header>
+            <strong className="ds-map-patch-metric">{appearance(active).label}</strong>
+            <span>{gap ? 'Net capacity imbalance' : 'Available capacity'}{partial(active) && ' · Partial'}</span>
+            <dl>{(gap ? [['capacity','Available'],['demand','Required']] : [['demand','Required'],['gap','Imbalance']])
+              .map(([key,label])=><div key={key}><dt>{label}</dt><dd>{key==='gap' && active.report.gap!=null
+                ? decisionSigned(active.report.gap,format)+' h' : decisionValue(key,active.report[key],format)}</dd></div>)}</dl>
+            <button type="button" className="ds-drill-link" onClick={()=>detail(active)}>View details <AnalyticsIcon name="chevron" size={12}/></button>
+          </div>
+          <p className="ds-context">Hover or tap the map to preview a patch.</p>
+        </div> : <div className="ds-map-region-panel"><ul className="ds-region-map-values" aria-label="Regional figures">
+          {figures.map(figure => {
+            const {label} = appearance(figure);
+            return <li key={figure.code}><button type="button" aria-label={describe(figure,label)+'. View details'}
+              {...badge(figure)} {...previewEvents(figure)} onFocus={()=>setHoveredCode(figure.code)} onBlur={()=>setHoveredCode(null)}>
+              <span className="ds-region-swatch" aria-hidden="true">{figure.region ? figure.code : '—'}</span>
+              <span className="ds-region-name">{figure.name}{partial(figure) && <small>Partial</small>}</span>
+              <strong>{label}</strong><AnalyticsIcon name="chevron" size={12}/>
+            </button></li>;
+          })}
+        </ul>
+          <div className="ds-region-map-peek" aria-live="polite">
+            {active ? <><strong>{active.name}</strong><span>{appearance(active).label}</span></> :
+              <span>Hover to preview. Select for details.</span>}
+          </div>
+        </div>}
+      </div>
+      {plotted.length<figures.length && <p className="ds-context ds-map-unplaced">Locations without a map position are available in the list.</p>}
+      <div className="ds-region-map-legend" aria-label="Map legend">
+        {gap ? <><span><i data-tone="shortfall" data-strength="3"/>− Shortfall</span>
+          <span><i data-tone="neutral"/>0 Balanced</span><span><i data-tone="surplus" data-strength="3"/>+ Surplus</span></>
+          : <span><i className="ds-map-gradient"/>Lower to higher capacity</span>}
+        {figures.some(figure => figure.value==null) && <span><i data-tone="missing"/>Unavailable</span>}
+      </div>
+    </div> : <p className="ds-context ds-region-map-empty">No regional figures for the current filters.</p>}
+  </section>;
 }
 
 const decisionMeasures = [
@@ -332,6 +903,10 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
   const [expanded, setExpanded] = React.useState({});
   const [focusedPeriod, setFocusedPeriod] = React.useState('');
   const [metric, setMetric] = React.useState(null);
+  const [driverOpen,setDriverOpen] = React.useState(false);
+  const [outlookView, setOutlookView] = React.useState('map');
+  const [mapView, setMapView] = React.useState('regions');
+  const planPanel = React.useRef(null);
   const [filtersOpen, setFiltersOpen] = React.useState(true);
   const [shortfallsOnly, setShortfallsOnly] = React.useState(false);
   const model = React.useMemo(() => A.model(data, filter, assumptions, {}, true), [data, filter, assumptions]);
@@ -347,6 +922,8 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
     setMeasure('gap');
     setShowPlanValues(false);
     setFocusedPeriod('');
+    setOutlookView('map');
+    setDriverOpen(false);
     setShortfallsOnly(false);
     setMetric(null);
   }, [presentation]);
@@ -496,13 +1073,13 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
   const visiblePeriods = React.useMemo(()=>periodList.filter(period=>!focusedPeriod || period.key===focusedPeriod),
     [periodList,focusedPeriod]);
   const chart = React.useMemo(()=>{
-    if (imbalance) return [];
+    if (outlookView!=='trend') return [];
     const byPeriod = new Map(split(model.rows,interval));
     return periodList.map(period=>{
       const result = A.planningSummary(byPeriod.get(period.key) || [],level,assumptions);
-      return {...period,capacity:result.capacity,demand:result.demand};
+      return imbalance ? {...period,gap:result.gap} : {...period,capacity:result.capacity,demand:result.demand};
     });
-  },[A,imbalance,periodList,model,interval,level,assumptions]);
+  },[A,imbalance,outlookView,periodList,model,interval,level,assumptions]);
   const trend = view==='trend' ? visiblePeriods.map(period=>{
     const matches = row=>A.calendarPeriod(row.week,interval)===period.key;
     const report = summary(model.rows.filter(matches));
@@ -540,8 +1117,32 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
     (filter.start || filter.end) && [filter.start || 'First date',filter.end || 'Last date'].join(' → ')
   ].filter(Boolean).join(' · ');
   const periodTitle = focusedPeriod ? decisionPeriodLabel(focusedPeriod) : 'Planning horizon';
+  const driverLocation = selected('patch') ? filter.patch : selected('area') ? 'Area '+filter.area : selected('region')
+    ? (geoHierarchy?.regions?.[filter.region]?.name || 'Region '+filter.region) : 'All regions';
+  const driverScope = [bundle?.scenarioId,driverLocation,selected('skill') ? filter.skill : 'All skills',
+    focusedPeriod ? periodTitle : (filter.start || filter.end) && [filter.start || 'First date',filter.end || 'Last date'].join(' → ')
+      || periodTitle].filter(Boolean).join(' · ');
+  const outlookSwitch = <div className="ds-period-switch" role="group" aria-label={imbalance ? 'Imbalance outlook view' : 'Capacity outlook view'}>
+    {[['map','Map'],['trend','Trend']].map(([id,label]) => <button type="button" key={id}
+      aria-pressed={outlookView===id} onClick={()=>setOutlookView(id)}>{label}</button>)}
+    {imbalance && <button type="button" aria-haspopup="dialog" onClick={()=>setDriverOpen(true)}>Drivers</button>}
+  </div>;
+  const regionalMap = measure => <DecisionStudioRegionMap A={A} rows={rows} beforeRows={beforeRows} level={level}
+    assumptions={assumptions} measure={measure} format={format} onSelect={openMetric} view={mapView} onViewChange={setMapView}
+    trend={outlookView==='trend' && <DecisionStudioOutlookTrend Trend={V.Trend} chart={chart} imbalance={imbalance}
+      periodSwitch={periodSwitch('Outlook period')} periodLabel={interval} focusedPeriod={focusedPeriod} setFocusedPeriod={setFocusedPeriod}/>}
+    tools={outlookSwitch}/>;
+  const imbalanceSummary = <div className="ds-imbalance-summary">
+    <button type="button" onClick={()=>openMetric('gap',totals,periodTitle,beforeRows && summary(beforeRows))}>
+      <span>Net position</span><strong data-tone={totals.gap<0?'shortfall':totals.gap>0?'positive':undefined}>{gapLabel(totals.gap)}</strong><AnalyticsIcon name="chevron" size={12}/>
+    </button>
+    <button type="button" onClick={()=>openMetric('shortage',totals,periodTitle,beforeRows && summary(beforeRows))}>
+      <span>Gross shortfall</span><strong>{decisionValue('shortage',totals.grossShortfall,format)}</strong><AnalyticsIcon name="chevron" size={12}/>
+    </button>
+  </div>;
   const priorityList = <section className="ds-panel ds-priorities" aria-label="Where cover is needed">
     <h2><span className="ds-chart-icon"><AnalyticsIcon name="alert" size={15}/></span>Where cover is needed</h2>
+    {imbalance && rows.length>0 && imbalanceSummary}
     {priorities.length ? <>
       <p className="ds-context">Largest weekly shortages by {priorityLevel} and skill</p>
       <ul>{priorities.map(group=>{
@@ -558,7 +1159,11 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
         </button></li>;
       })}</ul>
     </> : <p className="ds-context">{totals.comparable ? 'No shortage found in the assessed weeks.' : 'Available and required hours could not be compared for these weeks.'}</p>}
-    {!imbalance && <button type="button" className="ds-all-locations" onClick={onImbalance}>View imbalance by location <AnalyticsIcon name="chevron" size={14}/></button>}
+    {imbalance ? <button type="button" className="ds-all-locations" onClick={()=>{
+      setView('matrix');
+      planPanel.current?.scrollIntoView({block:'start'});
+    }}>Open imbalance matrix <AnalyticsIcon name="chevron" size={14}/></button> :
+      <button type="button" className="ds-all-locations" onClick={onImbalance}>View imbalance by location <AnalyticsIcon name="chevron" size={14}/></button>}
   </section>;
   const matrixPeriods = visiblePeriods;
   const showMatrixChange = !!beforeRows;
@@ -813,7 +1418,7 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
         </div>
       </div>
     </section>
-    {bundle && !busy && !imbalance && model.rows.length>0 && <>
+    {bundle && !busy && !imbalance && model.rows.length>0 &&
         <section className="ds-outlook-metrics" aria-label="Planning horizon totals">
           {[
             {
@@ -907,13 +1512,12 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
             );
           })}
         </section>
-        <div className="ds-outlook-grid">
-          <DecisionStudioDemandTrend Trend={V.Trend} chart={chart} periodSwitch={periodSwitch('Outlook period')}
-            periodLabel={interval} focusedPeriod={focusedPeriod} setFocusedPeriod={setFocusedPeriod}/>
-          {priorityList}
-        </div>
-    </>}
-    {bundle && !busy && <section className="ds-panel ds-plan-views">
+    }
+    {bundle && !busy && (imbalance || model.rows.length>0) && <div className={'ds-outlook-grid'+(imbalance?' ds-imbalance-grid':'')}>
+      {regionalMap(imbalance?'gap':'capacity')}
+      {priorityList}
+    </div>}
+    {bundle && !busy && <section className="ds-panel ds-plan-views" ref={planPanel}>
       <div className="ds-heading ds-plan-heading"><h2>{imbalance?'Capacity imbalance':'Capacity plan'}</h2>
         {data.issues.length>0 && <button type="button" className="ds-issues" onClick={onChecks}>Input completeness</button>}
         <div className="ds-period-switch" role="group" aria-label="Capacity plan view">
@@ -953,14 +1557,7 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
       {view==='matrix' && <>
         <p className="ds-context">{measureLabel} ({measureUnit}) by {placeKey} and period.</p>
         {measure==='fte' && matrixDrill==='breakdown' && <p className="ds-context">Skill and labour type show their contribution to the location’s average weekly FTE.</p>}
-        {measure==='gap' && rows.length>0 && (!showMatrixChange || showPlanValues) && <div className="ds-imbalance-summary">
-          <button type="button" onClick={()=>openMetric('gap',totals,periodTitle,beforeRows && summary(beforeRows))}>
-            Net position <strong data-tone={totals.gap>0?'positive':undefined}>{gapLabel(totals.gap)}</strong><AnalyticsIcon name="chevron" size={12}/>
-          </button>
-          <button type="button" onClick={()=>openMetric('shortage',totals,periodTitle,beforeRows && summary(beforeRows))}>
-            Gross shortfall <strong>{decisionValue('shortage',totals.grossShortfall,format)}</strong><AnalyticsIcon name="chevron" size={12}/>
-          </button>
-        </div>}
+        {!imbalance && measure==='gap' && rows.length>0 && (!showMatrixChange || showPlanValues) && imbalanceSummary}
         <div className="ds-gap-key">{measure==='gap' && !showMatrixChange && <><span><b>−</b> Shortfall</span><span><b>+</b> Surplus</span>
           <span><AnalyticsIcon name="alert" size={12}/> Gross shortfall</span></>}
           {showMatrixChange && <span>{measure==='gap'?'Δ Change in matched groups':'Δ Selected plan minus baseline'}</span>}
@@ -1007,7 +1604,8 @@ function DecisionStudioOverview({A, V, data, bundle, scenarios, scenarioId, setS
       {comparisonEnabled && baselineId!==scenarioId && !baseline && <p className="ds-context">Baseline unavailable. Showing the selected plan.</p>}
       {view==='table' && beforeRows && <p className="ds-context">Gap change compares matching assessed groups. Direction is selected plan minus baseline.</p>}
     </section>}
-    {bundle && !busy && imbalance && model.rows.length>0 && priorityList}
+    {imbalance && driverOpen && <DecisionStudioDriversDrawer A={A} V={V} report={totals} assumptions={assumptions}
+      format={format} bundle={bundle} scope={driverScope} gapLabel={gapLabel} onClose={()=>setDriverOpen(false)}/>}
     {metric && (metric.detail ? <DecisionStudioBreakdownEvidence key={metric.title} A={A} V={V} metric={metric} format={format}
       bundle={bundle} baseline={baseline} assumptions={assumptions} onClose={()=>setMetric(null)}/>
       : <DecisionStudioEvidence key={metric.key+metric.title} A={A} geographyChanges={geographyChanges} metric={metric} format={format} gapLabel={gapLabel}
@@ -1154,7 +1752,7 @@ function DecisionStudioResponse({groups, focused, level, format, gapLabel, onSim
   </section>;
 }
 
-function DecisionStudioBreakdownEvidence({A,V,metric,format,bundle,baseline,assumptions,onClose}) {
+function DecisionStudioBreakdownEvidence({A,V,metric,format,bundle,baseline,assumptions,onClose,embedded=false}) {
   const [side,setSide] = React.useState('plan');
   const [selectedWeek,setSelectedWeek] = React.useState('');
   const {key,title,detail,before} = metric;
@@ -1188,8 +1786,7 @@ function DecisionStudioBreakdownEvidence({A,V,metric,format,bundle,baseline,assu
     });
   }
   const change = decisionChange(key,detail.value,format);
-  return <AnalyticsDrawer title={label+' breakdown'} subtitle={title} eyebrow="Decision Studio" panelClassName="ds-planning-drawer"
-    onClose={onClose}>
+  const contents = <>
     <section className="ds-drill-hero" data-measure={key}>
       <p className="ds-drill-scope">{bundle?.scenarioId}{before && ' vs '+baseline?.scenarioId}</p>
       <strong className="ds-drill-result">{before ? change : decisionValue(key,detail.planValue,format)}</strong>
@@ -1221,7 +1818,9 @@ function DecisionStudioBreakdownEvidence({A,V,metric,format,bundle,baseline,assu
       {!groups.size && <p className="ds-context">{detail.title.endsWith('Other modeled adjustments')
         ? 'This figure reconciles modeled capacity with its source components.' : 'No source records for this breakdown in the selected plan.'}</p>}
     </div>
-  </AnalyticsDrawer>;
+  </>;
+  return embedded ? contents : <AnalyticsDrawer title={label+' breakdown'} subtitle={title} eyebrow="Decision Studio"
+    panelClassName="ds-planning-drawer" onClose={onClose}>{contents}</AnalyticsDrawer>;
 }
 
 function DecisionStudioMetricTimeline({A,V,report,before,measure,assumptions,geographyChanges,format,onSelect}) {

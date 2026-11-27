@@ -38,6 +38,8 @@
     actionLabel,
     tools,
     plotWidth,
+    plotHeight,
+    embedded = false,
     onClearSelection,
     onSelect
   }) {
@@ -45,7 +47,7 @@
       [hover, setHover] = React.useState(null);
     const shown = series.filter(s => !hidden.includes(s.key));
     const W = plotWidth || 900,
-      H = tools ? 164 : 276,
+      H = plotHeight || (tools ? 164 : 276),
       L = 62,
       R = 18,
       T = 18,
@@ -88,7 +90,9 @@
         onSelect?.(row);
       }
     };
-    return <section className="analytics-panel av-chart bg-white dark:bg-[#0c1b31] p-4 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card space-y-3"><ChartHeading title={title} subtitle={subtitle} tools={tools} badge={onSelect ? actionLabel || 'Click a week to drill down' : unit} />
+    return <section className={embedded ? 'av-chart ds-outlook-trend-chart' : 'analytics-panel av-chart bg-white dark:bg-[#0c1b31] p-4 rounded-xl border border-slate-200/80 dark:border-[#18365d] shadow-xs glow-card space-y-3'}>
+      {embedded ? tools && <div className="ds-outlook-trend-periods">{tools}</div> :
+        <ChartHeading title={title} subtitle={subtitle} tools={tools} badge={onSelect ? actionLabel || 'Click a week to drill down' : unit} />}
       {!data.length ? <div className="av-empty">No observations in this scope. Reset filters or inspect source coverage.</div> : <>
       <div className="av-legend">{series.map((s, i) => <button key={s.key} aria-pressed={!hidden.includes(s.key)} onClick={() => setHidden(old => old.includes(s.key) ? old.filter(k => k !== s.key) : [...old, s.key])} style={{
             opacity: hidden.includes(s.key) ? 0.4 : 1
